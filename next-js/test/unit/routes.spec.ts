@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { routesManifestSchema } from "@/lib/schemas";
-import { findRoute, langForPath, normalizePath, resolveRoute } from "@/lib/routes";
+import { findRoute, langForPath, normalizePath, payloadSlug, resolveRoute } from "@/lib/routes";
 import { createMock } from "../mock/api.mjs";
 
 /* Ported unchanged from nuxt-js/test/unit/routes.spec.ts (openspec
@@ -98,5 +98,16 @@ describe("resolveRoute", () => {
       kind: "posts_index",
       category: "labor",
     });
+  });
+});
+
+describe("payloadSlug", () => {
+  it("extracts the REST path segment from the payload key", () => {
+    const about = findRoute(manifest, "/about/")!;
+    expect(payloadSlug(about)).toBe("about");
+    expect(payloadSlug(findRoute(manifest, "/blog/contract-test-post/")!)).toBe(
+      "contract-test-post",
+    );
+    expect(payloadSlug({ ...about, payloadKey: "page:en:legal:terms" })).toBe("legal:terms");
   });
 });

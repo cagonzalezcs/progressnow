@@ -48,9 +48,11 @@ export function createLogger({
   };
 }
 
+// console.* keeps the module Edge-compatible (instrumentation.ts is compiled for both runtimes).
 function defaultSink(line: string, level: Level) {
-  if (level === "info") process.stdout.write(`${line}\n`);
-  else process.stderr.write(`${line}\n`);
+  if (level === "info") console.log(line);
+  else if (level === "warn") console.warn(line);
+  else console.error(line);
 }
 
 export const logger: Logger = createLogger();

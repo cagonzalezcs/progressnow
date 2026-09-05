@@ -61,13 +61,10 @@ jobs:
       - run: npm run test:unit
       # Build once with the same env Playwright uses, then reuse it for both
       # Playwright projects (PW_SKIP_BUILD) so e2e and a11y test one artifact.
-      - name: Build (mock API env)
-        run: npm run build
-        env:
-          MOCK_API: "1"
-          WP_API_BASE: http://127.0.0.1:8787/wp-json/progressnow/v1
-          NEXT_PUBLIC_SITE_ORIGIN: http://127.0.0.1:3100
-          CHAPTER_REBUILD_SECRET: playwright-test-secret
+      # generateStaticParams reads the routes manifest at build time, so the
+      # build runs against the fixture mock (started and stopped by the script).
+      - name: Build (mock API)
+        run: npm run build:mock
       - run: npm run budget
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium

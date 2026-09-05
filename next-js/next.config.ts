@@ -1,3 +1,4 @@
+import { execSync } from "node:child_process";
 import type { NextConfig } from "next";
 
 /* Headless Next.js frontend for the Progress Now theme (openspec design
@@ -24,6 +25,20 @@ const imageHosts = (process.env.IMAGE_HOSTS ?? (wpOrigin ? new URL(wpOrigin).hos
   .map((h) => h.trim())
   .filter(Boolean);
 
+/** Build identity for /api/health, logs and the cache key: CI passes
+ * NEXT_PUBLIC_BUILD_ID; locally the git sha; otherwise a timestamp. */
+function resolveBuildId(): string {
+  if (process.env.NEXT_PUBLIC_BUILD_ID) return process.env.NEXT_PUBLIC_BUILD_ID;
+  try {
+    return execSync("git rev-parse --short HEAD", { stdio: ["ignore", "pipe", "ignore"] })
+      .toString()
+      .trim();
+  } catch {
+    return `local-${Date.now().toString(36)}`;
+  }
+}
+const buildId = resolveBuildId();
+
 /** The theme's static root (fonts, brand placeholders). Served same-origin
  * through a rewrite so `@font-face` never crosses origins (design D4). */
 export const THEME_STATIC = "/wp-content/themes/progressnow/static";
@@ -32,6 +47,8 @@ const nextConfig: NextConfig = {
   // Portable deployment: Vercel, a container, or a VPS (design D11).
   output: "standalone",
   poweredByHeader: false,
+  generateBuildId: () => buildId,
+  env: { NEXT_PUBLIC_BUILD_ID: buildId },
   // WordPress permalinks end with a slash; canonical paths must match byte for byte (design D3).
   trailingSlash: true,
   // Cache Components: `'use cache'` + cacheTag/cacheLife, PPR for searchParams fragments (design D1).

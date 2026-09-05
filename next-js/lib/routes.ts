@@ -135,3 +135,8 @@ export function resolveRoute(
 
   return { ...base, kind: route.kind, route, lang: route.lang };
 }
+
+/** `page:en:about` → `about`; `post:es:slug` → `slug` (the REST path segment for the route's payload). */
+export function payloadSlug(route: Route): string {
+  return route.payloadKey.split(":").slice(2).join(":");
+}
