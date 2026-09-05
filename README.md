@@ -4,6 +4,8 @@ A chapter-neutral organizing-site kit for a **Progress Now** chapter: a WordPres
 
 Bilingual (EN at `/`, ES at `/es/…`), accessible (WCAG 2.2 AA target, built-in text-size / high-contrast / reduced-motion controls), no analytics, no third-party trackers.
 
+> **⚠️ This codebase was written almost entirely by AI.** Every line was produced with [Claude Code](https://claude.com/claude-code) using Claude Fable 5.1 and Claude Opus 5, prompted and reviewed by one person. It is a vibe-coded app. Assume hallucinations exist: APIs that don't quite exist, tests that assert the wrong thing, docs that describe code that was never written, security assumptions nobody checked. Read the [Contributing](#contributing) section before you trust it, and open a PR when you find something. Human or AI-authored fixes are equally welcome.
+
 > This repository is a fresh start. The code was developed 2026-05 → 2026-09 as a single-chapter site, then renamed, made chapter-neutral and re-platformed onto Nuxt 4. The design and decision history lives in `openspec/` (see [History](#history)); the original git history is not carried over.
 
 ---
@@ -24,6 +26,7 @@ Bilingual (EN at `/`, ES at `/es/…`), accessible (WCAG 2.2 AA target, built-in
 - [OpenSpec workflow](#openspec-workflow)
 - [History](#history)
 - [Roadmap](#roadmap)
+- [Contributing](#contributing)
 - [License](#license)
 
 ---
@@ -328,6 +331,27 @@ Open changes in `openspec/changes/` (task counts at time of writing):
 | `security-remove-duplicator-and-purge-artifacts` | 0/16 | Superseded by `open-source-release-readiness` |
 
 Known items carried over from the theme README: Spanish home resolves at `/es/inicio/` (Polylang 301 from `/es/`); event teaser dates render in English (`wp_date()` switch pending); CI (`.github/workflows/ci.yml`) runs the theme and site lint/typecheck/test jobs plus a mock `generate` + `verify:output` smoke build.
+
+## Contributing
+
+**Honest status of this repo.** This was created completely using Claude Code (Fable 5.1 and Opus 5). No line of PHP, Twig, Vue, TypeScript, Terraform or YAML here was hand-typed by a developer. A single person described what they wanted, read the output as carefully as time allowed, and merged it. That person is not a full-time engineer on this project and did not verify every branch of every file.
+
+What that means in practice:
+
+- **Hallucinations are likely.** WordPress hooks, Polylang / ACF functions, Nuxt options and Terraform arguments may be subtly wrong or entirely invented. If something looks off, it probably is.
+- **The tests prove less than they appear to.** Fixtures, zod schemas and PHPUnit cases were also AI-written. A green CI run means the AI agreed with itself, not that the behavior is correct.
+- **The docs are aspirational.** This README, the theme README and everything in `openspec/` describe intent. Where the docs and the code disagree, trust neither until you've run it.
+- **Security has not been audited.** Several open `security-*` changes in the [Roadmap](#roadmap) exist precisely because nobody has done the pass yet.
+
+**Maintainer.** [Cesar Gonzalez](https://github.com/cagonzalezcs) (`@cagonzalezcs`) is the sole maintainer. Reviews happen when there's time, which is not always soon. There is no SLA.
+
+**Contributions are open.** Always, for now. Send a PR for anything: a one-character typo, a hallucinated function, a missing null check, a rewrite of a whole module. It does not matter whether a human wrote the patch or an AI did, as long as you ran it and can say what it changes. Please:
+
+1. Say in the PR description whether the change was human-written, AI-written or mixed. Nobody will judge; it just tells the reviewer where to look harder.
+2. Include how you verified it (command you ran, page you loaded, test you added).
+3. Keep unrelated changes in separate PRs so a partial review can still merge something.
+
+**Add yourself to `humans.txt`.** Every site built from this repo ships [`wp-content/themes/progressnow/humans.txt`](wp-content/themes/progressnow/humans.txt). If you contribute, add your name and a link (GitHub, LinkedIn, personal site, whatever you like) under **Team** in the same PR. Being listed there is the only credit this project can offer, so take it.
 
 ## License
 
