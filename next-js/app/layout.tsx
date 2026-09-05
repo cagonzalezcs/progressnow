@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./route-loading.css";
 import { RootDocument } from "@/components/layout/RootDocument";
 import { SiteShell } from "@/components/layout/SiteShell";
 import { getRoutes, getSite } from "@/lib/data";
