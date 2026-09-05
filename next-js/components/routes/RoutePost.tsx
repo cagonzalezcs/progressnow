@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
 import type { RouteProps } from "@/components/routes/types";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { SinglePost, type SinglePostLabels } from "@/components/site/blog/SinglePost";
 import { getPost, getRoutes, getSite } from "@/lib/data";
 import { getEnv } from "@/lib/env";
+import { articleNode, canonicalOrigin } from "@/lib/json-ld";
 import { frontRoute, payloadSlug } from "@/lib/routes";
 import type { RoutesManifest, SiteEnvelope } from "@/lib/schemas";
 
@@ -17,19 +19,28 @@ export async function RoutePost({ resolved }: RouteProps) {
   ]);
   if (!post) notFound();
   const paths = postPaths(manifest, resolved.lang);
+  const env = getEnv();
+  const origins = {
+    canonicalOrigin: canonicalOrigin(post.seo, env.NEXT_PUBLIC_SITE_ORIGIN),
+    siteOrigin: env.NEXT_PUBLIC_SITE_ORIGIN,
+    wpOrigin: env.WP_ORIGIN,
+  };
   return (
-    <SinglePost
-      post={post}
-      posts={post.readNext}
-      categories={site.categories}
-      showMetaRail={post.showMetaRail}
-      blogUrl={paths.blog}
-      homeUrl={paths.home}
-      calendarUrl={paths.calendar}
-      joinUrl={site.chapter.join_url || ""}
-      labels={postLabels(site)}
-      wpOrigin={getEnv().WP_ORIGIN}
-    />
+    <>
+      <JsonLd id="ld-article" nodes={[articleNode(post, origins)]} />
+      <SinglePost
+        post={post}
+        posts={post.readNext}
+        categories={site.categories}
+        showMetaRail={post.showMetaRail}
+        blogUrl={paths.blog}
+        homeUrl={paths.home}
+        calendarUrl={paths.calendar}
+        joinUrl={site.chapter.join_url || ""}
+        labels={postLabels(site)}
+        wpOrigin={env.WP_ORIGIN}
+      />
+    </>
   );
 }
 

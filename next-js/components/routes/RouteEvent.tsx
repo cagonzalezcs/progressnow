@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
 import type { RouteProps } from "@/components/routes/types";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { SingleEvent, type SingleEventLabels } from "@/components/site/SingleEvent";
 import { getEvent, getSite } from "@/lib/data";
 import { getEnv } from "@/lib/env";
+import { canonicalOrigin, eventNode } from "@/lib/json-ld";
 import { payloadSlug } from "@/lib/routes";
 import type { SiteEnvelope } from "@/lib/schemas";
 
@@ -15,17 +17,26 @@ export async function RouteEvent({ resolved }: RouteProps) {
     getSite(resolved.lang),
   ]);
   if (!envelope) notFound();
+  const env = getEnv();
+  const origins = {
+    canonicalOrigin: canonicalOrigin(envelope.seo, env.NEXT_PUBLIC_SITE_ORIGIN),
+    siteOrigin: env.NEXT_PUBLIC_SITE_ORIGIN,
+    wpOrigin: env.WP_ORIGIN,
+  };
   return (
-    <SingleEvent
-      event={envelope.event}
-      categories={envelope.categories.length ? envelope.categories : site.categories}
-      related={envelope.related}
-      showRelated={envelope.showRelated}
-      homeUrl={envelope.homeUrl}
-      calendarUrl={envelope.calendarUrl}
-      labels={eventLabels(site)}
-      wpOrigin={getEnv().WP_ORIGIN}
-    />
+    <>
+      <JsonLd id="ld-event" nodes={[eventNode(envelope, origins)]} />
+      <SingleEvent
+        event={envelope.event}
+        categories={envelope.categories.length ? envelope.categories : site.categories}
+        related={envelope.related}
+        showRelated={envelope.showRelated}
+        homeUrl={envelope.homeUrl}
+        calendarUrl={envelope.calendarUrl}
+        labels={eventLabels(site)}
+        wpOrigin={env.WP_ORIGIN}
+      />
+    </>
   );
 }
 
