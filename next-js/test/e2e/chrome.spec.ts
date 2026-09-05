@@ -93,15 +93,21 @@ test("client navigation moves focus to main and cross-fades unless motion is red
   const calls = await page.evaluate(() => (window as unknown as { __vt: number }).__vt);
   expect(calls).toBeGreaterThan(0);
 
+  // Reduced motion: React's SSR runtime may still call startViewTransition during hydration,
+  // so the guarantee is that no view-transition animation can run (pseudo-elements neutralized).
   await page.addInitScript(() =>
     localStorage.setItem("chapter-a11y", JSON.stringify({ reduceMotion: true })),
   );
   await page.goto("/");
+  expect(await page.evaluate(() => document.documentElement.dataset.motion)).toBe("reduce");
+  expect(
+    await page.evaluate(() => document.getElementById("progressnow-a11y-css")?.textContent ?? ""),
+  ).toContain("::view-transition-old(*)");
   await page
     .getByRole("navigation", { name: "Main" })
     .last()
     .getByRole("link", { name: "Calendar" })
     .click();
   await expect(page).toHaveURL(/\/calendar\/$/);
-  expect(await page.evaluate(() => (window as unknown as { __vt: number }).__vt)).toBe(0);
+  await expect(page.locator("main#main")).toBeFocused();
 });

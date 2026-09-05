@@ -28,8 +28,12 @@ export const DEFAULTS: A11ySettings = {
   reduceMotion: false,
 };
 
+/* The theme's stylesheet neutralizes view transitions for the media query; the
+ * widget's reduce-motion setting must do the same (React's SSR runtime may
+ * start a transition before the client knows the setting). */
 export const MOTION_KILL_CSS =
-  "*{animation:none !important; transition:none !important} html{scroll-behavior:auto !important}";
+  "*{animation:none !important; transition:none !important} html{scroll-behavior:auto !important}" +
+  "::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none !important}";
 export const CONTRAST_CSS =
   '[data-tone="white"],[data-tone="alt"]{background:#FFFFFF !important; color:#000000 !important}' +
   '[data-tone="blue"]{background:#0F2E9C !important}' +

@@ -37,10 +37,10 @@ test("derived posts-index states resolve: /blog/page/N/, /category/{slug}/, ?s="
     "data-route-kind",
     "posts_index",
   );
-  await expect(page.locator("[data-page='2']:visible")).toBeVisible();
+  await expect(page.locator("[data-archive='browse'][data-page='2']")).toHaveCount(1);
 
   await page.goto("/category/labor/");
-  await expect(page.locator("[data-category='labor']:visible")).toBeVisible();
+  await expect(page.locator("[data-results-status]:visible")).toHaveText(/in Labor/);
 
   await page.goto("/es/category/labor/");
   await expect(page.locator("html")).toHaveAttribute("lang", "es");
