@@ -81,3 +81,6 @@ wp-config.php
 # Secrets
 .env
 /nuxt-js/dist
+
+# Frontend
+/node_modules/
