@@ -233,6 +233,8 @@
         "cal_crumb_calendar": "Calendar",
         "cal_month": "Month",
         "cal_list": "List",
+        "cal_filter": "Filter:",
+        "cal_all_events": "All events",
         "cal_empty_h": "Nothing scheduled this month",
         "cal_empty_p": "Check the next month or subscribe below and never miss one.",
         "cal_subscribe_h": "Subscribe to the calendar",
