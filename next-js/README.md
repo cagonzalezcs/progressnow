@@ -12,7 +12,7 @@ origin and re-renders when WordPress posts its signed rebuild webhook. Design:
 | `npm run dev`                                    | http://localhost:3000 against the WordPress in `.env.local` (copy `.env.example`)                                        |
 | `npm run dev:mock`                               | http://localhost:3001 against the fixture-backed mock API — no WordPress needed                                          |
 | `npm run build:mock && npm run start:standalone` | the production build (standalone server) on http://127.0.0.1:3000, mock API                                              |
-| `npm run build`                                  | production build against `.env.local`'s WordPress (`generateStaticParams` reads `/routes`, so the API must be reachable) |
+| `npm run build`                                  | production build against `.env.local`'s WordPress (routes render per request; the build itself needs no API)             |
 
 Routes: `/`, `/blog/`, `/blog/<slug>/`, `/calendar/`, `/events/<slug>/`, `/about/`,
 `/get-involved/`, `/es/…` — the design system + shadcn/ui kitchen sink is at
@@ -29,6 +29,8 @@ Node reads it at process start, so `.env.local` is too late. Never
 npm run lint && npm run typecheck && npm run test:unit
 npm run build:mock
 npm run test:e2e && npm run test:a11y         # Playwright against the standalone build + mock (PW_SKIP_BUILD=1 to reuse a build);
+npm run test:failure                          # serial: flips the mock into upstream failure → 500 surface + recovery
+npm run parity                                # Nuxt (nuxt-js/.output/public) vs Next screenshots → test-results/parity/index.html
                                               # test:e2e includes the front-page first-load JS budget (budget.json)
 ```
 

@@ -59,7 +59,7 @@
 - [x] 6.6 Calendar (`RouteCalendar`, `EventCalendar`, `MonthGrid`, `EventListView`, `EventCard`, `EventDetailDialog`): server-rendered events window as props, month nav + `aria-live` heading, `?view=list` toggle with `aria-pressed`, arrow-key grid, dialog focus trap/restore/Escape, out-of-window months via `/api/events` with `role=status` loading, `cal_empty_*` state, subscribe strip (ICS link-out absolute to WP, Google link); tests from `page-calendar.json` + `chapter-event.json`
 - [x] 6.7 Single event (`RouteEvent`, `SingleEvent`, `EventBlocks`, contact, related "more upcoming"): metadata; tests from `single-event.json`
 - [x] 6.8 404 and error: `not-found.tsx` twin of `404.twig` using `nf_*` strings; `error.tsx` surface with retry; e2e: unknown path → 404 status + copy in both languages; `/__mock/fail` → 500 surface on a cold route, structured log line emitted
-- [ ] 6.9 Parity pass: side-by-side screenshots of every route kind in `en`/`es` (Nuxt `generate:mock` preview vs Next) as review artifacts; fix gaps; promote `best-practice` axe rules to errors; full `test:a11y` matrix (route × lang × 4 modes × interactive states) green
+- [x] 6.9 Parity pass: side-by-side screenshots of every route kind in `en`/`es` (Nuxt `generate:mock` preview vs Next) as review artifacts; fix gaps; promote `best-practice` axe rules to errors; full `test:a11y` matrix (route × lang × 4 modes × interactive states) green
 
 ## 7. SEO, sitemap, and the PHP canonical origin
 
