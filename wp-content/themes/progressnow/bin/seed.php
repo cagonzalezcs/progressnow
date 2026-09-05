@@ -175,8 +175,8 @@ foreach ( $progressnow_seed_events as $ev ) {
 
 $progressnow_seed_enriched = array(
 	// In-person — exercises the Location row, map block, and every rail row.
-	'Night School: Organizing 101' => array(
-		'event_summary' => 'Kick off our summer night school with a plain-language intro to organizing — no reading, no jargon, just your questions and ours.',
+	'Workshop: Introduction Session' => array(
+		'event_summary' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.',
 		'doors_time'    => '6:30 PM',
 		'location_type' => 'in-person',
 		'cost'          => 'Free · open to the public',
