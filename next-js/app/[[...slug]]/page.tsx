@@ -19,7 +19,10 @@ import { langForPath, resolveRoute } from "@/lib/routes";
  * matching route component. Routes render per request from the cached data
  * layer (design D11): new content resolves on its first request, and the
  * build needs no API. `searchParams` are only read inside the route components
- * that need them (front, posts index), inside their own Suspense fragments. */
+ * that need them (front, posts index), inside their own Suspense fragments.
+ * `params` is awaited outside Suspense, so the route is blocking, as the root
+ * layout already is (it renders per request too). */
+export const instant = false;
 
 const ROUTES = {
   front: RouteFront,
