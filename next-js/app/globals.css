@@ -1,0 +1,537 @@
+/*
+ * Expanded form of `@import "tailwindcss"`, with utilities left UNLAYERED
+ * (a holdover from the deleted legacy SCSS tree; safe to collapse back to
+ * the one-line import).
+ */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@import "tailwindcss/utilities.css";
+@import "tw-animate-css";
+
+/* ---------------------------------------------------------------------------
+ * Self-hosted brand faces (Progress Now v4 — openspec progress-now-v4-foundation-chrome D2).
+ * No external font requests. Bowlby One ships 400 only, Public Sans is one
+ * variable file (wght 100–900, declared 400–800 — the weights the system
+ * uses), so `body` sets `font-synthesis: none`: heavier utilities on Bowlby
+ * render the real face rather than a faux-bold, and Public Sans always renders
+ * a real instance from the axis.
+ * ------------------------------------------------------------------------ */
+@font-face {
+  font-family: "Bowlby One";
+  src: url("/wp-content/themes/progressnow/static/fonts/bowlby-one/BowlbyOne-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Public Sans";
+  src: url("/wp-content/themes/progressnow/static/fonts/public-sans/PublicSans[wght].woff2") format("woff2");
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Special Season Brush";
+  src: url("/wp-content/themes/progressnow/static/fonts/special-season/SpecialSeason-Brush.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+
+/* ---------------------------------------------------------------------------
+ * shadcn semantic variables — v4 mapping (design D1)
+ * ------------------------------------------------------------------------ */
+:root {
+  --background: #ffffff; /* page ground — mirrored inline in views/html-header.twig (critical bg — keep in sync) */
+  --foreground: #1b1b22;
+  --card: #ffffff;
+  --card-foreground: #1b1b22;
+  --popover: #ffffff;
+  --popover-foreground: #1b1b22;
+  --primary: #1848d8;
+  --primary-foreground: #ffffff;
+  --secondary: #1b1b22;
+  --secondary-foreground: #ffffff;
+  --muted: #f2f5fb;
+  --muted-foreground: #4a5568;
+  --accent: #0e62e6;
+  --accent-foreground: #ffffff;
+  --destructive: #b3261e;
+  --destructive-foreground: #ffffff;
+  --border: #c6cfe4;
+  --input: #c6cfe4;
+  --ring: #1b1b22; /* ink — focus indicator color (WCAG 2.4.7); white on blue/ink bands, see @layer base */
+  --radius: 4px;
+}
+
+@theme inline {
+  /* semantic (consumed by shadcn/ui components) */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* shadcn radius scale off --radius 4px; brand pills stay 999px and cards set
+     their own 14–24px radii explicitly */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+}
+
+@theme {
+  /* --- Brand palette — v4 values on ROLE-named tokens (design D1). Every page
+     reads these; there is no per-generation namespace. Plain @theme (not
+     inline) so utilities compile to var() references and the high-contrast
+     re-declarations below reach every consumer. --- */
+  --color-brand: #1848d8; /* bands (header, hero, CTA), pills, chips, duotone multiply — white on brand 7.1:1 */
+  --color-brand-deep: #0f2e9c; /* hover/invert fill, headline offset shadow; the high-contrast swap value */
+  --color-accent: #0e62e6; /* links, eyebrows, arrow links, filled buttons — 5.4:1 on white, 4.9:1 on alt */
+  --color-brand-light: #a9c7ff; /* light band, dashed borders, stars, footer link hover — never text on it (white 1.7:1) */
+  --color-alt: #f2f5fb; /* alternate band background (events, sidebars) */
+  --color-ink: #1b1b22; /* body text, dark bands (footer) */
+  --color-yellow: #ffc800; /* wordmark diamond, CTA panel dashed border, communities-strip stars */
+  --color-muted: #4a5568; /* muted text on white/alt — 7.5:1 */
+  --color-muted-on-ink: #c3cbe2; /* muted text on ink bands — 10.6:1 */
+  --color-text-body: #3a3f4e; /* long-form prose */
+  --color-line: #d9e1f2; /* 1px hairlines on white/alt */
+  --color-control: #c6cfe4; /* inputs, inactive chips, popover borders */
+  --color-control-faint: #e3e8f4; /* inner dividers, striped placeholders */
+  --color-border-muted: #9da9c4; /* dashed empty-state / note borders */
+  --color-cta-card: #3e4480; /* CTA panel card fill (matches cta-panel.svg) */
+  --color-ink-hairline: #33333e; /* 1px hairline on ink bands */
+
+  /* event category colors (match 03-DESIGN-SPEC.md; term meta is runtime source) */
+  --color-cat-chapter: #b01b22;
+  --color-cat-poled: #33518f;
+  --color-cat-mutual: #1b6b40;
+  --color-cat-labor: #8f5715;
+  --color-cat-electoral: #6e3b87;
+  --color-cat-social: #0a6b74;
+
+  /* type (D2) */
+  --font-display: "Bowlby One", "Public Sans", sans-serif; /* headings, page titles, nav, pills, month label */
+  --font-sans: "Public Sans", system-ui, sans-serif; /* body: 500 default, 600 ledes, 700 titles/emphasis, 800 eyebrows */
+  --font-brush: "Special Season Brush", cursive; /* CTA brush line — caps via CSS */
+
+  /* soft blurred shadows (ink-tinted) */
+  --shadow-card: 0 2px 10px rgba(27, 27, 34, 0.1);
+  --shadow-card-hover: 0 12px 30px rgba(27, 27, 34, 0.16);
+  --shadow-card-hover-lg: 0 14px 34px rgba(27, 27, 34, 0.16);
+  --shadow-subtle: 0 1px 4px rgba(27, 27, 34, 0.07);
+  --shadow-header: 0 2px 14px rgba(27, 27, 34, 0.22);
+  --shadow-popover: 0 14px 36px rgba(27, 27, 34, 0.24);
+  --shadow-featured: 0 8px 28px rgba(27, 27, 34, 0.14);
+  --shadow-photo: 0 10px 30px rgba(27, 27, 34, 0.12);
+  --shadow-media: 0 8px 26px rgba(27, 27, 34, 0.14);
+  --shadow-gallery: 0 4px 18px rgba(27, 27, 34, 0.12);
+  --shadow-modal: 0 24px 60px rgba(27, 27, 34, 0.32);
+}
+
+@layer base {
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-weight: 500; /* Public Sans 500 is the v4 body weight */
+    font-synthesis: none; /* Bowlby One is 400-only — never faux-bold it */
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection {
+    background: var(--color-brand);
+    color: #ffffff;
+  }
+  /* Global focus indicator — WCAG 2.4.7: 3px ink outline, 2px offset, 6px
+     rounding. --ring is ink. shadcn/reka components drive their own ring off
+     --color-ring (also ink), so native + hand-rolled controls get this outline
+     and the two stay consistent. */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 3px solid var(--color-ring);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  /* On the blue and ink bands the ink ring is invisible against the band.
+     Re-point it to white so native + shadcn focus indicators stay visible
+     (WCAG 2.4.11: white on ink ~16:1, on brand 7.1:1). Both tokens are
+     overridden: the native outline reads var(--color-ring) (resolved at :root,
+     so it must be re-declared on this scope) while shadcn/reka controls read
+     var(--ring) directly. */
+  [data-tone="blue"],
+  [data-tone="ink"] {
+    --ring: #ffffff;
+    --color-ring: #ffffff;
+  }
+  [data-tone="white"],
+  [data-tone="alt"] {
+    --ring: var(--color-ink);
+    --color-ring: var(--color-ink);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * High-contrast swaps (design D3): brand/accent → #0F2E9C, deep → #071B5E.
+ * useA11ySettings.ts toggles `html.a11y-contrast` alongside the per-band
+ * `[data-tone]` rules it injects; because the brand tokens are declared in a
+ * plain `@theme` block their utilities compile to var() references, so
+ * re-declaring the token here reaches every consumer (bands, chips, pills,
+ * outlines). Unlayered on purpose: must beat the `@theme`
+ * :root declaration.
+ * ------------------------------------------------------------------------- */
+html.a11y-contrast {
+  --color-brand: #0f2e9c;
+  --color-accent: #0f2e9c;
+  --primary: #0f2e9c;
+  --accent: #0f2e9c;
+  --color-brand-deep: #071b5e;
+}
+
+/* ---------------------------------------------------------------------------
+ * Photo slot — shared by DuotoneImage.vue and views/partials/duotone.twig,
+ * which emit the identical markup:
+ *   <span class="duotone …" style="--duotone-opacity: .38"><img …></span>
+ * Owner decision 2026-09-05: photos render in FULL COLOR — the v4 canvas's
+ * grayscale + brand-multiply treatment is retired. The wrapper (and the
+ * per-slot opacity variable the templates still pass) stays so both
+ * renderers keep pixel-equal markup; it only clips to the slot's radius now.
+ * ------------------------------------------------------------------------- */
+.duotone {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  --duotone-opacity: 0;
+}
+
+/* WP editor content on interior pages (unlayered so it beats legacy scss).
+   v4 recipe (openspec progress-now-v4-interior-404 D1): Bowlby h2/h3 without
+   a rule, `--color-text-body` prose, accent links, alt-band blockquotes with
+   the 6px brand rule — the same shapes the About/Get Involved templates use. */
+.prose-chapter {
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: var(--color-text-body);
+}
+@media (min-width: 1024px) {
+  .prose-chapter {
+    font-size: 1.12rem;
+  }
+}
+.prose-chapter > * + * {
+  margin-top: 1.25em;
+}
+.prose-chapter h2 {
+  margin-top: 1.75em;
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 2.6vw, 2.2rem);
+  font-weight: 400;
+  line-height: 1.1;
+  scroll-margin-top: calc(110px + var(--wp-admin--admin-bar--height, 0px));
+}
+.prose-chapter h3 {
+  margin-top: 1.5em;
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 400;
+  line-height: 1.2;
+}
+.prose-chapter a {
+  color: var(--color-accent); /* #0E62E6 — 5.4:1 on white */
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.prose-chapter a:hover {
+  color: var(--color-brand-deep);
+}
+.prose-chapter ul {
+  padding-left: 1.4em;
+  list-style: square;
+}
+.prose-chapter ol {
+  padding-left: 1.4em;
+  list-style: decimal;
+}
+.prose-chapter li + li {
+  margin-top: 0.5em;
+}
+.prose-chapter li::marker {
+  color: var(--color-brand);
+}
+.prose-chapter strong {
+  font-weight: 800;
+  color: var(--color-ink);
+}
+.prose-chapter blockquote {
+  margin: 1.5em 0;
+  padding: 20px 22px;
+  background: var(--color-alt);
+  border-left: 6px solid var(--color-brand);
+  border-radius: 20px;
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  line-height: 1.4;
+}
+.prose-chapter blockquote cite {
+  display: block;
+  margin-top: 10px;
+  font-family: var(--font-sans);
+  font-style: normal;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-brand);
+}
+.prose-chapter figure {
+  margin: 12px 0;
+}
+.prose-chapter figure img {
+  border-radius: 20px;
+}
+.prose-chapter figcaption {
+  margin-top: 12px;
+  font-size: 0.9rem;
+  color: var(--color-muted);
+}
+
+/* Blog post prose (openspec progress-now-v4-blog D4): 1.12rem/1.7 body, Bowlby
+   h2 clamp(1.4rem,2.4vw,1.9rem) with 18px lead, alt-band blockquote with the
+   6px brand rule and a Bowlby 1.25rem quote, muted figcaptions. Mobile drops
+   to 1rem body / 1.25rem h2 (Blog Post v4 Mobile artboard). */
+.prose-post {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--color-text-body);
+}
+.prose-post > * + * {
+  margin-top: 18px;
+}
+.prose-post h2 {
+  margin-top: 30px;
+  font-size: 1.25rem;
+  line-height: 1.25;
+  scroll-margin-top: calc(108px + var(--wp-admin--admin-bar--height, 0px));
+}
+.prose-post h3 {
+  margin-top: 24px;
+  font-size: 1.1rem;
+}
+.prose-post ul,
+.prose-post ol {
+  padding-left: 22px;
+}
+.prose-post li + li {
+  margin-top: 8px;
+}
+.prose-post blockquote {
+  margin: 6px 0;
+  padding: 20px 22px;
+  border-left-width: 5px;
+  border-radius: 16px;
+  font-size: 1.05rem;
+  line-height: 1.4;
+}
+.prose-post blockquote cite {
+  margin-top: 10px;
+  font-size: 0.88rem;
+}
+@media (min-width: 768px) {
+  .prose-post {
+    font-size: 1.12rem;
+  }
+  .prose-post > * + * {
+    margin-top: 24px;
+  }
+  .prose-post h2 {
+    margin-top: 42px;
+    font-size: clamp(1.4rem, 2.4vw, 1.9rem);
+    line-height: 1.15;
+  }
+  .prose-post h3 {
+    margin-top: 30px;
+    font-size: 1.2rem;
+  }
+  .prose-post ul,
+  .prose-post ol {
+    padding-left: 24px;
+  }
+  .prose-post li + li {
+    margin-top: 10px;
+  }
+  .prose-post blockquote {
+    margin: 8px 0;
+    padding: 26px 30px;
+    border-left-width: 6px;
+    border-radius: 20px;
+    font-size: 1.25rem;
+    line-height: 1.35;
+  }
+  .prose-post blockquote cite {
+    margin-top: 12px;
+    font-size: 0.95rem;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * View Transitions (client navigation — ts/navigation.ts)
+ *
+ * Only <main> animates; the sticky header/footer get their own named groups so
+ * they stay put (no cross-fade) while content swaps. All motion is gated behind
+ * prefers-reduced-motion (the JS also skips startViewTransition when reduced).
+ * ------------------------------------------------------------------------- */
+main#main {
+  view-transition-name: vt-main;
+}
+.site-header {
+  view-transition-name: vt-header;
+}
+.site-footer {
+  view-transition-name: vt-footer;
+}
+
+/* ---------------------------------------------------------------------------
+ * Home — hero headline (views/front-page.twig <h1> `.hero-headline`)
+ *
+ * The chapter headline is real text (translatable, editable in Chapter
+ * Settings) set in the display face with the v4 deep-blue offset shadow. A
+ * chapter that uploads headline artwork bypasses this rule entirely
+ * (inc/identity.php).
+ * ------------------------------------------------------------------------- */
+.hero-headline {
+  display: block;
+  margin: 0 auto;
+  max-width: 15ch;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2.2rem, 4.2vw, 3.4rem);
+  line-height: 1.08;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  text-wrap: balance;
+  color: #ffffff;
+  text-shadow: 0.09em 0.09em 0 var(--color-brand-deep);
+}
+@media (max-width: 699px) {
+  .hero-headline {
+    max-width: 14ch;
+    font-size: 2rem;
+    line-height: 1.12;
+  }
+}
+html.a11y-contrast .hero-headline {
+  text-shadow: 0.09em 0.09em 0 #000000;
+}
+
+/* Display-title offset shadow (page header h1, 404 numeral) — same deep-blue
+   offset as the hero headline, swapped to black under high contrast. */
+.headline-shadow {
+  text-shadow: 0.09em 0.09em 0 var(--color-brand-deep);
+}
+.headline-shadow-sm {
+  text-shadow: 0.06em 0.06em 0 var(--color-brand-deep);
+}
+html.a11y-contrast .headline-shadow,
+html.a11y-contrast .headline-shadow-sm {
+  text-shadow: 0.09em 0.09em 0 #000000;
+}
+
+/* ---------------------------------------------------------------------------
+ * Home — closing CTA flame band (views/front-page.twig `.cta-flames`)
+ *
+ * The light flame tile (flames-tile-light.png, 2816×384, seamless repeat-x) is
+ * painted as a CSS mask so its color is the brand-light token. The band's
+ * height is set by the template (110px mobile, clamp(120px,17vw,240px) from
+ * 700px — capped at the tile's native 1× height so it never upsamples);
+ * `auto 100%` keeps the tile's aspect, `top center` seats the tips.
+ * ------------------------------------------------------------------------- */
+.cta-flames {
+  background-color: var(--color-brand-light);
+  -webkit-mask: url("/wp-content/themes/progressnow/static/images/brand/flames-tile-light.png") top center / auto 100% repeat-x;
+  mask: url("/wp-content/themes/progressnow/static/images/brand/flames-tile-light.png") top center / auto 100% repeat-x;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-group(vt-main) {
+    animation-duration: 0.28s;
+  }
+  ::view-transition-old(vt-main) {
+    animation: vt-fade-out 0.16s ease both;
+  }
+  ::view-transition-new(vt-main) {
+    animation: vt-fade-in 0.28s ease both;
+  }
+
+  /* Shared-element morph: post card image → single-post hero (Phase 3).
+     No cross-fade so the image reads as one element moving/resizing. */
+  ::view-transition-old(post-hero),
+  ::view-transition-new(post-hero) {
+    animation: none;
+    mix-blend-mode: normal;
+    height: 100%;
+  }
+
+  @keyframes vt-fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+  @keyframes vt-fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * A11y text size × desktop header
+ *
+ * useA11ySettings sets html { font-size: 18px | 20px } and stamps
+ * html[data-text-size]. Media-query rem is fixed at 16px regardless, so the
+ * desktop header still switches on at 1280px while its rem-sized content has
+ * grown ~25% at A++ and overflows (wrapping the pill row under the logo) until
+ * ~1500px. Tighten header type in that band instead of wrapping: nav 17px,
+ * pill labels 16px (floor), gaps closed up. Lockup untouched.
+ * ------------------------------------------------------------------------- */
+@media (min-width: 80rem) and (max-width: 93.75rem) {
+  html[data-text-size="xl"] .site-header-desktop {
+    gap: 1rem;
+  }
+  html[data-text-size="xl"] .site-header-desktop nav {
+    gap: 0.25rem;
+  }
+  html[data-text-size="xl"] .site-header-desktop nav a,
+  html[data-text-size="xl"] .site-header-desktop nav button {
+    font-size: 17px;
+    padding-inline: 0.5rem;
+  }
+  html[data-text-size="xl"] .site-header-desktop > div:last-child {
+    gap: 0.5rem;
+  }
+  html[data-text-size="xl"] .site-header-desktop > div:last-child a,
+  html[data-text-size="xl"] .site-header-desktop > div:last-child button {
+    font-size: 16px;
+  }
+}

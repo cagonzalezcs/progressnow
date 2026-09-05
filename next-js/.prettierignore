@@ -1,0 +1,8 @@
+.next/
+node_modules/
+components/ui/
+test-results/
+playwright-report/
+lib/schemas.ts
+app/globals.css
+categories.json
