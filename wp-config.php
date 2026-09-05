@@ -21,13 +21,13 @@
 
 // ** Database settings - You can get this info from your web host ** //
 /** The name of the database for WordPress */
-define( 'DB_NAME', 'wp_rgvdsatest_db' );
+define( 'DB_NAME', 'wp_progressnowtest_db' );
 
 /** Database username */
-define( 'DB_USER', 'wp_rgvdsatest_user' );
+define( 'DB_USER', 'wp_progressnowtest_user' );
 
 /** Database password */
-define( 'DB_PASSWORD', 'wp_rgvdsatest_pw' );
+define( 'DB_PASSWORD', 'wp_progressnowtest_pw' );
 
 /** Database hostname */
 define( 'DB_HOST', 'localhost' );
@@ -98,6 +98,14 @@ if ( ! defined( 'WP_DEBUG_LOG' ) ) {
 }
 if ( ! defined( 'WP_DEBUG_DISPLAY' ) ) {
 	define( 'WP_DEBUG_DISPLAY', false );
+}
+
+/* Pin URLs to this vhost; DB is shared with rgvdsa.test. */
+if ( ! defined( 'WP_HOME' ) ) {
+	define( 'WP_HOME', 'https://progressnow.test:8890' );
+}
+if ( ! defined( 'WP_SITEURL' ) ) {
+	define( 'WP_SITEURL', 'https://progressnow.test:8890' );
 }
 
 /* That's all, stop editing! Happy publishing. */
