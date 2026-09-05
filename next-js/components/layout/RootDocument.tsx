@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { preload } from "react-dom";
+import { A11yProvider } from "@/components/a11y/A11yProvider";
 import { A11Y_BOOTSTRAP_SCRIPT } from "@/lib/a11y-bootstrap";
 
 /** The two faces every route paints first (design D4/D7); same-origin via the theme static proxy. */
@@ -31,7 +32,9 @@ export function RootDocument({
       <head>
         <script nonce={nonce} dangerouslySetInnerHTML={{ __html: A11Y_BOOTSTRAP_SCRIPT }} />
       </head>
-      <body>{children}</body>
+      <body>
+        <A11yProvider>{children}</A11yProvider>
+      </body>
     </html>
   );
 }

@@ -11,7 +11,7 @@
     "dev:mock": "node scripts/dev-mock.mjs",
     "mock": "node test/mock/server.mjs",
     "build": "next build",
-    "budget": "node scripts/check-bundle-budget.mjs",
+    "budget": "playwright test --project=e2e test/e2e/budget.spec.ts",
     "start": "next start",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

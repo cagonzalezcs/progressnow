@@ -27,8 +27,9 @@ Node reads it at process start, so `.env.local` is too late. Never
 
 ```bash
 npm run lint && npm run typecheck && npm run test:unit
-npm run build:mock && npm run budget          # front-page first-load JS budget (budget.json)
-npm run test:e2e && npm run test:a11y         # Playwright against the standalone build + mock (PW_SKIP_BUILD=1 to reuse a build)
+npm run build:mock
+npm run test:e2e && npm run test:a11y         # Playwright against the standalone build + mock (PW_SKIP_BUILD=1 to reuse a build);
+                                              # test:e2e includes the front-page first-load JS budget (budget.json)
 ```
 
 `test:a11y` runs axe-core over every route × language × a11y mode. Our code is

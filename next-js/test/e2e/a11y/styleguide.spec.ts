@@ -22,7 +22,10 @@ for (const [mode, settings] of Object.entries(MODES)) {
     );
     await page.goto("/styleguide/");
     // Guard against scanning a 404 by mistake — the gate must scan the real surface.
-    await expect(page.locator("main#main")).toHaveAttribute("data-route-kind", "styleguide");
+    await expect(page.locator("[data-route-kind]:visible")).toHaveAttribute(
+      "data-route-kind",
+      "styleguide",
+    );
     await page.waitForLoadState("networkidle");
     const { errors, warnings, kitchenSink, kitchenSinkNodes } = await scan(
       page,

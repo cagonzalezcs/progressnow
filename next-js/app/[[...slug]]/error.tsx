@@ -11,7 +11,7 @@ export default function RouteError({
   reset: () => void;
 }) {
   return (
-    <main id="main" data-route-kind="error" className="mx-auto max-w-[1200px] px-4 py-10">
+    <div data-route-kind="error" className="mx-auto max-w-[1200px] px-4 py-10">
       <h1 className="font-display text-3xl text-ink">Content is temporarily unavailable</h1>
       <p>Please try again in a moment.</p>
       {error.digest ? <p className="text-muted text-sm">Reference: {error.digest}</p> : null}
@@ -22,6 +22,6 @@ export default function RouteError({
       >
         Try again
       </button>
-    </main>
+    </div>
   );
 }

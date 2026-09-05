@@ -1,4 +1,3 @@
-import { A11yProvider } from "@/components/a11y/A11yProvider";
 import { A11yWidget } from "@/components/site/A11yWidget";
 import { CtaCard } from "@/components/site/CtaCard";
 import { DashedNote } from "@/components/site/DashedNote";
@@ -81,10 +80,8 @@ export function SiteComponentSections() {
           className="flex flex-wrap items-center gap-6 rounded-[18px] bg-brand p-6"
           data-tone="blue"
         >
-          <A11yProvider>
-            <A11yWidget size="desktop" />
-            <A11yWidget size="tablet" />
-          </A11yProvider>
+          <A11yWidget size="desktop" />
+          <A11yWidget size="tablet" />
         </div>
       </Section>
 

@@ -15,8 +15,7 @@ import { Suspense } from "react";
  * own segment and bundle); the layout's metadata keeps it noindex. */
 export function RouteStyleguide({ lang }: { lang: string }) {
   return (
-    <main
-      id="main"
+    <div
       data-route-kind="styleguide"
       lang={lang}
       className="styleguide mx-auto max-w-[1100px] px-6 py-16 font-sans text-foreground"
@@ -61,7 +60,7 @@ export function RouteStyleguide({ lang }: { lang: string }) {
       >
         <RequestTimeKitchenSink />
       </Suspense>
-    </main>
+    </div>
   );
 }
 

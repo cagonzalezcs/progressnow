@@ -42,15 +42,15 @@ The app SHALL read content only from `GET /wp-json/progressnow/v1/*`, from serve
 - **THEN** the error is logged with the endpoint and the route renders the error surface with status 500, not partial content
 
 ### Requirement: Content freshness by push revalidation
-Content SHALL be served from the app's cache until the revalidation receiver invalidates it; after a successful signed revalidation the very next request for any route SHALL reflect the current WordPress content. Content published after the last deployment SHALL resolve on its first request without a redeploy. An unknown path SHALL render 404 from the cached manifest and SHALL NOT cause an upstream request.
+Content SHALL be served from the app's cache until the revalidation receiver invalidates it; after a successful signed revalidation the very next request for any route SHALL reflect the current WordPress content. Content published after the last deployment SHALL resolve on its first request without a redeploy. An unknown path SHALL be answered with a server-rendered 404 (real 404 status, decided before the body streams) from an in-memory copy of the routes manifest; a burst of unknown paths SHALL cost WordPress at most one manifest refresh per window (10 s).
 
 #### Scenario: Newly published post
 - **WHEN** an editor publishes a post, WordPress dispatches the rebuild webhook, and the receiver accepts it
 - **THEN** the post's permalink renders the post on the next request and the posts index lists it
 
 #### Scenario: Unknown path is cheap
-- **WHEN** `/does-not-exist/` is requested 100 times
-- **THEN** the app answers 404 each time and makes zero requests to WordPress for that path
+- **WHEN** `/does-not-exist/` is requested 100 times within a window
+- **THEN** the app answers a server-rendered 404 each time and WordPress receives at most one `/routes` refresh, never a request for that path
 
 ### Requirement: Internal links are re-homed onto the app origin
 Every URL from an envelope whose origin is the WordPress origin (`/site.homeUrl`) SHALL be rendered as a relative link on the app origin — except WordPress-only paths (`/wp-admin`, `/wp-login.php`, `/wp-json`, `/wp-content`, `/feed`) and file URLs, which stay absolute to WordPress. External URLs SHALL be rendered unchanged with `rel="noopener"`.

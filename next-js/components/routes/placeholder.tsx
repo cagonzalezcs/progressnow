@@ -12,9 +12,9 @@ export function Placeholder({
   children?: ReactNode;
 }) {
   return (
-    <main id="main" data-route-kind={kind} className="mx-auto max-w-[1200px] px-4 py-10">
+    <div data-route-kind={kind} className="mx-auto max-w-[1200px] px-4 py-10">
       <h1 className="font-display text-3xl text-ink">{title}</h1>
       {children}
-    </main>
+    </div>
   );
 }

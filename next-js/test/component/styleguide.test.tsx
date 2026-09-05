@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { render, screen } from "@testing-library/react";
 import { axe } from "jest-axe";
 import { describe, expect, it } from "vitest";
+import { A11yProvider } from "@/components/a11y/A11yProvider";
 import { BRAND_TOC, BrandSections } from "@/components/site/styleguide/BrandSections";
 import {
   SITE_TOC,
@@ -36,18 +37,20 @@ describe("styleguide", () => {
 
   it("brand and site sections render, are anchored, and are axe-clean", async () => {
     const { container } = render(
-      <main>
-        <h1>Styleguide</h1>
-        <Toc
-          groups={[
-            { title: "Brand", items: BRAND_TOC },
-            { title: "Site components", items: SITE_TOC },
-          ]}
-        />
-        <BrandSections />
-        <h2>Site components</h2>
-        <SiteComponentSections />
-      </main>,
+      <A11yProvider>
+        <main>
+          <h1>Styleguide</h1>
+          <Toc
+            groups={[
+              { title: "Brand", items: BRAND_TOC },
+              { title: "Site components", items: SITE_TOC },
+            ]}
+          />
+          <BrandSections />
+          <h2>Site components</h2>
+          <SiteComponentSections />
+        </main>
+      </A11yProvider>,
     );
     for (const item of [...BRAND_TOC, ...SITE_TOC]) {
       expect(container.querySelector(`#sg-${item.id}`), item.id).toBeInTheDocument();

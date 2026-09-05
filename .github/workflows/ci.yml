@@ -39,7 +39,7 @@ jobs:
       - run: npm run verify:output
 
   next-js:
-    name: next-js (lint, typecheck, unit, build + budget, e2e, a11y)
+    name: next-js (lint, typecheck, unit, build, e2e + budget, a11y)
     runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:
@@ -65,7 +65,6 @@ jobs:
       # build runs against the fixture mock (started and stopped by the script).
       - name: Build (mock API)
         run: npm run build:mock
-      - run: npm run budget
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
       - name: Functional e2e (production build + mock API)

@@ -20,5 +20,7 @@ const ViewTransition: ComponentType<{ name?: string; children: ReactNode }> =
 export function RouteTransition({ children }: { children: ReactNode }) {
   const reduce = useReducedMotion();
   if (reduce) return <>{children}</>;
-  return <ViewTransition name="vt-main">{children}</ViewTransition>;
+  // Unnamed: the persistent <main> carries the theme's `view-transition-name: vt-main`, so its
+  // old/new snapshots cross-fade via the stylesheet; React only needs to start the transition.
+  return <ViewTransition>{children}</ViewTransition>;
 }

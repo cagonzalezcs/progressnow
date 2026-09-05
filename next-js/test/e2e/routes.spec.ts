@@ -20,9 +20,12 @@ test("every manifest route renders in its language with one main landmark and on
     expect(response?.status(), route.path).toBe(200);
     await expect(page.locator("html"), route.path).toHaveAttribute("lang", route.lang);
     await expect(page.locator("main#main"), route.path).toHaveCount(1);
-    await expect(page.locator("h1"), route.path).toHaveCount(1);
+    await expect(page.locator("h1:visible"), route.path).toHaveCount(1);
     const kind = route.kind === "posts_index" ? "posts_index" : route.kind;
-    await expect(page.locator("main#main"), route.path).toHaveAttribute("data-route-kind", kind);
+    await expect(page.locator("[data-route-kind]:visible"), route.path).toHaveAttribute(
+      "data-route-kind",
+      kind,
+    );
   }
 });
 
@@ -30,18 +33,24 @@ test("derived posts-index states resolve: /blog/page/N/, /category/{slug}/, ?s="
   page,
 }) => {
   await page.goto("/blog/page/2/");
-  await expect(page.locator("main#main")).toHaveAttribute("data-route-kind", "posts_index");
-  await expect(page.locator("[data-page='2']")).toBeVisible();
+  await expect(page.locator("[data-route-kind]:visible")).toHaveAttribute(
+    "data-route-kind",
+    "posts_index",
+  );
+  await expect(page.locator("[data-page='2']:visible")).toBeVisible();
 
   await page.goto("/category/labor/");
-  await expect(page.locator("[data-category='labor']")).toBeVisible();
+  await expect(page.locator("[data-category='labor']:visible")).toBeVisible();
 
   await page.goto("/es/category/labor/");
   await expect(page.locator("html")).toHaveAttribute("lang", "es");
 
+  // The receiver e2e renames the fixture post in parallel, so assert the search state, not a hit.
   await page.goto("/?s=contract");
-  await expect(page.locator("[data-route-kind='search']")).toBeVisible();
-  await expect(page.locator("[data-route-kind='search'] li").first()).toBeVisible();
+  await expect(page.locator("[data-route-kind='search']:visible")).toBeVisible();
+  await expect(page.locator("[data-route-kind='search']:visible [role='status']")).toHaveText(
+    /\d+ result/,
+  );
 });
 
 test("an unknown path is a 404 rendered from site strings and costs zero WordPress requests", async ({
@@ -51,7 +60,10 @@ test("an unknown path is a 404 rendered from site strings and costs zero WordPre
   await request.post(`${MOCK}/__mock/reset`, { data: {} });
   const response = await page.goto("/does-not-exist/");
   expect(response?.status()).toBe(404);
-  await expect(page.locator("main#main")).toHaveAttribute("data-route-kind", "not_found");
+  await expect(page.locator("[data-route-kind]:visible")).toHaveAttribute(
+    "data-route-kind",
+    "not_found",
+  );
   await expect(page.locator("h1")).not.toBeEmpty();
   const es = await page.goto("/es/no-existe/");
   expect(es?.status()).toBe(404);

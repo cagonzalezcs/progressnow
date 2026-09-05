@@ -45,9 +45,9 @@
 
 ## 5. Chrome
 
-- [ ] 5.1 Tests first (RTL + user-event + jest-axe): `SiteHeader` (mobile nav open/close, Escape, focus returns to trigger, `aria-expanded`), `LanguageToggle` (links = current route's translations, re-homed), `SiteFooter` (columns, socials only when configured, a11y lead/link), `SkipLink`, `A11yWidget` (popover, `aria-pressed` sizes, `role=status` announcements); implement the components from `/site` props only (no hardcoded copy)
-- [ ] 5.2 Layout integration: `/site?lang=` per language, skip link first in DOM, `<main id="main" tabIndex={-1}>`, `components/nav/FocusManager.tsx` (focus `<main>` after route change, hash → target), verify Next's route announcer reads the new title, mount `RouteTransition`; a11y bootstrap script with nonce in `<head>`
-- [ ] 5.3 e2e `test/e2e/chrome.spec.ts`: chrome strings in `en`/`es`, skip link → main, mobile nav keyboard path, widget persistence (returning visitor with `xl` → root font-size 20 px at first paint), legacy key migration, focus on `<main>` after navigation, view transition present / absent under `prefers-reduced-motion`; a11y project matrix gains chrome states (mobile nav open, widget open)
+- [x] 5.1 Tests first (RTL + user-event + jest-axe): `SiteHeader` (mobile nav open/close, Escape, focus returns to trigger, `aria-expanded`), `LanguageToggle` (links = current route's translations, re-homed), `SiteFooter` (columns, socials only when configured, a11y lead/link), `SkipLink`, `A11yWidget` (popover, `aria-pressed` sizes, `role=status` announcements); implement the components from `/site` props only (no hardcoded copy)
+- [x] 5.2 Layout integration: `/site?lang=` per language, skip link first in DOM, `<main id="main" tabIndex={-1}>`, `components/nav/FocusManager.tsx` (focus `<main>` after route change, hash → target), verify Next's route announcer reads the new title, mount `RouteTransition`; a11y bootstrap script with nonce in `<head>`
+- [x] 5.3 e2e `test/e2e/chrome.spec.ts`: chrome strings in `en`/`es`, skip link → main, mobile nav keyboard path, widget persistence (returning visitor with `xl` → root font-size 20 px at first paint), legacy key migration, focus on `<main>` after navigation, view transition present / absent under `prefers-reduced-motion`; a11y project matrix gains chrome states (mobile nav open, widget open)
 
 ## 6. Routes (per route: component tests → route component → e2e → axe)
 
