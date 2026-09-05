@@ -29,7 +29,7 @@ Node reads it at process start, so `.env.local` is too late. Never
 npm run lint && npm run typecheck && npm run test:unit
 npm run build:mock
 npm run test:e2e && npm run test:a11y         # Playwright against the standalone build + mock (PW_SKIP_BUILD=1 to reuse a build);
-npm run test:failure                          # serial: flips the mock into upstream failure → 500 surface + recovery
+npm run test:failure                          # serial (1 worker): mock-mutating scenarios — upstream failure → 500 + recovery, CHAPTER_CANONICAL_ORIGIN verbatim
 npm run parity                                # Nuxt (nuxt-js/.output/public) vs Next screenshots → test-results/parity/index.html
                                               # test:e2e includes the front-page first-load JS budget (budget.json)
 ```

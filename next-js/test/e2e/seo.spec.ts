@@ -82,3 +82,51 @@ test("JSON-LD: Organization exactly once on every page; Article on posts; Event 
     organizer: { "@id": orgs[0]!["@id"] },
   });
 });
+
+/** <head> tags of a route as the browser sees them. */
+async function headTags(request: APIRequestContext, path: string) {
+  const html = await (await request.get(path)).text();
+  const attr = (re: RegExp) => [...html.matchAll(re)].map((m) => m[1]!);
+  return {
+    canonical: attr(/<link rel="canonical" href="([^"]+)"/g),
+    // React renders the camelCase prop as `hrefLang=`; HTML attribute names are case-insensitive.
+    hreflang: [...html.matchAll(/<link rel="alternate" hreflang="([^"]+)" href="([^"]+)"/gi)].map(
+      (m) => [m[1]!, m[2]!] as const,
+    ),
+    og: Object.fromEntries(
+      [...html.matchAll(/<meta property="(og:[a-z:]+)" content="([^"]*)"/g)].map((m) => [
+        m[1]!,
+        m[2]!,
+      ]),
+    ),
+    robots: attr(/<meta name="robots" content="([^"]+)"/g),
+    title: attr(/<title>([^<]*)<\/title>/g)[0],
+  };
+}
+
+test("head: canonical verbatim, hreflang alternates, OG url = canonical, share image — both languages", async ({
+  request,
+}) => {
+  const { routes } = await manifest(request);
+  for (const lang of ["en", "es"] as const) {
+    const post = routes.find((r) => r.kind === "post" && r.lang === lang)!;
+    const head = await headTags(request, post.path);
+    expect(head.canonical, post.path).toEqual([`${MOCK}${post.path}`]); // WordPress origin, verbatim
+    expect(head.hreflang.map(([l]) => l).sort()).toEqual(["en", "es"]);
+    for (const [, href] of head.hreflang) expect(href.startsWith(`${MOCK}/`)).toBe(true);
+    expect(head.og["og:url"]).toBe(`${MOCK}${post.path}`);
+    expect(head.og["og:type"]).toBe("article");
+    expect(head.og["og:image"]).toMatch(/\/static\/images\/brand\/share-default\.jpg$/); // ladder fallback
+    expect(head.robots).toEqual(["index, follow"]);
+    // <title> is the envelope's seo.title verbatim (WordPress composes "Title – Site").
+    const envelope = (await (
+      await request.get(`${MOCK}/wp-json/progressnow/v1/posts/contract-test-post?lang=${lang}`)
+    ).json()) as { seo: { title: string } };
+    expect(head.title).toBe(envelope.seo.title);
+  }
+  const about = await headTags(request, "/about/");
+  expect(about.og["og:type"]).toBe("website");
+  const filtered = await headTags(request, "/blog/?category=labor");
+  expect(filtered.robots).toEqual(["noindex, follow"]);
+  expect(filtered.canonical).toEqual([`${MOCK}/blog/`]); // clean page canonical
+});

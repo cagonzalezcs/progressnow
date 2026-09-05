@@ -68,7 +68,7 @@
 - [x] 7.3 JSON-LD parity with spec `structured-data`: Organization (identity), Article (posts), Event (events) from envelopes via `components/seo/JsonLd.tsx`; unit tests validate required properties
 - [x] 7.4 PHP test first `tests/test-seo.php` (default no-op; `CHAPTER_CANONICAL_ORIGIN` swaps origin of canonical, every `hreflang`, `og:url`; core sitemap `<loc>` rewritten); implement `progressnow_seo_public_url()` in `inc/seo.php` (constant or `progressnow/seo/canonical_origin` filter) applied in `progressnow_seo_canonical()`, `progressnow_seo_hreflang()`, `og:url`, and `wp_sitemaps_posts_entry|wp_sitemaps_taxonomies_entry|wp_sitemaps_users_entry`; regenerate fixtures if any canonical changed; PHPUnit green
 - [x] 7.5 Nuxt (`nuxt-js`) verification — no code change expected: `npm test` green against the updated fixtures (`contracts.spec.ts`), add an explicit assertion in `test/unit/shell.spec.ts` (or a new `seo.spec.ts`) that `headForSeo` emits a foreign-origin canonical and hreflang verbatim; `generate:mock` + `verify:output` green
-- [ ] 7.6 e2e `test/e2e/seo.spec.ts`: canonical/hreflang/OG/JSON-LD in both languages with the mock serving a foreign canonical origin; sitemap and robots contents
+- [x] 7.6 e2e `test/e2e/seo.spec.ts`: canonical/hreflang/OG/JSON-LD in both languages with the mock serving a foreign canonical origin; sitemap and robots contents
 
 ## 8. Deployment, hardening, documentation
 
