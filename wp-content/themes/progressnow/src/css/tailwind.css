@@ -19,20 +19,20 @@
  * ------------------------------------------------------------------------ */
 @font-face {
   font-family: "Bowlby One";
-  src: url("../../static/fonts/bowlby-one/BowlbyOne-Regular.woff2") format("woff2");
+  src: url("/wp-content/themes/progressnow/static/fonts/bowlby-one/BowlbyOne-Regular.woff2") format("woff2");
   font-weight: 400;
   font-display: swap;
 }
 @font-face {
   font-family: "Public Sans";
-  src: url("../../static/fonts/public-sans/PublicSans[wght].woff2") format("woff2");
+  src: url("/wp-content/themes/progressnow/static/fonts/public-sans/PublicSans[wght].woff2") format("woff2");
   font-weight: 400 800;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Special Season Brush";
-  src: url("../../static/fonts/special-season/SpecialSeason-Brush.woff2") format("woff2");
+  src: url("/wp-content/themes/progressnow/static/fonts/special-season/SpecialSeason-Brush.woff2") format("woff2");
   font-weight: 400;
   font-display: swap;
 }
@@ -388,20 +388,28 @@ html.a11y-contrast {
 }
 
 /* ---------------------------------------------------------------------------
- * View Transitions (client navigation — ts/navigation.ts)
- *
- * Only <main> animates; the sticky header/footer get their own named groups so
- * they stay put (no cross-fade) while content swaps. All motion is gated behind
- * prefers-reduced-motion (the JS also skips startViewTransition when reduced).
+ * <main> scroll anchoring (the route transition lives further down).
  * ------------------------------------------------------------------------- */
 main#main {
-  view-transition-name: vt-main;
+  /* Skip link / programmatic scroll-into-view: land below the sticky header. */
+  scroll-margin-top: calc(var(--site-header-height) + var(--wp-admin--admin-bar--height, 0px));
 }
-.site-header {
-  view-transition-name: vt-header;
+/* In-page anchor targets (#join, headings, breadcrumbs) clear the sticky header too. */
+main#main [id] {
+  scroll-margin-top: calc(var(--site-header-height) + 16px + var(--wp-admin--admin-bar--height, 0px));
 }
-.site-footer {
-  view-transition-name: vt-footer;
+:root {
+  --site-header-height: 60px; /* mobile bar (SiteHeader min-h-[60px]) */
+}
+@media (min-width: 48rem) {
+  :root {
+    --site-header-height: 116px; /* tablet: two-row header (logo row + nav row) */
+  }
+}
+@media (min-width: 80rem) {
+  :root {
+    --site-header-height: 76px; /* desktop bar (SiteHeader min-h-[76px]) */
+  }
 }
 
 /* ---------------------------------------------------------------------------
@@ -461,22 +469,83 @@ html.a11y-contrast .headline-shadow-sm {
  * ------------------------------------------------------------------------- */
 .cta-flames {
   background-color: var(--color-brand-light);
-  -webkit-mask: url("../../static/images/brand/flames-tile-light.png") top center / auto 100% repeat-x;
-  mask: url("../../static/images/brand/flames-tile-light.png") top center / auto 100% repeat-x;
+  -webkit-mask: url("/wp-content/themes/progressnow/static/images/brand/flames-tile-light.png") top center / auto 100% repeat-x;
+  mask: url("/wp-content/themes/progressnow/static/images/brand/flames-tile-light.png") top center / auto 100% repeat-x;
+}
+
+/* ---------------------------------------------------------------------------
+ * Route transition — shared by both frontends: the theme's ts/navigation.ts
+ * swap and its cross-document `@view-transition`, and next-js's
+ * components/nav/RouteTransition.tsx (React's <ViewTransition> renames <main>
+ * and <footer> per commit but keeps the `vt-page` class).
+ *
+ * <main> and <footer> are the page groups. Each fades its old snapshot out
+ * over the brand blue, holds blue for a beat, then fades the new snapshot in.
+ * A group keeps its OLD box through the fade-out and jumps to the new one on
+ * the all-blue frame (`steps(1, end)`), so a scrolled page never swoops to
+ * the top and a footer that moves between pages never flies across the
+ * screen. The sticky header has its own group that paints above the page
+ * groups (a scrolled page's <main> box runs under it) and never animates: old
+ * snapshot hidden, new one shown at once, so it reads as still. Reduced motion
+ * (media query, or the Aa widget, which also kills every ::view-transition
+ * animation) swaps instantly.
+ * ------------------------------------------------------------------------- */
+:root {
+  --vt-out: 120ms; /* old page → blue */
+  --vt-hold: 30ms; /* all blue */
+  --vt-in: 200ms; /* blue → new page */
+}
+main#main {
+  view-transition-name: vt-main;
+  view-transition-class: vt-page;
+}
+.site-footer {
+  view-transition-name: vt-footer;
+  view-transition-class: vt-page;
+}
+.site-header {
+  view-transition-name: vt-header;
+}
+::view-transition-group(vt-header) {
+  animation: none;
+  z-index: 1;
+}
+::view-transition-old(vt-header) {
+  display: none;
+}
+::view-transition-new(vt-header) {
+  animation: none;
+}
+/* Clicks pass through to the live page while the (short) transition runs. */
+::view-transition {
+  pointer-events: none;
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  ::view-transition-group(vt-main) {
-    animation-duration: 0.28s;
+  ::view-transition-group(.vt-page) {
+    background: var(--color-brand);
+    animation-duration: calc(var(--vt-out) + var(--vt-hold));
+    animation-timing-function: steps(1, end);
   }
-  ::view-transition-old(vt-main) {
-    animation: vt-fade-out 0.16s ease both;
+  ::view-transition-old(.vt-page) {
+    animation: vt-page-out var(--vt-out) ease-in both;
   }
-  ::view-transition-new(vt-main) {
-    animation: vt-fade-in 0.28s ease both;
+  ::view-transition-new(.vt-page) {
+    animation: vt-page-in var(--vt-in) ease-out calc(var(--vt-out) + var(--vt-hold)) both;
   }
 
-  /* Shared-element morph: post card image → single-post hero (Phase 3).
+  /* The root (canvas, admin bar) holds nothing that moves: skip its cross-fade. */
+  ::view-transition-group(root) {
+    animation: none;
+  }
+  ::view-transition-old(root) {
+    display: none;
+  }
+  ::view-transition-new(root) {
+    animation: none;
+  }
+
+  /* Shared-element morph: post card image → single-post hero (theme ts/navigation.ts).
      No cross-fade so the image reads as one element moving/resizing. */
   ::view-transition-old(post-hero),
   ::view-transition-new(post-hero) {
@@ -485,12 +554,12 @@ html.a11y-contrast .headline-shadow-sm {
     height: 100%;
   }
 
-  @keyframes vt-fade-out {
+  @keyframes vt-page-out {
     to {
       opacity: 0;
     }
   }
-  @keyframes vt-fade-in {
+  @keyframes vt-page-in {
     from {
       opacity: 0;
     }

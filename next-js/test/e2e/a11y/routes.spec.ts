@@ -65,3 +65,24 @@ test("chrome interactive states: mobile nav open, a11y popover open", async ({
   out = await scan(page, testInfo, "state-a11y-popover-open");
   expect(out.errors, formatViolations(out.errors)).toEqual([]);
 });
+
+test("calendar interactive states: list view, event dialog open", async ({ page }, testInfo) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/calendar/?view=list");
+  await expect(page.getByRole("button", { name: "List" })).toHaveAttribute("aria-pressed", "true");
+  await settle(page);
+  let out = await scan(page, testInfo, "state-calendar-list-view");
+  expect(out.errors, formatViolations(out.errors)).toEqual([]);
+
+  // The mock's only event is July 2026; walk back to it and open the dialog.
+  await page.goto("/calendar/");
+  const now = new Date();
+  const diff = 2026 * 12 + 6 - (now.getFullYear() * 12 + now.getMonth());
+  const name = diff < 0 ? "Previous month" : "Next month";
+  for (let i = 0; i < Math.abs(diff); i++) await page.getByRole("button", { name }).click();
+  await page.getByRole("button", { name: "Contract Test Event" }).click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await settle(page);
+  out = await scan(page, testInfo, "state-event-dialog-open");
+  expect(out.errors, formatViolations(out.errors)).toEqual([]);
+});

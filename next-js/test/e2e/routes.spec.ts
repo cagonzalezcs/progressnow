@@ -80,7 +80,7 @@ test("health answers without WordPress and events proxies same-origin", async ({
 
   const bad = await request.get("/api/events?lang=nope!");
   expect(bad.status()).toBe(400);
-  const events = await request.get("/api/events?lang=en&from=2026-09-01&to=2026-09-30");
+  const events = await request.get("/api/events?lang=en&from=2026-07-01&to=2026-07-31");
   expect(events.status()).toBe(200);
   expect((await events.json()).events.length).toBeGreaterThan(0);
 });
