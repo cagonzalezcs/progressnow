@@ -8,8 +8,9 @@ import type { LanguageLink } from "@/lib/contracts";
 import type { SiteEnvelope } from "@/lib/schemas";
 
 /* Site chrome from `/site?lang=` (design D6): skip link, header, the route's
- * <main> (rendered by the route component, cross-faded by RouteTransition),
- * footer. Shared by the site root layout and the styleguide layout. */
+ * <main> and the footer (both inside RouteTransition, which fades them through
+ * the brand blue on navigation). Shared by the site root layout and the
+ * styleguide layout. */
 export function SiteShell({
   site,
   languages,
@@ -29,11 +30,15 @@ export function SiteShell({
         <SiteHeader header={site.header} languages={languages} wpOrigin={wpOrigin} />
       </div>
       {/* One persistent <main>: Cache Components keeps the previous route mounted (hidden) during
-          navigation, so route components render a div[data-route-kind] inside it — never their own main. */}
-      <main id="main" tabIndex={-1} className="site-main">
-        <RouteTransition>{children}</RouteTransition>
-      </main>
-      <SiteFooter footer={site.footer} wpOrigin={wpOrigin} />
+          navigation, so route components render a div[data-route-kind] inside it — never their own main.
+          <main> and <footer> are the transition boundary's host children: React names both while a
+          route commit runs (see RouteTransition); the header stays outside and holds still. */}
+      <RouteTransition>
+        <main id="main" tabIndex={-1} className="site-main">
+          {children}
+        </main>
+        <SiteFooter footer={site.footer} wpOrigin={wpOrigin} />
+      </RouteTransition>
       <FocusManager />
     </div>
   );

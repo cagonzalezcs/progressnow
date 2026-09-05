@@ -1,0 +1,16 @@
+# Vercel CLI uploads from the repo root (project Root Directory = next-js).
+# Only the app plus the theme fixtures/static it references are needed.
+/*
+!/next-js
+!/wp-content
+/wp-content/*
+!/wp-content/themes
+/wp-content/themes/*
+!/wp-content/themes/progressnow
+/wp-content/themes/progressnow/*
+!/wp-content/themes/progressnow/tests
+!/wp-content/themes/progressnow/static
+/next-js/node_modules
+/next-js/.next
+/next-js/playwright-report
+/next-js/test-results

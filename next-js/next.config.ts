@@ -44,8 +44,9 @@ const buildId = resolveBuildId();
 export const THEME_STATIC = "/wp-content/themes/progressnow/static";
 
 const nextConfig: NextConfig = {
-  // Portable deployment: Vercel, a container, or a VPS (design D11).
-  output: "standalone",
+  // Portable deployment: a container or a VPS (design D11). Vercel builds its own
+  // output and fails on standalone (missing next-server.js.nft.json), so skip it there.
+  output: process.env.VERCEL ? undefined : "standalone",
   poweredByHeader: false,
   generateBuildId: () => buildId,
   env: { NEXT_PUBLIC_BUILD_ID: buildId },

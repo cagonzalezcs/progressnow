@@ -1,14 +1,12 @@
-# CI for the two JS frontends (openspec next-test-harness § CI job).
-# Neither job needs a WordPress instance: nuxt-js generates against its nitro
-# mock, next-js builds and tests against test/mock/server.mjs — both backed by
-# the theme's committed contract fixtures.
-#
-# The theme's vitest + PHPUnit (WorDBless) jobs run without WordPress too.
+# CI for the theme and the two JS frontends (openspec next-test-harness § CI job).
+# No job needs a WordPress instance: the theme runs PHPUnit on WorDBless,
+# nuxt-js generates against its nitro mock, next-js builds and tests against
+# test/mock/server.mjs — all backed by the theme's committed contract fixtures.
 name: CI
 
 on:
   push:
-    branches: [main, 'cg/**', 'feat/**']
+    branches: [main, 'cg/**', 'feat/**', 'feature/**']
   pull_request:
 
 concurrency:
@@ -18,12 +16,14 @@ concurrency:
 permissions:
   contents: read
 
+defaults:
+  run:
+    working-directory: wp-content/themes/progressnow
+
 jobs:
-  theme-js:
-    name: theme (lint, vitest, build w/ vue-tsc)
+  js:
+    name: Lint / typecheck / vitest / build
     runs-on: ubuntu-latest
-    defaults:
-      run: { working-directory: wp-content/themes/progressnow }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -36,8 +36,8 @@ jobs:
       - run: npm test
       - run: npm run build # includes vue-tsc typecheck
 
-  theme-php:
-    name: theme PHPUnit (WorDBless)
+  php:
+    name: PHPUnit (WorDBless)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -68,6 +68,11 @@ jobs:
       - run: npm test
       - run: npm run generate:mock
       - run: npm run verify:output
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nuxt-js-mock-output
+          path: nuxt-js/.output/public
+          retention-days: 3
 
   next-js:
     name: next-js (lint, typecheck, unit, build, e2e + budget, a11y)
@@ -92,8 +97,8 @@ jobs:
       - run: npm run test:unit
       # Build once with the same env Playwright uses, then reuse it for both
       # Playwright projects (PW_SKIP_BUILD) so e2e and a11y test one artifact.
-      # generateStaticParams reads the routes manifest at build time, so the
-      # build runs against the fixture mock (started and stopped by the script).
+      # The build itself needs no API (routes render per request); the fixture
+      # mock is started and stopped by the script for the standalone smoke.
       - name: Build (mock API)
         run: npm run build:mock
       - name: Install Playwright Chromium

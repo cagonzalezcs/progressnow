@@ -16,12 +16,16 @@ export function FocusManager() {
       return;
     }
     const hash = window.location.hash.slice(1);
-    const target =
-      (hash && document.getElementById(decodeURIComponent(hash))) ||
-      document.getElementById("main");
+    const hashTarget = hash ? document.getElementById(decodeURIComponent(hash)) : null;
+    const target = hashTarget || document.getElementById("main");
     if (!target) return;
+    // Scroll explicitly (instant), then focus with preventScroll. A scrolling
+    // focus() pins <main>'s top to the viewport edge, under the sticky header,
+    // hiding the breadcrumbs/heading; scrollIntoView honours scroll-margin-top.
+    if (hashTarget) hashTarget.scrollIntoView({ block: "start", behavior: "instant" });
+    else window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
-    target.focus({ preventScroll: Boolean(hash) === false ? false : true });
+    target.focus({ preventScroll: true });
   }, [pathname]);
   return null;
 }

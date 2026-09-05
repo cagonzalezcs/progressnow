@@ -32,7 +32,10 @@ import { langForPath, resolveRoute } from "@/lib/routes";
  * The page renders concurrently with the root layout, so it must be as
  * resilient to an upstream failure as the layout is: an uncaught throw here
  * would abort the whole response (Next's bare "Internal Server Error") before
- * the layout's error document could stream. */
+ * the layout's error document could stream.
+ * `params` is awaited outside Suspense, so the route is blocking, as the root
+ * layout already is (it renders per request too). */
+export const instant = false;
 
 const ROUTES = {
   front: RouteFront,
