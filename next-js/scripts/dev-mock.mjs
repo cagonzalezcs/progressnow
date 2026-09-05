@@ -11,7 +11,8 @@ const env = {
   MOCK_PORT: port,
   WP_API_BASE: process.env.WP_API_BASE ?? apiBase,
   NEXT_PUBLIC_SITE_ORIGIN: process.env.NEXT_PUBLIC_SITE_ORIGIN ?? "http://localhost:3001",
-  CHAPTER_REBUILD_SECRET: process.env.CHAPTER_REBUILD_SECRET ?? "dev-mock-secret",
+  CHAPTER_REBUILD_SECRET:
+    process.env.CHAPTER_REBUILD_SECRET ?? "dev-mock-secret-not-for-production",
 };
 
 const mock = spawn(process.execPath, ["test/mock/server.mjs"], { stdio: "inherit", env });

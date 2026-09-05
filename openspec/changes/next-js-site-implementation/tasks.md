@@ -20,15 +20,15 @@
 
 ## 3. Data layer, routing, revalidation receiver
 
-- [ ] 3.1 Test first: port `nuxt-js/test/unit/routes.spec.ts` → `test/unit/routes.spec.ts` unchanged; implement `lib/routes.ts` as a verbatim port of `nuxt-js/app/lib/chapter/routes.ts` (normalizePath, langForPath, resolveRoute)
-- [ ] 3.2 Test first `test/unit/env.spec.ts` (missing/malformed vars fail fast; `MOCK_API=1` relaxes the secret) and `test/unit/api.spec.ts` (dev throw / prod `ApiError('progressnow_contract')`, 404 → `ApiError` 404, network error); implement `lib/env.ts` (zod) and `lib/api.ts` (`import 'server-only'`, one function per endpoint, `validate`)
+- [x] 3.1 Test first: port `nuxt-js/test/unit/routes.spec.ts` → `test/unit/routes.spec.ts` unchanged; implement `lib/routes.ts` as a verbatim port of `nuxt-js/app/lib/chapter/routes.ts` (normalizePath, langForPath, resolveRoute)
+- [x] 3.2 Test first `test/unit/env.spec.ts` (missing/malformed vars fail fast; `MOCK_API=1` relaxes the secret) and `test/unit/api.spec.ts` (dev throw / prod `ApiError('progressnow_contract')`, 404 → `ApiError` 404, network error); implement `lib/env.ts` (zod) and `lib/api.ts` (`import 'server-only'`, one function per endpoint, `validate`)
 - [ ] 3.3 Cache layer `lib/data/{site,routes,front,page,posts,post,events,event}.ts`: `'use cache'` + `cacheTag('content', 'routes'|'site'|<key>)` + long `cacheLife`; per-query short `cacheLife` for search; unit tests for tag naming (`post:{lang}:{slug}` …); document the data-cache-only fallback toggle in `lib/data/README.md`
-- [ ] 3.4 Test first `test/unit/links.spec.ts` (WP-origin → relative; `/wp-admin|wp-login.php|wp-json|wp-content|feed` and file URLs stay absolute; external unchanged + `rel=noopener`); implement `lib/links.ts` (`toAppHref`) and `components/site/SiteLink.tsx` (wraps `next/link`)
+- [x] 3.4 Test first `test/unit/links.spec.ts` (WP-origin → relative; `/wp-admin|wp-login.php|wp-json|wp-content|feed` and file URLs stay absolute; external unchanged + `rel=noopener`); implement `lib/links.ts` (`toAppHref`) and `components/site/SiteLink.tsx` (wraps `next/link`)
 - [ ] 3.5 `app/layout.tsx` (manifest → `<html lang>`, `/site?lang=` slot, nonce from headers), `app/[[...slug]]/page.tsx` catch-all (`generateStaticParams` from `/routes` both languages, `dynamicParams = true`, resolver → `components/routes/Route*.tsx` placeholders rendering kind + title), `not-found.tsx`, `error.tsx` placeholders; e2e: every mock route renders in `en`/`es`, `/about` → 308 `/about/`, unknown path 404 with zero mock requests (via `/__mock/requests`)
 - [ ] 3.6 Receiver test first `test/unit/signing.spec.ts` + `test/unit/rebuild-receiver.spec.ts`: PHP vectors (generate once with `php -r "echo hash_hmac('sha256', ts.'.'.body, secret);"`, commit `test/fixtures/signing-vectors.json`), ±300 s window, 9–11 digit timestamp, constant-time compare, replay → 401, >16 KB → 413, bad shape → 400, success → 202 `{ buildId, status: "started" }` and tags invalidated; implement `lib/signing.ts`, `lib/replay-cache.ts` (LRU), `app/api/rebuild/route.ts`, `lib/build-status.ts` (signed callback, 3 attempts, backoff, logged failures)
 - [ ] 3.7 `app/api/health/route.ts` (`{ ok, buildId }` from `NEXT_PUBLIC_BUILD_ID` = git sha at build; no upstream) and `app/api/events/route.ts` (`lang`, `from`, `to` → cached `/events`); unit tests
 - [ ] 3.8 e2e `test/e2e/receiver.spec.ts`: mutate a post title via `/__mock/posts/{slug}`, POST a correctly signed webhook to `/api/rebuild`, reload → new title; stale timestamp → 401 and title unchanged
-- [ ] 3.9 Structured logging `lib/log.ts` (route, status, duration, `requestId`; receiver outcomes); unit test that secret/signature never appear in log lines
+- [x] 3.9 Structured logging `lib/log.ts` (route, status, duration, `requestId`; receiver outcomes); unit test that secret/signature never appear in log lines
 
 ## 4. Design system and accessibility foundation
 

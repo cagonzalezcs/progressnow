@@ -15,6 +15,9 @@ export default defineConfig({
       "@fixtures": fileURLToPath(
         new URL("../wp-content/themes/progressnow/tests/fixtures", import.meta.url),
       ),
+      // `server-only` throws when imported outside React Server Components; lib
+      // modules that carry the marker are unit-tested in plain node.
+      "server-only": fileURLToPath(new URL("./test/stubs/server-only.ts", import.meta.url)),
     },
   },
   test: {
