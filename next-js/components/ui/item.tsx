@@ -5,9 +5,14 @@ import { Slot } from "radix-ui"
 
 import { Separator } from "@/components/ui/separator"
 
+/* a11y: ItemGroup is role="list"; the Items it contains are its listitems
+ * (axe aria-required-children). Standalone Items stay role-less. */
+const ItemGroupContext = React.createContext(false)
+
 function ItemGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (
-    <div
+    <ItemGroupContext.Provider value={true}>
+      <div
       role="list"
       data-slot="item-group"
       className={cn(
@@ -15,7 +20,8 @@ function ItemGroup({ className, ...props }: React.ComponentProps<"div">) {
         className
       )}
       {...props}
-    />
+      />
+    </ItemGroupContext.Provider>
   )
 }
 
@@ -64,8 +70,8 @@ function Item({
 }: React.ComponentProps<"div"> &
   VariantProps<typeof itemVariants> & { asChild?: boolean }) {
   const Comp = asChild ? Slot.Root : "div"
-  // a11y: ItemGroup is role="list", so a plain Item is its listitem (axe aria-required-children).
-  const role = props.role ?? (asChild ? undefined : "listitem")
+  const inGroup = React.useContext(ItemGroupContext)
+  const role = props.role ?? (inGroup && !asChild ? "listitem" : undefined)
   return (
     <Comp
       role={role}

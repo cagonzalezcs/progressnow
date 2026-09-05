@@ -66,172 +66,180 @@ export function KitchenSink() {
       {/* data-shadcn-scope: app/styleguide/styleguide.css restores shadcn's muted/accent semantics here;
           data-kitchen-sink: the axe gate tracks these vendored examples as a ratcheting baseline. */}
       <div data-shadcn-scope data-kitchen-sink>
-      <h2 className="mb-10 mt-20 font-display text-3xl font-normal uppercase text-ink">Form controls</h2>
-      <Section id="button" title="Button">
-        <ButtonExample />
-      </Section>
-      <Section id="button-group" title="Button group">
-        <ButtonGroupExample />
-      </Section>
-      <Section id="badge" title="Badge">
-        <BadgeExample />
-      </Section>
-      <Section id="label" title="Label">
-        <LabelExample />
-      </Section>
-      <Section id="input" title="Input">
-        <InputExample />
-      </Section>
-      <Section id="input-group" title="Input group">
-        <InputGroupExample />
-      </Section>
-      <Section id="input-otp" title="Input otp">
-        <InputOtpExample />
-      </Section>
-      <Section id="textarea" title="Textarea">
-        <TextareaExample />
-      </Section>
-      <Section id="native-select" title="Native select">
-        <NativeSelectExample />
-      </Section>
-      <Section id="select" title="Select">
-        <SelectExample />
-      </Section>
-      <Section id="checkbox" title="Checkbox">
-        <CheckboxExample />
-      </Section>
-      <Section id="radio-group" title="Radio group">
-        <RadioGroupExample />
-      </Section>
-      <Section id="switch" title="Switch">
-        <SwitchExample />
-      </Section>
-      <Section id="slider" title="Slider">
-        <SliderExample />
-      </Section>
-      <Section id="toggle" title="Toggle">
-        <ToggleExample />
-      </Section>
-      <Section id="toggle-group" title="Toggle group">
-        <ToggleGroupExample />
-      </Section>
-      <Section id="field" title="Field">
-        <FieldExample />
-      </Section>
-      <Section id="combobox" title="Combobox">
-        <ComboboxExample />
-      </Section>
-      <Section id="calendar" title="Calendar">
-        <CalendarExample />
-      </Section>
-      <h2 className="mb-10 mt-20 font-display text-3xl font-normal uppercase text-ink">Layout & feedback</h2>
-      <Section id="card" title="Card">
-        <CardExample />
-      </Section>
-      <Section id="separator" title="Separator">
-        <SeparatorExample />
-      </Section>
-      <Section id="alert" title="Alert">
-        <AlertExample />
-      </Section>
-      <Section id="aspect-ratio" title="Aspect ratio">
-        <AspectRatioExample />
-      </Section>
-      <Section id="avatar" title="Avatar">
-        <AvatarExample />
-      </Section>
-      <Section id="breadcrumb" title="Breadcrumb">
-        <BreadcrumbExample />
-      </Section>
-      <Section id="kbd" title="Kbd">
-        <KbdExample />
-      </Section>
-      <Section id="pagination" title="Pagination">
-        <PaginationExample />
-      </Section>
-      <Section id="progress" title="Progress">
-        <ProgressExample />
-      </Section>
-      <Section id="skeleton" title="Skeleton">
-        <SkeletonExample />
-      </Section>
-      <Section id="spinner" title="Spinner">
-        <SpinnerExample />
-      </Section>
-      <Section id="empty" title="Empty">
-        <EmptyExample />
-      </Section>
-      <Section id="item" title="Item">
-        <ItemExample />
-      </Section>
-      <Section id="scroll-area" title="Scroll area">
-        <ScrollAreaExample />
-      </Section>
-      <Section id="resizable" title="Resizable">
-        <ResizableExample />
-      </Section>
-      <Section id="sonner" title="Sonner">
-        <SonnerExample />
-      </Section>
-      <h2 className="mb-10 mt-20 font-display text-3xl font-normal uppercase text-ink">Overlays & navigation</h2>
-      <Section id="accordion" title="Accordion">
-        <AccordionExample />
-      </Section>
-      <Section id="alert-dialog" title="Alert dialog">
-        <AlertDialogExample />
-      </Section>
-      <Section id="collapsible" title="Collapsible">
-        <CollapsibleExample />
-      </Section>
-      <Section id="context-menu" title="Context menu">
-        <ContextMenuExample />
-      </Section>
-      <Section id="dialog" title="Dialog">
-        <DialogExample />
-      </Section>
-      <Section id="drawer" title="Drawer">
-        <DrawerExample />
-      </Section>
-      <Section id="dropdown-menu" title="Dropdown menu">
-        <DropdownMenuExample />
-      </Section>
-      <Section id="hover-card" title="Hover card">
-        <HoverCardExample />
-      </Section>
-      <Section id="menubar" title="Menubar">
-        <MenubarExample />
-      </Section>
-      <Section id="navigation-menu" title="Navigation menu">
-        <NavigationMenuExample />
-      </Section>
-      <Section id="popover" title="Popover">
-        <PopoverExample />
-      </Section>
-      <Section id="sheet" title="Sheet">
-        <SheetExample />
-      </Section>
-      <Section id="sidebar" title="Sidebar">
-        <SidebarExample />
-      </Section>
-      <Section id="tabs" title="Tabs">
-        <TabsExample />
-      </Section>
-      <Section id="tooltip" title="Tooltip">
-        <TooltipExample />
-      </Section>
-      <Section id="command" title="Command">
-        <CommandExample />
-      </Section>
-      <h2 className="mb-10 mt-20 font-display text-3xl font-normal uppercase text-ink">Data & complex</h2>
-      <Section id="table" title="Table">
-        <TableExample />
-      </Section>
-      <Section id="carousel" title="Carousel">
-        <CarouselExample />
-      </Section>
-      <Section id="chart" title="Chart">
-        <ChartExample />
-      </Section>
+        <h2 className="mb-10 mt-20 font-display text-3xl font-normal uppercase text-ink">
+          Form controls
+        </h2>
+        <Section id="button" title="Button">
+          <ButtonExample />
+        </Section>
+        <Section id="button-group" title="Button group">
+          <ButtonGroupExample />
+        </Section>
+        <Section id="badge" title="Badge">
+          <BadgeExample />
+        </Section>
+        <Section id="label" title="Label">
+          <LabelExample />
+        </Section>
+        <Section id="input" title="Input">
+          <InputExample />
+        </Section>
+        <Section id="input-group" title="Input group">
+          <InputGroupExample />
+        </Section>
+        <Section id="input-otp" title="Input otp">
+          <InputOtpExample />
+        </Section>
+        <Section id="textarea" title="Textarea">
+          <TextareaExample />
+        </Section>
+        <Section id="native-select" title="Native select">
+          <NativeSelectExample />
+        </Section>
+        <Section id="select" title="Select">
+          <SelectExample />
+        </Section>
+        <Section id="checkbox" title="Checkbox">
+          <CheckboxExample />
+        </Section>
+        <Section id="radio-group" title="Radio group">
+          <RadioGroupExample />
+        </Section>
+        <Section id="switch" title="Switch">
+          <SwitchExample />
+        </Section>
+        <Section id="slider" title="Slider">
+          <SliderExample />
+        </Section>
+        <Section id="toggle" title="Toggle">
+          <ToggleExample />
+        </Section>
+        <Section id="toggle-group" title="Toggle group">
+          <ToggleGroupExample />
+        </Section>
+        <Section id="field" title="Field">
+          <FieldExample />
+        </Section>
+        <Section id="combobox" title="Combobox">
+          <ComboboxExample />
+        </Section>
+        <Section id="calendar" title="Calendar">
+          <CalendarExample />
+        </Section>
+        <h2 className="mb-10 mt-20 font-display text-3xl font-normal uppercase text-ink">
+          Layout & feedback
+        </h2>
+        <Section id="card" title="Card">
+          <CardExample />
+        </Section>
+        <Section id="separator" title="Separator">
+          <SeparatorExample />
+        </Section>
+        <Section id="alert" title="Alert">
+          <AlertExample />
+        </Section>
+        <Section id="aspect-ratio" title="Aspect ratio">
+          <AspectRatioExample />
+        </Section>
+        <Section id="avatar" title="Avatar">
+          <AvatarExample />
+        </Section>
+        <Section id="breadcrumb" title="Breadcrumb">
+          <BreadcrumbExample />
+        </Section>
+        <Section id="kbd" title="Kbd">
+          <KbdExample />
+        </Section>
+        <Section id="pagination" title="Pagination">
+          <PaginationExample />
+        </Section>
+        <Section id="progress" title="Progress">
+          <ProgressExample />
+        </Section>
+        <Section id="skeleton" title="Skeleton">
+          <SkeletonExample />
+        </Section>
+        <Section id="spinner" title="Spinner">
+          <SpinnerExample />
+        </Section>
+        <Section id="empty" title="Empty">
+          <EmptyExample />
+        </Section>
+        <Section id="item" title="Item">
+          <ItemExample />
+        </Section>
+        <Section id="scroll-area" title="Scroll area">
+          <ScrollAreaExample />
+        </Section>
+        <Section id="resizable" title="Resizable">
+          <ResizableExample />
+        </Section>
+        <Section id="sonner" title="Sonner">
+          <SonnerExample />
+        </Section>
+        <h2 className="mb-10 mt-20 font-display text-3xl font-normal uppercase text-ink">
+          Overlays & navigation
+        </h2>
+        <Section id="accordion" title="Accordion">
+          <AccordionExample />
+        </Section>
+        <Section id="alert-dialog" title="Alert dialog">
+          <AlertDialogExample />
+        </Section>
+        <Section id="collapsible" title="Collapsible">
+          <CollapsibleExample />
+        </Section>
+        <Section id="context-menu" title="Context menu">
+          <ContextMenuExample />
+        </Section>
+        <Section id="dialog" title="Dialog">
+          <DialogExample />
+        </Section>
+        <Section id="drawer" title="Drawer">
+          <DrawerExample />
+        </Section>
+        <Section id="dropdown-menu" title="Dropdown menu">
+          <DropdownMenuExample />
+        </Section>
+        <Section id="hover-card" title="Hover card">
+          <HoverCardExample />
+        </Section>
+        <Section id="menubar" title="Menubar">
+          <MenubarExample />
+        </Section>
+        <Section id="navigation-menu" title="Navigation menu">
+          <NavigationMenuExample />
+        </Section>
+        <Section id="popover" title="Popover">
+          <PopoverExample />
+        </Section>
+        <Section id="sheet" title="Sheet">
+          <SheetExample />
+        </Section>
+        <Section id="sidebar" title="Sidebar">
+          <SidebarExample />
+        </Section>
+        <Section id="tabs" title="Tabs">
+          <TabsExample />
+        </Section>
+        <Section id="tooltip" title="Tooltip">
+          <TooltipExample />
+        </Section>
+        <Section id="command" title="Command">
+          <CommandExample />
+        </Section>
+        <h2 className="mb-10 mt-20 font-display text-3xl font-normal uppercase text-ink">
+          Data & complex
+        </h2>
+        <Section id="table" title="Table">
+          <TableExample />
+        </Section>
+        <Section id="carousel" title="Carousel">
+          <CarouselExample />
+        </Section>
+        <Section id="chart" title="Chart">
+          <ChartExample />
+        </Section>
       </div>
       <Toaster />
     </TooltipProvider>

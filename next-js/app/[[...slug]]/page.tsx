@@ -26,7 +26,9 @@ import { resolveRoute } from "@/lib/routes";
 export async function generateStaticParams() {
   const manifest = await getRoutes();
   // /styleguide/ is its own segment (app/styleguide); other-language styleguide paths redirect to it.
-  return manifest.routes.filter((route) => route.kind !== "styleguide").map((route) => ({ slug: route.path.split("/").filter(Boolean) }));
+  return manifest.routes
+    .filter((route) => route.kind !== "styleguide")
+    .map((route) => ({ slug: route.path.split("/").filter(Boolean) }));
 }
 
 const ROUTES = {

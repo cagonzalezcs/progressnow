@@ -7,7 +7,9 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
     <div
       data-slot="table-container"
-      // a11y: a horizontally scrollable region needs keyboard access (axe scrollable-region-focusable).
+      // a11y: a horizontally scrollable region needs keyboard access (axe scrollable-region-focusable,
+      // WCAG 2.1.1); jsx-a11y's static rule cannot see the overflow, hence the exception.
+      // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
       tabIndex={0}
       className="relative w-full overflow-x-auto"
     >

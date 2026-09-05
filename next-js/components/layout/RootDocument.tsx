@@ -13,8 +13,17 @@ const FONT_PRELOADS = [
  * never reaches another route). The a11y bootstrap runs before first paint
  * (so <html> carries the visitor's settings on the first frame);
  * `nonce` arrives with the CSP work (task 8.1). */
-export function RootDocument({ lang, nonce, children }: { lang: string; nonce?: string; children: ReactNode }) {
-  for (const href of FONT_PRELOADS) preload(href, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
+export function RootDocument({
+  lang,
+  nonce,
+  children,
+}: {
+  lang: string;
+  nonce?: string;
+  children: ReactNode;
+}) {
+  for (const href of FONT_PRELOADS)
+    preload(href, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
   return (
     // suppressHydrationWarning: the pre-paint a11y bootstrap legitimately mutates <html>
     // (font-size, data-text-size, data-motion, .a11y-contrast) before React hydrates.

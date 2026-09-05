@@ -203,7 +203,7 @@ export function BrandSections() {
         <div className="space-y-6">
           <div data-tone="blue" className="rounded-[18px] bg-brand px-6 py-8 text-white">
             <p className="hero-headline">A better tomorrow is possible!</p>
-            <p className="mt-2 text-center text-xs font-extrabold uppercase tracking-[0.12em] text-brand-light">
+            <p className="mt-2 text-center text-xs font-extrabold uppercase tracking-[0.12em] text-white">
               Hero H1 — Bowlby One, 0.09em deep-blue offset
             </p>
           </div>
@@ -394,7 +394,7 @@ export function BrandSections() {
         <div className="overflow-hidden rounded-[18px] border border-line">
           <div data-tone="blue" className="bg-brand px-6 py-8 text-white">
             <p className="font-display uppercase">data-tone=&quot;blue&quot;</p>
-            <p className="text-sm text-brand-light">High contrast → #0F2E9C; focus ring white</p>
+            <p className="text-sm text-white">High contrast → #0F2E9C; focus ring white</p>
           </div>
           <div data-tone="white" className="bg-white px-6 py-8 text-ink">
             <p className="font-display uppercase">data-tone=&quot;white&quot;</p>

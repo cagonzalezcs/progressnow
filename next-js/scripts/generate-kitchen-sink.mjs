@@ -10,7 +10,10 @@ const DIR = new URL("../components/styleguide/examples/", import.meta.url);
 const OUT = new URL("../components/site/styleguide/kitchen-sink.generated.tsx", import.meta.url);
 // Data (TOC, component list) lives in a server-safe module: a "use client" module's
 // non-component exports arrive in Server Components as client references, not values.
-const OUT_TOC = new URL("../components/site/styleguide/kitchen-sink-toc.generated.ts", import.meta.url);
+const OUT_TOC = new URL(
+  "../components/site/styleguide/kitchen-sink-toc.generated.ts",
+  import.meta.url,
+);
 
 /** Section grouping in the Nuxt styleguide's order; anything unlisted lands in "More". */
 const GROUPS = [
