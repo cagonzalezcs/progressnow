@@ -1,0 +1,19 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+	"name": "progressnow/video",
+	"title": "Video",
+	"description": "YouTube/Vimeo video with poster, caption, and transcript link (a11y).",
+	"category": "media",
+	"icon": "video-alt3",
+	"keywords": [ "video", "youtube", "vimeo", "embed" ],
+	"acf": {
+		"mode": "preview",
+		"renderTemplate": "render.php"
+	},
+	"supports": {
+		"align": false,
+		"html": false,
+		"mode": true
+	}
+}

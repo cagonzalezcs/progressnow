@@ -1,0 +1,156 @@
+{
+    "lang": "",
+    "id": 0,
+    "path": "/?page_id=0",
+    "kind": "get_involved",
+    "template": "page-templates/get-involved.php",
+    "title": "Get involved",
+    "lede": "",
+    "content": "",
+    "documents": [],
+    "grievance": {
+        "show": true,
+        "body": ""
+    },
+    "newhere": {
+        "heading": "Get involved",
+        "body": "Meetings, actions and committees are open to everyone. Come find your place in the work.",
+        "link_label": "Join Now",
+        "url": "/get-involved/#join",
+        "external": false
+    },
+    "about": null,
+    "gi": {
+        "join": {
+            "visible": true,
+            "heading": "How to join",
+            "steps": [
+                {
+                    "title": "Become a member",
+                    "body": "Sign up in a few minutes. Dues are sliding-scale — pay what you can, and <strong>no one is turned away for lack of funds</strong>.",
+                    "link_label": "Join now →",
+                    "href": "/get-involved/#join",
+                    "external": true
+                },
+                {
+                    "title": "Come to Progress Now 101",
+                    "body": "Our intro session for new and curious folks — what we stand for, what our chapter is working on, and how to plug in. Offered virtually and in person, multiple times a month. You don't have to be a member yet to attend.",
+                    "link_label": "Find a session →",
+                    "href": "/calendar/",
+                    "external": false
+                },
+                {
+                    "title": "Get onboarded & plug in",
+                    "body": "After 101, we'll add you to our WhatsApp and match you with a committee that fits your interests and capacity — whether that's an hour a month or a night a week.",
+                    "link_label": "Browse committees ↓",
+                    "href": "#committees",
+                    "external": false
+                }
+            ]
+        },
+        "committees": {
+            "visible": true,
+            "heading": "Committees",
+            "intro": "Committees are where the work happens. Each one meets regularly and welcomes new members — reach out through the WhatsApp or at any general meeting."
+        },
+        "channels": {
+            "visible": true,
+            "heading": "Communication channels",
+            "items": [
+                {
+                    "label": "WhatsApp",
+                    "desc": "Our main channel — members receive an invite during onboarding",
+                    "link_label": "",
+                    "url": "",
+                    "badge": "Members only",
+                    "external": false
+                },
+                {
+                    "label": "Email",
+                    "desc": "Questions, press, and anything else",
+                    "link_label": "Write us",
+                    "url": "mailto:",
+                    "badge": "",
+                    "external": false
+                }
+            ]
+        },
+        "faq": {
+            "visible": true,
+            "heading": "Common questions",
+            "items": [
+                {
+                    "question": "Do I have to be a member to come to events?",
+                    "answer": "Nope — most of our events are open to everyone. Come to a 101 or a social, meet folks, and see if it's for you. No pressure."
+                },
+                {
+                    "question": "How much are dues?",
+                    "answer": "Dues are sliding-scale — most folks pay a few dollars a month. If dues are a barrier, talk to us: no one is turned away for lack of funds."
+                },
+                {
+                    "question": "I've never done anything political before. Is that okay?",
+                    "answer": "More than okay — it's the norm. Most members joined without any organizing experience. Progress Now 101 exists exactly for this, and committees will teach you everything as you go."
+                },
+                {
+                    "question": "Can I participate without being publicly visible?",
+                    "answer": "Yes. There are plenty of ways to contribute behind the scenes, and we take members' privacy and safety seriously. Talk to us about what you're comfortable with."
+                },
+                {
+                    "question": "How much time does membership take?",
+                    "answer": "As much or as little as you have. Some members show up to one event a month; others help lead committees. Capacity changes — that's fine. The work is a marathon, not a sprint."
+                }
+            ]
+        },
+        "card": {
+            "heading": "Ready right now?",
+            "body": "Membership takes five minutes, and dues are pay-what-you-can.",
+            "link_label": "Join us",
+            "url": "/get-involved/#join",
+            "external": false
+        },
+        "related": [
+            {
+                "label": "Event Calendar",
+                "url": "/calendar/",
+                "external": false
+            },
+            {
+                "label": "Bylaws & Code of Conduct",
+                "url": "/bylaws-code-of-conduct/",
+                "external": false
+            },
+            {
+                "label": "Mission & History",
+                "url": "/about/#mission",
+                "external": false
+            }
+        ],
+        "nav": [
+            {
+                "href": "#join",
+                "label": "How to join"
+            },
+            {
+                "href": "#committees",
+                "label": "Committees"
+            },
+            {
+                "href": "#channels",
+                "label": "Communication channels"
+            },
+            {
+                "href": "#faq",
+                "label": "Common questions"
+            }
+        ]
+    },
+    "calendar": null,
+    "languages": [],
+    "seo": {
+        "title": "Get involved – Progress Now",
+        "description": "Organizing our community.",
+        "canonical": "http://example.org/?page_id=0",
+        "robots": "index,follow",
+        "hreflang": []
+    }
+}

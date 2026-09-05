@@ -1,0 +1,216 @@
+{% extends "base.twig" %}
+
+{#
+  About page — v4 interior layout (openspec progress-now-v4-interior-404 D1,
+  canvas "Progress Now Interior v4" + Tablet/Mobile). Twin of
+  site/app/components/routes/RouteAbout.vue — keep the class literals identical.
+  Section content comes from the "About page" ACF group (inc/pages.php),
+  defaulted in PHP to the design copy — `about.*` is always fully set; the
+  section ids (#chapter #mission #counties #committees #bylaws #faq) feed the
+  visibility-driven `about.nav` (editable-page-sections).
+#}
+
+{# ---- shared interior recipes (mirror the consts in RouteAbout.vue) ---- #}
+{% set h2class = 'm-0 scroll-mt-[calc(110px+var(--wp-admin--admin-bar--height,0px))] font-display text-[1.35rem] font-normal leading-[1.2] md:text-[1.6rem] md:leading-[1.15] xl:text-[clamp(1.6rem,2.6vw,2.2rem)] xl:leading-[1.1]' %}
+{% set h2later = 'mt-3.5 xl:mt-[18px]' %}
+{# Editor prose (kses'd WYSIWYG rendered |raw): wrapper owns the typography so
+   wpautop's <p> tags don't nest inside a template <p>. #}
+{% set prose = 'text-[1.02rem] leading-[1.65] text-text-body md:text-[1.05rem] xl:text-[1.12rem] [&_p]:m-0 [&_p+p]:mt-4 [&_a]:font-bold [&_a]:text-accent [&_a]:underline [&_a]:underline-offset-[3px] hover:[&_a]:text-brand-deep [&_ul]:my-0 [&_ul]:list-[square] [&_ul]:pl-5 [&_ol]:my-0 [&_ol]:list-decimal [&_ol]:pl-5 [&_strong]:font-extrabold [&_strong]:text-ink' %}
+{% set card_grid = 'grid gap-3.5 md:grid-cols-2 md:gap-4 xl:gap-5 xl:[grid-template-columns:repeat(auto-fit,minmax(240px,1fr))]' %}
+{% set card = 'flex flex-col gap-1.5 rounded-[16px] bg-white px-5 py-[18px] shadow-card md:gap-[7px] md:rounded-[18px] md:px-[22px] md:py-5 xl:gap-2 xl:rounded-[20px] xl:px-6 xl:py-[22px]' %}
+{% set card_title = 'font-display text-[0.98rem] font-normal text-brand [text-wrap:balance] md:text-base xl:text-[1.05rem]' %}
+{% set card_desc = 'm-0 text-[0.95rem] leading-[1.5] text-text-body xl:text-base xl:leading-[1.55]' %}
+{% set row = 'rounded-[12px] border border-line bg-white px-4 py-3.5 md:rounded-[14px] md:px-[18px] md:py-4' %}
+{% set callout = 'm-0 flex flex-col gap-2.5 rounded-[16px] border-l-[5px] border-brand bg-alt px-[22px] py-5 md:rounded-[18px] md:px-[26px] md:py-[22px] xl:rounded-[20px] xl:border-l-[6px] xl:px-[30px] xl:py-[26px]' %}
+{% set pill_fill = 'rounded-full bg-accent px-[22px] py-[11px] font-display text-[0.88rem] font-normal tracking-[0.04em] text-white no-underline transition-colors hover:bg-brand-deep md:text-[0.9rem]' %}
+{% set pill_outline = 'rounded-full border-2 border-accent px-5 py-[9px] font-display text-[0.88rem] font-normal tracking-[0.04em] text-accent no-underline transition-colors hover:bg-accent hover:text-white md:text-[0.9rem]' %}
+{% set link_accent = 'self-start text-[0.95rem] font-bold text-accent no-underline hover:underline hover:underline-offset-4 md:text-[0.98rem]' %}
+{% set chip = 'rounded-full border border-control bg-white px-3.5 py-2 text-[0.88rem] font-bold text-ink no-underline hover:border-accent hover:text-accent' %}
+
+{% block content %}
+	{% include 'partials/page-header.twig' with {
+		title: post.title ? function('html_entity_decode', post.title) : "About the Chapter",
+		lede: page_lede|default('') ?: "A member-run chapter organizing for working people across " ~ chapter.region_label ~ ".",
+		crumbs: [{ label: pll__('Home'), href: home_url|default('/') }]
+	} only %}
+
+	{# ---- Mission band ---- #}
+	{% if about.mission.visible %}
+	<section id="mission-band" class="bg-ink px-6 py-10 text-white md:px-10 md:py-12 xl:px-6 xl:py-16" data-tone="ink">
+		<div class="mx-auto flex max-w-[1140px] flex-col gap-3 md:gap-3.5 xl:gap-[18px]">
+			<div class="text-[0.82rem] font-extrabold uppercase tracking-[0.12em] text-brand-light md:text-[0.85rem] xl:text-[0.9rem]">{{ about.mission.eyebrow }}</div>
+			<p class="m-0 font-display text-[1.25rem] font-normal leading-[1.3] md:max-w-[36ch] md:text-[1.6rem] md:leading-[1.25] xl:max-w-[38ch] xl:text-[clamp(1.5rem,2.8vw,2.3rem)] xl:leading-[1.2]">{{ about.mission.body }}</p>
+		</div>
+	</section>
+	{% endif %}
+
+	<section class="bg-white px-6 pb-14 pt-11 md:px-10 md:pb-[72px] md:pt-14 xl:px-6 xl:pb-24 xl:pt-16" data-tone="white">
+		<div class="mx-auto grid max-w-[1140px] items-start gap-10 md:gap-9 md:[grid-template-columns:minmax(0,1fr)_260px] xl:gap-14 xl:[grid-template-columns:minmax(300px,1fr)_310px]">
+
+			{# On-this-page chips above the article on phones; the sidebar card
+			   carries the same links from md. `about.nav` is PHP-computed from the
+			   visible sections (inc/pages.php). #}
+			{% if about.nav|length %}
+				<nav aria-label="{{ pll__('On this page') }}" class="flex flex-wrap gap-2 md:hidden">
+					{% for item in about.nav %}
+						<a href="{{ item.href }}" class="{{ chip }}">{{ item.label }}</a>
+					{% endfor %}
+				</nav>
+			{% endif %}
+
+			<article class="flex min-w-0 flex-col gap-5 md:gap-[22px] xl:gap-[26px]">
+
+				{# ---- 1. About the Chapter ---- #}
+				{% if about.chapter.visible %}
+				<h2 id="chapter" class="{{ h2class }}">{{ about.chapter.heading }}</h2>
+				<div class="{{ prose }}">{{ about.chapter.p1|raw }}</div>
+				<div class="{{ prose }}">{{ about.chapter.p2|raw }}</div>
+
+				{% if about.chapter.photo %}
+					<figure class="m-0 my-1.5 flex flex-col md:my-2 xl:my-3">
+						{% include 'partials/duotone.twig' with { image: about.chapter.photo, opacity: 0.3, class: 'rounded-[16px] md:rounded-[18px] xl:rounded-[20px]', img_class: 'block h-auto w-full', loading: 'lazy' } only %}
+						{% if about.chapter.photo.alt %}
+							<figcaption class="mt-2.5 text-[0.85rem] text-muted md:text-[0.88rem] xl:mt-3 xl:text-[0.9rem]">{{ about.chapter.photo.alt }}</figcaption>
+						{% endif %}
+					</figure>
+				{% endif %}
+
+				{% if about.chapter.ctas|length %}
+				<div class="flex flex-wrap gap-3">
+					{% for cta in about.chapter.ctas %}
+						<a href="{{ cta.url }}"{% if cta.external %} target="_blank" rel="noopener"{% endif %} class="{{ loop.first ? pill_fill : pill_outline }}">{{ cta.label }}</a>
+					{% endfor %}
+				</div>
+				{% endif %}
+				{% endif %}
+
+				{# ---- 2. Mission & History ---- #}
+				{% if about.history.visible %}
+				<h2 id="mission" class="{{ h2class }} {{ h2later }}">{{ about.history.heading }}</h2>
+				<div class="{{ prose }}">{{ about.history.body|raw }}</div>
+
+				{% if about.history.timeline|length %}
+				<ol class="m-0 flex list-none flex-col gap-2.5 p-0">
+					{% for item in about.history.timeline %}
+						<li class="grid items-baseline gap-3.5 [grid-template-columns:72px_1fr] md:gap-[18px] md:[grid-template-columns:90px_1fr] {{ row }}">
+							<span class="font-display text-[0.95rem] font-normal text-brand md:text-base">{{ item.year }}</span>
+							<span class="text-[0.95rem] leading-[1.55] text-text-body md:text-base">{{ item.text|raw }}</span>
+						</li>
+					{% endfor %}
+				</ol>
+				{% endif %}
+				{% endif %}
+
+				{# ---- 3. Where We Organize ---- #}
+				{% if about.counties.visible %}
+				<h2 id="counties" class="{{ h2class }} {{ h2later }}">{{ about.counties.heading }}</h2>
+				<div class="{{ prose }}">{{ about.counties.intro|raw }}</div>
+
+				<div class="{{ card_grid }}">
+					{% for c in about.counties.cards %}
+						<div class="{{ card }}">
+							<div class="notranslate {{ card_title }}">{{ c.name }}</div>
+							{% if c.cities %}
+								<p class="notranslate {{ card_desc }}">{{ c.cities }}</p>
+							{% endif %}
+							{% if c.note %}
+								<div class="mt-0.5 text-[0.82rem] font-bold text-accent">{{ c.note }}</div>
+							{% endif %}
+						</div>
+					{% endfor %}
+				</div>
+				{% endif %}
+
+				{# ---- 4. Committees (rows edited under Chapter Settings) ---- #}
+				{% if about.committees.visible %}
+				<h2 id="committees" class="{{ h2class }} {{ h2later }}">{{ about.committees.heading }}</h2>
+				<div class="{{ prose }}">{{ about.committees.intro|raw }}</div>
+
+				<div class="{{ card_grid }}">
+					{% for committee in chapter.committees %}
+						<div class="{{ card }}">
+							<div class="{{ card_title }}">{{ committee.name }}</div>
+							<p class="{{ card_desc }}">{{ committee.desc }}</p>
+						</div>
+					{% endfor %}
+				</div>
+
+				{% if about.committees.link.url %}
+					<a href="{{ about.committees.link.url }}"{% if about.committees.link.external %} target="_blank" rel="noopener"{% endif %} class="{{ link_accent }}">{{ about.committees.link.label }} &rarr;</a>
+				{% endif %}
+				{% endif %}
+
+				{# ---- 5. Bylaws & Code of Conduct ---- #}
+				{% if about.governance.visible %}
+				<h2 id="bylaws" class="{{ h2class }} {{ h2later }}">{{ about.governance.heading }}</h2>
+				<div class="{{ prose }}">{{ about.governance.intro|raw }}</div>
+
+				<div class="flex flex-col gap-2.5">
+					{% for doc in about.governance.docs %}
+						<div class="flex flex-col items-start gap-3 md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-5 {{ row }}">
+							<div class="flex flex-col gap-[3px]">
+								<span class="text-[1.02rem] font-bold md:text-[1.05rem]">{{ doc.title }}</span>
+								{% if doc.covers %}<span class="text-[0.9rem] leading-[1.5] text-muted">{{ doc.covers }}</span>{% endif %}
+							</div>
+							{% if doc.url %}
+								<a href="{{ doc.url }}" class="whitespace-nowrap {{ pill_outline }}">{{ doc.action }}</a>
+							{% endif %}
+						</div>
+					{% endfor %}
+				</div>
+				{% endif %}
+
+				{# ---- 6. FAQ — FaqAccordion island (D2: reka accordion, bordered rows) ---- #}
+				{% if about.faq.visible %}
+				<h2 id="faq" class="{{ h2class }} {{ h2later }}">{{ about.faq.heading }}</h2>
+
+				<div data-vue-island="FaqAccordion" data-props='{{ { items: about.faq.rows }|json_encode|e("html_attr") }}'>
+					{# Server fallback (crawlers, Nuxt shells): the same rows, always open. #}
+					<div class="faq-accordion flex flex-col gap-2.5 lg:gap-3">
+						{% for item in about.faq.rows %}
+							<div class="overflow-hidden rounded-[12px] border border-line bg-white lg:rounded-[14px]">
+								<div class="px-4 py-3.5 text-[0.98rem] font-bold text-ink lg:px-5 lg:py-4 lg:text-[1.05rem]">{{ item.question }}</div>
+								<p class="m-0 px-4 pb-4 text-[0.95rem] leading-[1.6] text-text-body lg:px-5 lg:pb-[18px] lg:text-[1.02rem]">{{ item.answer }}</p>
+							</div>
+						{% endfor %}
+					</div>
+				</div>
+				{% endif %}
+
+				{# ---- Dues callout ---- #}
+				{% if about.dues.visible %}
+				<aside id="dues" class="mt-1.5 {{ callout }}">
+					<div class="font-display text-base font-normal text-brand md:text-[1.05rem]">{{ about.dues.heading }}</div>
+					<div class="text-base leading-[1.65] text-text-body [&_p]:m-0 [&_p+p]:mt-3 [&_a]:font-bold [&_a]:text-accent [&_a]:underline [&_a]:underline-offset-[3px]">{{ about.dues.body|raw }}</div>
+					<a href="{{ chapter.join_url }}" target="_blank" rel="noopener" class="mt-1 self-start {{ pill_fill }}">{{ pll__('Update my dues') }}</a>
+				</aside>
+				{% endif %}
+
+			</article>
+
+			{# ---- Sidebar: On this page · Get involved · Documents · Contact ---- #}
+			<aside aria-label="{{ pll__('Related') }}" class="flex flex-col gap-5 md:sticky md:top-[calc(120px+var(--wp-admin--admin-bar--height,0px))] xl:top-[calc(108px+var(--wp-admin--admin-bar--height,0px))] xl:gap-6">
+				{% if about.nav|length %}
+					<div class="hidden md:contents">
+						{% include 'partials/link-list-card.twig' with { heading: pll__('On this page'), links: about.nav|map(i => { label: i.label, href: i.href }) } only %}
+					</div>
+				{% endif %}
+
+				{% if newhere %}
+					{% include 'partials/cta-card.twig' with { id: 'involved', title: newhere.heading, body: newhere.body, href: newhere.url, label: newhere.link_label, external: newhere.external|default(false) } only %}
+				{% endif %}
+
+				{% if about.governance.visible and about.governance.docs|length %}
+					{% include 'partials/link-list-card.twig' with { id: 'documents', heading: pll__('Documents'), links: about.governance.docs|filter(d => d.url)|map(d => { label: d.title, href: d.url }) } only %}
+				{% endif %}
+
+				{% if chapter.contact_email %}
+					{% include 'partials/dashed-note.twig' with { id: 'contact', heading: pll__('Contact'), body: '<p>' ~ pll__('Questions, ideas, or press —') ~ ' <a class="notranslate" href="mailto:' ~ chapter.contact_email ~ '">' ~ chapter.contact_email ~ '</a></p>' } only %}
+				{% endif %}
+			</aside>
+
+		</div>
+	</section>
+
+	{% include 'partials/subscribe-strip.twig' with { href: chapter.newsletter_url, title: pll__('Never miss an update'), lede: pll__('One email when something new lands — meetings, actions, and posts. No spam, ever.'), label: pll__('Subscribe') } only %}
+{% endblock %}

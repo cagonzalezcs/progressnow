@@ -1,0 +1,11 @@
+{#
+  Photo slot (openspec progress-now-v4-foundation-chrome D4 — the duotone
+  treatment was retired 2026-09-05; photos render full-color, `opacity` is
+  markup parity only). Twin of src/components/site/DuotoneImage.vue — emits
+  the identical markup so the PHP first paint and the hydrated app are
+  pixel-equal. Vars: image ({ src, alt, width, height, srcset }), opacity
+  (legacy, no visual effect), class (wrapper: radius / sizing), img_class
+  (default 'block h-auto w-full'), sizes, loading, fetchpriority.
+    include 'partials/duotone.twig' with { image, opacity, class, img_class, loading } only
+#}
+<span class="duotone{% if class is defined and class %} {{ class }}{% endif %}" style="--duotone-opacity: {{ opacity|default(0.3) }}"><img src="{{ image.src }}" alt="{{ image.alt|default('') }}"{% if image.width is defined and image.width %} width="{{ image.width }}"{% endif %}{% if image.height is defined and image.height %} height="{{ image.height }}"{% endif %}{% if image.srcset is defined and image.srcset %} srcset="{{ image.srcset }}"{% endif %}{% if sizes is defined and sizes %} sizes="{{ sizes }}"{% endif %}{% if loading is defined and loading %} loading="{{ loading }}"{% endif %}{% if fetchpriority is defined and fetchpriority %} fetchpriority="{{ fetchpriority }}"{% endif %} class="{{ img_class|default('block h-auto w-full') }}"></span>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Progress Now">
+  <!-- Placeholder square mark (JSON-LD Organization.logo source).
+       Replace via Chapter Settings → Identity & brand. -->
+  <rect width="512" height="512" rx="64" fill="#dc1520"/>
+  <path d="M256 60 L302 186 L436 192 L330 274 L370 404 L256 328 L142 404 L182 274 L76 192 L210 186 Z" fill="#f7f5f1"/>
+  <text x="256" y="474" text-anchor="middle" fill="#f7f5f1" font-family="'Bowlby One', Impact, 'Arial Black', sans-serif" font-size="54" letter-spacing="2">PROGRESS NOW</text>
+</svg>

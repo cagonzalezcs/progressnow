@@ -1,0 +1,14 @@
+{
+    "id": "11",
+    "title": "Contract Test Post",
+    "slug": "contract-test-post",
+    "cat": "chapter",
+    "date": "Jun 1, 2026",
+    "excerpt": "A deterministic excerpt.",
+    "bylineMode": "named",
+    "author": "",
+    "featured": false,
+    "readMinutes": 1,
+    "url": "http://example.org/?p=11",
+    "image": null
+}

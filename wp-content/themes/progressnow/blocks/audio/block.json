@@ -1,0 +1,19 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+	"name": "progressnow/audio",
+	"title": "Audio",
+	"description": "Audio file with title, duration, and transcript file (a11y).",
+	"category": "media",
+	"icon": "format-audio",
+	"keywords": [ "audio", "podcast", "recording" ],
+	"acf": {
+		"mode": "preview",
+		"renderTemplate": "render.php"
+	},
+	"supports": {
+		"align": false,
+		"html": false,
+		"mode": true
+	}
+}

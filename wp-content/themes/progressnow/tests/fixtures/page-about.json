@@ -1,0 +1,211 @@
+{
+    "lang": "",
+    "id": 0,
+    "path": "/?page_id=0",
+    "kind": "about",
+    "template": "page-templates/about.php",
+    "title": "About the Chapter",
+    "lede": "",
+    "content": "<p>About body.</p>\n",
+    "documents": [],
+    "grievance": {
+        "show": true,
+        "body": ""
+    },
+    "newhere": {
+        "heading": "Get involved",
+        "body": "Meetings, actions and committees are open to everyone. Come find your place in the work.",
+        "link_label": "Join Now",
+        "url": "/get-involved/#join",
+        "external": false
+    },
+    "about": {
+        "mission": {
+            "visible": true,
+            "eyebrow": "What we believe",
+            "body": "We believe our economy should be built democratically, by and for working people — not by billionaires for profit."
+        },
+        "chapter": {
+            "visible": true,
+            "heading": "About the Chapter",
+            "p1": "We are a member-run, member-funded organizing group. Our grassroots work focuses on labor organizing, mutual aid, and political education across our community.",
+            "p2": "Everything we do is member-led, member-funded, and open to anyone who wants to build a community that works for working people. We regularly host community meetings to share updates, plan campaigns, and hold political education lectures. If you’re a student, ask us about our campus branch.",
+            "photo": null,
+            "ctas": [
+                {
+                    "label": "Come to a meeting",
+                    "url": "/calendar/",
+                    "external": false
+                },
+                {
+                    "label": "Get involved",
+                    "url": "/get-involved/",
+                    "external": false
+                },
+                {
+                    "label": "Students",
+                    "url": "/get-involved/",
+                    "external": false
+                }
+            ]
+        },
+        "history": {
+            "visible": true,
+            "heading": "Mission & History",
+            "body": "We fight for a future where housing, healthcare, and a dignified living are guaranteed — and we believe the people who live and work in our community should be the ones deciding it. Our work centers on three pillars: labor organizing, mutual aid, and political education.",
+            "timeline": [
+                {
+                    "year": "1982",
+                    "text": "Progress Now is founded as a member-run organizing project."
+                },
+                {
+                    "year": "20XX",
+                    "text": "Local organizers form an organizing committee and begin meeting. <em class=\"text-muted\">(Year and details to be filled in by the chapter.)</em>"
+                },
+                {
+                    "year": "20XX",
+                    "text": "The chapter is chartered as an official local chapter. <em class=\"text-muted\">(Year and details to be filled in by the chapter.)</em>"
+                }
+            ]
+        },
+        "counties": {
+            "visible": true,
+            "heading": "Where We Organize",
+            "intro": "One chapter, many communities. Wherever you are in our community, you’re covered — and if you can help us organize deeper in your neighborhood, we want to hear from you.",
+            "cards": [
+                {
+                    "name": "Central",
+                    "cities": "Downtown · Midtown",
+                    "note": "Home base — most meetings held here"
+                },
+                {
+                    "name": "North",
+                    "cities": "Northside · Uptown",
+                    "note": ""
+                },
+                {
+                    "name": "South",
+                    "cities": "Southside · Riverside",
+                    "note": ""
+                },
+                {
+                    "name": "Campus",
+                    "cities": "Student branch",
+                    "note": ""
+                }
+            ]
+        },
+        "committees": {
+            "visible": true,
+            "heading": "Committees",
+            "intro": "Committees are where the work happens. Each one meets regularly and welcomes new members.",
+            "link": {
+                "label": "Join a committee",
+                "url": "/get-involved/#committees",
+                "external": false
+            }
+        },
+        "governance": {
+            "visible": true,
+            "heading": "Bylaws & Code of Conduct",
+            "intro": "The chapter is governed by its members through documents we debate and vote on together. Everything is public.",
+            "docs": [
+                {
+                    "title": "Chapter Bylaws",
+                    "covers": "How the chapter runs: officers, elections, quorum, committees, and how decisions get made.",
+                    "action": "Read",
+                    "url": "/bylaws-code-of-conduct/#documents"
+                },
+                {
+                    "title": "Code of Conduct",
+                    "covers": "What we expect of each other in every chapter space — meetings, actions, and online.",
+                    "action": "Read",
+                    "url": "/bylaws-code-of-conduct/#documents"
+                },
+                {
+                    "title": "Grievance Policy",
+                    "covers": "How to report harm and how the chapter handles conflict, confidentially and fairly.",
+                    "action": "Read",
+                    "url": "/bylaws-code-of-conduct/#grievance"
+                },
+                {
+                    "title": "Meeting Minutes",
+                    "covers": "Records and resolutions from general meetings, available to all members.",
+                    "action": "Browse",
+                    "url": "/bylaws-code-of-conduct/#documents"
+                }
+            ]
+        },
+        "faq": {
+            "visible": true,
+            "heading": "FAQ",
+            "rows": [
+                {
+                    "question": "Do I have to be a member to come to events?",
+                    "answer": "Nope — most of our events are open to everyone. Come to a 101 or a social, meet folks, and see if it's for you."
+                },
+                {
+                    "question": "How much are dues?",
+                    "answer": "Dues are sliding-scale — most folks pay a few dollars a month. No one is turned away for inability to pay."
+                },
+                {
+                    "question": "How do I change my dues rate?",
+                    "answer": "Enter the email associated with your membership in the dues form with your new dues amount, and your current dues will be canceled and updated."
+                },
+                {
+                    "question": "I've never done anything political before. Is that okay?",
+                    "answer": "More than okay — it's the norm. Most members joined without any organizing experience. Progress Now 101 exists exactly for this."
+                },
+                {
+                    "question": "Can I participate without being publicly visible?",
+                    "answer": "Yes. There are plenty of ways to contribute behind the scenes, and we take members' privacy and safety seriously."
+                },
+                {
+                    "question": "How much time does membership take?",
+                    "answer": "As much or as little as you have. Some members show up to one event a month; others help lead committees."
+                }
+            ]
+        },
+        "dues": {
+            "visible": true,
+            "heading": "Switching your dues rate?",
+            "body": "Already a member and changing your dues rate? Enter the email associated with your membership in the dues form with your new dues amount, and your current dues will be canceled and updated."
+        },
+        "nav": [
+            {
+                "href": "#chapter",
+                "label": "About the Chapter"
+            },
+            {
+                "href": "#mission",
+                "label": "Mission & History"
+            },
+            {
+                "href": "#counties",
+                "label": "Where We Organize"
+            },
+            {
+                "href": "#committees",
+                "label": "Committees"
+            },
+            {
+                "href": "#bylaws",
+                "label": "Bylaws & Code of Conduct"
+            },
+            {
+                "href": "#faq",
+                "label": "FAQ"
+            }
+        ]
+    },
+    "gi": null,
+    "calendar": null,
+    "languages": [],
+    "seo": {
+        "title": "About the Chapter – Progress Now",
+        "description": "Organizing our community.",
+        "canonical": "http://example.org/?page_id=0",
+        "robots": "index,follow",
+        "hreflang": []
+    }
+}

@@ -1,0 +1,39 @@
+{
+    "title": "Contract Test Post",
+    "dek": "",
+    "cat": "chapter",
+    "date": "June 1, 2026",
+    "readMinutes": 1,
+    "bylineMode": "named",
+    "author": "",
+    "authorAvatar": "https://secure.gravatar.com/avatar/?s=96&d=mm",
+    "committee": "",
+    "authorBio": "",
+    "committeeBio": "",
+    "featuredImage": {
+        "src": null,
+        "alt": "Contract Test Post"
+    },
+    "blocks": [
+        {
+            "type": "prose",
+            "html": "<p>Deterministic body prose for the contract test.</p>"
+        },
+        {
+            "type": "pull_quote",
+            "quote": "Fixed quote.",
+            "attribution": "Fixture"
+        }
+    ],
+    "tags": [],
+    "readNext": [],
+    "showMetaRail": false,
+    "languages": [],
+    "seo": {
+        "title": "Contract Test Post",
+        "description": "A deterministic excerpt.",
+        "canonical": "http://example.org/?p=14",
+        "robots": "index,follow",
+        "hreflang": []
+    }
+}

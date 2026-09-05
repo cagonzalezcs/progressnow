@@ -1,0 +1,305 @@
+{
+    "lang": "",
+    "homeUrl": "http://example.org/",
+    "apiBase": "http://example.org/index.php?rest_route=/progressnow/v1",
+    "languages": [],
+    "chapter": {
+        "name": "Progress Now",
+        "short_name": "Progress Now",
+        "region_label": "our community",
+        "join_url": "/get-involved/#join",
+        "newsletter_url": "",
+        "contact_email": "",
+        "footer_tagline": "",
+        "instagram_url": "",
+        "committees": [
+            {
+                "name": "Political Education",
+                "desc": "Reading groups, night school, and workshops that build our shared analysis."
+            },
+            {
+                "name": "Mutual Aid",
+                "desc": "Meeting our neighbors' immediate needs while organizing for lasting change."
+            },
+            {
+                "name": "Labor",
+                "desc": "Supporting workers organizing on the job across our community."
+            },
+            {
+                "name": "Communications",
+                "desc": "Social media, design, and this website — telling the chapter's story."
+            },
+            {
+                "name": "Electoral",
+                "desc": "Backing candidates and ballot measures that fight for working people."
+            },
+            {
+                "name": "Membership & Onboarding",
+                "desc": "Welcoming new members and making sure no one falls through the cracks."
+            }
+        ],
+        "socials": [
+            {
+                "name": "Facebook",
+                "url": ""
+            },
+            {
+                "name": "Instagram",
+                "url": ""
+            },
+            {
+                "name": "Twitter",
+                "url": ""
+            }
+        ]
+    },
+    "identity": {
+        "name": "Progress Now",
+        "short_name": "Progress Now",
+        "region_label": "our community",
+        "hero_headline": "A better world is possible!",
+        "logo_header": {
+            "src": "",
+            "alt": "Progress Now",
+            "width": 0,
+            "height": 0,
+            "is_default": true
+        },
+        "logo_footer": {
+            "src": "",
+            "alt": "Progress Now",
+            "width": 0,
+            "height": 0,
+            "is_default": true
+        },
+        "logo_square": {
+            "src": "/wp-content/themes/progressnow/static/images/brand/logo-square.png",
+            "alt": "Progress Now",
+            "width": 512,
+            "height": 512,
+            "is_default": true
+        },
+        "share_image": {
+            "src": "/wp-content/themes/progressnow/static/images/brand/share-default.jpg",
+            "alt": "Progress Now",
+            "width": 1200,
+            "height": 630,
+            "is_default": true
+        },
+        "hero_photo": {
+            "src": "/wp-content/themes/progressnow/static/images/brand/hero-photo.jpg",
+            "alt": "Chapter members gathered at a community action",
+            "width": 951,
+            "height": 716,
+            "is_default": true
+        },
+        "who_image": {
+            "src": "/wp-content/themes/progressnow/static/images/brand/who-photo.jpg",
+            "alt": "Volunteers working together at a community event",
+            "width": 920,
+            "height": 700,
+            "is_default": true
+        },
+        "cta_panel": {
+            "src": "/wp-content/themes/progressnow/static/images/brand/cta-panel.svg",
+            "alt": "",
+            "width": 1281,
+            "height": 563,
+            "is_default": true
+        }
+    },
+    "header": {
+        "navItems": [
+            {
+                "label": "Calendar",
+                "href": "/calendar/"
+            },
+            {
+                "label": "Blog",
+                "href": "/blog/"
+            },
+            {
+                "label": "Get Involved",
+                "href": "/get-involved/"
+            }
+        ],
+        "aboutItems": [
+            {
+                "label": "About the Chapter",
+                "href": "/about/"
+            },
+            {
+                "label": "Mission & History",
+                "href": "/about/#mission"
+            },
+            {
+                "label": "Where We Organize",
+                "href": "/about/#counties"
+            },
+            {
+                "label": "Committees",
+                "href": "/about/#committees"
+            },
+            {
+                "label": "Bylaws & Code of Conduct",
+                "href": "/about/#bylaws"
+            },
+            {
+                "label": "FAQ",
+                "href": "/about/#faq"
+            }
+        ],
+        "joinLabel": "Join us",
+        "joinShortLabel": "Join",
+        "aboutLabel": "About",
+        "joinUrl": "/get-involved/#join",
+        "logoUrl": "",
+        "logoIsDefault": true,
+        "orgName": "Progress Now",
+        "homeUrl": "/"
+    },
+    "footer": {
+        "logoUrl": "",
+        "logoIsDefault": true,
+        "orgName": "Progress Now",
+        "columns": null,
+        "socials": [
+            {
+                "name": "Facebook",
+                "url": ""
+            },
+            {
+                "name": "Instagram",
+                "url": ""
+            },
+            {
+                "name": "Twitter",
+                "url": ""
+            }
+        ],
+        "contactEmail": "",
+        "tagline": "",
+        "a11yLead": "Built to be accessible —",
+        "a11yLinkLabel": "tell us how we can do better."
+    },
+    "strings": {
+        "nav_about": "About",
+        "nav_calendar": "Calendar",
+        "nav_blog": "Blog",
+        "nav_get_involved": "Get Involved",
+        "cta_join": "Join us",
+        "cta_join_short": "Join",
+        "about_chapter": "About the Chapter",
+        "about_mission": "Mission & History",
+        "about_counties": "Where We Organize",
+        "about_committees": "Committees",
+        "about_bylaws": "Bylaws & Code of Conduct",
+        "about_faq": "FAQ",
+        "skip_link": "Skip to main content",
+        "footer_a11y_lead": "Built to be accessible —",
+        "footer_a11y_link": "tell us how we can do better.",
+        "home_hero_headline": "A better world is possible!",
+        "home_hero_photo_alt": "Chapter members gathered at a community action",
+        "home_who_photo_alt": "Volunteers working together at a community event",
+        "home_cta_line": "Progress now, not someday!",
+        "cta_join_now": "Join Now",
+        "home_events_head": "Upcoming events",
+        "home_events_all": "Full calendar",
+        "home_events_empty_h": "No events on the books yet",
+        "home_events_empty_p": "New meetings and actions land on the %s first — subscribe there and never miss one.",
+        "home_events_empty_link": "calendar",
+        "home_view_event": "View event",
+        "home_blog_head": "From the blog",
+        "home_blog_all": "All posts",
+        "home_blog_read": "Read the post",
+        "home_blog_empty_h": "Posts coming soon",
+        "home_blog_empty_p": "The chapter is writing its first dispatches — check back shortly.",
+        "blog_crumb_home": "Home",
+        "blog_crumb_blog": "Blog",
+        "blog_featured": "Featured",
+        "blog_search": "Search posts…",
+        "blog_empty_h": "No posts yet",
+        "blog_empty_p": "The chapter blog is warming up. Check back soon.",
+        "blog_subscribe_h": "Never miss a post",
+        "blog_subscribe_p": "One email when we publish. No spam, no lists sold — ever.",
+        "blog_subscribe_cta": "Subscribe",
+        "blog_share": "Share",
+        "blog_copy_link": "Copy link",
+        "blog_email_it": "Email it",
+        "blog_read_next": "Read next",
+        "blog_get_involved_h": "Get involved",
+        "blog_get_involved_p": "Meetings, actions and committees are open to everyone. Come find your place in the work.",
+        "cal_title": "Event calendar",
+        "cal_crumb_calendar": "Calendar",
+        "cal_month": "Month",
+        "cal_list": "List",
+        "cal_empty_h": "Nothing scheduled this month",
+        "cal_empty_p": "Check the next month or subscribe below and never miss one.",
+        "cal_subscribe_h": "Subscribe to the calendar",
+        "cal_subscribe_p": "Add every meeting and action to your own calendar automatically.",
+        "cal_google": "Google Calendar",
+        "cal_ics": "iCal / .ics",
+        "event_rsvp": "RSVP",
+        "event_add_calendar": "Add to calendar",
+        "event_about": "About this event",
+        "event_details": "Details",
+        "event_date": "Date",
+        "event_time": "Time",
+        "event_location": "Location",
+        "event_save_h": "Save your spot",
+        "event_save_p": "RSVP and we’ll send the details straight to you.",
+        "event_save_cta": "RSVP Now",
+        "event_contact": "Questions? Contact",
+        "event_more": "More upcoming events",
+        "chrome_on_this_page": "On this page",
+        "chrome_related": "Related",
+        "chrome_document": "Document",
+        "chrome_what_covers": "What it covers",
+        "chrome_action": "Action",
+        "interior_documents": "Documents",
+        "interior_contact": "Contact",
+        "interior_contact_p": "Questions, ideas, or press —",
+        "interior_subscribe_h": "Never miss an update",
+        "interior_subscribe_p": "One email when something new lands — meetings, actions, and posts. No spam, ever.",
+        "interior_subscribe_cta": "Subscribe",
+        "about_dues_cta": "Update my dues",
+        "page_grievance_h": "Need to report something?",
+        "nf_doc_title": "Page not found",
+        "nf_title": "This page got organized out of existence",
+        "nf_lede": "The page you’re looking for isn’t here — it may have moved, or the link may be broken.",
+        "nf_home": "Back home",
+        "nf_calendar": "See the calendar"
+    },
+    "categories": [
+        {
+            "id": "chapter",
+            "label": "Chapter-Wide",
+            "color": "#B01B22"
+        },
+        {
+            "id": "poled",
+            "label": "Political Education",
+            "color": "#33518F"
+        },
+        {
+            "id": "mutual",
+            "label": "Mutual Aid",
+            "color": "#1B6B40"
+        },
+        {
+            "id": "labor",
+            "label": "Labor",
+            "color": "#8F5715"
+        },
+        {
+            "id": "electoral",
+            "label": "Electoral",
+            "color": "#6E3B87"
+        },
+        {
+            "id": "social",
+            "label": "Social",
+            "color": "#0A6B74"
+        }
+    ]
+}

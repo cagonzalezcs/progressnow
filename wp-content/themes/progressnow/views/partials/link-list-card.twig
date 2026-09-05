@@ -1,0 +1,20 @@
+{#
+  Sidebar link-list card — twin of src/components/site/LinkListCard.vue.
+    {% include 'partials/link-list-card.twig' with { heading, links: [{label, href, external?}], rows: [{label, value}], id, aria_label } only %}
+  A <nav> when links are given, a <div> for the rows variant.
+#}
+{% set links = links|default([]) %}
+{% set rows = rows|default([]) %}
+{% set tag = links|length ? 'nav' : 'div' %}
+<{{ tag }}{% if id|default('') %} id="{{ id }}"{% endif %}{% if links|length %} aria-label="{{ aria_label|default(heading) }}"{% endif %} class="link-list-card flex flex-col gap-[9px] rounded-[16px] bg-white px-[22px] py-5 shadow-card lg:gap-2.5 lg:rounded-[20px] lg:px-[26px] lg:py-6">
+	<div class="mb-0.5 text-[0.95rem] font-extrabold uppercase tracking-[0.04em] text-ink lg:mb-1 lg:text-base">{{ heading }}</div>
+	{% for link in links %}
+		<a href="{{ link.href }}"{% if link.external|default(false) %} target="_blank" rel="noopener"{% endif %} class="text-[0.95rem] font-bold text-accent no-underline hover:underline hover:underline-offset-4 lg:text-[0.98rem]">{{ link.label }}</a>
+	{% endfor %}
+	{% for row in rows %}
+		<div class="flex flex-col gap-0.5">
+			<span class="row-label text-[0.78rem] font-extrabold uppercase tracking-[0.06em] text-muted">{{ row.label }}</span>
+			<span class="text-[0.98rem] font-semibold text-ink">{{ row.value }}</span>
+		</div>
+	{% endfor %}
+</{{ tag }}>

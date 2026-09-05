@@ -1,0 +1,58 @@
+{
+    "lang": "",
+    "id": 0,
+    "path": "/",
+    "hero": {
+        "subhead": "We’re fighting for the future our community deserves.",
+        "lede": "We’re a member-run organization building working-class power in our community.",
+        "cta_primary_label": "Join us",
+        "cta_primary_url": "/get-involved/#join",
+        "cta_secondary_label": "New member? Start with Progress Now 101. Sign up here",
+        "cta_secondary_url": "/get-involved/"
+    },
+    "who": {
+        "eyebrow": "Who we are",
+        "heading": "We are <span class=\"notranslate\">Progress Now</span>",
+        "p1": "In our community, we’re on the frontlines of fascism. We have billionaires in our backyard, ICE in our neighborhoods, and jobs that leave us overworked and underpaid.",
+        "p2": "But it doesn’t have to stay that way.",
+        "p3": "Together, we’re building working class power on multiple fronts so that every person in our community can live a life with dignity, respect, and solidarity. Organizing our workplaces and organizing our community to make sure our future is for workers and by workers. A better world is possible.<br>We’re gonna win.",
+        "link_label": "More about our chapter",
+        "link_url": "/about/"
+    },
+    "cta": {
+        "line": "Progress now, not someday!"
+    },
+    "eventCount": 5,
+    "events": [
+        {
+            "day": "04",
+            "month": "JUL",
+            "title": "Contract Test Event",
+            "when": "Thursday, July 4 · 6:00 PM",
+            "where": "Downtown",
+            "url": "http://example.org/?event=contract-test-event"
+        }
+    ],
+    "calendarUrl": "http://example.org/",
+    "blog": {
+        "featured": {
+            "cat": "chapter",
+            "cat_label": "Chapter-Wide",
+            "date": "June 1, 2026",
+            "read": "1 min read",
+            "title": "Contract Test Post",
+            "excerpt": "A deterministic excerpt.",
+            "url": "http://example.org/?p=0",
+            "image": null
+        },
+        "rows": []
+    },
+    "languages": [],
+    "seo": {
+        "title": "Progress Now – Organizing our community.",
+        "description": "We’re a member-run organization building working-class power in our community.",
+        "canonical": "http://example.org/",
+        "robots": "index,follow",
+        "hreflang": []
+    }
+}

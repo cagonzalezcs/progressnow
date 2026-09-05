@@ -1,0 +1,77 @@
+{
+    "lang": "",
+    "id": 0,
+    "path": "/?event=contract-test-event",
+    "event": {
+        "title": "Contract Test Event",
+        "summary": "",
+        "cat": "chapter",
+        "date": "2030-07-04",
+        "time": "6:00–8:00 PM",
+        "doorsTime": "",
+        "locationType": "in-person",
+        "venue": "Union Hall",
+        "city": "Downtown",
+        "cost": "",
+        "rsvpRequired": false,
+        "rsvpUrl": "",
+        "capacity": null,
+        "directionsUrl": "https://maps.google.com/?q=Union%20Hall%2C%20Downtown",
+        "gcalUrl": "https://calendar.google.com/calendar/render?action=TEMPLATE&text=Contract%20Test%20Event&dates=20300704T180000%2F20300704T200000&details=March%20at%20dawn.&location=Downtown%20%E2%80%94%20Union%20Hall&ctz=America%2FChicago",
+        "icsUrl": "",
+        "contact": {
+            "name": "",
+            "email": "",
+            "phone": ""
+        },
+        "featuredImage": {
+            "src": null,
+            "alt": "Contract Test Event"
+        },
+        "blocks": []
+    },
+    "categories": [
+        {
+            "id": "chapter",
+            "label": "Chapter-Wide",
+            "color": "#B01B22"
+        },
+        {
+            "id": "poled",
+            "label": "Political Education",
+            "color": "#33518F"
+        },
+        {
+            "id": "mutual",
+            "label": "Mutual Aid",
+            "color": "#1B6B40"
+        },
+        {
+            "id": "labor",
+            "label": "Labor",
+            "color": "#8F5715"
+        },
+        {
+            "id": "electoral",
+            "label": "Electoral",
+            "color": "#6E3B87"
+        },
+        {
+            "id": "social",
+            "label": "Social",
+            "color": "#0A6B74"
+        }
+    ],
+    "related": [],
+    "showRelated": true,
+    "homeUrl": "http://example.org/",
+    "calendarUrl": "http://example.org/",
+    "languages": [],
+    "seo": {
+        "title": "Contract Test Event – Progress Now",
+        "description": "March at dawn.",
+        "canonical": "http://example.org/?event=contract-test-event",
+        "robots": "index,follow",
+        "hreflang": []
+    }
+}

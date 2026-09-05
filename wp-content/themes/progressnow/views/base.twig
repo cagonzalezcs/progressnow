@@ -1,0 +1,199 @@
+{% block html_head_container %}
+
+{% include 'html-header.twig' %}
+	{% block head %}
+	{% endblock %}
+	</head>
+{% endblock %}
+
+	<body class="{{body_class}}" data-template="base.twig">
+		{{ function('wp_body_open') }}
+		<a class="skip-link absolute -left-[9999px] top-3 z-200 rounded-[8px] bg-ink px-[18px] py-2.5 font-sans text-[0.95rem] font-bold text-white no-underline focus:left-4" href="#main">{{ pll__('Skip to main content') }}</a>
+
+		{#
+		  Nuxt shell (inc/shell.php, openspec php-shell-handoff): everything the
+		  crawler needs sits inside #__nuxt as plain HTML — the static header
+		  shell, the route's content, the static footer shell. The app mounts
+		  into this element and replaces its children (createApp, no hydration);
+		  the embedded __SHELL_DATA__ payload lets it render the landing route
+		  without a request. The islands bundle is not enqueued in this mode, so
+		  the island wrappers below carry no data-vue-island hooks.
+		#}
+		{% set shell_nuxt = shell_nuxt|default(false) %}
+		{% if shell_nuxt %}<div id="__nuxt">{% endif %}
+
+		{% set header_props = {
+			joinUrl: chapter.join_url,
+			joinLabel: join_label|default('Join us'),
+			joinShortLabel: join_short_label|default('Join'),
+			aboutLabel: about_label|default('About'),
+			logoUrl: identity.logo_header.src|default(''),
+			logoIsDefault: identity.logo_header.is_default|default(true),
+			orgName: identity.name,
+			homeUrl: home_path|default('/'),
+			languages: languages|default([]),
+			currentPath: current_path|default('')
+		} %}
+		{# navItems/aboutItems carry Polylang-translated labels (see inc/i18n.php);
+		   when absent the Vue fixture defaults hold. #}
+		{% if header_nav_items %}
+			{% set header_props = header_props|merge({ navItems: header_nav_items }) %}
+		{% endif %}
+		{% if header_about_items %}
+			{% set header_props = header_props|merge({ aboutItems: header_about_items }) %}
+		{% endif %}
+		{# The same defaults SiteHeader.vue falls back to, for the static shell below. #}
+		{% set shell_nav_items = header_nav_items|default([
+			{ label: 'Calendar', href: '/calendar/' },
+			{ label: 'Blog', href: '/blog/' },
+			{ label: 'Get Involved', href: '/get-involved/' }
+		]) %}
+		{% set shell_about_href = header_about_items[0].href|default('/about/') %}
+		{# `contents` removes the wrapper's box so the sticky <header> inside sticks
+		   against the body scroll, not this div. #}
+		<div class="contents"{% if not shell_nuxt %} data-vue-island="SiteHeader" data-props='{{ header_props|json_encode|e("html_attr") }}'{% endif %}>
+			{# ------------------------------------------------------------------
+			   Static header shell — the PHP first paint. Mirrors SiteHeader.vue's
+			   blue bar, lockup, nav links and Join pill with the SAME class recipes
+			   so (a) the page never paints bare ground where the header will be
+			   (that is what caused the white→brand cross-fade on cross-document
+			   view transitions: the island had not mounted when the new page was
+			   captured) and (b) the island mounts over identical pixels. Vue's
+			   app.mount() replaces this markup; interactive parts (About ▾, Aa,
+			   the mobile panel) exist only in the island.
+			   ------------------------------------------------------------------ #}
+			<header class="site-header sticky top-0 z-100 bg-brand font-sans shadow-header [.admin-bar_&]:top-[var(--wp-admin--admin-bar--height,32px)]" data-tone="blue">
+				{% set shell_lockup_header %}
+					{% if header_props.logoIsDefault or not header_props.logoUrl %}
+						<span class="inline-flex min-w-0 items-center gap-[13px]"><span aria-hidden="true" class="block flex-none rotate-45 bg-yellow size-5 rounded-[4px]"></span><span class="font-display font-normal uppercase leading-[1.05] text-white text-[1.35rem] tracking-[0.01em]">{{ identity.name }}</span></span>
+					{% else %}
+						<img src="{{ header_props.logoUrl }}" alt="{{ identity.name }}" class="block h-12 w-auto max-w-[240px]">
+					{% endif %}
+				{% endset %}
+				{% set shell_lockup_tablet %}
+					{% if header_props.logoIsDefault or not header_props.logoUrl %}
+						<span class="inline-flex min-w-0 items-center gap-3"><span aria-hidden="true" class="block flex-none rotate-45 bg-yellow size-[18px] rounded-[4px]"></span><span class="font-display font-normal uppercase leading-[1.05] text-white text-[1.2rem] tracking-[0.01em]">{{ identity.name }}</span></span>
+					{% else %}
+						<img src="{{ header_props.logoUrl }}" alt="{{ identity.name }}" class="block h-10 w-auto max-w-[240px]">
+					{% endif %}
+				{% endset %}
+				{% set shell_lockup_mobile %}
+					{% if header_props.logoIsDefault or not header_props.logoUrl %}
+						<span class="inline-flex min-w-0 items-center gap-2.5"><span aria-hidden="true" class="block flex-none rotate-45 bg-yellow size-4 rounded-[3px]"></span><span class="font-display font-normal uppercase leading-[1.05] text-white text-[clamp(0.9rem,4.5vw,1.1rem)]">{{ identity.name }}</span></span>
+					{% else %}
+						<img src="{{ header_props.logoUrl }}" alt="{{ identity.name }}" class="block h-9 w-auto max-w-[200px]">
+					{% endif %}
+				{% endset %}
+				{% set shell_lang_segment = 'box-border inline-flex cursor-pointer items-center self-stretch rounded-full border-[3px] px-[13px] font-display text-[0.8rem] leading-none font-normal tracking-[0.04em] no-underline hover:underline hover:underline-offset-[3px]' %}
+				{% set shell_lang_group = 'notranslate box-border flex items-center gap-0.5 overflow-hidden rounded-full bg-white px-1' %}
+
+				{# mobile (< md) #}
+				<div class="md:hidden">
+					<div class="flex min-h-[60px] items-center justify-between gap-3 px-4 py-2">
+						<a href="{{ header_props.homeUrl }}" aria-label="{{ identity.name }} home" class="flex min-h-11 min-w-0 flex-1 items-center no-underline">{{ shell_lockup_mobile }}</a>
+						<div class="flex flex-none items-center gap-2">
+							<a href="{{ header_props.joinUrl }}" target="_blank" rel="noopener" class="box-border inline-flex items-center rounded-full bg-white font-display font-normal text-brand no-underline transition-colors hover:bg-brand-deep hover:text-white h-11 px-3.5 text-[0.82rem]">{{ header_props.joinShortLabel }}</a>
+							<button type="button" class="inline-flex size-11 cursor-pointer items-center justify-center rounded-[12px] border-2 border-white/60 bg-transparent text-white" aria-expanded="false" aria-controls="site-menu-panel" aria-label="Menu" disabled>
+								<svg aria-hidden="true" viewBox="0 0 24 24" class="size-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M4 6h16M4 18h16"/></svg>
+							</button>
+						</div>
+					</div>
+				</div>
+
+				{# tablet (md → xl) #}
+				<div class="hidden md:block xl:hidden">
+					<div class="flex items-center justify-between gap-4 px-6 pb-2 pt-3">
+						<a href="{{ header_props.homeUrl }}" aria-label="{{ identity.name }} home" class="flex min-h-11 min-w-0 flex-1 items-center no-underline">{{ shell_lockup_tablet }}</a>
+						<div class="flex flex-none items-center gap-2.5">
+							{% if header_props.languages|length > 1 %}<div role="group" aria-label="Language" class="{{ shell_lang_group }} h-11">{% for lang in header_props.languages %}<a href="{{ lang.url }}" data-native-nav lang="{{ lang.code }}" title="{{ lang.name }}"{% if lang.active %} aria-current="true"{% endif %} class="{{ shell_lang_segment }} {{ lang.active ? 'border-white bg-brand text-white' : 'border-transparent bg-transparent text-brand' }}">{{ lang.label }}</a>{% endfor %}</div>{% endif %}
+							<a href="{{ header_props.joinUrl }}" target="_blank" rel="noopener" class="box-border inline-flex items-center rounded-full bg-white font-display font-normal text-brand no-underline transition-colors hover:bg-brand-deep hover:text-white h-11 px-5 text-[0.9rem]">{{ header_props.joinLabel }}</a>
+						</div>
+					</div>
+					<nav aria-label="Main" class="flex flex-wrap items-center gap-1.5 px-4 pb-2">
+						<a href="{{ shell_about_href }}" class="inline-flex min-h-11 items-center rounded-[10px] px-3 py-[9px] font-display text-[0.98rem] font-normal text-white no-underline hover:bg-[rgba(27,27,34,0.22)]">{{ header_props.aboutLabel }}&nbsp;▾</a>
+						{% for item in shell_nav_items %}
+							<a href="{{ item.href }}" class="inline-flex min-h-11 items-center rounded-[10px] px-3 py-[9px] font-display text-[0.98rem] font-normal text-white no-underline hover:bg-[rgba(27,27,34,0.22)]">{{ item.label }}</a>
+						{% endfor %}
+					</nav>
+				</div>
+
+				{# desktop (xl+) #}
+				<div class="site-header-desktop mx-auto hidden min-h-[76px] max-w-[82.5rem] flex-wrap items-center justify-between gap-6 px-6 py-[14px] xl:flex">
+					<a href="{{ header_props.homeUrl }}" aria-label="{{ identity.name }} home" class="flex min-h-11 flex-none items-center no-underline">{{ shell_lockup_header }}</a>
+					<nav aria-label="Main" class="flex flex-wrap items-center gap-[18px]">
+						<a href="{{ shell_about_href }}" class="rounded-[10px] px-3.5 py-2.5 font-display text-[1.06rem] font-normal text-white no-underline hover:bg-[rgba(27,27,34,0.22)]">{{ header_props.aboutLabel }}&nbsp;▾</a>
+						{% for item in shell_nav_items %}
+							<a href="{{ item.href }}" class="rounded-[10px] px-3.5 py-2.5 font-display text-[1.06rem] font-normal text-white no-underline hover:bg-[rgba(27,27,34,0.22)]">{{ item.label }}</a>
+						{% endfor %}
+					</nav>
+					<div class="flex flex-wrap items-center gap-3">
+						{% if header_props.languages|length > 1 %}<div role="group" aria-label="Language" class="{{ shell_lang_group }} h-[42px]">{% for lang in header_props.languages %}<a href="{{ lang.url }}" data-native-nav lang="{{ lang.code }}" title="{{ lang.name }}"{% if lang.active %} aria-current="true"{% endif %} class="{{ shell_lang_segment }} {{ lang.active ? 'border-white bg-brand text-white' : 'border-transparent bg-transparent text-brand' }}">{{ lang.label }}</a>{% endfor %}</div>{% endif %}
+						<a href="{{ header_props.joinUrl }}" target="_blank" rel="noopener" class="box-border inline-flex items-center rounded-full bg-white font-display font-normal text-brand no-underline transition-colors hover:bg-brand-deep hover:text-white h-[42px] px-[22px] text-[0.95rem]">{{ header_props.joinLabel }}</a>
+					</div>
+				</div>
+			</header>
+		</div>
+
+			<main id="main" class="site-main">
+				{{ block('content') }}
+			</main>
+
+		{% block footer %}
+			{% set footer_props = {
+				logoUrl: identity.logo_footer.src|default(''),
+				logoIsDefault: identity.logo_footer.is_default|default(true),
+				orgName: identity.name,
+				socials: chapter.socials|default([]),
+				a11yLead: pll__('Built to be accessible —'),
+				a11yLinkLabel: pll__('tell us how we can do better.')
+			} %}
+			{# Omit keys when unset so the Vue fixture defaults hold. #}
+			{% if footer_columns %}
+				{% set footer_props = footer_props|merge({ columns: footer_columns }) %}
+			{% endif %}
+			{% if chapter.contact_email %}
+				{% set footer_props = footer_props|merge({ contactEmail: chapter.contact_email }) %}
+			{% endif %}
+			{% if chapter.footer_tagline %}
+				{% set footer_props = footer_props|merge({ tagline: chapter.footer_tagline }) %}
+			{% endif %}
+			{# Static footer shell (same reason as the header): the ink band + blue
+			   bottom bar exist at first paint; the island mounts over them. #}
+			<div{% if not shell_nuxt %} data-vue-island="SiteFooter" data-props='{{ footer_props|json_encode|e("html_attr") }}'{% endif %}>
+				<footer class="site-footer bg-ink font-sans text-white" data-tone="ink">
+					<div class="mx-auto grid max-w-[1320px] grid-cols-1 items-start gap-8 px-6 pb-9 pt-10 md:grid-cols-2 md:gap-9 md:pb-10 md:pt-12 lg:gap-11 lg:pb-11 lg:pt-[52px] lg:[grid-template-columns:minmax(220px,1.1fr)_repeat(3,minmax(170px,auto))]">
+						<div class="flex flex-col gap-4 md:col-span-2 lg:col-span-1">
+							{% if footer_props.logoIsDefault or not footer_props.logoUrl %}
+								<span class="inline-flex min-w-0 items-center gap-3"><span aria-hidden="true" class="block flex-none rotate-45 bg-yellow size-[18px] rounded-[4px]"></span><span class="font-display font-normal uppercase leading-[1.05] text-white text-[1.25rem]">{{ identity.name }}</span></span>
+							{% else %}
+								<img src="{{ footer_props.logoUrl }}" alt="{{ identity.name }}" class="block h-12 w-auto max-w-[240px]">
+							{% endif %}
+							{% if chapter.footer_tagline %}
+								<p class="m-0 max-w-[30ch] text-base leading-[1.55] text-muted-on-ink">{{ chapter.footer_tagline }}</p>
+							{% endif %}
+						</div>
+						{% for col in footer_columns|default([]) %}
+							<nav aria-label="{{ col.title }}" class="flex flex-col gap-[9px]">
+								<div class="mb-1 text-[1.15rem] font-bold">{{ col.title }}</div>
+								{% for link in col.links %}
+									<a href="{{ link.href }}" class="text-[1.06rem] font-medium text-white no-underline hover:text-brand-light hover:underline hover:underline-offset-[3px]">{{ link.label }}</a>
+								{% endfor %}
+							</nav>
+						{% endfor %}
+					</div>
+					<div data-tone="blue" class="bg-brand px-6 py-3.5 text-white">
+						<div class="mx-auto flex max-w-[1320px] flex-col gap-1.5 text-[0.92rem] md:flex-row md:flex-wrap md:justify-between md:gap-4 md:text-[1.02rem]">
+							<span>{{ identity.name }}</span>
+							<span>{{ footer_props.a11yLead }} <span class="font-bold">{{ footer_props.a11yLinkLabel }}</span></span>
+						</div>
+					</div>
+				</footer>
+			</div>
+			{% if shell_nuxt %}
+				</div>
+				<script type="application/json" id="__SHELL_DATA__">{{ shell_data_json|raw }}</script>
+			{% endif %}
+			{{ function('wp_footer') }}
+		{% endblock %}
+	</body>
+</html>

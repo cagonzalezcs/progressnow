@@ -1,0 +1,8 @@
+{# Search results render the same BlogArchive island as the blog home;
+   search.php computes `title` and inc/blog.php injects the archive payload. #}
+{% extends "index.twig" %}
+{% set page_header_props = {
+	title: title,
+	crumbs: [{ label: pll__('Home'), href: home_url|default('/') }],
+	wide: true
+} %}

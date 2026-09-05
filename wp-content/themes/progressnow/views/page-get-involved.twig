@@ -1,0 +1,154 @@
+{% extends "base.twig" %}
+
+{#
+  Get Involved page — v4 interior layout (openspec progress-now-v4-interior-404
+  D1: the About skeleton with its own sections). Twin of
+  site/app/components/routes/RouteGetInvolved.vue — keep the class literals
+  identical. Section content comes from the "Get Involved page" ACF group
+  (inc/pages.php), defaulted in PHP to the design copy — `gi.*` is always
+  fully set; the section ids (#join #committees #channels #faq) feed the
+  visibility-driven `gi.nav`.
+#}
+
+{# ---- shared interior recipes (same literals as page-about.twig) ---- #}
+{% set h2class = 'm-0 scroll-mt-[calc(110px+var(--wp-admin--admin-bar--height,0px))] font-display text-[1.35rem] font-normal leading-[1.2] md:text-[1.6rem] md:leading-[1.15] xl:text-[clamp(1.6rem,2.6vw,2.2rem)] xl:leading-[1.1]' %}
+{% set h2later = 'mt-3.5 xl:mt-[18px]' %}
+{% set prose = 'text-[1.02rem] leading-[1.65] text-text-body md:text-[1.05rem] xl:text-[1.12rem] [&_p]:m-0 [&_p+p]:mt-4 [&_a]:font-bold [&_a]:text-accent [&_a]:underline [&_a]:underline-offset-[3px] hover:[&_a]:text-brand-deep [&_ul]:my-0 [&_ul]:list-[square] [&_ul]:pl-5 [&_ol]:my-0 [&_ol]:list-decimal [&_ol]:pl-5 [&_strong]:font-extrabold [&_strong]:text-ink' %}
+{% set prose_sm = 'text-base leading-[1.65] text-text-body [&_p]:m-0 [&_p+p]:mt-3 [&_a]:font-bold [&_a]:text-accent [&_a]:underline [&_a]:underline-offset-[3px] hover:[&_a]:text-brand-deep [&_strong]:font-extrabold [&_strong]:text-ink' %}
+{% set card_grid = 'grid gap-3.5 md:grid-cols-2 md:gap-4 xl:gap-5 xl:[grid-template-columns:repeat(auto-fit,minmax(240px,1fr))]' %}
+{% set card = 'flex flex-col gap-1.5 rounded-[16px] bg-white px-5 py-[18px] shadow-card md:gap-[7px] md:rounded-[18px] md:px-[22px] md:py-5 xl:gap-2 xl:rounded-[20px] xl:px-6 xl:py-[22px]' %}
+{% set card_title = 'font-display text-[0.98rem] font-normal text-brand [text-wrap:balance] md:text-base xl:text-[1.05rem]' %}
+{% set card_desc = 'm-0 text-[0.95rem] leading-[1.5] text-text-body xl:text-base xl:leading-[1.55]' %}
+{% set row = 'rounded-[12px] border border-line bg-white px-4 py-3.5 md:rounded-[14px] md:px-[18px] md:py-4' %}
+{% set pill_outline = 'rounded-full border-2 border-accent px-5 py-[9px] font-display text-[0.88rem] font-normal tracking-[0.04em] text-accent no-underline transition-colors hover:bg-accent hover:text-white md:text-[0.9rem]' %}
+{% set link_accent = 'self-start text-[0.95rem] font-bold text-accent no-underline hover:underline hover:underline-offset-4 md:text-[0.98rem]' %}
+{% set chip = 'rounded-full border border-control bg-white px-3.5 py-2 text-[0.88rem] font-bold text-ink no-underline hover:border-accent hover:text-accent' %}
+
+{# documents comes from inc/interior.php — always set (possibly empty). #}
+{% set documents = documents|default([]) %}
+
+{% block content %}
+	{% include 'partials/page-header.twig' with {
+		title: post.title ? function('html_entity_decode', post.title) : "Get involved",
+		lede: page_lede|default('') ?: "No experience needed, no perfect politics required. If you want a better world, there's a place for you here.",
+		crumbs: [{ label: pll__('Home'), href: home_url|default('/') }]
+	} only %}
+
+	<section class="bg-white px-6 pb-14 pt-11 md:px-10 md:pb-[72px] md:pt-14 xl:px-6 xl:pb-24 xl:pt-16" data-tone="white">
+		<div class="mx-auto grid max-w-[1140px] items-start gap-10 md:gap-9 md:[grid-template-columns:minmax(0,1fr)_260px] xl:gap-14 xl:[grid-template-columns:minmax(300px,1fr)_310px]">
+
+			{% if gi.nav|length %}
+				<nav aria-label="{{ pll__('On this page') }}" class="flex flex-wrap gap-2 md:hidden">
+					{% for item in gi.nav %}
+						<a href="{{ item.href }}" class="{{ chip }}">{{ item.label }}</a>
+					{% endfor %}
+				</nav>
+			{% endif %}
+
+			<article class="flex min-w-0 flex-col gap-5 md:gap-[22px] xl:gap-[26px]">
+
+				{# ---- How to join ---- #}
+				{% if gi.join.visible %}
+				<h2 id="join" class="{{ h2class }}">{{ gi.join.heading }}</h2>
+
+				<ol class="m-0 flex list-none flex-col gap-3.5 p-0">
+					{% for step in gi.join.steps %}
+						<li class="grid grid-cols-[48px_1fr] gap-4 rounded-[16px] bg-white p-5 shadow-card md:grid-cols-[56px_1fr] md:gap-5 md:rounded-[18px] md:p-6 xl:rounded-[20px]">
+							<div aria-hidden="true" class="flex size-12 items-center justify-center rounded-[12px] bg-brand font-display text-[1.4rem] font-normal text-white md:size-14 md:text-[1.6rem]">{{ loop.index }}</div>
+							<div class="flex flex-col gap-2">
+								<div class="text-[1.05rem] font-bold md:text-[1.1rem]">{{ step.title }}</div>
+								<div class="{{ prose_sm }}">{{ step.body|raw }}</div>
+								{% if step.link_label and step.href %}
+									<a href="{{ step.href }}"{% if step.external %} target="_blank" rel="noopener"{% endif %} class="{{ link_accent }}">{{ step.link_label }}</a>
+								{% endif %}
+							</div>
+						</li>
+					{% endfor %}
+				</ol>
+				{% endif %}
+
+				{# ---- Committees (cards edited under Chapter Settings) ---- #}
+				{% if gi.committees.visible %}
+				<h2 id="committees" class="{{ h2class }} {{ h2later }}">{{ gi.committees.heading }}</h2>
+				<div class="{{ prose }}">{{ gi.committees.intro|raw }}</div>
+
+				<div class="{{ card_grid }}">
+					{% for committee in chapter.committees %}
+						<div class="{{ card }}">
+							<div class="{{ card_title }}">{{ committee.name }}</div>
+							<p class="{{ card_desc }}">{{ committee.desc }}</p>
+						</div>
+					{% endfor %}
+				</div>
+				{% endif %}
+
+				{# ---- Communication channels ---- #}
+				{% if gi.channels.visible %}
+				<h2 id="channels" class="{{ h2class }} {{ h2later }}">{{ gi.channels.heading }}</h2>
+
+				<div class="flex flex-col gap-2.5">
+					{% for channel in gi.channels.items %}
+						<div class="flex flex-col items-start gap-3 md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-5 {{ row }}">
+							<div class="flex flex-col gap-[3px]">
+								<span class="text-[1.02rem] font-bold md:text-[1.05rem]">{{ channel.label|raw }}</span>
+								{% if channel.desc %}
+									<span class="text-[0.9rem] leading-[1.5] text-muted">{{ channel.desc }}</span>
+								{% endif %}
+							</div>
+							{% if channel.url and channel.link_label %}
+								<a href="{{ channel.url }}"{% if channel.external %} target="_blank" rel="noopener"{% endif %} class="whitespace-nowrap {{ pill_outline }}">{{ channel.link_label }}</a>
+							{% elseif channel.badge %}
+								<span class="rounded-full border border-dashed border-border-muted px-4 py-2 text-[0.8rem] font-bold text-muted">{{ channel.badge }}</span>
+							{% endif %}
+						</div>
+					{% endfor %}
+				</div>
+				{% endif %}
+
+				{# ---- Common questions — FaqAccordion island (D2) ---- #}
+				{% if gi.faq.visible %}
+				<h2 id="faq" class="{{ h2class }} {{ h2later }}">{{ gi.faq.heading }}</h2>
+
+				<div data-vue-island="FaqAccordion" data-props='{{ { items: gi.faq.items }|json_encode|e("html_attr") }}'>
+					{# Server fallback (crawlers, Nuxt shells): the same rows, always open. #}
+					<div class="faq-accordion flex flex-col gap-2.5 lg:gap-3">
+						{% for item in gi.faq.items %}
+							<div class="overflow-hidden rounded-[12px] border border-line bg-white lg:rounded-[14px]">
+								<div class="px-4 py-3.5 text-[0.98rem] font-bold text-ink lg:px-5 lg:py-4 lg:text-[1.05rem]">{{ item.question }}</div>
+								<p class="m-0 px-4 pb-4 text-[0.95rem] leading-[1.6] text-text-body lg:px-5 lg:pb-[18px] lg:text-[1.02rem]">{{ item.answer }}</p>
+							</div>
+						{% endfor %}
+					</div>
+				</div>
+				{% endif %}
+
+			</article>
+
+			{# ---- Sidebar: On this page · CTA card · Documents · Related · Contact ---- #}
+			<aside aria-label="{{ pll__('Related') }}" class="flex flex-col gap-5 md:sticky md:top-[calc(120px+var(--wp-admin--admin-bar--height,0px))] xl:top-[calc(108px+var(--wp-admin--admin-bar--height,0px))] xl:gap-6">
+				{% if gi.nav|length %}
+					<div class="hidden md:contents">
+						{% include 'partials/link-list-card.twig' with { heading: pll__('On this page'), links: gi.nav|map(i => { label: i.label, href: i.href }) } only %}
+					</div>
+				{% endif %}
+
+				{% include 'partials/cta-card.twig' with { id: 'involved', title: gi.card.heading, body: gi.card.body, href: gi.card.url, label: gi.card.link_label, external: gi.card.external } only %}
+
+				{% if documents|length %}
+					{% include 'partials/link-list-card.twig' with { id: 'documents', heading: pll__('Documents'), links: documents|map(d => { label: d.title, href: d.url }) } only %}
+				{% endif %}
+
+				{% if gi.related|length %}
+					{% include 'partials/link-list-card.twig' with { heading: pll__('Related'), links: gi.related|map(l => { label: l.label, href: l.url, external: l.external }) } only %}
+				{% endif %}
+
+				{% if chapter.contact_email %}
+					{% include 'partials/dashed-note.twig' with { id: 'contact', heading: pll__('Contact'), body: '<p>' ~ pll__('Questions, ideas, or press —') ~ ' <a class="notranslate" href="mailto:' ~ chapter.contact_email ~ '">' ~ chapter.contact_email ~ '</a></p>' } only %}
+				{% endif %}
+			</aside>
+
+		</div>
+	</section>
+
+	{% include 'partials/subscribe-strip.twig' with { href: chapter.newsletter_url, title: pll__('Never miss an update'), lede: pll__('One email when something new lands — meetings, actions, and posts. No spam, ever.'), label: pll__('Subscribe') } only %}
+{% endblock %}

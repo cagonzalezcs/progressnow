@@ -1,0 +1,62 @@
+{
+  "name": "progressnow-site",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Nuxt 4 static rendition of the Progress Now WordPress theme (PHP shell first, Nuxt takes over).",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "generate": "nuxt generate",
+    "generate:mock": "NUXT_MOCK_API=1 nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier . --write",
+    "typecheck": "nuxt typecheck",
+    "test": "vitest run",
+    "verify:output": "node scripts/verify-output.mjs"
+  },
+  "dependencies": {
+    "@internationalized/date": "^3.10.0",
+    "@lucide/vue": "^1.23.0",
+    "@tailwindcss/vite": "^4.3.3",
+    "@tanstack/vue-table": "^8.21.3",
+    "@vee-validate/zod": "^4.15.1",
+    "@vueuse/core": "^14.3.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "embla-carousel-vue": "^8.6.0",
+    "lucide-vue-next": "^1.0.0",
+    "nuxt": "^4.5.2",
+    "reka-ui": "^2.10.4",
+    "tailwind-merge": "^3.6.0",
+    "tailwindcss": "^4.3.3",
+    "tw-animate-css": "^1.4.0",
+    "vee-validate": "^4.15.1",
+    "vue": "^3.5.39",
+    "vue-input-otp": "^0.3.2",
+    "vue-router": "^5.2.0",
+    "vue-sonner": "^2.0.9",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@nuxt/eslint": "^1.17.0",
+    "@nuxt/test-utils": "^4.2.0",
+    "@types/node": "^24.7.0",
+    "@vue/test-utils": "^2.4.6",
+    "devalue": "^5.9.2",
+    "eslint": "^10.3.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-vuejs-accessibility": "^2.5.0",
+    "happy-dom": "^20.10.6",
+    "prettier": "3.8.3",
+    "typescript": "~6.0.2",
+    "vitest": "^4.1.9",
+    "vue-tsc": "^3.3.11"
+  }
+}

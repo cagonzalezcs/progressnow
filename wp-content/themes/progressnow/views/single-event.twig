@@ -1,0 +1,169 @@
+{% extends "base.twig" %}
+
+{#
+  Single event template — the `event` CPT single (openspec
+  progress-now-v4-events). Routed by the WP-style Timber cascade in single.php
+  (single-event.twig sits above single.twig). Context is injected by
+  progressnow_events_single_context() on the `progressnow/context/single`
+  filter (inc/events.php): single_event (SingleEventData) + categories +
+  related + calendar/home URLs + show-related toggle.
+
+  The SingleEvent island renders the v4 hero through PageHeader; the markup
+  inside the mount element is the crawlable/no-JS fallback with the same class
+  recipes — createApp().mount() replaces it on hydration.
+#}
+
+{% block content %}
+	{% set event_props = {
+		event: single_event,
+		categories: single_event_categories,
+		related: single_event_related,
+		showRelated: single_event_show_related,
+		homeUrl: single_event_home_url,
+		calendarUrl: single_event_calendar_url,
+		crumbHome: pll__('Home'),
+		crumbCalendar: pll__('Calendar'),
+		rsvpLabel: pll__('RSVP'),
+		addToCalendarLabel: pll__('Add to calendar'),
+		aboutLabel: pll__('About this event'),
+		detailsLabel: pll__('Details'),
+		dateLabel: pll__('Date'),
+		timeLabel: pll__('Time'),
+		locationLabel: pll__('Location'),
+		saveTitle: pll__('Save your spot'),
+		saveBody: pll__('RSVP and we’ll send the details straight to you.'),
+		saveLabel: pll__('RSVP Now'),
+		contactLabel: pll__('Questions? Contact'),
+		moreLabel: pll__('More upcoming events'),
+		fullCalendarLabel: pll__('Full calendar'),
+		viewLabel: pll__('View event')
+	} %}
+	{% set cat_labels = {} %}
+	{% for c in single_event_categories %}
+		{% set cat_labels = cat_labels|merge({ (c.id): c.label }) %}
+	{% endfor %}
+	{% set ev = single_event %}
+	{% set long_date = ev.date|date('l, F j, Y') %}
+	{% if ev.locationType == 'online' %}
+		{% set location_line = 'Online · link shared on RSVP' %}
+	{% else %}
+		{% set location_line = [ev.venue, ev.city]|filter(v => v)|join(' · ') ?: 'Location TBA' %}
+	{% endif %}
+	{% set when_where = [long_date, ev.time, location_line]|filter(v => v)|join(' · ') %}
+
+	<div data-vue-island="SingleEvent" data-props='{{ event_props|json_encode|e("html_attr") }}'>
+		{% set hero_before %}
+			<div class="flex flex-wrap items-center gap-3.5 md:gap-[18px]">
+				<span aria-hidden="true" class="flex flex-col rounded-[12px] bg-white px-3.5 py-2.5 text-center text-brand md:rounded-[14px] md:px-[18px] md:py-3">
+					<span class="font-display text-[1.4rem] leading-[1.05] md:text-[1.7rem]">{{ ev.date|date('d') }}</span>
+					<span class="text-[0.72rem] font-extrabold tracking-[0.1em] md:text-[0.8rem]">{{ ev.date|date('M')|upper }}</span>
+				</span>
+				<a href="{{ single_event_calendar_url }}?category={{ ev.cat }}" class="rounded-full bg-ink/[.22] px-3.5 py-[5px] text-[0.72rem] font-extrabold uppercase tracking-[0.06em] text-white no-underline hover:underline hover:underline-offset-4 md:px-4 md:py-1.5 md:text-[0.8rem]">{{ cat_labels[ev.cat]|default(ev.cat) }}</a>
+			</div>
+		{% endset %}
+		{% set hero_after %}
+			<div class="flex flex-wrap gap-2.5 md:gap-3.5">
+				{% if ev.rsvpUrl %}<a href="{{ ev.rsvpUrl }}" target="_blank" rel="noopener" class="rounded-full bg-white px-7 py-[13px] font-display text-[0.9rem] font-normal tracking-[0.04em] text-brand no-underline transition-colors hover:bg-brand-deep hover:text-white md:px-9 md:py-3.5 md:text-base">{{ pll__('RSVP') }}</a>{% endif %}
+				{% if ev.icsUrl or ev.gcalUrl %}<a href="{{ ev.icsUrl ?: ev.gcalUrl }}" class="rounded-full border-2 border-white bg-transparent px-[22px] py-[11px] font-display text-[0.9rem] font-normal tracking-[0.04em] text-white no-underline transition-colors hover:border-brand-deep hover:bg-brand-deep md:px-[34px] md:py-3 md:text-base">{{ pll__('Add to calendar') }}</a>{% endif %}
+			</div>
+		{% endset %}
+		{% include 'partials/page-header.twig' with {
+			title: ev.title,
+			lede: when_where,
+			crumbs: [{ label: pll__('Home'), href: single_event_home_url }, { label: pll__('Calendar'), href: single_event_calendar_url }],
+			extra_before: hero_before,
+			extra: hero_after
+		} only %}
+
+		<section class="bg-white px-6 pb-14 pt-10 md:pb-24 md:pt-16" data-tone="white">
+			<div class="mx-auto grid max-w-[1140px] items-start gap-10 lg:gap-14 lg:[grid-template-columns:minmax(300px,1fr)_310px]">
+				<article class="flex min-w-0 flex-col gap-[18px] md:gap-6">
+					{% if ev.featuredImage.src|default('') or ev.summary or ev.blocks|length %}
+						<h2 class="m-0 font-display text-[1.35rem] font-normal leading-[1.2] md:text-[clamp(1.6rem,2.6vw,2.2rem)] md:leading-[1.1]">{{ pll__('About this event') }}</h2>
+					{% endif %}
+					{% if ev.featuredImage.src|default('') %}
+						<figure class="m-0 flex flex-col">
+							<div class="aspect-video overflow-hidden rounded-[16px] bg-white md:rounded-[20px]">
+								{% include 'partials/duotone.twig' with { image: ev.featuredImage, opacity: 0, class: 'size-full', img_class: 'block size-full object-cover', fetchpriority: 'high' } only %}
+							</div>
+						</figure>
+					{% endif %}
+					{% if ev.summary %}
+						<p class="m-0 text-[1.08rem] font-semibold leading-[1.6] text-ink md:text-[1.22rem] md:leading-[1.65]">{{ ev.summary }}</p>
+					{% endif %}
+					{# Prose/a11y HTML is kses-sanitized at serialize time (inc/events.php). #}
+					{% for block in ev.blocks %}
+						{% if block.type == 'prose' %}
+							<div class="block-prose prose-chapter prose-post w-full">{{ block.html|raw }}</div>
+						{% elseif block.type == 'good_to_know' %}
+							<div class="block-good-to-know flex w-full flex-col gap-2.5 rounded-[16px] bg-alt px-[22px] py-5 md:gap-3 md:rounded-[20px] md:px-[30px] md:py-[26px]">
+								<div class="text-[0.92rem] font-extrabold uppercase tracking-[0.04em] text-brand md:text-base">{{ pll__('Good to know') }}</div>
+								<ul class="m-0 flex list-disc flex-col gap-[7px] pl-5 text-[0.98rem] leading-[1.55] text-text-body md:gap-2 md:pl-[22px] md:text-[1.05rem]">
+									{% for item in block.items %}<li>{{ item }}</li>{% endfor %}
+								</ul>
+							</div>
+						{% elseif block.type == 'agenda' %}
+							<div class="block-agenda flex w-full flex-col gap-2.5 md:gap-3">
+								<h2 class="m-0 mt-3 font-display text-[1.25rem] font-normal leading-[1.25] md:mt-[18px] md:text-[clamp(1.4rem,2.4vw,1.9rem)] md:leading-[1.15]">{{ pll__('Agenda') }}</h2>
+								<ol class="m-0 flex list-none flex-col gap-[9px] p-0 md:gap-2.5">
+									{% for item in block.items %}
+										<li class="grid items-baseline gap-3.5 rounded-[12px] border border-line px-4 py-3 [grid-template-columns:90px_1fr] md:gap-[18px] md:rounded-[14px] md:px-[18px] md:py-3.5 md:[grid-template-columns:110px_1fr]">
+											<span class="text-[0.95rem] font-extrabold text-brand md:text-base">{{ item.title }}</span>
+											<span class="text-[0.95rem] font-semibold md:text-base">{{ item.desc|default('') }}</span>
+										</li>
+									{% endfor %}
+								</ol>
+							</div>
+						{% elseif block.type == 'a11y_note' %}
+							<aside class="block-a11y-note flex w-full flex-col gap-2 rounded-[16px] border-l-[5px] border-brand bg-alt px-[22px] py-5 md:rounded-[20px] md:border-l-[6px] md:px-[30px] md:py-[26px]">
+								<div class="text-[0.92rem] font-extrabold uppercase tracking-[0.04em] text-brand md:text-base">{{ pll__('Accessibility & childcare') }}</div>
+								<div class="prose-chapter text-base leading-[1.65] text-text-body [&>*+*]:mt-3">{{ block.html|raw }}</div>
+							</aside>
+						{% elseif block.type == 'map' %}
+							<p class="m-0 text-base leading-[1.65] text-text-body md:text-[1.05rem]">{{ block.address }}</p>
+						{% endif %}
+					{% endfor %}
+				</article>
+
+				<aside aria-label="Event details" class="flex flex-col gap-6 lg:sticky lg:top-[calc(108px+var(--wp-admin--admin-bar--height,0px))]">
+					{% set rows = [{ label: pll__('Date'), value: long_date }] %}
+					{% if ev.time %}{% set rows = rows|merge([{ label: pll__('Time'), value: ev.doorsTime ? ev.time ~ ' · doors ' ~ ev.doorsTime : ev.time }]) %}{% endif %}
+					{% set rows = rows|merge([{ label: pll__('Location'), value: location_line }]) %}
+					<div class="[&_.row-label]:text-brand">
+						{% include 'partials/link-list-card.twig' with { heading: pll__('Details'), rows: rows } only %}
+					</div>
+					{% if ev.rsvpUrl %}
+						{% include 'partials/cta-card.twig' with { id: 'rsvp', title: pll__('Save your spot'), body: pll__('RSVP and we’ll send the details straight to you.'), href: ev.rsvpUrl, label: pll__('RSVP Now'), external: true } only %}
+					{% endif %}
+				</aside>
+			</div>
+		</section>
+
+		{% if single_event_show_related and single_event_related|length %}
+			<section class="bg-alt px-6 pb-14 pt-11 md:pb-24 md:pt-16" data-tone="alt">
+				<div class="mx-auto flex max-w-[1140px] flex-col gap-[18px] md:gap-7">
+					<div class="flex flex-wrap items-baseline justify-between gap-4">
+						<h2 class="m-0 font-display text-[1.35rem] font-normal leading-[1.2] md:text-[clamp(1.6rem,2.8vw,2.2rem)] md:leading-[1.1]">{{ pll__('More upcoming events') }}</h2>
+						<a href="{{ single_event_calendar_url }}" class="hidden items-center gap-4 text-[1.05rem] font-extrabold uppercase tracking-[0.03em] text-accent no-underline hover:underline hover:underline-offset-4 md:flex">{{ pll__('Full calendar') }} {% include 'partials/arrow.twig' with { class: 'h-5 w-10 flex-none fill-accent' } only %}</a>
+					</div>
+					<div class="flex flex-col gap-3">
+						{% for rel in single_event_related|slice(0, 3) %}
+							<a href="{{ rel.url }}" aria-label="{{ pll__('View event') }}: {{ rel.title }}" class="event-card group grid grid-cols-[60px_1fr] items-center gap-4 rounded-[14px] bg-white p-4 text-ink no-underline shadow-subtle transition-shadow hover:shadow-card md:[grid-template-columns:76px_1fr_auto] md:gap-6 md:rounded-[16px] md:px-[22px] md:py-[18px]">
+								<span aria-hidden="true" class="flex flex-col rounded-[10px] bg-brand px-0.5 py-2 text-center text-white md:rounded-[12px] md:px-1 md:py-2.5">
+									<span class="text-[1.2rem] font-extrabold leading-[1.1] md:text-[1.4rem]">{{ rel.date|date('d') }}</span>
+									<span class="text-[0.68rem] font-bold tracking-[0.1em] md:text-[0.75rem]">{{ rel.date|date('M')|upper }}</span>
+								</span>
+								<span class="flex min-w-0 flex-col gap-[3px] md:gap-1">
+									<span class="text-[1.02rem] font-bold leading-[1.3] md:text-[1.18rem]">{{ rel.title }}</span>
+									<span class="text-[0.88rem] font-medium text-muted md:text-base">{{ rel.date|date('l, F j') }}{% if rel.time %} · {{ rel.time }}{% endif %}{% if rel.location %}<span class="hidden md:inline"> · {{ rel.location }}</span>{% endif %}</span>
+								</span>
+								<span aria-hidden="true" class="hidden whitespace-nowrap rounded-full border-2 border-accent px-5 py-[9px] font-display text-[0.88rem] font-normal uppercase tracking-[0.03em] text-accent transition-colors group-hover:bg-accent group-hover:text-white md:inline-block">{{ pll__('View event') }}</span>
+							</a>
+						{% endfor %}
+					</div>
+					<a href="{{ single_event_calendar_url }}" class="flex items-center justify-center gap-3.5 text-[0.95rem] font-extrabold uppercase tracking-[0.03em] text-accent no-underline hover:underline hover:underline-offset-4 md:hidden">{{ pll__('Full calendar') }} {% include 'partials/arrow.twig' with { class: 'h-[17px] w-[34px] flex-none fill-accent' } only %}</a>
+				</div>
+			</section>
+		{% endif %}
+	</div>
+{% endblock %}

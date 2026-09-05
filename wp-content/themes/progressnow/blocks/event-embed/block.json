@@ -1,0 +1,19 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+	"name": "progressnow/event-embed",
+	"title": "Event embed",
+	"description": "Embeds a chapter event card with date, location, and RSVP.",
+	"category": "widgets",
+	"icon": "calendar-alt",
+	"keywords": [ "event", "calendar", "rsvp" ],
+	"acf": {
+		"mode": "preview",
+		"renderTemplate": "render.php"
+	},
+	"supports": {
+		"align": false,
+		"html": false,
+		"mode": true
+	}
+}

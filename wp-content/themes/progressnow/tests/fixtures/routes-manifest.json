@@ -1,0 +1,62 @@
+{
+    "routes": [
+        {
+            "path": "/",
+            "kind": "front",
+            "lang": "",
+            "id": 0,
+            "template": "front-page",
+            "payloadKey": "front:"
+        },
+        {
+            "path": "/?page_id=0",
+            "kind": "posts_index",
+            "lang": "",
+            "id": 0,
+            "template": "page.php",
+            "payloadKey": "page::blog"
+        },
+        {
+            "path": "/?page_id=0",
+            "kind": "about",
+            "lang": "",
+            "id": 0,
+            "template": "page-templates/about.php",
+            "payloadKey": "page::about"
+        },
+        {
+            "path": "/?page_id=0",
+            "kind": "get_involved",
+            "lang": "",
+            "id": 0,
+            "template": "page-templates/get-involved.php",
+            "payloadKey": "page::get-involved"
+        },
+        {
+            "path": "/?page_id=0",
+            "kind": "calendar",
+            "lang": "",
+            "id": 0,
+            "template": "page-templates/calendar.php",
+            "payloadKey": "page::calendar"
+        },
+        {
+            "path": "/?p=0",
+            "kind": "post",
+            "lang": "",
+            "id": 0,
+            "template": "single.php",
+            "payloadKey": "post::contract-test-post"
+        },
+        {
+            "path": "/?event=contract-test-event",
+            "kind": "event",
+            "lang": "",
+            "id": 0,
+            "template": "single-event.php",
+            "payloadKey": "event::contract-test-event"
+        }
+    ],
+    "contentVersion": 1,
+    "generatedAt": ""
+}

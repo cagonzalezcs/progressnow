@@ -1,0 +1,222 @@
+{% extends "base.twig" %}
+
+{#
+  Home page — Progress Now v4 (openspec progress-now-v4-home), ported from the
+  canvas artboards `Progress Now Home v4` (1440) and `Progress Now Home v4
+  Mobile` (390). Hero copy/CTAs, who-we-are copy and the closing CTA line are
+  ACF-driven per language (inc/options.php); brand media + the headline come
+  from Chapter Settings → Identity & brand (inc/identity.php, shipped
+  placeholders by default); events + blog teasers come from inc/events.php /
+  inc/blog.php — every key is always set (possibly empty), so the empty states
+  below own the pre-seed render.
+
+  Sections: hero, who-we-are, upcoming events, from-the-blog, closing CTA.
+  Two layout tiers: mobile below 700px (hero / CTA) or `md` (bands), desktop
+  from there. Photos use the shared duotone partial; stars are inlined so
+  `currentColor` takes the placement's text color. RouteFront.vue in site/ is
+  the 1:1 port — keep the class literals identical.
+
+  Every band carries data-tone (blue / white / alt) for the Aa widget's
+  high-contrast mode (useA11ySettings.ts + tailwind.css token swaps).
+#}
+
+{# Shared class recipes (kept as literals here so the Tailwind scanner sees them). #}
+{% set h2_class = 'm-0 font-display text-[1.6rem] font-normal leading-[1.15] md:text-[clamp(2rem,3.6vw,3.1rem)] md:leading-[1.1]' %}
+{% set arrow_link = 'flex items-center gap-3.5 text-[0.95rem] font-extrabold uppercase tracking-[0.03em] text-accent no-underline hover:underline hover:underline-offset-4 md:gap-4 md:text-[1.05rem]' %}
+{% set arrow_svg = 'h-[17px] w-[34px] flex-none fill-accent md:h-5 md:w-10' %}
+{% set stripe = 'bg-[repeating-linear-gradient(45deg,var(--color-alt)_0_14px,var(--color-control-faint)_14px_28px)]' %}
+{% set card = 'overflow-hidden rounded-[18px] bg-white text-ink no-underline shadow-card transition-[box-shadow,transform] hover:-translate-y-0.5 hover:shadow-card-hover-lg md:rounded-[24px]' %}
+{% set pill = 'rounded-full bg-accent font-display font-normal uppercase tracking-[0.04em] text-white no-underline transition-[transform,background-color] hover:-translate-y-px hover:bg-brand-deep' %}
+
+{% block content %}
+
+	{# ============ HERO — photo above the copy on mobile (canvas order), 50/50 row from 700px ============ #}
+	<section class="home-hero overflow-hidden bg-brand font-sans text-white" data-tone="blue">
+		<div class="mx-auto flex w-full max-w-[1300px] flex-col min-[700px]:flex-row">
+			<div class="relative h-[240px] min-w-0 min-[700px]:order-1 min-[700px]:h-auto min-[700px]:min-h-[480px] min-[700px]:w-1/2 min-[700px]:flex-none">
+				{# Hero photo from Chapter Settings → Identity & brand (shipped neutral placeholder); duotone .38 in CSS. #}
+				{% include 'partials/duotone.twig' with { image: identity.hero_photo, opacity: 0.38, class: 'absolute inset-0 h-full w-full', img_class: 'block h-full w-full object-cover', fetchpriority: 'high' } only %}
+			</div>
+			<div class="relative flex min-w-0 flex-col items-center justify-center px-6 pb-12 pt-14 text-center min-[700px]:w-1/2 min-[700px]:flex-none min-[700px]:justify-end min-[700px]:px-8 min-[700px]:pb-[84px] min-[700px]:pt-[88px] lg:pl-12 lg:pr-16">
+				<div class="relative flex w-full max-w-[540px] flex-col items-center gap-6 min-[700px]:gap-[34px]">
+					{# Scattered star art — decorative, colored by currentColor. #}
+					{% include 'partials/star.twig' with { kind: 'sparkle', class: 'absolute -top-[30px] left-0 w-[26px] -rotate-10 text-brand-light min-[700px]:-left-6 min-[700px]:-top-11 min-[700px]:w-[34px] lg:-left-12' } only %}
+					{% include 'partials/star.twig' with { kind: 'star-notch', class: 'absolute -top-[38px] right-0 w-[38px] rotate-10 text-brand-light min-[700px]:-right-4 min-[700px]:-top-[52px] min-[700px]:w-[52px] lg:-right-10' } only %}
+					{% include 'partials/star.twig' with { kind: 'star', class: 'absolute -bottom-4 -right-6 hidden w-[50px] text-brand-light min-[700px]:block lg:-right-12' } only %}
+
+					{# The headline IS the page <h1>: real text (translatable via Chapter
+					   Settings / Polylang), styled by `.hero-headline` in src/css/tailwind.css. #}
+					<h1 class="hero-headline">{{ identity.hero_headline }}</h1>
+					<p class="m-0 max-w-[32ch] text-[1.1rem] font-semibold leading-[1.45] [text-wrap:balance] min-[700px]:max-w-[34ch] min-[700px]:text-[1.35rem] min-[700px]:leading-[1.4]">{{ hero.subhead }}</p>
+					<a href="{{ hero.cta_primary_url }}" target="_blank" rel="noopener"
+						class="rounded-full bg-white px-10 py-[15px] font-display text-base font-normal uppercase tracking-[0.04em] text-brand no-underline transition-[transform,background-color,color] hover:-translate-y-px hover:bg-brand-deep hover:text-white min-[700px]:px-11 min-[700px]:py-4 min-[700px]:text-[1.15rem]">
+						{{ hero.cta_primary_label }}
+					</a>
+					<a href="{{ hero.cta_secondary_url }}"
+						class="flex items-center gap-4 rounded-[14px] border-2 border-dashed border-brand-light px-[18px] py-3.5 text-left text-white no-underline transition-colors hover:border-transparent hover:bg-brand-deep min-[700px]:gap-[22px] min-[700px]:rounded-[16px] min-[700px]:px-7 min-[700px]:py-[18px]">
+						<span class="max-w-[22ch] text-base font-bold leading-[1.35] min-[700px]:text-[1.25rem]">{{ hero.cta_secondary_label }}</span>
+						{% include 'partials/arrow.twig' with { class: 'h-[17px] w-[34px] flex-none fill-white min-[700px]:h-[22px] min-[700px]:w-11' } only %}
+					</a>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	{# ============ WHO WE ARE — duotone photo + star, right-aligned copy from md ============ #}
+	<section id="about" class="who-we-are bg-white px-6 pb-12 pt-14 font-sans text-ink md:pb-[76px] md:pt-[84px]" data-tone="white">
+		{# Mobile order: eyebrow → heading → photo → paragraphs → link (the text
+		   wrapper is `contents` so its children order around the photo);
+		   desktop: photo left, right-aligned column right. #}
+		<div class="mx-auto flex max-w-[1240px] flex-col gap-5 md:grid md:items-center md:gap-14 md:[grid-template-columns:minmax(320px,1.15fr)_minmax(300px,1fr)]">
+			<div class="relative order-3 md:order-first">
+				{# Photo from Chapter Settings → Identity & brand (shipped neutral placeholder); duotone .30. #}
+				{% include 'partials/duotone.twig' with { image: identity.who_image, opacity: 0.3, class: 'rounded-[18px] md:rounded-[24px]', img_class: 'block h-auto w-full', loading: 'lazy' } only %}
+				{% include 'partials/star.twig' with { kind: 'star', class: 'absolute -right-4 -top-[22px] hidden w-[52px] text-brand [filter:saturate(1.4)] md:block' } only %}
+			</div>
+			{# who.* comes from inc/options.php (progressnow_front_who) — ACF with neutral defaults. #}
+			<div class="contents md:flex md:flex-col md:items-end md:gap-[22px] md:text-right">
+				<div class="order-1 text-[0.9rem] font-extrabold uppercase tracking-[0.06em] text-accent md:text-base md:tracking-[0.04em]">{{ who.eyebrow }}</div>
+				<h2 class="order-2 {{ h2_class }}">{{ who.heading }}</h2>
+				<p class="order-4 m-0 text-[1.05rem] font-semibold leading-[1.5] md:text-[1.22rem] md:font-bold md:leading-[1.45]">{{ who.p1 }}</p>
+				<p class="order-4 m-0 text-[1.05rem] font-semibold leading-[1.5] md:text-[1.22rem] md:font-bold md:leading-[1.45]">{{ who.p2 }}</p>
+				<p class="order-4 m-0 text-[1.05rem] font-semibold leading-[1.5] md:text-[1.22rem] md:font-bold md:leading-[1.45]">{{ who.p3 }}</p>
+				<a href="{{ who.link_url }}" class="order-5 {{ arrow_link }}">
+					{{ who.link_label }}
+					{% include 'partials/arrow.twig' with { class: arrow_svg } only %}
+				</a>
+			</div>
+		</div>
+	</section>
+
+	{# ============ UPCOMING EVENTS — alt band, whole-row link cards ============ #}
+	<section id="events" class="upcoming-events bg-alt px-6 pb-14 pt-12 font-sans text-ink md:pb-24 md:pt-[76px]" data-tone="alt">
+		<div class="mx-auto flex max-w-[1240px] flex-col gap-[22px] md:grid md:items-center md:gap-10 md:[grid-template-columns:1fr_auto]">
+			<h2 class="{{ h2_class }}">{{ pll__('Upcoming events') }}</h2>
+			{# Right of the heading from md; centered below the list on mobile. #}
+			<a href="{{ calendar_url }}" class="order-last justify-center {{ arrow_link }} md:order-none md:col-start-2 md:row-start-1 md:justify-start">
+				{{ pll__('Full calendar') }}
+				{% include 'partials/arrow.twig' with { class: arrow_svg } only %}
+			</a>
+			{% if home_events is empty %}
+				{# Empty state (v4) — renders whenever the query is empty. #}
+				<div class="flex flex-col items-center gap-1 rounded-[20px] border-2 border-dashed border-border-muted px-8 py-16 text-center md:col-span-2 md:row-start-2">
+					<div class="text-[1.25rem] font-bold">{{ pll__('No events on the books yet') }}</div>
+					<p class="m-0 max-w-[42ch] text-[1.25rem] font-medium leading-[1.45]">
+						{{ pll__('New meetings and actions land on the %s first — subscribe there and never miss one.')|format('<a href="' ~ calendar_url ~ '" class="font-bold text-accent underline underline-offset-4 hover:text-brand-deep">' ~ pll__('calendar') ~ '</a>') }}
+					</p>
+				</div>
+			{% else %}
+				<div class="flex flex-col gap-3 md:col-span-2 md:row-start-2">
+					{% for ev in home_events|slice(0, event_count) %}
+						{# Whole row is the link (design D4); the pill is a visual span at md+;
+						   mobile shows the 60px tile and the date only. #}
+						<a href="{{ ev.url|default(calendar_url) }}" aria-label="{{ pll__('View event') }}: {{ ev.title }}"
+							class="group grid grid-cols-[60px_1fr] items-center gap-4 rounded-[14px] bg-white p-4 text-ink no-underline shadow-subtle transition-shadow hover:shadow-card md:[grid-template-columns:76px_1fr_auto] md:gap-6 md:rounded-[16px] md:px-[22px] md:py-[18px]">
+							<span aria-hidden="true" class="flex flex-col rounded-[10px] bg-brand px-0.5 py-2 text-center text-white md:rounded-[12px] md:px-1 md:py-2.5">
+								<span class="text-[1.2rem] font-extrabold leading-[1.1] md:text-[1.4rem]">{{ ev.day }}</span>
+								<span class="text-[0.68rem] font-bold tracking-[0.1em] md:text-[0.75rem]">{{ ev.month }}</span>
+							</span>
+							<span class="flex flex-col gap-[3px] md:gap-1">
+								<span class="text-[1.02rem] font-bold leading-[1.3] md:text-[1.18rem]">{{ ev.title }}</span>
+								<span class="text-[0.88rem] font-medium text-muted md:text-base">{{ ev.when }}<span class="hidden md:inline"> · {{ ev.where }}</span></span>
+							</span>
+							<span aria-hidden="true"
+								class="hidden whitespace-nowrap rounded-full border-2 border-accent px-5 py-[9px] font-display text-[0.88rem] font-normal uppercase tracking-[0.03em] text-accent transition-colors group-hover:bg-accent group-hover:text-white md:inline-block">
+								{{ pll__('View event') }}
+							</span>
+						</a>
+					{% endfor %}
+				</div>
+			{% endif %}
+		</div>
+	</section>
+
+	{# ============ FROM THE BLOG — radius-24 cards, blue pills ============ #}
+	<section id="blog" class="from-the-blog bg-white px-6 py-14 font-sans text-ink md:pb-24 md:pt-[88px]" data-tone="white">
+		<div class="mx-auto flex max-w-[1240px] flex-col gap-[22px] md:gap-11">
+			<h2 class="{{ h2_class }}">{{ pll__('From the blog') }}</h2>
+			{#
+			  blog_featured (map|null) and blog_rows (array) come from
+			  progressnow_blog_front_page_context(). Category pills: solid brand on the
+			  featured card; brand / accent outlines alternating on the rows (md+).
+			#}
+			{% if blog_featured %}
+				<div class="grid grid-cols-1 items-stretch gap-4 md:grid-cols-2 md:gap-8 lg:[grid-template-columns:minmax(300px,1.15fr)_minmax(280px,1fr)]">
+					<a href="{{ blog_featured.url }}" class="flex flex-col {{ card }} md:col-span-2 lg:col-span-1">
+						<span class="relative block aspect-video overflow-hidden {% if not blog_featured.image %}{{ stripe }}{% endif %}">
+							{% if blog_featured.image %}
+								{% include 'partials/duotone.twig' with { image: blog_featured.image, opacity: 0.3, class: 'absolute inset-0 h-full w-full', img_class: 'block h-full w-full object-cover', loading: 'lazy' } only %}
+							{% endif %}
+							<span class="absolute left-3 top-3 rounded-full bg-brand px-3 py-1 text-[0.72rem] font-bold uppercase tracking-[0.06em] text-white md:left-3.5 md:top-3.5 md:px-3.5 md:py-[5px] md:text-[0.75rem]">{{ blog_featured.cat_label }}</span>
+						</span>
+						<span class="flex flex-col gap-2 px-5 pb-[22px] pt-[18px] md:gap-2.5 md:px-7 md:pb-[30px] md:pt-[26px]">
+							<span class="text-[0.82rem] font-semibold text-muted md:text-[0.85rem]">{{ blog_featured.date }} · {{ blog_featured.read }}</span>
+							<span class="text-[1.1rem] font-extrabold leading-[1.3] [text-wrap:balance] md:text-[clamp(1.2rem,2.2vw,1.45rem)] md:leading-[1.25]">{{ blog_featured.title }}</span>
+							<span class="hidden text-base leading-[1.55] text-muted md:block">{{ blog_featured.excerpt }}</span>
+							<span class="mt-1 hidden items-center gap-3 text-[0.95rem] font-extrabold uppercase tracking-[0.03em] text-accent md:flex">
+								{{ pll__('Read the post') }}
+								{% include 'partials/arrow.twig' with { class: 'h-4 w-8 flex-none fill-accent' } only %}
+							</span>
+						</span>
+					</a>
+					<div class="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-2 md:gap-5 lg:col-span-1 lg:grid-cols-1">
+						{% for row in blog_rows %}
+							{% set chip = loop.index0 is even ? 'border-brand text-brand' : 'border-accent text-accent' %}
+							<a href="{{ row.url }}" class="grid flex-1 grid-cols-[96px_1fr] {{ card }} md:[grid-template-columns:130px_1fr]">
+								{% if row.image %}
+									{% include 'partials/duotone.twig' with { image: row.image, opacity: 0, class: 'min-h-[96px] md:min-h-[130px]', img_class: 'block h-full w-full object-cover', loading: 'lazy' } only %}
+								{% else %}
+									<span aria-hidden="true" class="min-h-[96px] md:min-h-[130px] {{ stripe }}"></span>
+								{% endif %}
+								<span class="flex flex-col justify-center gap-1.5 px-[18px] py-3.5 md:gap-[9px] md:px-6 md:py-5">
+									<span class="{{ chip }} hidden self-start rounded-full border-2 px-3 py-[3px] text-[0.72rem] font-bold uppercase tracking-[0.06em] md:inline-block">{{ row.cat_label }}</span>
+									<span class="text-[0.98rem] font-bold leading-[1.35] md:text-[1.1rem]">{{ row.title }}</span>
+									<span class="text-[0.82rem] font-semibold text-muted md:text-[0.85rem]">{{ row.date }}</span>
+								</span>
+							</a>
+						{% endfor %}
+					</div>
+				</div>
+			{% else %}
+				<div class="flex flex-col items-center gap-1 rounded-[24px] border-2 border-dashed border-border-muted px-6 py-16 text-center">
+					<span class="text-[1.25rem] font-bold">{{ pll__('Posts coming soon') }}</span>
+					<span class="max-w-[42ch] text-[1.25rem] font-medium leading-[1.45]">{{ pll__('The chapter is writing its first dispatches — check back shortly.') }}</span>
+				</div>
+			{% endif %}
+		</div>
+	</section>
+
+	{# ============ CLOSING CTA — flame band + light band + star panel (design D2) ============ #}
+	{#
+	  From 700px: the brand section → the flame tips (`.cta-flames`, a CSS mask
+	  painted brand-light — src/css/tailwind.css) → the light band holding the
+	  chapter's panel artwork with an absolutely positioned overlay column inset
+	  44% from the left so the line + pill always sit over the panel's dark
+	  region. Below 700px: the star-badge card. `cta.line` is the editor's
+	  per-language line (inc/options.php), uppercased by CSS so its punctuation
+	  survives in the DOM.
+	#}
+	<section class="closing-cta bg-brand pt-10 font-sans min-[700px]:pt-[72px]" data-tone="blue" aria-label="{{ pll__('Join us') }}">
+		<div aria-hidden="true" class="cta-flames h-[110px] min-[700px]:h-[clamp(120px,17vw,240px)]"></div>
+		<div class="relative -mt-0.5 bg-brand-light px-5 pb-10 pt-2 min-[700px]:px-6 min-[700px]:pb-14 min-[700px]:pt-4">
+			{# desktop composition #}
+			<div class="relative mx-auto hidden max-w-[1100px] min-[700px]:block">
+				{# Panel artwork from Chapter Settings → Identity & brand; the shipped
+				   placeholder is decorative (empty alt). #}
+				<img src="{{ identity.cta_panel.src }}" alt="{{ identity.cta_panel.alt }}"{% if identity.cta_panel.alt is empty %} aria-hidden="true"{% endif %} width="{{ identity.cta_panel.width }}" height="{{ identity.cta_panel.height }}" class="block h-auto w-full">
+				<div class="absolute inset-0 flex flex-col items-center justify-center gap-[clamp(12px,3vw,40px)] pl-[44%] pr-[5%] text-center">
+					<p class="m-0 font-brush text-[clamp(1.8rem,5.4vw,4.8rem)] font-normal uppercase leading-[1.1] text-white [text-wrap:balance]">{{ cta.line }}</p>
+					<a href="{{ chapter.join_url }}" target="_blank" rel="noopener" class="{{ pill }} px-[2.6em] py-[0.8em] text-[clamp(0.8rem,1.3vw,1.1rem)]">{{ pll__('Join Now') }}</a>
+				</div>
+			</div>
+			{# mobile star-badge card #}
+			<div class="relative flex flex-col items-center gap-[22px] overflow-hidden rounded-[22px] bg-cta-card px-6 pb-9 pt-8 text-center min-[700px]:hidden">
+				<span aria-hidden="true" class="absolute inset-2 rounded-[16px] border-[3px] border-dashed border-yellow opacity-85"></span>
+				<svg aria-hidden="true" focusable="false" viewBox="-210 -200 420 395" class="relative h-auto w-[120px]"><path d="M0 -196 L57.6 -60 L204 -51 L88 39 L127 188 L0 105 L-127 188 L-88 39 L-204 -51 L-57.6 -60 Z" fill="#1848D8" stroke="#1B1B22" stroke-width="12" stroke-linejoin="round"/><path d="M0 -132 L38 -41 L136 -34 L59 26 L85 126 L0 70 L-85 126 L-59 26 L-136 -34 L-38 -41 Z" fill="#FFFFFF"/></svg>
+				<p class="relative m-0 font-brush text-[2.1rem] font-normal uppercase leading-[1.1] text-white [text-wrap:balance]">{{ cta.line }}</p>
+				<a href="{{ chapter.join_url }}" target="_blank" rel="noopener" class="relative {{ pill }} px-9 py-[13px] text-[0.95rem]">{{ pll__('Join Now') }}</a>
+			</div>
+		</div>
+	</section>
+
+{% endblock %}

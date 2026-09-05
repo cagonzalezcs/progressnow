@@ -1,0 +1,19 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+	"name": "progressnow/person-quote",
+	"title": "Person quote",
+	"description": "A quoted person with photo, optional translation, name, and role.",
+	"category": "text",
+	"icon": "format-quote",
+	"keywords": [ "quote", "testimonial", "person" ],
+	"acf": {
+		"mode": "preview",
+		"renderTemplate": "render.php"
+	},
+	"supports": {
+		"align": false,
+		"html": false,
+		"mode": true
+	}
+}

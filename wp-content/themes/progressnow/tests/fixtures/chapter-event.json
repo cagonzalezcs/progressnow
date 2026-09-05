@@ -1,0 +1,11 @@
+{
+    "id": "20",
+    "date": "2026-07-04",
+    "time": "6:00–8:00 PM",
+    "cat": "chapter",
+    "title": "Contract Test Event",
+    "location": "Downtown — Union Hall",
+    "desc": "March at dawn.",
+    "url": "http://example.org/?p=20",
+    "gcalUrl": "https://calendar.google.com/calendar/render?action=TEMPLATE&text=Contract%20Test%20Event&dates=20260704T180000%2F20260704T200000&details=March%20at%20dawn.&location=Downtown%20%E2%80%94%20Union%20Hall&ctz=America%2FChicago"
+}

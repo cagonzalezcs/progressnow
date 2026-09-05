@@ -1,0 +1,9 @@
+# The Nuxt source lives inside the WordPress docroot; nothing in here is
+# servable. The generated output is synced to CHAPTER_STATIC_DIR instead.
+<IfModule mod_authz_core.c>
+	Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+	Order deny,allow
+	Deny from all
+</IfModule>

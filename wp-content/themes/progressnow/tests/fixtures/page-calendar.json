@@ -1,0 +1,37 @@
+{
+    "lang": "",
+    "id": 0,
+    "path": "/?page_id=0",
+    "kind": "calendar",
+    "template": "page-templates/calendar.php",
+    "title": "Event Calendar",
+    "lede": "",
+    "content": "",
+    "documents": [],
+    "grievance": {
+        "show": true,
+        "body": ""
+    },
+    "newhere": {
+        "heading": "Get involved",
+        "body": "Meetings, actions and committees are open to everyone. Come find your place in the work.",
+        "link_label": "Join Now",
+        "url": "/get-involved/#join",
+        "external": false
+    },
+    "about": null,
+    "gi": null,
+    "calendar": {
+        "apiBase": "http://example.org/index.php?rest_route=/progressnow/v1",
+        "icsUrl": "http://example.org/?feed=chapter-events",
+        "googleCalUrl": "https://calendar.google.com/calendar/r?cid=webcal%3A%2F%2Fexample.org%2F%3Ffeed%3Dchapter-events"
+    },
+    "languages": [],
+    "seo": {
+        "title": "Event Calendar – Progress Now",
+        "description": "Organizing our community.",
+        "canonical": "http://example.org/?page_id=0",
+        "robots": "index,follow",
+        "hreflang": []
+    }
+}

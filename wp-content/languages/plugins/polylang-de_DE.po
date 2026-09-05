@@ -1,0 +1,2648 @@
+# Translation of Plugins - Polylang - Stable (latest release) in German
+# This file is distributed under the same license as the Plugins - Polylang - Stable (latest release) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2026-07-10 20:52:56+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/4.0.3\n"
+"Language: de\n"
+"Project-Id-Version: Plugins - Polylang - Stable (latest release)\n"
+
+#: src/modules/Blocks/Language_Switcher/Standard/block.json
+msgctxt "block description"
+msgid "Language switcher to insert in content or as a widget."
+msgstr "Sprachumschalter zum Einfügen in den Inhalt oder als Widget."
+
+#: src/modules/Blocks/Language_Switcher/Standard/block.json
+msgctxt "block title"
+msgid "Language Switcher"
+msgstr "Sprachumschalter"
+
+#: src/modules/Blocks/Language_Switcher/Navigation/block.json
+msgctxt "block title"
+msgid "Navigation Language Switcher"
+msgstr "Navigations-Sprachumschalter"
+
+#. translators: %1$s is the value to add. %2$s is the name of an option.
+#: src/Options/Options.php:534
+msgid "Failed to add %1$s to %2$s."
+msgstr "Fehler beim Hinzufügen von %1$s zu %2$s."
+
+#. translators: %1$s is the value to remove. %2$s is the name of an option.
+#: src/Options/Options.php:493
+msgid "Failed to remove %1$s from %2$s."
+msgstr "Fehler beim Entfernen von %1$s aus %2$s."
+
+#. translators: %s is a blog ID.
+#: src/Options/Inactive_Option.php:79
+msgid "Polylang is not active on site %s."
+msgstr "Polylang ist auf der Website %s nicht aktiv."
+
+#: src/Options/Business/Previous_Version.php:53
+msgid "This is the first activation"
+msgstr "Dies ist die erste Aktivierung"
+
+#: src/modules/site-health/admin-site-health.php:103
+msgid "Translated taxonomies"
+msgstr "Übersetzte Taxonomien"
+
+#: src/modules/site-health/admin-site-health.php:99
+msgid "Translated post types"
+msgstr "Übersetzte Inhaltstypen"
+
+#: src/modules/Blocks/Language_Switcher/Navigation/Block.php:152
+#: js/build/blocks.js:677 js/build/blocks.js:945
+msgid "Language switcher settings"
+msgstr "Sprachumschalter-Einstellungen"
+
+#. translators: %s is a taxonomy name
+#: src/Model/Languages.php:1287
+msgid "Could not update secondary language term for taxonomy %s."
+msgstr "Der Begriff der Sekundärsprache für die Taxonomie %s konnte nicht aktualisiert werden."
+
+#. translators: %s is a taxonomy name
+#: src/Model/Languages.php:1273
+msgid "Could not add secondary language term for taxonomy %s."
+msgstr "Der Begriff der Sekundärsprache für die Taxonomie %s konnte nicht hinzugefügt werden."
+
+#: src/Model/Languages.php:1220
+msgid "Could not update translation groups."
+msgstr "Die Übersetzungsgruppen konnten nicht aktualisiert werden."
+
+#: src/Model/Languages.php:1190 src/Model/Languages.php:1203
+msgid "Could not delete translation groups."
+msgstr "Übersetzungsgruppen konnten nicht gelöscht werden."
+
+#: src/Model/Languages.php:1174
+msgid "Could not delete relationships."
+msgstr "Beziehungen konnten nicht gelöscht werden."
+
+#. translators: 1: argument name, 2: PHP code snippet.
+#: src/Model/Languages.php:602 src/Model/Languages.php:615
+msgid "The argument %1$s has been replaced by %2$s."
+msgstr "Das Argument %1$s wurde durch %2$s ersetzt."
+
+#: src/Model/Languages.php:366 src/Model/Languages.php:433
+msgid "Could not update the language."
+msgstr "Die Sprache konnte nicht aktualisiert werden."
+
+#: src/Model/Languages.php:232
+msgid "Could not set the language order."
+msgstr "Die Reihenfolge der Sprachen konnte nicht festgelegt werden."
+
+#: src/Model/Languages.php:225 src/Model/Languages.php:251
+msgid "Could not add the language."
+msgstr "Die Sprache konnte nicht hinzugefügt werden."
+
+#. translators: accessibility text, %s is a native language name
+#: src/admin/admin-links.php:215
+msgid "You are not allowed to edit a translation in %s"
+msgstr "Du bist nicht berechtigt, eine Übersetzung in %s zu bearbeiten"
+
+#. translators: accessibility text, %s is a native language name
+#: src/admin/admin-links.php:212
+msgid "You are not allowed to edit this item in %s"
+msgstr "Du bist nicht berechtigt, dieses Element in %s zu bearbeiten"
+
+#. translators: accessibility text, %s is a native language name
+#: src/admin/admin-links.php:138
+msgid "You are not allowed to add a translation in %s"
+msgstr "Du bist nicht berechtigt, eine Übersetzung in %s hinzuzufügen"
+
+#. translators: %s is the name of an option.
+#: src/Options/Options.php:481 src/Options/Options.php:522
+msgid "Option %s is not a list or map."
+msgstr "Die Option %s ist keine Liste oder Zuordnung."
+
+#: src/modules/site-health/admin-site-health.php:303
+msgid "Network activated"
+msgstr "Netzwerkweit aktiviert"
+
+#: src/Options/Business/Nav_Menus.php:63
+msgid "Not used"
+msgstr "Nicht verwendet"
+
+#: src/modules/Blocks/Language_Switcher/Navigation/block.json
+msgctxt "block description"
+msgid "Language switcher suitable for navigation."
+msgstr "Für die Navigation geeigneter Sprachumschalter."
+
+#: src/modules/wpml/wpml-legacy-api.php:261
+msgid "Missing post ID"
+msgstr "Fehlende Beitrags-ID"
+
+#. translators: %d is a Post ID.
+#: src/modules/wpml/wpml-legacy-api.php:267
+msgid "No such post for ID = %d"
+msgstr "Es gibt keinen Beitrag mit der ID %d"
+
+#: src/modules/wizard/view-wizard-step-licenses.php:21
+msgid "Please enter your license keys:"
+msgstr "Bitte gib deine Lizenzschlüssel ein:"
+
+#. translators: %s is a URL slug: `/language/`.
+#: src/Options/Business/Rewrite.php:52 src/settings/settings-url.php:175
+msgid "Keep %s in pretty permalinks"
+msgstr "%s in lesbaren Permalinks behalten"
+
+#. translators: %s is a URL slug: `/language/`.
+#: src/Options/Business/Rewrite.php:46 src/settings/settings-url.php:160
+msgid "Remove %s in pretty permalinks"
+msgstr "%s in lesbaren Permalinks entfernen"
+
+#. translators: %s is a list of URLs.
+#: src/Options/Business/Domains.php:157
+msgid "Polylang was unable to access the %s URLs. Please check that the URLs are valid."
+msgstr "Polylang konnte nicht auf die URLs %s zugreifen. Bitte überprüfe, ob die URLs gültig sind."
+
+#. translators: %s is a list of native language names.
+#: src/Options/Business/Domains.php:126
+msgid "Please enter valid URLs for %s."
+msgstr "Bitte gib gültige URLs für %s ein."
+
+#. translators: %s is a list of language slugs.
+#: src/Options/Abstract_Option.php:265
+msgid "The languages %s are unknown and have been discarded."
+msgstr "Die Sprachen %s sind unbekannt und wurden verworfen."
+
+#: src/settings/settings-url.php:70
+msgid "Some themes or plugins may not be fully compatible with the language defined by domains."
+msgstr "Einige Themes oder Plugins sind möglicherweise nicht vollständig mit der von Domains definierten Sprache kompatibel."
+
+#: src/modules/REST/V1/Languages.php:691
+msgid "Invalid language slug"
+msgstr "Ungültige Sprach-Titelform"
+
+#: src/modules/REST/V1/Languages.php:668
+msgid "Invalid language ID"
+msgstr "Ungültige Sprach-ID"
+
+#: src/modules/REST/V1/Languages.php:611
+msgid "Number of items of this type of content in this language."
+msgstr "Anzahl der Elemente dieser Art von Inhalt in dieser Sprache."
+
+#: src/modules/REST/V1/Languages.php:585
+msgid "Tells whether the default category must be created when creating a new language."
+msgstr "Gibt an, ob die Standardkategorie bei der Erstellung einer neuen Sprache erstellt werden muss."
+
+#: src/modules/REST/V1/Languages.php:578
+msgid "Language properties."
+msgstr "Spracheigenschaften."
+
+#: src/modules/REST/V1/Languages.php:546
+msgid "Host for this language."
+msgstr "Host für diese Sprache."
+
+#: src/modules/REST/V1/Languages.php:526
+msgid "Tells whether the language is active."
+msgstr "Gibt an, ob die Sprache aktiv ist."
+
+#: src/modules/REST/V1/Languages.php:520
+msgid "Tells whether the language is the default one."
+msgstr "Gibt an, ob die Sprache die Standardsprache ist."
+
+#: src/modules/REST/V1/Languages.php:514
+msgid "HTML tag for the custom flag."
+msgstr "HTML-Tag für die individuelle Flagge."
+
+#: src/modules/REST/V1/Languages.php:507
+msgid "Custom flag URL."
+msgstr "Individuelle Flaggen-URL."
+
+#: src/modules/REST/V1/Languages.php:501
+msgid "HTML tag for the flag."
+msgstr "HTML-Tag für die Flagge."
+
+#: src/modules/REST/V1/Languages.php:494
+msgid "Flag URL."
+msgstr "Flaggen-URL."
+
+#: src/modules/REST/V1/Languages.php:489
+msgid "Flag code corresponding to ISO 3166-1 (for example: us for the United States flag)."
+msgstr "Flaggencode nach ISO 3166-1 (zum Beispiel: us für die Flagge der Vereinigten Staaten)."
+
+#: src/modules/REST/V1/Languages.php:484
+msgid "Position of the language in the language switcher."
+msgstr "Position der Sprache im Sprachumschalter."
+
+#: src/modules/REST/V1/Languages.php:383
+msgid "Sorry, you are not allowed to delete this language."
+msgstr "Du bist leider nicht berechtigt, diese Sprache zu löschen."
+
+#: src/modules/REST/V1/Languages.php:361
+msgid "Sorry, you are not allowed to edit this language."
+msgstr "Du bist leider nicht berechtigt, diese Sprache zu bearbeiten."
+
+#: src/modules/REST/V1/Languages.php:324
+msgid "Sorry, you are not allowed to create a language."
+msgstr "Du bist leider nicht berechtigt, eine Sprache zu erstellen."
+
+#: src/modules/REST/V1/Languages.php:302
+msgid "Sorry, you are not allowed to edit languages."
+msgstr "Du bist leider nicht berechtigt, Sprachen zu bearbeiten."
+
+#: src/translated-term.php:423
+msgid "Empty Term."
+msgstr "Leerer Begriff."
+
+#: src/Options/Options.php:363
+msgid "Polylang options"
+msgstr "Polylang-Optionen"
+
+#. translators: %s is the name of an option.
+#: src/Options/Options.php:309 src/Options/Options.php:418
+#: src/Options/Options.php:471 src/Options/Options.php:512
+msgid "Unknown option key %s."
+msgstr "Unbekannter Optionsschlüssel %s."
+
+#: src/Options/Business/Version.php:39
+msgid "Polylang's version."
+msgstr "Polylang-Version."
+
+#: src/Options/Business/Taxonomies.php:52
+msgid "List of taxonomies to translate."
+msgstr "Liste der zu übersetzenden Taxonomien."
+
+#: src/Options/Business/Sync.php:87
+msgid "List of data to synchronize."
+msgstr "Liste der zu synchronisierenden Daten."
+
+#: src/Options/Business/Previous_Version.php:39
+msgid "Polylang's previous version."
+msgstr "Die vorherige Version von Polylang."
+
+#. translators: %1$s and %2$s are "true/false" values.
+#: src/Options/Business/Media_Support.php:62
+msgid "Translate media: %1$s to translate, %2$s otherwise."
+msgstr "Medien übersetzen: %1$s zum Übersetzen, sonst %2$s."
+
+#: src/Options/Business/First_Activation.php:71
+msgid "Time of first activation of Polylang."
+msgstr "Zeitpunkt der ersten Aktivierung von Polylang."
+
+#: src/Options/Business/Domains.php:179
+msgid "Domains used when the language is set from different domains."
+msgstr "Domains, die verwendet werden, wenn die Sprache aus verschiedenen Domains eingestellt wird."
+
+#: src/Options/Business/Default_Lang.php:58
+msgid "Slug of the default language."
+msgstr "Titelform der Standardsprache."
+
+#. translators: %s is a language slug.
+#: src/Options/Abstract_Option.php:262
+msgid "The language %s is unknown and has been discarded."
+msgstr "Die Sprache %s ist unbekannt und wurde verworfen."
+
+#: src/api.php:577 src/api.php:612 src/translated-post.php:554
+#: src/translated-term.php:431
+msgid "Please provide a valid language."
+msgstr "Bitte gib eine gültige Sprache an."
+
+#: src/admin/admin-notices.php:290
+msgid "Translations matching the original string are shown as empty in the table. Untranslated content remains unchanged."
+msgstr "Übersetzungen, die mit der ursprünglichen Zeichenfolge übereinstimmen, werden in der Tabelle als leer angezeigt. Unübersetzte Inhalte bleiben unverändert."
+
+#: src/Options/Business/Post_Types.php:51
+msgid "List of post types to translate."
+msgstr "Liste der zu übersetzenden Inhaltstypen."
+
+#: src/Options/Business/Nav_Menus.php:186
+msgid "Translated navigation menus for each theme."
+msgstr "Übersetzte Navigationsmenüs für jedes Theme."
+
+#: src/translated-post.php:549
+msgid "Invalid post ID."
+msgstr "Die Beitrags-ID ist ungültig."
+
+#. translators: %1$s is a URL slug: `/language/`. %2$s and %3$s are
+#. "true/false" values.
+#: src/Options/Business/Rewrite.php:80
+msgid "Remove %1$s in pretty permalinks: %2$s to remove, %3$s to keep."
+msgstr "%1$s aus lesbaren Permalinks entfernen: %2$s zum Entfernen, %3$s zum Beibehalten."
+
+#. translators: %1$s and %2$s are "true/false" values.
+#: src/Options/Business/Browser.php:85
+msgid "Detect preferred browser language on front page: %1$s to detect, %2$s to not detect."
+msgstr "Bevorzugte Browsersprache auf der Homepage erkennen: %1$s zum Erkennen, %2$s zum Nicht-Erkennen."
+
+#: src/modules/REST/V1/Languages.php:553
+msgid "Page on front ID in this language."
+msgstr "ID der Homepage in dieser Sprache."
+
+#: src/modules/REST/V1/Settings.php:160
+msgid "Sorry, you are not allowed to edit options."
+msgstr "Du bist leider nicht berechtigt, Optionen zu bearbeiten."
+
+#: src/modules/REST/V1/Languages.php:539
+msgid "Search URL in this language."
+msgstr "Die Such-URL in dieser Sprache."
+
+#: src/modules/REST/V1/Languages.php:532
+msgid "Home URL in this language."
+msgstr "Die Home-URL in dieser Sprache."
+
+#: src/modules/REST/V1/Languages.php:121 src/modules/REST/V1/Languages.php:451
+msgid "Language code - preferably 2-letters ISO 639-1 (for example: en)."
+msgstr "Sprachcode – vorzugsweise 2 Buchstaben nach ISO 639-1 (zum Beispiel: de)."
+
+#. translators: %s is the name of the term property (`term_id` or
+#. `term_taxonomy_id`).
+#: src/modules/REST/V1/Languages.php:600 src/modules/REST/V1/Languages.php:606
+msgid "The %s of the language term for this translatable entity."
+msgstr "Die %s des Sprachbegriffs für diese übersetzbare Entität."
+
+#: src/Options/Business/Force_Lang.php:97
+msgid "Determine how the current language is defined."
+msgstr "Bestimmt, wie die aktuelle Sprache definiert ist."
+
+#: src/translated-term.php:326
+msgid "Language taxonomy properties for terms."
+msgstr "Eigenschaften der Sprachtaxonomie für Begriffe."
+
+#: src/translated-post.php:472
+msgid "Language taxonomy properties for post types."
+msgstr "Eigenschaften der Sprachtaxonomie für Inhaltstypen."
+
+#. translators: %s is the name of a database table.
+#: src/translatable-object.php:628
+msgid "Language taxonomy properties for table %s."
+msgstr "Eigenschaften der Sprachtaxonomie für die Tabelle %s."
+
+#. translators: %1$s and %2$s are "true/false" values.
+#: src/Options/Business/Redirect_Lang.php:62
+msgid "Remove the page name or page ID from the URL of the front page: %1$s to remove, %2$s to keep."
+msgstr "Den Seitennamen oder die Seiten-ID aus der Homepage-URL entfernen: %1$s zum Entfernen, %2$s zum Beibehalten."
+
+#. translators: %s is a list of option names.
+#: src/Options/Options.php:312
+msgid "Unknown option keys %s."
+msgstr "Unbekannte Optionsschlüssel %s."
+
+#. translators: %s is a value.
+#: src/modules/REST/V1/Languages.php:477
+msgid "Text direction. %s for right-to-left."
+msgstr "Textrichtung. %s für rechts nach links."
+
+#. translators: %1$s and %2$s are "true/false" values.
+#: src/Options/Business/Hide_Default.php:93
+msgid "Remove the language code in URL for the default language: %1$s to hide, %2$s to display."
+msgstr "Den Sprachcode in der URL für die Standardsprache entfernen: %1$s zum Ausblenden, %2$s zum Anzeigen."
+
+#: src/modules/REST/V1/Languages.php:457
+msgid "WordPress Locale for the language (for example: en_US)."
+msgstr "WordPress-Lokalisierung für die Sprache (zum Beispiel: de_DE)."
+
+#: src/modules/REST/V1/Languages.php:463
+msgid "W3C Locale for the language (for example: en-US)."
+msgstr "W3C-Lokalisierung für die Sprache (zum Beispiel: de-DE)."
+
+#: src/modules/REST/V1/Languages.php:469
+msgid "Facebook Locale for the language (for example: en_US)."
+msgstr "Facebook-Lokalisierung für die Sprache (zum Beispiel: de_DE)."
+
+#: src/modules/REST/V1/Languages.php:95 src/modules/REST/V1/Languages.php:438
+msgid "Unique identifier for the language."
+msgstr "Eindeutige Kennung für die Sprache."
+
+#: src/modules/REST/V1/Languages.php:567
+msgid "List of language locale fallbacks."
+msgstr "Die Liste der Fallback-Lokalisierungen."
+
+#: src/modules/REST/V1/Languages.php:560
+msgid "Identifier of the page for posts in this language."
+msgstr "Kennung der Seite für Beiträge in dieser Sprache."
+
+#: src/modules/REST/V1/Languages.php:702
+msgid "Invalid language identifier"
+msgstr "Ungültige Sprachkennung"
+
+#: src/modules/REST/V1/Languages.php:169
+msgid "Cannot create existing language."
+msgstr "Eine bereits existierende Sprache kann nicht erstellt werden."
+
+#. translators: %1$s placeholder is the language name, %2$s is the language
+#. code
+#: src/modules/site-health/admin-site-health.php:152
+msgid "Language: %1$s - %2$s"
+msgstr "Sprache: %1$s – %2$s"
+
+#: src/modules/machine-translation/settings-preview-machine-translation.php:39
+msgid "Machine Translation"
+msgstr "Maschinelle Übersetzung"
+
+#: src/modules/machine-translation/settings-preview-machine-translation.php:40
+msgid "Allows linkage to DeepL Translate."
+msgstr "Ermöglicht die Anbindung an DeepL Translate."
+
+#: src/Model/Languages.php:319
+msgid "The language does not seem to exist."
+msgstr "Die Sprache scheint nicht zu existieren."
+
+#. translators: 1 is a post type or taxonomy label, 2 is a post type or
+#. taxonomy key.
+#: src/settings/settings-cpt.php:115 src/settings/settings-cpt.php:146
+msgctxt "content type setting choice"
+msgid "%1$s (%2$s)"
+msgstr "%1$s (%2$s)"
+
+#: src/Options/Business/Media_Support.php:44
+msgid "The media are translated"
+msgstr "Die Medien sind übersetzt"
+
+#: src/Options/Business/Media_Support.php:46
+msgid "The media are not translated"
+msgstr "Die Medien sind nicht übersetzt"
+
+#: src/Options/Business/Hide_Default.php:47
+msgid "Display URL language information for default language"
+msgstr "URL-Sprachinformationen für die Standardsprache anzeigen"
+
+#: src/Options/Business/Browser.php:47
+msgid "Detect browser language activated"
+msgstr "Erkennung der Browsersprache aktiviert"
+
+#: src/Options/Business/Browser.php:45
+msgid "Detect browser language deactivated"
+msgstr "Erkennung der Browsersprache deaktiviert"
+
+#: src/Options/Business/Redirect_Lang.php:46
+msgid "The front page URL contains the page name or page id instead of the language code"
+msgstr "Die Homepage-URL enthält den Seitennamen oder die Seiten-ID statt des Sprachcodes"
+
+#: src/Options/Business/Sync.php:48
+msgid "Synchronization disabled"
+msgstr "Synchronisierung deaktiviert"
+
+#. translators: placeholder is the plugin name
+#: src/modules/site-health/admin-site-health.php:312
+msgid "%s information"
+msgstr "%s-Informationen"
+
+#: src/modules/site-health/admin-site-health.php:291
+msgid "Not loaded. Contact your host provider."
+msgstr "Nicht geladen. Kontaktiere deinen Hosting-Anbieter."
+
+#: src/install/plugin-updater.php:338
+msgid "Update now."
+msgstr "Jetzt aktualisieren."
+
+#. translators: 1. and 4. are opening anchor tags 2. the new plugin version 3.
+#. and 5. are closing anchor tags.
+#: src/install/plugin-updater.php:327
+msgid "%1$sView version %2$s details%3$s or %4$supdate now%5$s."
+msgstr "%1$sDetails der Version %2$s anzeigen%3$s oder %4$sjetzt aktualisieren%5$s."
+
+#. translators: 1. opening anchor tag, do not translate 2. the new plugin
+#. version 3. closing anchor tag, do not translate.
+#: src/install/plugin-updater.php:318
+msgid "%1$sView version %2$s details%3$s."
+msgstr "%1$sDetails der Version %2$s anzeigen%3$s."
+
+#: src/modules/site-health/admin-site-health.php:290
+msgid "PHP SimpleXML extension"
+msgstr "PHP-SimpleXML-Erweiterung"
+
+#. translators: the plugin name.
+#: src/install/plugin-updater.php:307
+msgid "There is a new version of %1$s available."
+msgstr "Es ist eine neue Version von %1$s verfügbar."
+
+#: src/install/plugin-updater.php:313
+msgid "Contact your network administrator to install the update."
+msgstr "Bitte kontaktiere deinen Netzwerkadministrator, um die Aktualisierung zu installieren."
+
+#: src/settings/settings-media.php:32
+msgid "Activate languages and translations for media only if you need to translate the text attached to the media: the title, the alternative text, the caption, the description... Note that the file is not duplicated."
+msgstr "Aktiviere Sprachen und Übersetzungen für Medien nur dann, wenn du den Text, der zu einem Medium gehört, übersetzen musst: den Titel, den Alternativtext, die Beschriftung, die Beschreibung … Bedenke, dass die Datei nicht dupliziert wird."
+
+#: src/settings/settings-url.php:56
+msgid "Some themes or plugins may not be fully compatible with the language defined by the content or by domains."
+msgstr "Einige Themes oder Plugins sind möglicherweise nicht vollständig mit der Sprache kompatibel, die durch Inhalte oder Domains definiert ist."
+
+#: src/settings/settings-browser.php:35
+msgid "When the front page is visited, redirects to itself in the browser preferred language. As this doesn't work if it is cached, Polylang will attempt to disable the front page cache for known cache plugins."
+msgstr "Wenn die Homepage besucht wird, leitet sie auf die vom Browser bevorzugte Sprache um. Dies funktioniert nicht, wenn sie zwischengespeichert ist, deshalb wird Polylang versuchen, den Cache der Homepage für bekannte Cache-Plugins zu deaktivieren."
+
+#: src/modules/site-health/admin-site-health.php:279
+msgid "Terms without language"
+msgstr "Begriffe ohne Sprache"
+
+#: src/modules/site-health/admin-site-health.php:272
+msgid "Posts without language"
+msgstr "Beiträge ohne Sprache"
+
+#: src/modules/site-health/admin-site-health.php:251
+msgid "The homepage is not translated in all languages"
+msgstr "Die Homepage ist nicht in alle Sprachen übersetzt"
+
+#: src/modules/site-health/admin-site-health.php:233
+msgid "All languages have a translated homepage"
+msgstr "Alle Sprachen haben eine übersetzte Homepage"
+
+#: src/modules/site-health/admin-site-health.php:217
+msgid "Homepage translated"
+msgstr "Homepage übersetzt"
+
+#: src/modules/site-health/admin-site-health.php:202
+msgid "Undefined"
+msgstr "Nicht definiert"
+
+#. translators: placeholder is the flag image
+#: src/modules/site-health/admin-site-health.php:154
+msgid "Flag used in the language switcher: %s"
+msgstr "Flagge, die im Sprachumschalter benutzt wird: %s"
+
+#: src/widget-calendar.php:319
+msgid "Previous and next months"
+msgstr "Vorherige und nächste Monate"
+
+#: src/modules/site-health/admin-site-health.php:241
+msgid "It is mandatory to translate the static front page in all languages."
+msgstr "Es ist obligatorisch, die statische Homepage in alle Sprachen zu übersetzen."
+
+#. translators: placeholder is the plugin name
+#: src/modules/site-health/admin-site-health.php:109
+msgid "%s options"
+msgstr "%s-Optionen"
+
+#: src/modules/wizard/view-wizard-step-home-page.php:97
+msgid "If you add a new language, don't forget to translate your homepage."
+msgstr "Falls du eine neue Sprache hinzufügst, vergiss nicht deine Homepage zu übersetzen."
+
+#: src/modules/wizard/view-wizard-step-last.php:107
+msgid "Return to the Dashboard"
+msgstr "Zurück zum Dashboard"
+
+#: src/modules/wizard/view-wizard-step-last.php:65
+msgid "Upgrade to Polylang Pro"
+msgstr "Upgrade auf Polylang Pro"
+
+#: src/modules/wizard/wizard.php:493
+msgid "You selected a language, however, to be able to continue, you need to add it."
+msgstr "Du hast eine Sprache ausgewählt, aber um fortzufahren, musst du sie hinzufügen."
+
+#: src/modules/wizard/view-wizard-step-media.php:50
+msgid "Help"
+msgstr "Hilfe"
+
+#: src/modules/wizard/view-wizard-step-media.php:21
+msgid "When you want to insert media in a post, only the media in the language of the current post will be displayed."
+msgstr "Wenn du ein Medium in einen Beitrag einfügen willst, wird nur das Medium in der Sprache des aktuellen Beitrags angezeigt."
+
+#: src/modules/wizard/view-wizard-step-media.php:20
+msgid "When you translate a media, the file is not duplicated on your disk, however you will see one entry per language in the media library."
+msgstr "Wenn du ein Medium übersetzt, wird die Datei nicht im Dateisystem dupliziert, aber du siehst einen Eintrag pro Sprache in der Mediathek."
+
+#: src/modules/wizard/view-wizard-step-licenses.php:28
+msgid "There is an error with a license key."
+msgstr "Es gibt einen Fehler mit einem Lizenzschlüssel."
+
+#: src/modules/wizard/view-wizard-page.php:117
+msgid "Not right now"
+msgstr "Nicht jetzt"
+
+#. translators: %s is the plugin name
+#: src/modules/wizard/view-wizard-page.php:42
+msgid "%s &rsaquo; Setup"
+msgstr "%s &rsaquo; Einrichtung"
+
+#: src/modules/wizard/view-wizard-step-home-page.php:87
+msgid "We are going to prepare this page in"
+msgstr "Wir werden diese Seite vorbereiten in"
+
+#: src/modules/wizard/view-wizard-step-home-page.php:49
+msgid "Your static homepage is already translated in"
+msgstr "Deine statische Homepage ist bereits übersetzt in"
+
+#. translators: %s is the language of the front page ( flag, native name and
+#. locale )
+#: src/modules/wizard/view-wizard-step-home-page.php:35
+msgid "Its language is : %s."
+msgstr "Deren Sprache ist: %s."
+
+#. translators: %s is the post title of the front page
+#: src/modules/wizard/view-wizard-step-home-page.php:27
+msgid "You defined this page as your static homepage: %s."
+msgstr "Du hast diese Seite als deine statische Homepage definiert: %s."
+
+#: src/modules/wizard/html-wizard-notice.php:47
+msgid "Skip setup"
+msgstr "Einrichtung überspringen"
+
+#: src/modules/wizard/html-wizard-notice.php:33
+msgid "You&lsquo;re almost ready to translate your contents!"
+msgstr "Du bist fast bereit, deine Inhalte zu übersetzen!"
+
+#. translators: %s is the plugin name
+#: src/modules/wizard/html-wizard-notice.php:26
+msgid "Welcome to %s"
+msgstr "Willkommen bei %s"
+
+#: src/modules/wizard/view-wizard-step-untranslated-contents.php:23
+msgid "Choose the language to be assigned"
+msgstr "Wähle die zuzuordnende Sprache"
+
+#: src/modules/wizard/view-wizard-step-untranslated-contents.php:19
+msgid "For your site to work correctly, you need to assign a language to all your contents."
+msgstr "Damit deine Website korrekt funktioniert, muss all deinen Inhalten eine Sprache zugeordnet werden."
+
+#: src/modules/wizard/view-wizard-step-untranslated-contents.php:16
+msgid "Content without language"
+msgstr "Inhalt ohne Sprache"
+
+#: src/modules/wizard/view-wizard-step-languages.php:105
+msgid "Do you want to add this language before continuing to the next step?"
+msgstr "Willst du diese Sprache hinzufügen, bevor du mit dem nächsten Schritt weitermachst?"
+
+#: src/modules/wizard/view-wizard-step-languages.php:63
+msgid "Remove"
+msgstr "Entfernen"
+
+#: src/modules/wizard/view-wizard-step-languages.php:32
+msgid "Select a language to be added"
+msgstr "Eine Sprache zum Hinzufügen auswählen"
+
+#: src/modules/wizard/view-wizard-step-languages.php:26
+msgid "First we are going to define the languages that you will use on your website."
+msgstr "Zuerst definieren wir die Sprachen, die du auf deiner Website benutzen wirst."
+
+#: src/modules/wizard/view-wizard-step-last.php:89
+msgid "Polylang Business Pack"
+msgstr "Polylang Business Pack"
+
+#. translators: %s is the name of Polylang Business Pack product
+#: src/modules/wizard/view-wizard-step-last.php:88
+msgid "We have noticed that you are using Polylang with WooCommerce. To ensure a better compatibility, we recommend you use %s which includes both Polylang Pro and Polylang For WooCommerce."
+msgstr "Wir haben festgestellt, dass du Polylang mit WooCommerce benutzt. Um eine bessere Kompatibilität sicherzustellen, empfehlen wir dir, %s zu benutzen, das sowohl Polylang Pro als auch Polylang for WooCommerce beinhaltet."
+
+#: src/modules/wizard/view-wizard-step-last.php:83
+msgid "Purchase Polylang Business Pack"
+msgstr "Polylang Business Pack kaufen"
+
+#: src/modules/wizard/view-wizard-step-last.php:82
+msgid "WooCommerce"
+msgstr "WooCommerce"
+
+#: src/modules/wizard/view-wizard-step-last.php:73
+#: src/modules/wizard/view-wizard-step-last.php:97
+msgid "Buy now"
+msgstr "Jetzt kaufen"
+
+#: src/modules/wizard/view-wizard-step-last.php:64
+msgid "Polylang Pro"
+msgstr "Polylang Pro"
+
+#: src/modules/wizard/view-wizard-step-last.php:56
+msgid "View pages"
+msgstr "Seiten anzeigen"
+
+#: src/modules/wizard/view-wizard-step-last.php:51
+msgid "You're ready to translate the posts on your website."
+msgstr "Du bist bereit, die Beiträge auf deiner Website zu übersetzen."
+
+#: src/modules/wizard/view-wizard-step-last.php:50
+msgid "Translate some pages"
+msgstr "Einige Seiten übersetzen"
+
+#: src/modules/wizard/view-wizard-step-last.php:34
+msgid "Create menus"
+msgstr "Menüs erstellen"
+
+#: src/modules/wizard/view-wizard-step-last.php:33
+#: src/modules/wizard/view-wizard-step-last.php:49
+msgid "Next step"
+msgstr "Nächster Schritt"
+
+#: src/modules/wizard/view-wizard-step-last.php:24
+#: src/modules/wizard/view-wizard-step-last.php:42
+msgid "Read documentation"
+msgstr "Dokumentation lesen"
+
+#: src/modules/wizard/view-wizard-step-last.php:16
+msgid "You're now able to translate your contents such as posts, pages, categories and tags. You can learn how to use Polylang by reading the documentation."
+msgstr "Du bist nun in der Lage, Inhalte wie Beiträge, Seiten, Kategorien und Schlagwörter zu übersetzen. Erfahre mehr über die Benutzung von Polylang in der Dokumentation."
+
+#: src/modules/wizard/view-wizard-step-last.php:13
+msgid "You're ready to translate your contents!"
+msgstr "Du bist bereit, deine Inhalte zu übersetzen!"
+
+#: src/modules/wizard/wizard.php:853
+msgid "Ready!"
+msgstr "Bereit!"
+
+#: src/modules/wizard/view-wizard-step-home-page.php:22
+#: src/modules/wizard/wizard.php:742 src/modules/wizard/wizard.php:793
+msgid "Homepage"
+msgstr "Homepage"
+
+#: src/modules/wizard/wizard.php:678
+msgid "Content"
+msgstr "Inhalt"
+
+#: src/modules/wizard/wizard.php:504
+msgid "Remove this language"
+msgstr "Diese Sprache entfernen"
+
+#: src/modules/wizard/view-wizard-step-languages.php:131
+#: src/modules/wizard/wizard.php:503
+msgid "Ignore"
+msgstr "Ignorieren"
+
+#: src/modules/site-health/admin-site-health.php:300
+#: src/modules/wizard/view-wizard-step-languages.php:122
+#: src/modules/wizard/wizard.php:502
+msgid "No"
+msgstr "Nein"
+
+#: src/modules/site-health/admin-site-health.php:298
+#: src/modules/wizard/view-wizard-step-languages.php:113
+#: src/modules/wizard/wizard.php:501
+msgid "Yes"
+msgstr "Ja"
+
+#: src/modules/wizard/wizard.php:492
+msgid "You need to add at least one language."
+msgstr "Du musst mindestens eine Sprache hinzufügen."
+
+#: src/modules/wizard/wizard.php:491
+msgid "You already added this language."
+msgstr "Du hast diese Sprache bereits hinzugefügt."
+
+#: src/modules/wizard/wizard.php:490
+msgid "You need to select a language to be added."
+msgstr "Du musst eine Sprache zum Hinzufügen auswählen."
+
+#: src/modules/wizard/view-wizard-step-licenses.php:25
+#: src/modules/wizard/wizard.php:387
+msgid "Licenses"
+msgstr "Lizenzen"
+
+#: src/modules/wizard/wizard.php:203
+msgid "Sorry, you are not allowed to manage options for this site."
+msgstr "Du bist leider nicht berechtigt, Optionen dieser Website zu verwalten."
+
+#: src/modules/wizard/wizard.php:145
+msgid "Setup"
+msgstr "Einrichtung"
+
+#: src/modules/wizard/view-wizard-step-media.php:41
+msgid "Allow Polylang to translate media"
+msgstr "Polylang das Übersetzen von Medien erlauben"
+
+#: src/modules/wizard/view-wizard-step-licenses.php:19
+msgid "Please enter your license key:"
+msgstr "Bitte gib deinen Lizenzschlüssel ein:"
+
+#: src/modules/wizard/view-wizard-page.php:105
+msgid "Continue"
+msgstr "Fortfahren"
+
+#: src/modules/wizard/view-wizard-step-untranslated-contents.php:20
+msgid "The selected language below will be applied to all your content without an assigned language."
+msgstr "Die unten ausgewählte Sprache wird auf alle Inhalte angewendet, denen keine Sprache zugeordnet ist."
+
+#. translators: %1$s: is a language flag image, %2$s: is a language native name
+#: src/modules/wizard/view-wizard-step-languages.php:98
+msgid "You selected %1$s %2$s but you didn't add it to the list before continuing to the next step."
+msgstr "Du hast %1$s %2$s ausgewählt, es aber nicht zur Liste hinzugefügt, bevor du mit dem nächsten Schritt fortgefahren bist."
+
+#: src/modules/wizard/view-wizard-step-home-page.php:40
+msgid "For your site to work correctly, this page must be translated in all available languages."
+msgstr "Damit deine Website korrekt funktioniert, muss diese Seite in allen verfügbaren Sprachen übersetzt sein."
+
+#: src/modules/wizard/wizard.php:500
+msgid "A language wasn't added."
+msgstr "Es wurde keine Sprache hinzugefügt."
+
+#: src/modules/wizard/view-wizard-step-media.php:24
+msgid "You must activate media translation if you want to translate the title, the alternative text, the caption, or the description. Otherwise you can safely deactivate it."
+msgstr "Du musst Medienübersetzungen aktivieren, falls du den Titel, den Alternativtext, die Beschriftung oder die Beschreibung übersetzen willst. Ansonsten kannst du es sicher deaktivieren."
+
+#: src/modules/wizard/view-wizard-step-media.php:19
+msgid "Polylang allows you to translate the text attached to your media, for example the title, the alternative text, the caption, or the description."
+msgstr "Polylang ermöglicht es dir, die mit deinem Medium verknüpften Texte zu übersetzen, wie den Titel, den Alternativtext, die Beschriftung oder die Beschreibung."
+
+#: src/modules/wizard/view-wizard-step-home-page.php:43
+msgid "After the pages is created, it is up to you to put the translated content in each page linked to each language."
+msgstr "Nachdem die Seiten erstellt wurden, liegt es an dir, die übersetzten Inhalte in die jeweiligen Seiten einzufügen, die mit den einzelnen Sprachen verknüpft sind."
+
+#. translators: %s: is the translated label of the 'Ignore' button
+#: src/modules/wizard/view-wizard-step-languages.php:130
+msgid "%s: stay at this step"
+msgstr "%s: bei diesem Schritt bleiben"
+
+#: src/modules/wizard/view-wizard-step-licenses.php:16
+msgid "You are using plugins which require a license key."
+msgstr "Du verwendest Plugins, die einen Lizenzschlüssel erfordern."
+
+#. translators: %s: is the translated label of the 'No' button
+#: src/modules/wizard/view-wizard-step-languages.php:121
+msgid "%s: don't add this language and continue to the next step"
+msgstr "%s: diese Sprache nicht hinzufügen und mit dem nächsten Schritt fortfahren"
+
+#. translators: %s: is the translated label of the 'Yes' button
+#: src/modules/wizard/view-wizard-step-languages.php:112
+msgid "%s: add this language and continue to the next step"
+msgstr "%s: diese Sprache hinzufügen und mit dem nächsten Schritt fortfahren"
+
+#: src/modules/wizard/view-wizard-step-last.php:36
+msgid "To get your website ready, there are still two steps you need to perform manually: add menus in each language, and add a language switcher to allow your visitors to select their preferred language."
+msgstr "Um deine Website einsatzbereit zu machen, fehlen noch zwei Schritte, die du manuell durchführen musst: das Hinzufügen von Menüs in jeder Sprache sowie eines Sprachumschalters, um deinen Besuchern die Auswahl ihrer bevorzugten Sprache zu ermöglichen."
+
+#: src/modules/wizard/view-wizard-step-home-page.php:93
+msgid "One language is well defined and assigned to your home page."
+msgstr "Eine Sprache ist eindeutig definiert und deiner Homepage zugeordnet."
+
+#: src/modules/wizard/html-wizard-notice.php:41
+msgid "Run the Setup Wizard"
+msgstr "Einrichtungsassistenten ausführen"
+
+#: src/modules/wizard/view-wizard-step-last.php:67
+msgid "Thank you for activating Polylang. If you want more advanced features - duplication, synchronization, REST API support, integration with other plugins, etc. - or further help provided by our Premium support, we recommend you upgrade to Polylang Pro."
+msgstr "Vielen Dank, dass du Polylang aktiviert hast. Wenn du erweiterte Funktionen wie Duplizieren, Synchronisierung, REST-API-Unterstützung, Integration mit anderen Plugins oder Premium-Support benötigst, empfehlen wir ein Upgrade auf Polylang Pro."
+
+#: src/modules/wizard/view-wizard-step-languages.php:23
+msgid "This wizard will help you configure your Polylang settings, and get you started quickly with your multilingual website."
+msgstr "Dieser Assistent hilft dir dabei, deine Polylang-Einstellungen zu konfigurieren, und ermöglicht dir einen schnellen Start mit deiner mehrsprachigen Website."
+
+#: src/modules/wizard/view-wizard-step-languages.php:75
+msgid "Languages already defined"
+msgstr "Bereits definierte Sprachen"
+
+#: src/admin/admin-filters.php:143
+msgid "Privacy Policy Page"
+msgstr "Seite für Datenschutzerklärung"
+
+#: src/license.php:297
+msgid "Your license key has been disabled."
+msgstr "Dein Lizenzschlüssel wurde deaktiviert."
+
+#. translators: 1: Plugin name 2: Current WordPress version 3: Required
+#. WordPress version
+#: src/install/usable.php:83
+msgid "%1$s has deactivated itself because you are using an old version of WordPress. You are using using WordPress %2$s. %1$s requires at least WordPress %3$s."
+msgstr "%1$s hat sich selbst deaktiviert, weil du eine alte WordPress-Version einsetzt. Du benutzt WordPress %2$s. %1$s erfordert mindestens WordPress %3$s."
+
+#. translators: 1: Plugin name 2: Current PHP version 3: Required PHP version
+#: src/install/usable.php:57
+msgid "%1$s has deactivated itself because you are using an old version of PHP. You are using using PHP %2$s. %1$s requires PHP %3$s."
+msgstr "%1$s hat sich selbst deaktiviert, weil du eine alte PHP-Version einsetzt. Du benutzt PHP %2$s. %1$s erfordert mindestens PHP %3$s."
+
+#: src/admin/admin-classic-editor.php:378
+msgid "If you attempt to modify them anyway, your changes will not be saved."
+msgstr "Falls du versuchst, sie trotzdem zu ändern, werden deine Änderungen nicht gespeichert."
+
+#. translators: %1$s is link start tag, %2$s is link end tag.
+#: src/admin/admin-notices.php:268
+msgid "We have noticed that you have been using Polylang for some time. We hope you love it, and we would really appreciate it if you would %1$sgive us a 5 stars rating%2$s."
+msgstr "Wir haben festgestellt, dass du Polylang schon seit einiger Zeit nutzt. Wir hoffen, du magst es! Wir würden uns sehr freuen, wenn du %1$suns eine 5-Sterne-Bewertung geben%2$s würdest."
+
+#: src/settings/flags.php:159
+msgid "North Macedonia"
+msgstr "Nordmazedonien"
+
+#. translators: %1$s is link start tag, %2$s is link end tag.
+#: src/admin/admin-notices.php:243
+msgid "We have noticed that you are using Polylang with WooCommerce. To ensure compatibility, we recommend you use %1$sPolylang for WooCommerce%2$s."
+msgstr "Wir haben festgestellt, dass du Polylang mit WooCommerce nutzt. Um Kompatibilität zu gewährleisten, empfehlen wir die Nutzung von %1$sPolylang for WooCommerce%2$s."
+
+#: src/settings/settings-module.php:348
+msgid "To enable this feature, you need Polylang Pro."
+msgstr "Um diese Funktion zu aktivieren, benötigst du Polylang Pro."
+
+#. translators: %s is a comma separated list of native language names
+#: src/admin/admin-static-pages.php:154
+msgid "You must translate your static front page in %s."
+msgstr "Du musst deine statische Homepage in %s übersetzen."
+
+#: src/admin/admin-classic-editor.php:376
+msgid "Some taxonomies or metadata may be synchronized with existing translations that you are not allowed to modify."
+msgstr "Einige Taxonomien oder Metadaten können mit bestehenden Übersetzungen synchronisiert werden, die du nicht ändern darfst."
+
+#. translators: %1$s is a date, %2$s is link start tag, %3$s is link end tag.
+#: src/license.php:345
+msgid "Your license key will expire soon! Precisely, it will expire on %1$s. %2$sRenew your license key today!%3$s"
+msgstr "Dein Lizenzschlüssel läuft bald ab! Genau genommen am %1$s. %2$sErneuere deinen Lizenzschlüssel noch heute!%3$s"
+
+#. translators: %1$s and %2$s are Polylang version numbers
+#: src/install/upgrade.php:93
+msgid "Before upgrading to %2$s, please upgrade to %1$s."
+msgstr "Führe bitte vor dem Upgrade auf %2$s zunächst ein Upgrade auf %1$s durch."
+
+#. Author of the plugin
+#: polylang.php
+msgid "WP SYNTEX"
+msgstr "WP SYNTEX"
+
+#. translators: accessibility text
+#: src/admin/admin-notices.php:224 src/modules/wizard/wizard.php:383
+#: src/modules/wizard/wizard.php:484 src/modules/wizard/wizard.php:675
+#: src/settings/settings.php:318
+msgid "Dismiss this notice."
+msgstr "Diesen Hinweis verwerfen"
+
+#: src/filters.php:360
+msgid "User"
+msgstr "Benutzer"
+
+#: src/filters.php:327
+msgid "Translated user descriptions"
+msgstr "Übersetzte Benutzerbeschreibungen"
+
+#. translators: %s is a language native name
+#: src/filters.php:351
+msgid "User description - %s"
+msgstr "Benutzerbeschreibung – %s"
+
+#: src/settings/flags.php:234
+msgid "Tibet"
+msgstr "Tibet"
+
+#: src/install/plugin-updater.php:574
+msgid "Error"
+msgstr "Fehler"
+
+#: src/install/plugin-updater.php:574
+msgid "You do not have permission to install plugin updates"
+msgstr "Du hast keine Berechtigung zum Installieren von Plugin-Updates"
+
+#. translators: %s is a date
+#: src/license.php:353
+msgid "Your license key expires on %s."
+msgstr "Dein Lizenzschlüssel läuft am %s ab."
+
+#. Plugin URI of the plugin
+#. Author URI of the plugin
+#: polylang.php
+msgid "https://polylang.pro"
+msgstr "https://polylang.pro"
+
+#: src/settings/settings-licenses.php:38
+msgid "License keys"
+msgstr "Lizenzschlüssel"
+
+#: src/license.php:340
+msgid "The license key never expires."
+msgstr "Der Lizenzschlüssel läuft nie ab."
+
+#. translators: %1$s is a date, %2$s is link start tag, %3$s is link end tag.
+#: src/license.php:288
+msgid "Your license key expired on %1$s. Please %2$srenew your license key%3$s."
+msgstr "Dein Lizenzschlüssel ist am %1$s abgelaufen. Bitte %2$serneuere deinen Lizenzschlüssel%3$s."
+
+#. translators: %1$s is link start tag, %2$s is link end tag.
+#: src/settings/view-about.php:23
+msgid "Support and extra features are available to %1$sPolylang Pro%2$s users."
+msgstr "Hilfe und Extrafunktionen sind für %1$sPolylang Pro%2$s-Benutzer verfügbar."
+
+#. translators: %1$s is link start tag, %2$s is link end tag
+#: src/license.php:328
+msgid "Your license key has reached its activation limit. %1$sView possible upgrades%2$s now."
+msgstr "Dein Lizenzschlüssel hat das Aktivierungslimit erreicht. %1$sSieh dir jetzt mögliche Upgrades an%2$s."
+
+#. translators: %1$s is a product name, %2$s is link start tag, %3$s is link
+#. end tag.
+#: src/license.php:313
+msgid "Your %1$s license key is not active for this URL. Please %2$svisit your account page%3$s to manage your license key URLs."
+msgstr "Dein %1$s-Lizenzschlüssel ist für diese URL nicht aktiv. Bitte %2$sbesuche deine Kontoseite%3$s, um deine Lizenzschlüssel-URLs zu verwalten."
+
+#: src/modules/translate-slugs/settings-preview-translate-slugs.php:38
+msgid "Translate slugs"
+msgstr "Titelformen übersetzen"
+
+#: src/modules/share-slug/settings-preview-share-slug.php:38
+msgid "Share slugs"
+msgstr "Titelformen teilen"
+
+#. translators: %1$s is link start tag, %2$s is link end tag.
+#: src/license.php:303
+msgid "Invalid license. Please %1$svisit your account page%2$s and verify it."
+msgstr "Ungültige Lizenz. Bitte %1$srufe deine Kontoseite auf%2$s und überprüfe sie."
+
+#: src/modules/translate-slugs/settings-preview-translate-slugs.php:54
+msgid "Allows to translate custom post types and taxonomies slugs in URLs."
+msgstr "Ermöglicht die Übersetzung von Titelformen individueller Inhaltstypen und Taxonomien in URLs."
+
+#: src/modules/share-slug/settings-preview-share-slug.php:54
+msgid "Allows to share the same URL slug across languages for posts and terms."
+msgstr "Ermöglicht die Verwendung derselben URL-Titelform für Beiträge und Begriffe in verschiedenen Sprachen."
+
+#. translators: %s is a product name
+#: src/license.php:322
+msgid "This is not a %s license key."
+msgstr "Dies ist kein %s-Lizenzschlüssel."
+
+#: src/settings/settings-module.php:350
+msgid "Upgrade now."
+msgstr "Jetzt upgraden."
+
+#: src/settings/settings-licenses.php:39
+msgid "Manage licenses for Polylang Pro and add-ons."
+msgstr "Lizenzen für Polylang Pro und Add-ons verwalten."
+
+#. translators: Post calendar label. %s: Date.
+#: src/widget-calendar.php:292
+msgid "Posts published on %s"
+msgstr "Beiträge veröffentlicht am %s"
+
+#: src/widget-calendar.php:290
+msgctxt "daily archives date format"
+msgid "F j, Y"
+msgstr "j. F Y"
+
+#. translators: accessibility text
+#: src/settings/table-string.php:362
+msgid "Filter by group"
+msgstr "Nach Gruppe filtern"
+
+#: src/settings/view-tab-lang.php:140
+msgid "Choose a flag for the language."
+msgstr "Wähle eine Flagge für die Sprache."
+
+#. translators:  accessibility text, %s is a string potentially in any language
+#: src/settings/table-string.php:105
+msgid "Select %s"
+msgstr "%s auswählen"
+
+#: src/settings/table-settings.php:149
+msgid "Description"
+msgstr "Beschreibung"
+
+#: src/settings/table-settings.php:148
+msgid "Module"
+msgstr "Modul"
+
+#: src/settings/settings-module.php:170
+msgid "Save Changes"
+msgstr "Änderungen speichern"
+
+#: src/settings/settings-module.php:169 js/build/block-editor.js:160
+#: js/build/classic-editor.js:79
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: src/settings/settings-url.php:39
+msgid "Decide how your URLs will look like."
+msgstr "Entscheide, wie deine URLs aussehen sollen."
+
+#: src/settings/settings.php:336
+msgid "You can set them all to the default language."
+msgstr "Du kannst sie alle auf die Standardsprache setzen."
+
+#: src/settings/table-languages.php:93 src/settings/table-languages.php:205
+msgid "Edit this language"
+msgstr "Diese Sprache bearbeiten"
+
+#: src/settings/table-languages.php:114
+msgid "Select as default language"
+msgstr "Als Standardsprache festlegen"
+
+#. translators: accessibility text, %s is a native language name
+#: src/settings/table-languages.php:117
+msgid "Choose %s as default language"
+msgstr "%s als Standardsprache festlegen"
+
+#: src/settings/table-languages.php:211
+msgid "Delete this language and all its associated data"
+msgstr "Lösche diese Sprache und alle zugehörigen Daten"
+
+#. translators: %s is a URL.
+#: src/Options/Business/Domains.php:154
+msgid "Polylang was unable to access the %s URL. Please check that the URL is valid."
+msgstr "Polylang konnte nicht auf die URL %s zugreifen. Bitte überprüfe, ob die URL gültig ist."
+
+#: src/modules/wizard/view-wizard-step-untranslated-contents.php:18
+#: src/settings/settings.php:334
+msgid "There are posts, pages, categories or tags without language."
+msgstr "Es gibt Beiträge, Seiten, Kategorien oder Schlagwörter ohne Sprache."
+
+#. translators: %s is a native language name.
+#: src/Options/Business/Domains.php:123
+msgid "Please enter a valid URL for %s."
+msgstr "Bitte gib eine gültige URL für %s ein."
+
+#: src/settings/settings-module.php:165
+msgid "Deactivated"
+msgstr "Deaktiviert"
+
+#: src/settings/settings-module.php:160
+msgid "Activate this module"
+msgstr "Dieses Modul aktivieren"
+
+#: src/settings/flags.php:265
+msgid "Zambia"
+msgstr "Sambia"
+
+#: src/settings/flags.php:266
+msgid "Zimbabwe"
+msgstr "Simbabwe"
+
+#: src/license.php:337 src/settings/settings-module.php:156
+msgid "Deactivate"
+msgstr "Deaktivieren"
+
+#: src/settings/settings-cpt.php:59
+msgid "Custom post types and Taxonomies"
+msgstr "Individuelle Inhaltstypen und Taxonomien"
+
+#: src/settings/settings-module.php:154
+msgid "Deactivate this module"
+msgstr "Dieses Modul deaktivieren"
+
+#: src/settings/settings-module.php:148
+msgid "Configure this module"
+msgstr "Dieses Modul konfigurieren"
+
+#: src/settings/settings-cpt.php:60
+msgid "Activate languages and translations management for the custom post types and the taxonomies."
+msgstr "Sprach- und Übersetzungsverwaltung für die individuellen Inhaltstypen und Taxonomien aktivieren."
+
+#: src/settings/flags.php:263
+msgid "Mayotte"
+msgstr "Mayotte"
+
+#: src/settings/flags.php:262
+msgid "Yemen"
+msgstr "Jemen"
+
+#: src/settings/flags.php:264
+msgid "South Africa"
+msgstr "Südafrika"
+
+#: src/settings/flags.php:258
+msgid "Vanuatu"
+msgstr "Vanuatu"
+
+#: src/settings/flags.php:259
+msgid "Wales"
+msgstr "Wales"
+
+#: src/settings/flags.php:260
+msgid "Wallis and Futuna"
+msgstr "Wallis und Futuna"
+
+#: src/settings/flags.php:261
+msgid "Western Samoa"
+msgstr "Samoa"
+
+#: src/settings/flags.php:253
+msgid "Venezuela"
+msgstr "Venezuela"
+
+#: src/settings/flags.php:257
+msgid "Vietnam"
+msgstr "Vietnam"
+
+#: src/settings/flags.php:254
+msgid "Veneto"
+msgstr "Venetien"
+
+#: src/settings/flags.php:256
+msgid "United States Virgin Islands"
+msgstr "Amerikanische Jungferninseln"
+
+#: src/settings/flags.php:255
+msgid "British Virgin Islands"
+msgstr "Britische Jungferninseln"
+
+#: src/settings/flags.php:252
+msgid "Saint Vincent and the Grenadines"
+msgstr "St. Vincent und die Grenadinen"
+
+#: src/settings/flags.php:249
+msgid "Uruguay"
+msgstr "Uruguay"
+
+#: src/settings/flags.php:250
+msgid "Uzbekistan"
+msgstr "Usbekistan"
+
+#: src/settings/flags.php:251
+msgid "Vatican"
+msgstr "Vatikanstadt"
+
+#: src/settings/flags.php:247
+msgid "Uganda"
+msgstr "Uganda"
+
+#: src/settings/flags.php:246
+msgid "Ukraine"
+msgstr "Ukraine"
+
+#: src/settings/flags.php:248
+msgid "United States"
+msgstr "Vereinigte Staaten von Amerika"
+
+#: src/settings/flags.php:243
+msgid "Tuvalu"
+msgstr "Tuvalu"
+
+#: src/settings/flags.php:244
+msgid "Taiwan"
+msgstr "Taiwan"
+
+#: src/settings/flags.php:245
+msgid "Tanzania"
+msgstr "Tansania"
+
+#: src/settings/flags.php:242
+msgid "Trinidad and Tobago"
+msgstr "Trinidad und Tobago"
+
+#: src/settings/flags.php:240
+msgid "Tonga"
+msgstr "Tonga"
+
+#: src/settings/flags.php:241
+msgid "Turkey"
+msgstr "Türkei"
+
+#: src/settings/flags.php:239
+msgid "Tunisia"
+msgstr "Tunesien"
+
+#: src/settings/flags.php:235
+msgid "Tajikistan"
+msgstr "Tadschikistan"
+
+#: src/settings/flags.php:236
+msgid "Tokelau"
+msgstr "Tokelau"
+
+#: src/settings/flags.php:238
+msgid "Turkmenistan"
+msgstr "Turkmenistan"
+
+#: src/settings/flags.php:237
+msgid "Timor-Leste"
+msgstr "Osttimor"
+
+#: src/settings/flags.php:232
+msgid "Togo"
+msgstr "Togo"
+
+#: src/settings/flags.php:233
+msgid "Thailand"
+msgstr "Thailand"
+
+#: src/settings/flags.php:230
+msgid "Chad"
+msgstr "Tschad"
+
+#: src/settings/flags.php:231
+msgid "French Southern Territories"
+msgstr "Französische Süd- und Antarktisgebiete"
+
+#: src/settings/flags.php:227
+msgid "Syria"
+msgstr "Syrien"
+
+#: src/settings/flags.php:229
+msgid "Turks and Caicos Islands"
+msgstr "Turks- und Caicosinseln"
+
+#: src/settings/flags.php:228
+msgid "Swaziland"
+msgstr "Eswatini"
+
+#: src/settings/flags.php:226
+msgid "El Salvador"
+msgstr "El Salvador"
+
+#: src/settings/flags.php:225
+msgid "São Tomé and Príncipe"
+msgstr "São Tomé und Príncipe"
+
+#: src/settings/flags.php:224
+msgid "South Sudan"
+msgstr "Südsudan"
+
+#: src/settings/flags.php:223
+msgid "Suriname"
+msgstr "Surinam"
+
+#: src/settings/flags.php:221
+msgid "Senegal"
+msgstr "Senegal"
+
+#: src/settings/flags.php:222
+msgid "Somalia"
+msgstr "Somalia"
+
+#: src/settings/flags.php:219
+msgid "Sierra Leone"
+msgstr "Sierra Leone"
+
+#: src/settings/flags.php:220
+msgid "San Marino"
+msgstr "San Marino"
+
+#: src/settings/flags.php:217
+msgid "Slovenia"
+msgstr "Slowenien"
+
+#: src/settings/flags.php:218
+msgid "Slovakia"
+msgstr "Slowakei"
+
+#: src/settings/flags.php:216
+msgid "Saint Helena"
+msgstr "St. Helena"
+
+#: src/settings/flags.php:214
+msgid "Sweden"
+msgstr "Schweden"
+
+#: src/settings/flags.php:215
+msgid "Singapore"
+msgstr "Singapur"
+
+#: src/settings/flags.php:212
+msgid "Scotland"
+msgstr "Schottland"
+
+#: src/settings/flags.php:213
+msgid "Sudan"
+msgstr "Sudan"
+
+#: src/settings/flags.php:211
+msgid "Seychelles"
+msgstr "Seychellen"
+
+#: src/settings/flags.php:210
+msgid "Solomon Islands"
+msgstr "Salomonen"
+
+#: src/settings/flags.php:208
+msgid "Rwanda"
+msgstr "Ruanda"
+
+#: src/settings/flags.php:209
+msgid "Saudi Arabia"
+msgstr "Saudi-Arabien"
+
+#: src/settings/flags.php:207
+msgid "Russia"
+msgstr "Russland"
+
+#: src/settings/flags.php:205
+msgid "Romania"
+msgstr "Rumänien"
+
+#: src/settings/flags.php:206
+msgid "Serbia"
+msgstr "Serbien"
+
+#: src/settings/flags.php:204
+msgid "Quebec"
+msgstr "Québec"
+
+#: src/settings/flags.php:202
+msgid "Paraguay"
+msgstr "Paraguay"
+
+#: src/settings/flags.php:203
+msgid "Qatar"
+msgstr "Katar"
+
+#: src/settings/flags.php:201
+msgid "Belau"
+msgstr "Palau"
+
+#: src/settings/flags.php:199
+msgid "Palestinian Territory"
+msgstr "Palästinensische Autonomiegebiete"
+
+#: src/settings/flags.php:200
+msgid "Portugal"
+msgstr "Portugal"
+
+#: src/settings/flags.php:198
+msgid "Puerto Rico"
+msgstr "Puerto Rico"
+
+#: src/settings/flags.php:196
+msgid "Saint Pierre and Miquelon"
+msgstr "Saint-Pierre und Miquelon"
+
+#: src/settings/flags.php:197
+msgid "Pitcairn"
+msgstr "Pitcairninseln"
+
+#: src/settings/flags.php:194
+msgid "Pakistan"
+msgstr "Pakistan"
+
+#: src/settings/flags.php:195
+msgid "Poland"
+msgstr "Polen"
+
+#: src/settings/flags.php:193
+msgid "Philippines"
+msgstr "Philippinen"
+
+#: src/settings/flags.php:190
+msgid "Peru"
+msgstr "Peru"
+
+#: src/settings/flags.php:191
+msgid "French Polynesia"
+msgstr "Französisch-Polynesien"
+
+#: src/settings/flags.php:192
+msgid "Papua New Guinea"
+msgstr "Papua-Neuguinea"
+
+#: src/settings/flags.php:188
+msgid "Oman"
+msgstr "Oman"
+
+#: src/settings/flags.php:189
+msgid "Panama"
+msgstr "Panama"
+
+#: src/settings/flags.php:187
+msgid "Occitania"
+msgstr "Okzitanien"
+
+#: src/settings/flags.php:186
+msgid "New Zealand"
+msgstr "Neuseeland"
+
+#: src/settings/flags.php:184
+msgid "Nauru"
+msgstr "Nauru"
+
+#: src/settings/flags.php:185
+msgid "Niue"
+msgstr "Niue"
+
+#: src/settings/flags.php:183
+msgid "Nepal"
+msgstr "Nepal"
+
+#: src/settings/flags.php:181
+msgid "Netherlands"
+msgstr "Niederlande"
+
+#: src/settings/flags.php:182
+msgid "Norway"
+msgstr "Norwegen"
+
+#: src/settings/flags.php:177
+msgid "Niger"
+msgstr "Niger"
+
+#: src/settings/flags.php:179
+msgid "Nigeria"
+msgstr "Nigeria"
+
+#: src/settings/flags.php:180
+msgid "Nicaragua"
+msgstr "Nicaragua"
+
+#: src/settings/flags.php:178
+msgid "Norfolk Island"
+msgstr "Norfolkinsel"
+
+#: src/settings/flags.php:173
+msgid "Malaysia"
+msgstr "Malaysia"
+
+#: src/settings/flags.php:175
+msgid "Namibia"
+msgstr "Namibia"
+
+#: src/settings/flags.php:176
+msgid "New Caledonia"
+msgstr "Neukaledonien"
+
+#: src/settings/flags.php:174
+msgid "Mozambique"
+msgstr "Mosambik"
+
+#: src/settings/flags.php:171
+msgid "Malawi"
+msgstr "Malawi"
+
+#: src/settings/flags.php:170
+msgid "Maldives"
+msgstr "Malediven"
+
+#: src/settings/flags.php:172
+msgid "Mexico"
+msgstr "Mexiko"
+
+#: src/settings/flags.php:169
+msgid "Mauritius"
+msgstr "Mauritius"
+
+#: src/settings/flags.php:167
+msgid "Montserrat"
+msgstr "Montserrat"
+
+#: src/settings/flags.php:168
+msgid "Malta"
+msgstr "Malta"
+
+#: src/settings/flags.php:166
+msgid "Mauritania"
+msgstr "Mauretanien"
+
+#: src/settings/flags.php:165
+msgid "Martinique"
+msgstr "Martinique"
+
+#: src/settings/flags.php:164
+msgid "Northern Mariana Islands"
+msgstr "Nördliche Marianen"
+
+#: src/settings/flags.php:161
+msgid "Myanmar"
+msgstr "Myanmar"
+
+#: src/settings/flags.php:163
+msgid "Macao"
+msgstr "Macau"
+
+#: src/settings/flags.php:162
+msgid "Mongolia"
+msgstr "Mongolei"
+
+#: src/settings/flags.php:160
+msgid "Mali"
+msgstr "Mali"
+
+#: src/settings/flags.php:158
+msgid "Marshall Islands"
+msgstr "Marshallinseln"
+
+#: src/settings/flags.php:156
+msgid "Montenegro"
+msgstr "Montenegro"
+
+#: src/settings/flags.php:157
+msgid "Madagascar"
+msgstr "Madagaskar"
+
+#: src/settings/flags.php:155
+msgid "Moldova"
+msgstr "Moldau"
+
+#: src/settings/flags.php:154
+msgid "Monaco"
+msgstr "Monaco"
+
+#: src/settings/flags.php:153
+msgid "Morocco"
+msgstr "Marokko"
+
+#: src/settings/flags.php:152
+msgid "Libya"
+msgstr "Libyen"
+
+#: src/settings/flags.php:150
+msgid "Luxembourg"
+msgstr "Luxemburg"
+
+#: src/settings/flags.php:151
+msgid "Latvia"
+msgstr "Lettland"
+
+#: src/settings/flags.php:147
+msgid "Liberia"
+msgstr "Liberia"
+
+#: src/settings/flags.php:149
+msgid "Lithuania"
+msgstr "Litauen"
+
+#: src/settings/flags.php:148
+msgid "Lesotho"
+msgstr "Lesotho"
+
+#: src/settings/flags.php:145
+msgid "Liechtenstein"
+msgstr "Liechtenstein"
+
+#: src/settings/flags.php:146
+msgid "Sri Lanka"
+msgstr "Sri Lanka"
+
+#: src/settings/flags.php:144
+msgid "Saint Lucia"
+msgstr "St. Lucia"
+
+#: src/settings/flags.php:142
+msgid "Laos"
+msgstr "Laos"
+
+#: src/settings/flags.php:143
+msgid "Lebanon"
+msgstr "Libanon"
+
+#: src/settings/flags.php:141
+msgid "Kazakhstan"
+msgstr "Kasachstan"
+
+#: src/settings/flags.php:139
+msgid "Kuwait"
+msgstr "Kuwait"
+
+#: src/settings/flags.php:138
+msgid "Kurdistan"
+msgstr "Kurdistan"
+
+#: src/settings/flags.php:140
+msgid "Cayman Islands"
+msgstr "Kaimaninseln"
+
+#: src/settings/flags.php:135
+msgid "Saint Kitts and Nevis"
+msgstr "St. Kitts und Nevis"
+
+#: src/settings/flags.php:137
+msgid "South Korea"
+msgstr "Südkorea"
+
+#: src/settings/flags.php:136
+msgid "North Korea"
+msgstr "Nordkorea"
+
+#: src/settings/flags.php:133
+msgid "Kiribati"
+msgstr "Kiribati"
+
+#: src/settings/flags.php:134
+msgid "Comoros"
+msgstr "Komoren"
+
+#: src/settings/flags.php:132
+msgid "Cambodia"
+msgstr "Kambodscha"
+
+#: src/settings/flags.php:129
+msgid "Japan"
+msgstr "Japan"
+
+#: src/settings/flags.php:128
+msgid "Jordan"
+msgstr "Jordanien"
+
+#: src/settings/flags.php:131
+msgid "Kyrgyzstan"
+msgstr "Kirgisistan"
+
+#: src/settings/flags.php:130
+msgid "Kenya"
+msgstr "Kenia"
+
+#: src/settings/flags.php:127
+msgid "Jamaica"
+msgstr "Jamaika"
+
+#: src/settings/flags.php:124
+msgid "Iran"
+msgstr "Iran"
+
+#: src/settings/flags.php:123
+msgid "Iraq"
+msgstr "Irak"
+
+#: src/settings/flags.php:125
+msgid "Iceland"
+msgstr "Island"
+
+#: src/settings/flags.php:126
+msgid "Italy"
+msgstr "Italien"
+
+#: src/settings/flags.php:120
+msgid "Israel"
+msgstr "Israel"
+
+#: src/settings/flags.php:121
+msgid "India"
+msgstr "Indien"
+
+#: src/settings/flags.php:122
+msgid "British Indian Ocean Territory"
+msgstr "Britisches Territorium im Indischen Ozean"
+
+#: src/settings/flags.php:116
+msgid "Haiti"
+msgstr "Haiti"
+
+#: src/settings/flags.php:119
+msgid "Republic of Ireland"
+msgstr "Irland"
+
+#: src/settings/flags.php:117
+msgid "Hungary"
+msgstr "Ungarn"
+
+#: src/settings/flags.php:118
+msgid "Indonesia"
+msgstr "Indonesien"
+
+#: src/settings/flags.php:114
+msgid "Honduras"
+msgstr "Honduras"
+
+#: src/settings/flags.php:115
+msgid "Croatia"
+msgstr "Kroatien"
+
+#: src/settings/flags.php:113
+msgid "Heard Island and McDonald Islands"
+msgstr "Heard- und McDonaldinseln"
+
+#: src/settings/flags.php:112
+msgid "Hong Kong"
+msgstr "Hongkong"
+
+#: src/settings/flags.php:110
+msgid "Guinea-Bissau"
+msgstr "Guinea-Bissau"
+
+#: src/settings/flags.php:111
+msgid "Guyana"
+msgstr "Guyana"
+
+#: src/settings/flags.php:109
+msgid "Guam"
+msgstr "Guam"
+
+#: src/settings/flags.php:108
+msgid "Guatemala"
+msgstr "Guatemala"
+
+#: src/settings/flags.php:107
+msgid "South Georgia and the South Sandwich Islands"
+msgstr "Südgeorgien und die Südlichen Sandwichinseln"
+
+#: src/settings/flags.php:106
+msgid "Greece"
+msgstr "Griechenland"
+
+#: src/settings/flags.php:105
+msgid "Equatorial Guinea"
+msgstr "Äquatorialguinea"
+
+#: src/settings/flags.php:102
+msgid "Gambia"
+msgstr "Gambia"
+
+#: src/settings/flags.php:103
+msgid "Guinea"
+msgstr "Guinea"
+
+#: src/settings/flags.php:104
+msgid "Guadeloupe"
+msgstr "Guadeloupe"
+
+#: src/settings/flags.php:100
+msgid "Gibraltar"
+msgstr "Gibraltar"
+
+#: src/settings/flags.php:101
+msgid "Greenland"
+msgstr "Grönland"
+
+#: src/settings/flags.php:99
+msgid "Ghana"
+msgstr "Ghana"
+
+#: src/settings/flags.php:98
+msgid "Georgia"
+msgstr "Georgien"
+
+#: src/settings/flags.php:97
+msgid "Grenada"
+msgstr "Grenada"
+
+#: src/settings/flags.php:95
+msgid "Galicia"
+msgstr "Galicien"
+
+#: src/settings/flags.php:96
+msgid "United Kingdom"
+msgstr "Vereinigtes Königreich"
+
+#: src/settings/flags.php:94
+msgid "Gabon"
+msgstr "Gabun"
+
+#: src/settings/flags.php:93
+msgid "France"
+msgstr "Frankreich"
+
+#: src/settings/flags.php:92
+msgid "Faroe Islands"
+msgstr "Färöer"
+
+#: src/settings/flags.php:91
+msgid "Micronesia"
+msgstr "Mikronesien"
+
+#: src/settings/flags.php:90
+msgid "Falkland Islands"
+msgstr "Falklandinseln"
+
+#: src/settings/flags.php:86
+msgid "Esperanto"
+msgstr "Esperanto"
+
+#: src/settings/flags.php:89
+msgid "Fiji"
+msgstr "Fidschi"
+
+#: src/settings/flags.php:88
+msgid "Finland"
+msgstr "Finnland"
+
+#: src/settings/flags.php:87
+msgid "Ethiopia"
+msgstr "Äthiopien"
+
+#: src/settings/flags.php:83
+msgid "England"
+msgstr "England"
+
+#: src/settings/flags.php:84
+msgid "Eritrea"
+msgstr "Eritrea"
+
+#: src/settings/flags.php:85
+msgid "Spain"
+msgstr "Spanien"
+
+#: src/settings/flags.php:81
+msgid "Egypt"
+msgstr "Ägypten"
+
+#: src/settings/flags.php:80
+msgid "Estonia"
+msgstr "Estland"
+
+#: src/settings/flags.php:82
+msgid "Western Sahara"
+msgstr "Westsahara"
+
+#: src/settings/flags.php:77
+msgid "Dominican Republic"
+msgstr "Dominikanische Republik"
+
+#: src/settings/flags.php:78
+msgid "Algeria"
+msgstr "Algerien"
+
+#: src/settings/flags.php:79
+msgid "Ecuador"
+msgstr "Ecuador"
+
+#: src/settings/flags.php:76
+msgid "Dominica"
+msgstr "Dominica"
+
+#: src/settings/flags.php:75
+msgid "Denmark"
+msgstr "Dänemark"
+
+#: src/settings/flags.php:73
+msgid "Germany"
+msgstr "Deutschland"
+
+#: src/settings/flags.php:74
+msgid "Djibouti"
+msgstr "Dschibuti"
+
+#: src/settings/flags.php:70
+msgid "Christmas Island"
+msgstr "Weihnachtsinsel"
+
+#: src/settings/flags.php:71
+msgid "Cyprus"
+msgstr "Zypern"
+
+#: src/settings/flags.php:72
+msgid "Czech Republic"
+msgstr "Tschechien"
+
+#: src/settings/flags.php:69
+msgid "Cape Verde"
+msgstr "Kap Verde"
+
+#: src/settings/flags.php:68
+msgid "Cuba"
+msgstr "Kuba"
+
+#: src/settings/flags.php:65
+msgid "China"
+msgstr "China"
+
+#: src/settings/flags.php:67
+msgid "Costa Rica"
+msgstr "Costa Rica"
+
+#: src/settings/flags.php:66
+msgid "Colombia"
+msgstr "Kolumbien"
+
+#: src/settings/flags.php:63
+msgid "Chile"
+msgstr "Chile"
+
+#: src/settings/flags.php:64
+msgid "Cameroon"
+msgstr "Kamerun"
+
+#: src/settings/flags.php:61
+msgid "Ivory Coast"
+msgstr "Elfenbeinküste"
+
+#: src/settings/flags.php:62
+msgid "Cook Islands"
+msgstr "Cookinseln"
+
+#: src/settings/flags.php:59
+msgid "Congo"
+msgstr "Kongo"
+
+#: src/settings/flags.php:58
+msgid "Central African Republic"
+msgstr "Zentralafrikanische Republik"
+
+#: src/settings/flags.php:60
+msgid "Switzerland"
+msgstr "Schweiz"
+
+#: src/settings/flags.php:57
+msgid "Democratic Republic of the Congo"
+msgstr "Demokratische Republik Kongo"
+
+#: src/settings/flags.php:55
+msgid "Catalonia"
+msgstr "Katalonien"
+
+#: src/settings/flags.php:54
+msgid "Canada"
+msgstr "Kanada"
+
+#: src/settings/flags.php:56
+msgid "Cocos"
+msgstr "Kokosinseln"
+
+#: src/settings/flags.php:53
+msgid "Belize"
+msgstr "Belize"
+
+#: src/settings/flags.php:52
+msgid "Belarus"
+msgstr "Belarus"
+
+#: src/settings/flags.php:49
+msgid "Bahamas"
+msgstr "Bahamas"
+
+#: src/settings/flags.php:50
+msgid "Bhutan"
+msgstr "Bhutan"
+
+#: src/settings/flags.php:51
+msgid "Botswana"
+msgstr "Botswana"
+
+#: src/settings/flags.php:48
+msgid "Brazil"
+msgstr "Brasilien"
+
+#: src/settings/flags.php:47
+msgid "Bolivia"
+msgstr "Bolivien"
+
+#: src/settings/flags.php:46
+msgid "Brunei"
+msgstr "Brunei"
+
+#: src/settings/flags.php:45
+msgid "Bermuda"
+msgstr "Bermuda"
+
+#: src/settings/flags.php:43
+msgid "Burundi"
+msgstr "Burundi"
+
+#: src/settings/flags.php:44
+msgid "Benin"
+msgstr "Benin"
+
+#: src/settings/flags.php:40
+msgid "Burkina Faso"
+msgstr "Burkina Faso"
+
+#: src/settings/flags.php:42
+msgid "Bahrain"
+msgstr "Bahrain"
+
+#: src/settings/flags.php:41
+msgid "Bulgaria"
+msgstr "Bulgarien"
+
+#: src/settings/flags.php:38
+msgid "Bangladesh"
+msgstr "Bangladesch"
+
+#: src/settings/flags.php:39
+msgid "Belgium"
+msgstr "Belgien"
+
+#: src/settings/flags.php:37
+msgid "Barbados"
+msgstr "Barbados"
+
+#: src/settings/flags.php:36
+msgid "Basque Country"
+msgstr "Baskenland"
+
+#: src/settings/flags.php:35
+msgid "Bosnia and Herzegovina"
+msgstr "Bosnien und Herzegowina"
+
+#: src/settings/flags.php:34
+msgid "Azerbaijan"
+msgstr "Aserbaidschan"
+
+#: src/settings/flags.php:33
+msgid "Åland Islands"
+msgstr "Ålandinseln"
+
+#: src/settings/flags.php:32
+msgid "Aruba"
+msgstr "Aruba"
+
+#: src/settings/flags.php:31
+msgid "Australia"
+msgstr "Australien"
+
+#: src/settings/flags.php:28
+msgid "Arab league"
+msgstr "Arabische Liga"
+
+#: src/settings/flags.php:30
+msgid "Austria"
+msgstr "Österreich"
+
+#: src/settings/flags.php:29
+msgid "American Samoa"
+msgstr "Amerikanisch-Samoa"
+
+#: src/settings/flags.php:26
+msgid "Angola"
+msgstr "Angola"
+
+#: src/settings/flags.php:27
+msgid "Argentina"
+msgstr "Argentinien"
+
+#: src/settings/flags.php:25
+msgid "Netherlands Antilles"
+msgstr "Niederländische Antillen"
+
+#: src/settings/flags.php:23
+msgid "Albania"
+msgstr "Albanien"
+
+#: src/settings/flags.php:24
+msgid "Armenia"
+msgstr "Armenien"
+
+#: src/settings/flags.php:20
+msgid "Afghanistan"
+msgstr "Afghanistan"
+
+#: src/settings/flags.php:22
+msgid "Anguilla"
+msgstr "Anguilla"
+
+#: src/settings/flags.php:21
+msgid "Antigua and Barbuda"
+msgstr "Antigua und Barbuda"
+
+#: src/settings/flags.php:19
+msgid "United Arab Emirates"
+msgstr "Vereinigte Arabische Emirate"
+
+#: src/settings/flags.php:18
+msgid "Andorra"
+msgstr "Andorra"
+
+#: src/admin/admin-static-pages.php:56
+msgid "Posts Page"
+msgstr "Beitragsseite"
+
+#. translators: accessibility text
+#: src/admin/view-translations-post.php:67
+#: src/admin/view-translations-term.php:81
+msgid "Translation"
+msgstr "Übersetzung"
+
+#: src/admin/admin-static-pages.php:52
+msgid "Front Page"
+msgstr "Homepage"
+
+#. translators: accessibility text, %s is a native language name
+#: src/admin/admin-links.php:232 src/admin/admin-links.php:236
+msgid "Edit the translation in %s"
+msgstr "Bearbeite die Übersetzung in %s"
+
+#. translators: accessibility text, %s is a native language name
+#: src/admin/admin-links.php:143
+msgid "Add a translation in %s"
+msgstr "Füge eine Übersetzung in %s hinzu"
+
+#: src/Model/Languages.php:1083 src/modules/wizard/wizard.php:499
+msgid "The flag does not exist"
+msgstr "Die Flagge existiert nicht"
+
+#. translators: accessibility text, %s is a native language name
+#: src/admin/admin-links.php:229
+msgid "Edit this item in %s"
+msgstr "Bearbeite diesen Eintrag in %s"
+
+#: src/admin/admin-nav-menu.php:90
+msgid "Add to Menu"
+msgstr "Zum Menü hinzufügen"
+
+#. Description of the plugin
+#: polylang.php
+msgid "Adds multilingual capability to WordPress"
+msgstr "Ergänzt WordPress um Mehrsprachigkeit"
+
+#: src/settings/settings-module.php:162
+msgid "Activate"
+msgstr "Aktivieren"
+
+#. Plugin Name of the plugin
+#: polylang.php
+msgid "Polylang"
+msgstr "Polylang"
+
+#: src/settings/settings-module.php:164
+msgid "Activated"
+msgstr "Aktiviert"
+
+#: src/admin/admin-base.php:147 src/admin/admin-base.php:659
+#: src/admin/admin-classic-editor.php:79 src/admin/admin-nav-menu.php:80
+#: src/admin/admin-nav-menu.php:83 src/admin/admin-nav-menu.php:116
+#: src/modules/Blocks/Language_Switcher/Navigation/Block.php:241
+#: src/modules/wizard/view-wizard-step-languages.php:28
+#: src/modules/wizard/wizard.php:510 src/nav-menu.php:72
+#: src/settings/settings.php:123
+msgid "Languages"
+msgstr "Sprachen"
+
+#: src/admin/admin-base.php:515
+msgid "Show all languages"
+msgstr "Alle Sprachen anzeigen"
+
+#: src/admin/admin-classic-editor.php:136
+#: src/admin/admin-filters-columns.php:215 src/admin/admin-filters-media.php:79
+#: src/admin/admin-filters-term.php:142 src/admin/admin-filters-term.php:214
+#: src/modules/wizard/view-wizard-step-languages.php:62
+msgid "Language"
+msgstr "Sprache"
+
+#: src/admin/admin-base.php:664 src/admin/view-translations-media.php:14
+#: src/admin/view-translations-post.php:14
+#: src/admin/view-translations-term.php:18
+#: src/admin/view-translations-term.php:25 src/settings/table-string.php:169
+msgid "Translations"
+msgstr "Übersetzungen"
+
+#: src/filters-widgets-options.php:53
+msgid "All languages"
+msgstr "Alle Sprachen"
+
+#: src/admin/admin-base.php:667 src/admin/admin.php:104
+#: src/settings/settings-module.php:150
+msgid "Settings"
+msgstr "Einstellungen"
+
+#: src/settings/settings.php:113
+msgid "About Polylang"
+msgstr "Über Polylang"
+
+#: src/Model/Languages.php:1064 src/modules/wizard/wizard.php:497
+msgid "The language code must be unique"
+msgstr "Der Sprachcode muss eindeutig sein"
+
+#: src/Model/Languages.php:1071 src/modules/wizard/wizard.php:498
+msgid "The language must have a name"
+msgstr "Die Sprache muss einen Namen haben"
+
+#: src/modules/sync/settings-sync.php:103
+msgid "Taxonomies"
+msgstr "Taxonomien"
+
+#: src/modules/sync/settings-sync.php:105
+msgid "Comment status"
+msgstr "Kommentarstatus"
+
+#: src/modules/sync/settings-sync.php:106
+msgid "Ping status"
+msgstr "Ping-Status"
+
+#: src/modules/sync/settings-sync.php:111
+msgid "Page template"
+msgstr "Seitenvorlage"
+
+#: src/modules/sync/settings-sync.php:112
+msgid "Page order"
+msgstr "Reihenfolge der Seiten"
+
+#: src/settings/view-tab-lang.php:32
+msgid "Edit language"
+msgstr "Sprache bearbeiten"
+
+#: src/modules/wizard/view-wizard-step-languages.php:50
+#: src/modules/wizard/view-wizard-step-languages.php:54
+#: src/settings/view-tab-lang.php:32 src/settings/view-tab-lang.php:172
+msgid "Add new language"
+msgstr "Neue Sprache hinzufügen"
+
+#: src/modules/Blocks/Language_Switcher/Standard/Block.php:60
+#: src/settings/view-tab-lang.php:53 src/widget-languages.php:88
+msgid "Choose a language"
+msgstr "Sprache auswählen"
+
+#: src/settings/view-tab-lang.php:70
+msgid "You can choose a language in the list or directly edit it below."
+msgstr "Du kannst eine Sprache in der Liste auswählen oder sie unten direkt bearbeiten."
+
+#: src/settings/view-tab-lang.php:96
+msgid "Language code"
+msgstr "Sprachcode"
+
+#: src/settings/view-tab-lang.php:107
+msgid "Text direction"
+msgstr "Textrichtung"
+
+#: src/settings/table-languages.php:153 src/settings/view-tab-lang.php:144
+msgid "Order"
+msgstr "Reihenfolge"
+
+#: src/settings/view-tab-strings.php:16
+msgid "Search translations"
+msgstr "Übersetzungen suchen"
+
+#. translators: accessibility text
+#: src/modules/wizard/view-wizard-step-home-page.php:69
+#: src/modules/wizard/view-wizard-step-home-page.php:83
+#: src/modules/wizard/view-wizard-step-home-page.php:114
+#: src/modules/wizard/view-wizard-step-languages.php:71
+#: src/modules/wizard/view-wizard-step-languages.php:86
+#: src/settings/table-languages.php:133 src/settings/table-languages.php:152
+msgid "Default language"
+msgstr "Standardsprache"
+
+#: src/settings/settings-browser.php:34
+msgid "Detect browser language"
+msgstr "Browsersprache erkennen"
+
+#: src/modules/wizard/view-wizard-step-media.php:17
+#: src/modules/wizard/wizard.php:620 src/settings/settings-media.php:31
+msgid "Media"
+msgstr "Medien"
+
+#: src/modules/sync/settings-sync.php:31
+msgid "Synchronization"
+msgstr "Synchronisierung"
+
+#: src/settings/table-languages.php:207
+msgid "Edit"
+msgstr "Bearbeiten"
+
+#: src/settings/table-languages.php:214 src/settings/table-string.php:328
+msgid "Delete"
+msgstr "Löschen"
+
+#: src/settings/table-languages.php:151
+msgid "Code"
+msgstr "Code"
+
+#: src/settings/table-string.php:167
+msgid "Name"
+msgstr "Name"
+
+#: src/settings/table-string.php:166
+msgid "String"
+msgstr "Zeichenfolge"
+
+#: src/settings/table-string.php:168
+msgid "Group"
+msgstr "Gruppe"
+
+#: src/settings/table-string.php:368
+msgid "View all groups"
+msgstr "Alle Gruppen anzeigen"
+
+#: src/settings/settings-url.php:83 src/settings/settings-url.php:94
+#: src/settings/settings-url.php:166 src/settings/settings-url.php:181
+msgid "Example:"
+msgstr "Beispiel:"
+
+#: src/Options/Business/Force_Lang.php:53 src/settings/settings-url.php:101
+msgid "The language is set from different domains"
+msgstr "Die Sprache wird durch verschiedene Domains eingestellt"
+
+#: src/modules/wizard/wizard.php:494
+msgid "Impossible to add the language."
+msgstr "Unmöglich, die Sprache hinzuzufügen."
+
+#: src/settings/settings.php:204
+msgid "Language deleted."
+msgstr "Sprache gelöscht."
+
+#: src/settings/settings.php:216
+msgid "Language updated."
+msgstr "Sprache aktualisiert."
+
+#: src/settings/table-string.php:446
+msgid "Translations updated."
+msgstr "Übersetzungen aktualisiert."
+
+#: src/settings/view-tab-lang.php:172
+msgid "Update"
+msgstr "Aktualisieren"
+
+#: src/admin/admin-filters-term.php:483
+msgid "None"
+msgstr "Keine"
+
+#: src/settings/settings-licenses.php:43
+msgid "Close"
+msgstr "Schließen"
+
+#: src/admin/admin-filters-columns.php:202
+msgid "&mdash; No Change &mdash;"
+msgstr "&ndash; Keine Änderung &ndash;"
+
+#: src/settings/table-string.php:381
+msgid "Filter"
+msgstr "Filtern"
+
+#. translators: Hidden accessibility text.
+#: src/frontend/frontend-filters-search.php:122
+#: src/frontend/frontend-filters-search.php:124
+msgid "Search"
+msgstr "Suche"
+
+#. translators: Calendar caption: 1: Month name, 2: 4-digit year.
+#: src/widget-calendar.php:219
+msgctxt "calendar caption"
+msgid "%1$s %2$s"
+msgstr "%1$s %2$s"
+
+#: src/filters-widgets-options.php:68
+msgid "The widget is displayed for:"
+msgstr "Das Widget wird angezeigt für:"
+
+#: src/admin/admin-strings.php:69
+msgid "Widget title"
+msgstr "Widget-Titel"
+
+#: src/admin/admin-strings.php:70
+msgid "Widget text"
+msgstr "Widget-Text"
+
+#: src/modules/sync/settings-sync.php:108
+msgid "Published date"
+msgstr "Veröffentlichungsdatum"
+
+#: src/modules/sync/settings-sync.php:109
+msgid "Post format"
+msgstr "Beitragsformat"
+
+#: src/modules/sync/settings-sync.php:113
+msgid "Featured image"
+msgstr "Beitragsbild"
+
+#: src/settings/table-languages.php:213
+msgid "You are about to permanently delete this language. Are you sure?"
+msgstr "Du bist dabei, diese Sprache dauerhaft zu löschen. Bist du sicher?"
+
+#: src/settings/view-tab-lang.php:120
+msgid "Choose the text direction for the language"
+msgstr "Wähle die Textrichtung für die Sprache aus"
+
+#: src/settings/settings-url.php:38
+msgid "URL modifications"
+msgstr "URL-Anpassungen"
+
+#: src/settings/settings-url.php:79
+msgid "The language is set from the code in the URL"
+msgstr "Die Sprache wird vom Code in der URL bestimmt"
+
+#: src/widget-languages.php:34
+msgid "Displays a language switcher"
+msgstr "Zeigt einen Sprachumschalter"
+
+#: src/install/upgrade.php:90
+msgid "Polylang has been deactivated because you upgraded from a too old version."
+msgstr "Polylang wurde deaktiviert, weil du von einer zu alten Version aktualisiert hast."
+
+#. translators: %1$s example url when the option is active. %2$s example url
+#. when the option is not active
+#: src/settings/settings-url.php:211
+msgid "Example: %1$s instead of %2$s"
+msgstr "Beispiel: %1$s anstatt %2$s"
+
+#: src/admin/admin-base.php:524 src/admin/admin-base.php:556
+msgid "Filters content by language"
+msgstr "Filtert Inhalte nach der Sprache"
+
+#: src/settings/settings-url.php:66
+msgid "Posts, pages, categories and tags URLs will not be modified."
+msgstr "Die URLs von Beiträgen, Seiten, Kategorien und Schlagwörtern werden nicht geändert."
+
+#: src/settings/table-languages.php:154 src/settings/view-tab-lang.php:124
+msgid "Flag"
+msgstr "Flagge"
+
+#: src/settings/table-languages.php:149 src/settings/view-tab-lang.php:74
+msgid "Full name"
+msgstr "Vollständiger Name"
+
+#: src/modules/sync/settings-sync.php:107
+msgid "Sticky posts"
+msgstr "Oben gehaltene Beiträge"
+
+#: src/settings/table-languages.php:155
+msgid "Posts"
+msgstr "Beiträge"
+
+#: src/modules/sync/settings-sync.php:104
+msgid "Custom fields"
+msgstr "Individuelle Felder"
+
+#: src/integrations/wp-importer/wordpress-importer.php:45
+msgid "Import <strong>posts, pages, comments, custom fields, categories, and tags</strong> from a WordPress export file."
+msgstr "Importiere <strong>Beiträge, Seiten, Kommentare, individuelle Felder, Kategorien und Schlagwörter</strong> aus einer WordPress-Exportdatei."
+
+#: src/widget-languages.php:154
+msgid "Title:"
+msgstr "Titel:"
+
+#: src/default-term.php:137
+msgid "Uncategorized"
+msgstr "Unkategorisiert"
+
+#: src/settings/settings-cpt.php:125
+msgid "Activate languages and translations for custom post types."
+msgstr "Sprachen und Übersetzungen für individuelle Inhaltstypen aktivieren."
+
+#: src/settings/settings-cpt.php:100
+msgid "Custom post types"
+msgstr "Individuelle Inhaltstypen"
+
+#: src/settings/view-tab-lang.php:117
+msgid "right to left"
+msgstr "rechts nach links"
+
+#: src/settings/settings-licenses.php:113 src/settings/settings-module.php:288
+msgid "Settings saved."
+msgstr "Die Einstellungen wurden gespeichert."
+
+#: src/modules/sync/settings-sync.php:110
+msgid "Page parent"
+msgstr "Übergeordnete Seite"
+
+#: src/settings/table-languages.php:150 src/settings/view-tab-lang.php:85
+msgid "Locale"
+msgstr "Lokalisierung"
+
+#: src/admin/admin-classic-editor.php:258
+msgid "(no parent)"
+msgstr "(keine Übergeordnete)"
+
+#: src/settings/view-tab-strings.php:23
+msgid "Use this to remove unused strings from database, for example after a plugin has been uninstalled."
+msgstr "Verwende diese Funktion, um nicht mehr verwendete Zeichenfolgen aus der Datenbank zu entfernen, beispielsweise nachdem ein Plugin deinstalliert wurde."
+
+#: src/settings/settings.php:184
+msgid "Language added."
+msgstr "Die Sprache wurde hinzugefügt."
+
+#: src/Options/Business/Force_Lang.php:50 src/settings/settings-url.php:90
+msgid "The language is set from the subdomain name in pretty permalinks"
+msgstr "Die Sprache wird aus dem Subdomain-Namen in lesbaren Permalinks festgelegt"
+
+#: src/settings/settings.php:143
+msgid "Strings translations"
+msgstr "Zeichenfolgen-Übersetzungen"
+
+#: src/modules/REST/V1/Languages.php:445 src/settings/view-tab-lang.php:81
+msgid "The name is how it is displayed on your site (for example: English)."
+msgstr "Der Name legt fest, wie die Sprache auf deiner Website angezeigt wird (zum Beispiel: Deutsch)."
+
+#: src/Model/Languages.php:1058 src/modules/wizard/wizard.php:496
+msgid "The language code contains invalid characters"
+msgstr "Der Sprachcode enthält ungültige Zeichen"
+
+#: src/settings/view-tab-lang.php:112
+msgid "left to right"
+msgstr "links nach rechts"
+
+#: src/modules/sync/settings-sync.php:32
+msgid "The synchronization options allow to maintain exact same values (or translations in the case of taxonomies and page parent) of meta content between the translations of a post or page."
+msgstr "Die Synchronisierungsoptionen ermöglichen es, bei Übersetzungen eines Beitrags oder einer Seite genau dieselben Werte (bzw. Übersetzungen im Falle von Taxonomien und übergeordneten Seiten) der Metadaten beizubehalten."
+
+#: src/settings/settings-cpt.php:131
+msgid "Custom taxonomies"
+msgstr "Individuelle Taxonomien"
+
+#: src/Options/Business/Redirect_Lang.php:44 src/settings/settings-url.php:199
+msgid "The front page URL contains the language code instead of the page name or page id"
+msgstr "Die Homepage-URL enthält den Sprachcode statt des Seitennamens oder der Seiten-ID"
+
+#: src/settings/settings.php:190
+msgid "The language was created, but the WordPress language file was not downloaded. Please install it manually."
+msgstr "Die Sprache wurde erstellt, aber die WordPress-Sprachdatei wurde nicht heruntergeladen. Bitte installiere sie manuell."
+
+#: src/settings/view-tab-lang.php:151
+msgid "Position of the language in the language switcher"
+msgstr "Position der Sprache im Sprachumschalter"
+
+#: src/admin/admin-nav-menu.php:59 src/nav-menu.php:73
+#: src/widget-languages.php:32
+msgid "Language switcher"
+msgstr "Sprachumschalter"
+
+#: src/Options/Business/Force_Lang.php:47 src/settings/settings-url.php:79
+msgid "The language is set from the directory name in pretty permalinks"
+msgstr "Die Sprache wird aus dem Verzeichnisnamen in lesbaren Permalinks festgelegt"
+
+#: src/switcher.php:46
+msgid "Displays as a dropdown"
+msgstr "Wird als Dropdown angezeigt"
+
+#: src/Options/Business/Hide_Default.php:45 src/settings/settings-url.php:136
+msgid "Hide URL language information for default language"
+msgstr "Sprachinformationen in der URL für die Standardsprache ausblenden"
+
+#: src/Options/Business/Force_Lang.php:44 src/settings/settings-url.php:62
+msgid "The language is set from content"
+msgstr "Die Sprache wird durch den Inhalt festgelegt"
+
+#: src/settings/view-tab-lang.php:103
+msgid "Language code - preferably 2-letters ISO 639-1  (for example: en)"
+msgstr "Sprachcode – vorzugsweise 2 Buchstaben nach ISO 639-1 (zum Beispiel: de)"
+
+#: src/admin/admin-filters-term.php:144 src/admin/admin-filters-term.php:216
+msgid "Sets the language"
+msgstr "Legt die Sprache fest"
+
+#: src/switcher.php:49
+msgid "Forces link to front page"
+msgstr "Erzwingt einen Link zur Homepage"
+
+#: src/settings/settings-cpt.php:156
+msgid "Activate languages and translations for custom taxonomies."
+msgstr "Sprachen und Übersetzungen für individuelle Taxonomien aktivieren."
+
+#: src/switcher.php:51
+msgid "Hides languages with no translation"
+msgstr "Blendet Sprachen ohne Übersetzung aus"
+
+#: src/switcher.php:50
+msgid "Hides the current language"
+msgstr "Blendet die aktuelle Sprache aus"
+
+#: src/switcher.php:48
+msgid "Displays flags"
+msgstr "Zeigt Flaggen an"
+
+#: src/switcher.php:47
+msgid "Displays language names"
+msgstr "Zeigt Sprachnamen an"
+
+#. translators: %1$s is link start tag, %2$s is link end tag.
+#: src/settings/view-about.php:15
+msgid "Polylang is provided with an extensive %1$sdocumentation%2$s (in English). It includes information on how to set up your multilingual site and use it on a daily basis; FAQs, and documentation for developers to adapt their plugins and themes."
+msgstr "Polylang verfügt über eine umfangreiche %1$sDokumentation%2$s (auf Englisch). Sie enthält Informationen zur Einrichtung deiner mehrsprachigen Website und zu deren täglicher Nutzung sowie FAQs und eine Dokumentation für Entwickler zur Anpassung ihrer Plugins und Themes."
+
+#: src/settings/view-tab-lang.php:92
+msgid "WordPress Locale for the language (for example: en_US). You will need to install the .mo file for this language."
+msgstr "WordPress-Lokalisierung für die Sprache (zum Beispiel: de_DE). Du musst die .mo-Datei für diese Sprache installieren."
+
+#: src/Model/Languages.php:1053 src/modules/wizard/wizard.php:495
+msgid "Enter a valid WordPress locale"
+msgstr "Bitte gib eine gültige WordPress-Lokalisierung ein"
+
+#: src/settings/view-tab-strings.php:21
+msgid "Clean strings translation database"
+msgstr "Datenbank für Zeichenfolgen-Übersetzungen bereinigen"

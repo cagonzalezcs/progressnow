@@ -1,0 +1,6 @@
+{#
+  Arrow glyph (rect tail + triangle) — the one arrow reused by every arrow link
+  (06-V3-BRAND-REFRESH.md § Who we are). Defaults to the arrow-link size/color;
+  pass `class` to override (Tailwind scans partials, so literals here are fine).
+#}
+<svg aria-hidden="true" focusable="false" viewBox="0 0 40 20" class="{{ class|default('h-5 w-10 flex-none fill-accent') }}"><path d="M0 8.4h26v3.2H0z"/><path d="M24 1.5 38.5 10 24 18.5Z"/></svg>

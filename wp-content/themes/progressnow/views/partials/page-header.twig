@@ -1,0 +1,45 @@
+{#
+  Page header band — the server-rendered twin of PageHeader.vue (same
+  classes, no interactivity), used by every interior template in both
+  frontend modes. Vars: title, lede (optional), crumbs (list of {label, href?};
+  defaults to Home → home_url), variant ('page' default | 'post'), wide (bool,
+  1200px column), pull_up (bool, post variant: 150px bottom padding for the
+  overlapping featured image), extra_before (HTML between breadcrumb and h1),
+  extra (HTML under the lede).
+#}
+{% set crumbs = crumbs|default([{ label: 'Home', href: home_url|default('/') }]) %}
+{% set is_post = variant|default('page') == 'post' %}
+{% if is_post %}
+	{% set band_class = pull_up|default(false) ? 'pb-[96px] pt-8 md:pb-[150px] md:pt-12' : 'pb-10 pt-8 md:pb-12 md:pt-12' %}
+	{% set column_class = 'max-w-[880px] gap-4 md:gap-5' %}
+	{% set title_class = 'text-[1.5rem] leading-[1.25] [text-wrap:balance] md:text-[clamp(2rem,3.8vw,3rem)] md:leading-[1.12]' %}
+{% else %}
+	{% set band_class = 'pb-10 pt-9 md:px-10 md:pb-[52px] md:pt-11 xl:px-6 xl:pb-14 xl:pt-12' %}
+	{% set column_class = wide|default(false) ? 'max-w-[1200px]' : 'max-w-[1140px]' %}
+	{% set title_class = 'headline-shadow uppercase text-[1.9rem] leading-[1.12] md:text-[2.3rem] md:leading-[1.1] xl:text-[clamp(2.2rem,4.2vw,3.4rem)] xl:leading-[1.08]' %}
+{% endif %}
+<section class="page-header bg-brand px-6 text-white {{ band_class }}" data-tone="blue">
+	<div class="mx-auto flex flex-col items-start gap-3.5 md:gap-4 xl:gap-[18px] {{ column_class }}">
+		<nav aria-label="Breadcrumb" class="hidden md:block">
+			<ol class="m-0 flex list-none flex-wrap items-center gap-2 rounded-full bg-white px-4 py-1.5 text-[0.85rem] font-bold">
+				{% for crumb in crumbs %}
+					<li class="flex items-center gap-2">
+						{% if crumb.href %}
+							<a href="{{ crumb.href }}" class="text-brand no-underline hover:underline hover:underline-offset-4">{{ crumb.label }}</a>
+						{% else %}
+							<span class="text-ink">{{ crumb.label }}</span>
+						{% endif %}
+						<span aria-hidden="true" class="text-muted">/</span>
+					</li>
+				{% endfor %}
+				<li aria-current="page" class="text-ink">{{ title }}</li>
+			</ol>
+		</nav>
+		{% if extra_before|default('') %}{{ extra_before|raw }}{% endif %}
+		<h1 class="m-0 font-display font-normal {{ title_class }}">{{ title }}</h1>
+		{% if lede|default('') %}
+			<p class="m-0 max-w-[56ch] text-[1.05rem] font-semibold leading-[1.5] md:text-[1.12rem] xl:text-[1.25rem]">{{ lede }}</p>
+		{% endif %}
+		{% if extra|default('') %}{{ extra|raw }}{% endif %}
+	</div>
+</section>

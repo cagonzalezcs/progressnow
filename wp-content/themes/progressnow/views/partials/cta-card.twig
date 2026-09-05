@@ -1,0 +1,11 @@
+{#
+  Sidebar CTA card — twin of src/components/site/CtaCard.vue (same classes).
+    {% include 'partials/cta-card.twig' with { title, body (kses'd HTML), href, label, external, id } only %}
+#}
+<div{% if id|default('') %} id="{{ id }}"{% endif %} class="cta-card flex flex-col gap-3 rounded-[16px] bg-brand px-[22px] pb-[26px] pt-[22px] text-white shadow-featured lg:gap-3.5 lg:rounded-[20px] lg:px-[26px] lg:pb-[30px] lg:pt-[26px]" data-tone="blue">
+	<div class="font-display text-[1.05rem] font-normal lg:text-[1.15rem]">{{ title }}</div>
+	{% if body|default('') %}
+		<p class="m-0 text-[0.95rem] leading-[1.55] [&_a]:font-bold [&_a]:text-white [&_a]:underline lg:text-base">{{ body|raw }}</p>
+	{% endif %}
+	<a href="{{ href }}"{% if external|default(false) %} target="_blank" rel="noopener"{% endif %} class="rounded-full bg-white px-[22px] py-3 text-center font-display text-[0.88rem] font-normal tracking-[0.04em] text-brand no-underline transition-colors hover:bg-brand-deep hover:text-white lg:py-[11px] lg:text-[0.9rem]">{{ label }}</a>
+</div>

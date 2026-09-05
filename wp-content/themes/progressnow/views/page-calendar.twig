@@ -1,0 +1,80 @@
+{% extends "base.twig" %}
+
+{#
+  Calendar page — openspec progress-now-v4-events. inc/events.php always sets
+  calendar_api_base / calendar_ics_url / calendar_gcal_url / calendar_upcoming;
+  the EventCalendar island fetches its event window from /progressnow/v1/events
+  on mount (skeleton state) and owns the designed empty/error states. The
+  markup inside the mount is the crawlable, no-JS first paint: the upcoming
+  events as v4 row cards (same recipe as EventCard.vue) + the subscribe strip.
+#}
+
+{% block content %}
+	{# Title/lede editable in wp-admin (page title + Interior "Lede" field); literals are fallbacks. #}
+	{% include 'partials/page-header.twig' with {
+		title: post.title ? function('html_entity_decode', post.title) : pll__('Event calendar'),
+		lede: page_lede|default('') ?: 'Meetings, actions, trainings, and socials across ' ~ chapter.region_label ~ '. Everything is open to the public unless noted — bring a friend.',
+		crumbs: [{ label: pll__('Home'), href: home_url|default('/') }],
+		wide: true
+	} only %}
+
+	{% set calendar_props = {
+		apiBase: calendar_api_base,
+		lang: current_language,
+		defaultView: 'month',
+		showCategoryColors: true,
+		showSubscribe: true,
+		icsUrl: calendar_ics_url,
+		googleCalUrl: calendar_gcal_url,
+		subscribeTitle: pll__('Subscribe to the calendar'),
+		subscribeLede: pll__('Add every meeting and action to your own calendar automatically.'),
+		googleLabel: pll__('Google Calendar'),
+		icsLabel: pll__('iCal / .ics'),
+		monthLabelText: pll__('Month'),
+		listLabelText: pll__('List'),
+		viewLabel: pll__('View event'),
+		emptyTitle: pll__('Nothing scheduled this month'),
+		emptyBody: pll__('Check the next month or subscribe below and never miss one.')
+	} %}
+	<div data-vue-island="EventCalendar" data-props='{{ calendar_props|json_encode|e("html_attr") }}'>
+		<section class="bg-white px-6 pb-10 pt-7 md:pb-14 md:pt-10" data-tone="white">
+			<div class="mx-auto flex max-w-[900px] flex-col gap-3">
+				<h2 class="m-0 mb-2 font-display text-[1.35rem] font-normal leading-[1.2] md:text-[clamp(1.6rem,2.6vw,2.2rem)] md:leading-[1.1]">{{ pll__('Upcoming events') }}</h2>
+				{% if calendar_upcoming|default([]) is empty %}
+					<div class="flex flex-col items-center gap-1 rounded-[16px] border-2 border-dashed border-border-muted px-6 py-11 text-center md:rounded-[20px] md:px-8 md:py-16">
+						<div class="text-[1.05rem] font-extrabold md:text-[1.25rem] md:font-bold">{{ pll__('No events on the books yet') }}</div>
+						<p class="m-0 max-w-[44ch] text-base font-medium leading-[1.45] md:text-[1.2rem]">{{ pll__('Check the next month or subscribe below and never miss one.') }}</p>
+					</div>
+				{% else %}
+					{% for ev in calendar_upcoming %}
+						{% set ev_date = ev.date|date('l, F j') %}
+						<a href="{{ ev.url|default(calendar_ics_url) }}" aria-label="{{ pll__('View event') }}: {{ ev.title }}" class="event-card group grid grid-cols-[60px_1fr] items-center gap-4 rounded-[14px] bg-white p-4 text-ink no-underline shadow-card transition-shadow hover:shadow-card-hover md:[grid-template-columns:76px_1fr_auto] md:gap-6 md:rounded-[16px] md:px-[22px] md:py-[18px]">
+							<span aria-hidden="true" class="flex flex-col rounded-[10px] bg-brand px-0.5 py-2 text-center text-white md:rounded-[12px] md:px-1 md:py-2.5">
+								<span class="text-[1.2rem] font-extrabold leading-[1.1] md:text-[1.4rem]">{{ ev.date|date('d') }}</span>
+								<span class="text-[0.68rem] font-bold tracking-[0.1em] md:text-[0.75rem]">{{ ev.date|date('M')|upper }}</span>
+							</span>
+							<span class="flex min-w-0 flex-col gap-[3px] md:gap-1">
+								<span class="text-[1.02rem] font-bold leading-[1.3] md:text-[1.18rem]">{{ ev.title }}</span>
+								<span class="text-[0.88rem] font-medium text-muted md:text-base">{{ ev_date }}{% if ev.time %} · {{ ev.time }}{% endif %}{% if ev.location %}<span class="hidden md:inline"> · {{ ev.location }}</span>{% endif %}</span>
+							</span>
+							<span aria-hidden="true" class="hidden whitespace-nowrap rounded-full border-2 border-accent px-5 py-[9px] font-display text-[0.88rem] font-normal uppercase tracking-[0.03em] text-accent transition-colors group-hover:bg-accent group-hover:text-white md:inline-block">{{ pll__('View event') }}</span>
+						</a>
+					{% endfor %}
+				{% endif %}
+			</div>
+		</section>
+
+		<section id="subscribe" class="calendar-subscribe bg-ink px-6 py-10 text-white md:py-14" data-tone="ink">
+			<div class="mx-auto flex max-w-[1200px] flex-col items-start gap-4 md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-8">
+				<div class="flex max-w-[56ch] flex-col gap-2">
+					<h2 class="m-0 font-display text-[1.2rem] font-normal md:text-[1.4rem]">{{ pll__('Subscribe to the calendar') }}</h2>
+					<p class="m-0 text-[0.98rem] leading-[1.55] text-muted-on-ink md:text-[1.05rem]">{{ pll__('Add every meeting and action to your own calendar automatically.') }}</p>
+				</div>
+				<div class="flex flex-wrap gap-2.5 md:gap-3">
+					<a href="{{ calendar_gcal_url }}" target="_blank" rel="noopener" class="rounded-full bg-white px-6 py-[13px] font-display text-[0.9rem] font-normal tracking-[0.04em] text-ink no-underline transition-colors hover:bg-brand-deep hover:text-white md:px-[34px] md:py-3.5 md:text-base">{{ pll__('Google Calendar') }}</a>
+					<a href="{{ calendar_ics_url }}" class="rounded-full border-2 border-white bg-transparent px-[22px] py-[11px] font-display text-[0.9rem] font-normal tracking-[0.04em] text-white no-underline transition-colors hover:bg-brand-deep hover:border-brand-deep md:px-8 md:py-3 md:text-base">{{ pll__('iCal / .ics') }}</a>
+				</div>
+			</div>
+		</section>
+	</div>
+{% endblock %}

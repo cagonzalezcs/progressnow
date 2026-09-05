@@ -1,0 +1,19 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+	"name": "progressnow/action-callout",
+	"title": "Action callout",
+	"description": "Call-to-action panel with heading, body, and buttons.",
+	"category": "design",
+	"icon": "megaphone",
+	"keywords": [ "cta", "callout", "action", "buttons" ],
+	"acf": {
+		"mode": "preview",
+		"renderTemplate": "render.php"
+	},
+	"supports": {
+		"align": false,
+		"html": false,
+		"mode": true
+	}
+}
