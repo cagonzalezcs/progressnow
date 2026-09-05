@@ -1,7 +1,7 @@
 ## MODIFIED Requirements
 
 ### Requirement: Front page template
-The theme SHALL provide `front-page.php` rendering `views/front-page.twig` via Timber as the PHP shell, containing crawlable content for, in order: hero (v3 split), who-we-are, upcoming events, from-the-blog, Ponte Trucha CTA; the Nuxt front page SHALL render the designed sections in the same order. The v2 counties strip and get-involved steps sections SHALL NOT render. Each band SHALL carry a `data-tone` attribute (`red`/`cream`/`ink`/`orange`/`green`) for high-contrast mode.
+The theme SHALL provide `front-page.php` rendering `views/front-page.twig` via Timber as the PHP shell, containing crawlable content for, in order: hero (v3 split), who-we-are, upcoming events, from-the-blog, Closing CTA CTA; the Nuxt front page SHALL render the designed sections in the same order. The v2 counties strip and get-involved steps sections SHALL NOT render. Each band SHALL carry a `data-tone` attribute (`red`/`cream`/`ink`/`orange`/`green`) for high-contrast mode.
 
 #### Scenario: Front page renders all sections
 - **WHEN** a visitor loads the site root with a static front page configured

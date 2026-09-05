@@ -36,7 +36,7 @@ The front page SHALL end with a join CTA whose line is editor-owned: front-page 
 ## MODIFIED Requirements
 
 ### Requirement: Front page template
-The theme SHALL provide `front-page.php` rendering `views/front-page.twig` via Timber (and `RouteFront.vue` in the Nuxt rendition), containing in order: hero, who-we-are, upcoming events, from-the-blog, closing CTA. Each band SHALL carry a `data-tone` attribute from the v4 set (`blue` hero and CTA, `white` who-we-are and blog, `alt` events) for high-contrast mode. No counties strip, get-involved steps, or Ponte Trucha band SHALL render.
+The theme SHALL provide `front-page.php` rendering `views/front-page.twig` via Timber (and `RouteFront.vue` in the Nuxt rendition), containing in order: hero, who-we-are, upcoming events, from-the-blog, closing CTA. Each band SHALL carry a `data-tone` attribute from the v4 set (`blue` hero and CTA, `white` who-we-are and blog, `alt` events) for high-contrast mode. No counties strip, get-involved steps, or Closing CTA band SHALL render.
 
 #### Scenario: Front page renders all sections
 - **WHEN** a visitor loads the site root with a static front page configured
@@ -101,6 +101,6 @@ The home "From the blog" section (white band, `data-tone="white"`, `#blog`) SHAL
 **Reason**: Replaced by *Events empty state (v4)* (blue-system dashed border `#9DA9C4`).
 **Migration**: None — same trigger, new colors.
 
-### Requirement: Ponte Trucha CTA
+### Requirement: Closing CTA CTA
 **Reason**: Replaced by *Closing CTA (v4)*; the brush line is now editor-owned per language and the flames/panel artwork is the v4 set.
-**Migration**: `cta_line` defaults to "Progress now, not someday!"; a chapter wanting the old line enters it in the field. `.ponte-trucha` CSS, `flames-tile.svg`, `flames-full.svg` and the green `cta-panel.svg` are deleted.
+**Migration**: `cta_line` defaults to "Progress now, not someday!"; a chapter wanting the old line enters it in the field. `.closing-cta` CSS, `flames-tile.svg`, `flames-full.svg` and the green `cta-panel.svg` are deleted.

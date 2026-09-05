@@ -83,9 +83,9 @@ export const SAMPLE_EVENTS: ChapterEvent[] = [
     date: "2026-07-25",
     time: "6:00–9:00 PM",
     cat: "social",
-    title: "Paleta Social",
+    title: "Ice Cream Social",
     location: "Riverside Park",
-    desc: "No agenda, no sign-in sheet — just paletas, lawn games, and comrades. Families welcome. First round of paletas is on the chapter.",
+    desc: "No agenda, no sign-in sheet — just popsicles, lawn games, and neighbors. Families welcome. First round of popsicles is on the chapter.",
   },
   {
     id: "e10",

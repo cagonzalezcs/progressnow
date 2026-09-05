@@ -4,7 +4,7 @@ A chapter-neutral organizing-site kit for a **Progress Now** chapter: a WordPres
 
 Bilingual (EN at `/`, ES at `/es/…`), accessible (WCAG 2.2 AA target, built-in text-size / high-contrast / reduced-motion controls), no analytics, no third-party trackers.
 
-> This repository is a fresh start. The code was developed 2026-05 → 2026-09 for a single chapter (RGV DSA), then renamed, brand-scrubbed and re-platformed onto Nuxt 4. The design and decision history lives in `openspec/` (see [History](#history)); the original git history is not carried over.
+> This repository is a fresh start. The code was developed 2026-05 → 2026-09 for a single chapter (the chapter), then renamed, brand-scrubbed and re-platformed onto Nuxt 4. The design and decision history lives in `openspec/` (see [History](#history)); the original git history is not carried over.
 
 ---
 
@@ -300,7 +300,7 @@ Timeline reconstructed from the predecessor repo's git log and the archived Open
 | Date | Change | Summary |
 |---|---|---|
 | 2026-05 | — | Repo created from the Timber starter theme + Vite. |
-| 2026-07-02 | `chapter-theme-foundation` | First real theme: CPTs, front page, header/footer, DSA red tokens. Followed by a v2 re-skin (warm/rounded blog + calendar islands). |
+| 2026-07-02 | `chapter-theme-foundation` | First real theme: CPTs, front page, header/footer, Progress Now red tokens. Followed by a v2 re-skin (warm/rounded blog + calendar islands). |
 | 2026-07-02 | `backend-consolidation` | `categories.json` registry, kses at serialize time, read-minutes meta, transient cache with content-version invalidation, calendar page template, fixed PHPUnit harness. |
 | 2026-07-02 | `gutenberg-post-blocks` | Post bodies move from ACF flexible content to native Gutenberg: 6 ACF blocks + 8 core blocks mapped onto the `PostBlock` contract, migration script. |
 | 2026-07-02 | `rest-data-layer` | Public read API, server-side search/filter/pagination, ETag caching, zod contracts + two-sided fixtures, designed empty states. |

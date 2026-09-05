@@ -21,7 +21,7 @@ The theme SHALL register a public `working_group` post type with archive at `/wo
 - **THEN** front-end listings sort by `menu_order` ascending
 
 ### Requirement: Event type taxonomy
-The theme SHALL register a non-hierarchical `event_type` taxonomy on `chapter_event` (e.g., "General Meeting", "DSA 101", "Action") with `show_in_rest`.
+The theme SHALL register a non-hierarchical `event_type` taxonomy on `chapter_event` (e.g., "General Meeting", "Chapter 101", "Action") with `show_in_rest`.
 
 #### Scenario: Assign event type
 - **WHEN** an admin tags an event with an `event_type` term

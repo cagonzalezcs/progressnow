@@ -1,12 +1,12 @@
 ## 1. Untrack legacy code, plugins, and artifacts
 
-- [ ] 1.1 Add `.gitignore` rules: `/wp-content/plugins/`, `/wp-content/themes/rgvdsatheme/`, `/wp-content/backups-dup-lite/`, `*.zip`, `*.tar`, `*.tgz`, `*.sql`, `*.sql.gz`, `**/dup-installer/`, `**/installer*.php`, `**/.phpunit.result.cache`, `**/wordpress/` (WorDBless install dirs)
-- [ ] 1.2 `git rm -r --cached wp-content/themes/rgvdsatheme wp-content/plugins wp-content/backups-dup-lite` in a single dedicated commit; confirm `git ls-files wp-content` lists only `wp-content/themes/progressnow/**`
-- [ ] 1.3 Grep theme, site, workflows, docs for references to `rgvdsatheme`, `duplicator`, `backups-dup-lite`; remove or reword
+- [ ] 1.1 Add `.gitignore` rules: `/wp-content/plugins/`, `/wp-content/themes/legacytheme/`, `/wp-content/backups-dup-lite/`, `*.zip`, `*.tar`, `*.tgz`, `*.sql`, `*.sql.gz`, `**/dup-installer/`, `**/installer*.php`, `**/.phpunit.result.cache`, `**/wordpress/` (WorDBless install dirs)
+- [ ] 1.2 `git rm -r --cached wp-content/themes/legacytheme wp-content/plugins wp-content/backups-dup-lite` in a single dedicated commit; confirm `git ls-files wp-content` lists only `wp-content/themes/progressnow/**`
+- [ ] 1.3 Grep theme, site, workflows, docs for references to `legacytheme`, `duplicator`, `backups-dup-lite`; remove or reword
 
 ## 2. Licence, metadata, and community files
 
-- [ ] 2.1 Add root `LICENSE` (GPL-2.0-or-later full text)
+- [ ] 2.1 Add root `LICENSE` (MIT full text)
 - [ ] 2.2 Declare the licence in `style.css` (`License:` + `License URI:`), theme `composer.json` (`license`, keep Timber starter attribution in `authors`), theme `package.json` (rename `vite-project` → `progressnow-theme`, add `license`), `site/package.json` (`license`)
 - [ ] 2.3 Add root `README.md`: what the project is, architecture map (theme + `site/` + PHP shell), quick start for both trees, required plugins (ACF Pro, Polylang Pro + minimum versions + where to buy) and optional plugins, no-analytics statement, links to theme/site READMEs and `docs/`, acknowledgements (Timber, shadcn-vue)
 - [ ] 2.4 Add `CONTRIBUTING.md` (dev setup both trees, OpenSpec workflow, three-copy rule until `single-source-shared-ui`, running the hygiene script locally), `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1, placeholder contact), `SECURITY.md` (GitHub private vulnerability reporting, supported versions)
@@ -19,12 +19,12 @@
 
 ## 4. Identifier and PII scrub
 
-- [ ] 4.1 Replace the `rgvdsa.test` default with `https://chapter.test:8890` in `site/nuxt.config.ts`, `site/.env.example`, `docs/deployment.md`; confirm the owner's gitignored `.env` still overrides
+- [ ] 4.1 Replace the `chapter.test` default with `https://chapter.test:8890` in `site/nuxt.config.ts`, `site/.env.example`, `docs/deployment.md`; confirm the owner's gitignored `.env` still overrides
 - [ ] 4.2 Remove the `LEGACY_STORAGE_KEY` migration from `site/app/composables/useA11ySettings.ts` and `wp-content/themes/progressnow/src/composables/useA11ySettings.ts`; update any test covering it; keep the drift test green
 - [ ] 4.3 Delete `wp-content/themes/progressnow/bin/scrub-brand.sh`; remove its section from the theme README (owner archives a copy outside the repo if wanted)
 - [ ] 4.4 Neutralize seed copy in `bin/seed.php` (EN + ES): messaging-platform channel → "members' group chat" / "el chat de miembros", "Member's garage (address in WhatsApp)" → "A member's home (address shared after RSVP)" / ES equivalent; scan the whole seed for any other platform, address, or person defaults
 - [ ] 4.5 Update `tests/test-pages.php` expectations and regenerate `tests/fixtures/*.json` with `PROGRESSNOW_WRITE_FIXTURES=1 vendor/bin/phpunit --filter TestContracts`; mirror the copy changes into `src/lib/fixtures/index.ts` and `site/app/lib/fixtures/index.ts`
-- [ ] 4.6 Scrub the OpenSpec archive and active changes: chapter/region names → "the original chapter"; leave literal identifiers that document a rename migration (e.g. `rgvdsa_*` in `2026-07-02-*` task text) only where they are the migration's own subject and mark them `hygiene-allow`
+- [ ] 4.6 Scrub the OpenSpec archive and active changes: chapter/region names → "the original chapter"; leave literal identifiers that document a rename migration (e.g. `legacy_*` in `2026-07-02-*` task text) only where they are the migration's own subject and mark them `hygiene-allow`
 - [ ] 4.7 Re-run the theme brand audit (`vendor/bin/phpunit --filter BrandAudit`) and fix anything it flags
 
 ## 5. Hygiene script and CI gate

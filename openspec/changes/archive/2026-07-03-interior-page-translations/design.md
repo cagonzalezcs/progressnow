@@ -9,7 +9,7 @@ Interior pages in scope (published, non-dev). The "Interior page" ACF group (`in
 | EN slug | EN title | template | editable content source |
 | --- | --- | --- | --- |
 | `calendar` | Event Calendar | `page-templates/calendar.php` | title + `lede` (events are REST, already lang-filtered) |
-| `about` | About RGV DSA | `page-templates/about.php` | title + `lede` + "About page" ACF group |
+| `about` | About the chapter | `page-templates/about.php` | title + `lede` + "About page" ACF group |
 | `get-involved` | Get involved | `page-templates/get-involved.php` | title + `lede` + "Get Involved page" ACF group |
 | `blog` | Blog | default (`page_for_posts`) | title + `lede` (`posts_page_lede`); posts are REST, lang-filtered |
 | `bylaws-code-of-conduct` | — | default `page.twig` | title + `lede` + `documents` + `grievance_body`; heavy **English fixture prose** fallback |
@@ -17,7 +17,7 @@ Interior pages in scope (published, non-dev). The "Interior page" ACF group (`in
 
 `styleguide` and `sample-page` are dev/default WP and are excluded.
 
-Existing seed helpers to model after: `rgvdsa_seed_template_page($slug,$title,$template)` (creates EN page + sets template meta) and `rgvdsa_seed_translate_event($en_id,$es_title)` (inserts ES event, copies meta, `pll_set_post_language` + `pll_save_post_translations`). The new page helper mirrors the latter.
+Existing seed helpers to model after: `legacy_seed_template_page($slug,$title,$template)` (creates EN page + sets template meta) and `legacy_seed_translate_event($en_id,$es_title)` (inserts ES event, copies meta, `pll_set_post_language` + `pll_save_post_translations`). The new page helper mirrors the latter.
 
 ## Goals / Non-Goals
 
@@ -36,7 +36,7 @@ Existing seed helpers to model after: `rgvdsa_seed_template_page($slug,$title,$t
 ## Decisions
 
 **1. Seed-driven page pairs, reusing the ES-home mechanism.**
-Extend `bin/seed.php` with one create-or-update block per interior page: `pll_get_post($en_id,'es')` guard → `wp_insert_post` (ES title, slug, `post_status` draft) → `pll_set_post_language($es_id,'es')` → `pll_save_post_translations(['en'=>$en_id,'es'=>$es_id])` → **copy `_wp_page_template` meta** → `update_field()` the Spanish ACF/lede values. Rationale: single reproducible source of truth, identical to the front page; alternative (hand-authoring in wp-admin) is not reproducible across environments and drifts. Factor the repeated logic into a small `rgvdsa_seed_translate_page($en_id, $es_title, $es_slug, $es_fields)` helper, modeled on the existing `rgvdsa_seed_translate_event()`.
+Extend `bin/seed.php` with one create-or-update block per interior page: `pll_get_post($en_id,'es')` guard → `wp_insert_post` (ES title, slug, `post_status` draft) → `pll_set_post_language($es_id,'es')` → `pll_save_post_translations(['en'=>$en_id,'es'=>$es_id])` → **copy `_wp_page_template` meta** → `update_field()` the Spanish ACF/lede values. Rationale: single reproducible source of truth, identical to the front page; alternative (hand-authoring in wp-admin) is not reproducible across environments and drifts. Factor the repeated logic into a small `legacy_seed_translate_page($en_id, $es_title, $es_slug, $es_fields)` helper, modeled on the existing `legacy_seed_translate_event()`.
 
 Copying the template meta is **load-bearing, not cosmetic** (D9): the About/Get-Involved/Calendar context filters gate on `is_page_template(...)` (with a slug fallback of `'about'`/`'get-involved'` that the Spanish slug will *not* match). Without the ES page's `_wp_page_template`, its island/context never wires up and the page renders bare.
 
@@ -47,10 +47,10 @@ Polylang stores a slug per translation; Spanish slugs read better and match the 
 Link the ES blog page as the translation of the EN `blog` page; Polylang Pro maps `page_for_posts` from the translation link, so `/es/blog/` serves the Spanish posts page. Verify the ES blog archive renders (its language-filtered empty state) rather than 301-ing; if Polylang doesn't auto-resolve it in this setup, register the ES page as the ES posts page explicitly.
 
 **6. Static Twig chrome — translate the shared labels, rely on ACF/`post_content` for body.**
-The interior views carry hardcoded English that is *neither* ACF nor a `pll__()` string: `views/page.twig` sidebar/labels ("On this page", "Governing documents", "Related", the grievance callout, and the **English fixture prose** shown when `post.content` is empty) and static fallback labels in `page-calendar.twig` / `page-about.twig` / `page-get-involved.twig`. On `/es/` these render English unless addressed. Decision: wrap the shared, user-facing chrome labels in `pll__()` and register them via `rgvdsa_i18n_strings()` (the established D4 mechanism); rely on the seeded ES ACF values / `post_content` for body copy so seeded pages never hit the English fixture fallback. Bylaws' governance prose and Privacy's legal `post_content` are heavy human-authored copy — see Non-Goals / Open Questions for whether their full bodies land in this change or a follow-up.
+The interior views carry hardcoded English that is *neither* ACF nor a `pll__()` string: `views/page.twig` sidebar/labels ("On this page", "Governing documents", "Related", the grievance callout, and the **English fixture prose** shown when `post.content` is empty) and static fallback labels in `page-calendar.twig` / `page-about.twig` / `page-get-involved.twig`. On `/es/` these render English unless addressed. Decision: wrap the shared, user-facing chrome labels in `pll__()` and register them via `legacy_i18n_strings()` (the established D4 mechanism); rely on the seeded ES ACF values / `post_content` for body copy so seeded pages never hit the English fixture fallback. Bylaws' governance prose and Privacy's legal `post_content` are heavy human-authored copy — see Non-Goals / Open Questions for whether their full bodies land in this change or a follow-up.
 
 **4. Language-aware navigation.**
-`rgvdsa_i18n_header_menus()` currently hardcodes English hrefs (`/calendar/`, `/blog/`, `/about/#…`) with only labels translated. On the Spanish site these must point at `/es/` equivalents. Prefer resolving each nav target's translated permalink via Polylang (`pll_get_post` + `get_permalink`, or `pll_home_url`-relative), so hrefs follow the translation links rather than a hardcoded map. Same for the front page's `who_link_url` (`/about/`) and other inter-page ACF links seeded for the ES home. Alternative (per-language WP nav menus, as the i18n spec mentions) is heavier; the programmatic approach reuses existing translation links.
+`legacy_i18n_header_menus()` currently hardcodes English hrefs (`/calendar/`, `/blog/`, `/about/#…`) with only labels translated. On the Spanish site these must point at `/es/` equivalents. Prefer resolving each nav target's translated permalink via Polylang (`pll_get_post` + `get_permalink`, or `pll_home_url`-relative), so hrefs follow the translation links rather than a hardcoded map. Same for the front page's `who_link_url` (`/about/`) and other inter-page ACF links seeded for the ES home. Alternative (per-language WP nav menus, as the i18n spec mentions) is heavier; the programmatic approach reuses existing translation links.
 
 **5. Published, matching the ES home.** ES pages are seeded `publish` (the ES home is published, and a draft would 404 / not resolve at its `/es/` URL, defeating the fix). Review happens on the dev site before the production deploy; the non-clobber guard means a re-seed never overwrites an editor's Spanish edits.
 
@@ -65,7 +65,7 @@ The interior views carry hardcoded English that is *neither* ACF nor a `pll__()`
 
 ## Migration Plan
 
-1. Add the `rgvdsa_seed_translate_page()` helper + one seeding block per interior page to `bin/seed.php`.
+1. Add the `legacy_seed_translate_page()` helper + one seeding block per interior page to `bin/seed.php`.
 2. Localize nav/link hrefs in `inc/i18n.php` (and ES-home seeded link fields).
 3. Run the seed; run the rewrite-flush + Polylang cache-clear step.
 4. Verify each `/es/<slug>/` resolves (200, Spanish title/lede) and the switcher round-trips EN↔ES on every interior page.

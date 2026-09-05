@@ -29,6 +29,6 @@ None — this is additive head output; no existing spec's requirements change.
 
 - New: `inc/seo.php` (+ `require` in `functions.php`), `tests/test-seo.php`
 - `inc/options.php` — default share image field on Chapter Settings; `inc/interior.php` — optional per-page description field
-- Reuses: `rgvdsa_post_to_blog_post()`/`rgvdsa_post_to_single()` (dek/excerpt/featured image), `rgvdsa_event_to_chapter_event()` + event ACF fields, `rgvdsa_chapter_*` options
+- Reuses: `legacy_post_to_blog_post()`/`legacy_post_to_single()` (dek/excerpt/featured image), `legacy_event_to_chapter_event()` + event ACF fields, `legacy_chapter_*` options
 - `bin/seed.php` — seed the default share image reference
 - Depends on: `backend-consolidation` (options/serializers), `rest-data-layer` (server-rendered single fallback makes Article JSON-LD honest)

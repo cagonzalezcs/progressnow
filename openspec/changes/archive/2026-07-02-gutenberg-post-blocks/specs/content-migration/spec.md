@@ -3,7 +3,7 @@
 ## ADDED Requirements
 
 ### Requirement: Idempotent migration script
-`bin/migrate-post-blocks.php` (WP-CLI `eval-file`) SHALL convert ACF `post_blocks` rows to serialized block markup, skipping posts that already have blocks, retaining ACF meta for rollback, stamping `_rgvdsa_blocks_migrated`, and supporting a `dry` mode that prints markup without writing.
+`bin/migrate-post-blocks.php` (WP-CLI `eval-file`) SHALL convert ACF `post_blocks` rows to serialized block markup, skipping posts that already have blocks, retaining ACF meta for rollback, stamping `_legacy_blocks_migrated`, and supporting a `dry` mode that prints markup without writing.
 
 #### Scenario: Dry run is read-only
 - **WHEN** the script runs with `dry`

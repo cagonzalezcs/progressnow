@@ -6,8 +6,8 @@ Dynamic islands currently receive one embedded payload and fake the rest client-
 
 ## What Changes
 
-- New `inc/rest.php`: public GET namespace `rgvdsa/v1` — `/posts` (server-side search/filter/pagination envelope), `/posts/{slug}`, `/events` (windowed), `/categories`. Reuses existing serializers; shares `rgvdsa_blog_posts_query()` with Twig contexts so shapes cannot drift.
-- HTTP caching: namespace-scoped `Cache-Control` + ETag/304 for anonymous requests; transient-backed responses via `rgvdsa_cache_remember()`.
+- New `inc/rest.php`: public GET namespace `legacy/v1` — `/posts` (server-side search/filter/pagination envelope), `/posts/{slug}`, `/events` (windowed), `/categories`. Reuses existing serializers; shares `legacy_blog_posts_query()` with Twig contexts so shapes cannot drift.
+- HTTP caching: namespace-scoped `Cache-Control` + ETag/304 for anonymous requests; transient-backed responses via `legacy_cache_remember()`.
 - `BlogArchive` rework: first browse page stays embedded (`initialPosts`, no flash); any search/filter/page interaction fetches via debounced, abortable `src/lib/api.ts` client; honest counts from `total`; URL state (`?s=&category=&paged=`) preserved; server-paged archive URLs and a `noscript` link list keep the crawl path.
 - `EventCalendar` fetches its window on mount with a skeleton state.
 - `SinglePost` stays embedded (SEO, one query, zero interactivity) and gains server-rendered fallback content inside the mount element (crawlable + no-JS).

@@ -1,10 +1,10 @@
 # Tasks: seo-meta-layer
 
-All theme paths relative to `wp-content/themes/rgvdsatheme/`. Additive head output; depends on existing serializers/options.
+All theme paths relative to `wp-content/themes/legacytheme/`. Additive head output; depends on existing serializers/options.
 
 ## 1. Meta + canonical + robots
 
-- [x] 1.1 New `inc/seo.php` (required from `functions.php`): `wp_head` priority-5 hook; `rgvdsa_seo_description()` ladder (post dek → excerpt; page seo_description → lede → tagline; event content; front hero lede), kses_plain + ~155-char word-boundary trim
+- [x] 1.1 New `inc/seo.php` (required from `functions.php`): `wp_head` priority-5 hook; `legacy_seo_description()` ladder (post dek → excerpt; page seo_description → lede → tagline; event content; front hero lede), kses_plain + ~155-char word-boundary trim
 - [x] 1.2 `rel=canonical` (permalink / `get_pagenum_link`); filtered archive params (`?s=`/`?category=`/`?paged=`) canonicalize to the clean posts-page URL
 - [x] 1.3 `noindex,follow` on search, filtered archive states, date/author archives, 404
 - [x] 1.4 Interior group: optional `seo_description` field (`inc/interior.php`)

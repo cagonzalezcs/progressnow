@@ -1,7 +1,7 @@
 ## 1. Reference material and setup
 
-- [x] 1.1 Copy the imported canvas sources (`Progress Now * v4*.dc.html`, `support.js`, `assets/v4/**`) and the project's `screenshots/` exports into `wp-content/themes/design_handoff_rgvdsa_vue/v4/` (gitignored) for side-by-side checks
-- [x] 1.2 Re-pull the canvas (memory `rgvdsa-claude-design-import`), diff against the local copy, and note any new tablet artboards or header/footer changes before starting 3.x
+- [x] 1.1 Copy the imported canvas sources (`Progress Now * v4*.dc.html`, `support.js`, `assets/v4/**`) and the project's `screenshots/` exports into `wp-content/themes/design_handoff_vue/v4/` (gitignored) for side-by-side checks
+- [x] 1.2 Re-pull the canvas (memory `legacy-claude-design-import`), diff against the local copy, and note any new tablet artboards or header/footer changes before starting 3.x
 - [x] 1.3 Add Public Sans variable woff2 (official OFL release) as `static/fonts/public-sans/PublicSans[wght].woff2` + license file
 - [x] 1.4 Brand assets: add `flames-tile-light.png`, `cta-panel.svg` (from `cta-panel-blue.svg`), `star.svg`/`star-notch.svg`/`sparkle.svg` with `fill="currentColor"`, neutral `hero-photo.jpg` (drop `@2x` + srcset path in `inc/identity.php`) and `who-photo.jpg`; delete `flames-tile.svg`, `flames-full.svg`, `feature-art.svg`, `logo-header.svg`, `logo-footer.svg`; rewrite the brand README table
 - [x] 1.5 Add `site/test/unit/shared-source-drift.test.ts` comparing theme `src/{components/site,composables/useA11ySettings.ts,lib/schemas.ts,css/tailwind.css}` to the `site/app` copies (font URLs normalized); wire into `npm test`

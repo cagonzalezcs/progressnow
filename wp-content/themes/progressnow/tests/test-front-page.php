@@ -119,8 +119,6 @@ class TestFrontPage extends BaseTestCase {
 		$this->assertStringNotContainsString( 'get-involved-steps', $twig );
 		$this->assertStringNotContainsString( 'home_involved', preg_replace( '/\{#.*?#\}/s', '', $twig ) );
 
-		$this->assertStringNotContainsString( 'ponte-trucha', $twig );
-
 		// The <h1> is the identity headline as real text (`.hero-headline`); the
 		// v3 artwork override is gone (progress-now-v4-home D3). The closing CTA
 		// line is the editor's `cta.line`, uppercased by CSS only.
@@ -128,7 +126,6 @@ class TestFrontPage extends BaseTestCase {
 		$this->assertMatchesRegularExpression( '#<h1 class="hero-headline">\{\{ identity\.hero_headline \}\}</h1>#', $twig );
 		$this->assertStringNotContainsString( 'hero-headline.svg', $twig );
 		$this->assertStringNotContainsString( 'county-map', $twig );
-		$this->assertStringNotContainsString( 'Ponte trucha', $twig );
 		$this->assertSame( 2, substr_count( $twig, '{{ cta.line }}' ), 'cta.line renders in both CTA compositions' );
 		$this->assertMatchesRegularExpression( '#font-brush[^"]*uppercase#', $twig );
 

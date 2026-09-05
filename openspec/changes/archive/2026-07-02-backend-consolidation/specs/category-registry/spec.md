@@ -3,7 +3,7 @@
 ## ADDED Requirements
 
 ### Requirement: Single category source of truth
-The theme SHALL define the six canonical category slugs, labels, and colors once in `categories.json`, consumed by PHP (`rgvdsa_category_registry()`), TypeScript (JSON import), and verified against Tailwind `--color-cat-*` tokens by an automated test.
+The theme SHALL define the six canonical category slugs, labels, and colors once in `categories.json`, consumed by PHP (`legacy_category_registry()`), TypeScript (JSON import), and verified against Tailwind `--color-cat-*` tokens by an automated test.
 
 #### Scenario: PHP and TS agree
 - **WHEN** the registry JSON defines a color for a slug
@@ -14,7 +14,7 @@ The theme SHALL define the six canonical category slugs, labels, and colors once
 - **THEN** the vitest drift test fails
 
 ### Requirement: Term overrides
-`rgvdsa_categories()` SHALL merge the WP term name and ACF term-meta `color` over the registry defaults when the term exists.
+`legacy_categories()` SHALL merge the WP term name and ACF term-meta `color` over the registry defaults when the term exists.
 
 #### Scenario: Term recolor
 - **WHEN** an admin sets a color on the `mutual` category term

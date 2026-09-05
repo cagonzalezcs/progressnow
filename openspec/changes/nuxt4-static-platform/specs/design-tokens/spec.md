@@ -8,11 +8,11 @@ High-contrast mode (Aa widget) SHALL swap red (`--color-red`, `--color-brand-red
 - **THEN** red bands/chips render `#B5121B` and green-dark surfaces `#3F5A23`, persisting via `chapter-a11y`
 
 ### Requirement: Artwork assets are SVG-first
-Production artwork (neutral logo lockups, stars/sparkles, the neutral who-we-are artwork, flames, luchador panel) SHALL ship as SVGs in the theme's `static/images/brand/` with semantic filenames; the Nuxt app SHALL reference them by URL from the `/site` payload so one copy serves both the shell and the app. No regional artwork (county map, regional headline lockup, regional logo lockups) SHALL ship. Exceptions: the hero photo ships as the designer's duotone raster, and the luchador panel MAY fall back to the designer's 2x PNG if its spray texture rasterized poorly in SVG export. The header logo SHALL be transparent with the `#DC1520` background set in CSS. The prototype's `social-icons.png` SHALL NOT ship.
+Production artwork (neutral logo lockups, stars/sparkles, the neutral who-we-are artwork, flames, cta-figure panel) SHALL ship as SVGs in the theme's `static/images/brand/` with semantic filenames; the Nuxt app SHALL reference them by URL from the `/site` payload so one copy serves both the shell and the app. No regional artwork (county map, regional headline lockup, regional logo lockups) SHALL ship. Exceptions: the hero photo ships as the designer's duotone raster, and the cta-figure panel MAY fall back to the designer's 2x PNG if its spray texture rasterized poorly in SVG export. The header logo SHALL be transparent with the `#DC1520` background set in CSS. The prototype's `social-icons.png` SHALL NOT ship.
 
 #### Scenario: Crisp assets
 - **WHEN** the page renders on a high-DPI display
-- **THEN** logos, stars, artwork, and flames are vector-crisp; only the photo (and possibly the luchador) are raster
+- **THEN** logos, stars, artwork, and flames are vector-crisp; only the photo (and possibly the cta-figure) are raster
 
 #### Scenario: No regional artwork in the bundle
 - **WHEN** the theme's `static/images/` and the generated `.output/public` are listed

@@ -3,7 +3,7 @@
 ## ADDED Requirements
 
 ### Requirement: Public read endpoints
-The theme SHALL expose `GET /rgvdsa/v1/posts` (paginated envelope with server-side search and category filter), `/posts/{slug}`, `/events` (date-windowed), and `/categories`, serving only published content, shaped exactly as the island contracts, reusing the domain serializers.
+The theme SHALL expose `GET /legacy/v1/posts` (paginated envelope with server-side search and category filter), `/posts/{slug}`, `/events` (date-windowed), and `/categories`, serving only published content, shaped exactly as the island contracts, reusing the domain serializers.
 
 #### Scenario: Paginated search
 - **WHEN** a client requests `/posts?s=valley&category=labor&page=2`
@@ -15,7 +15,7 @@ The theme SHALL expose `GET /rgvdsa/v1/posts` (paginated envelope with server-si
 
 #### Scenario: Unknown slug
 - **WHEN** `/posts/{slug}` matches no published post
-- **THEN** the response is 404 `rgvdsa_post_not_found` in standard WP error shape
+- **THEN** the response is 404 `legacy_post_not_found` in standard WP error shape
 
 ### Requirement: Cacheable responses
 Anonymous responses SHALL carry `Cache-Control: public, max-age=300, stale-while-revalidate=3600` and an ETag honoring `If-None-Match` with 304; logged-in requests SHALL be `no-store`. Payloads SHALL be transient-cached with content-version invalidation.

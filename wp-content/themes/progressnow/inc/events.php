@@ -1001,7 +1001,7 @@ function progressnow_events_register_feed() {
  * @return string[]
  */
 function progressnow_events_legacy_feed_slugs() {
-	return array( 'rgvdsa-events', 'progressnow-events' );
+	return array( 'progressnow-events' );
 }
 
 /**

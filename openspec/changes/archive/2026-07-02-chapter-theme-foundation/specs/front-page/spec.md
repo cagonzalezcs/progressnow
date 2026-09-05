@@ -7,10 +7,10 @@ The theme SHALL provide `front-page.php` rendering `views/front-page.twig` via T
 
 #### Scenario: Front page renders all sections
 - **WHEN** a visitor loads the site root with a static front page configured
-- **THEN** all five sections render with RGV DSA copy and no PHP/Twig errors
+- **THEN** all five sections render with the chapter copy and no PHP/Twig errors
 
 ### Requirement: Hero section
-The hero SHALL display the headline "We're fighting for the Rio Grande Valley we deserve.", the tagline "From each according to their ability, to each according to their needs", a primary Join CTA linking to the DSA national join/dues URL, and a secondary CTA to events. Decorative art SHALL be inline SVG (no raster assets).
+The hero SHALL display the headline "We're fighting for the the region we deserve.", the tagline "A better world is possible", a primary Join CTA linking to the Progress Now national join/dues URL, and a secondary CTA to events. Decorative art SHALL be inline SVG (no raster assets).
 
 #### Scenario: Join CTA
 - **WHEN** a visitor clicks the hero Join button

@@ -25,4 +25,4 @@ Below the mobile breakpoint the header SHALL collapse the nav behind a toggle `<
 
 #### Scenario: No regional defaults
 - **WHEN** Chapter Settings has no social URLs
-- **THEN** the context carries empty social URLs and no RGV account URL appears anywhere
+- **THEN** the context carries empty social URLs and no regional account URL appears anywhere

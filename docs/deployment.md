@@ -188,8 +188,8 @@ fits this contract; reporting back is the same signed `POST /build-status`
 
 ## 9. Local development
 
-- `site/.env`: `NUXT_DEV_WP_ORIGIN=https://rgvdsa.test:8890`,
-  `NUXT_PUBLIC_WP_API_BASE=https://rgvdsa.test:8890/wp-json/progressnow/v1`,
+- `site/.env`: `NUXT_DEV_WP_ORIGIN=https://chapter.test:8890`,
+  `NUXT_PUBLIC_WP_API_BASE=https://chapter.test:8890/wp-json/progressnow/v1`,
   `NODE_TLS_REJECT_UNAUTHORIZED=0` for the MAMP certificate.
 - `npm run dev` in `site/` for component work (proxied `/wp-json` + `/wp-content`).
 - Full handoff locally: `npm run generate` in `site/`, then in wp-config.php

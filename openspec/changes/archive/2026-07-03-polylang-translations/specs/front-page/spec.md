@@ -31,7 +31,7 @@ The front page SHALL list up to 3 published `chapter_event` posts **in the activ
 - **THEN** the cards show the Spanish event translations; when none exist the empty-state renders
 
 ### Requirement: Blog teasers driven by published posts
-The home "From the blog" section SHALL render the latest published posts **in the active language** (sticky-aware featured card + two rows) from context supplied by `rgvdsa_blog_front_page_context()`; the context keys SHALL always be set (nullable/empty allowed), category pill classes SHALL be built in Twig from the raw `cat` slug, and an empty state SHALL render when no posts exist in the active language.
+The home "From the blog" section SHALL render the latest published posts **in the active language** (sticky-aware featured card + two rows) from context supplied by `legacy_blog_front_page_context()`; the context keys SHALL always be set (nullable/empty allowed), category pill classes SHALL be built in Twig from the raw `cat` slug, and an empty state SHALL render when no posts exist in the active language.
 
 #### Scenario: Real posts on home
 - **WHEN** published posts exist

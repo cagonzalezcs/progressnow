@@ -2,19 +2,19 @@
 
 ## Context
 
-Theme `wp-content/themes/rgvdsatheme/` is a Timber v2 (Twig) starter with Vite (`@kucrut/vite-for-wp`), SCSS, TypeScript, and webawesome v3 web components (button/input/dropdown imported per-component in `src/ts/app.ts`). Scaffolding exists but is empty: `StarterSite::register_post_types()`/`register_taxonomies()` are stubs; SCSS partials (`_global`, `_hero`, `_button`, header, `_home`) and `SiteHeader.ts` are 0 bytes; `index.php` references `front-page.twig`/`home.twig` which don't exist; header markup is default starter in `base.twig`. Local site https://rgvdsa.test:8890, Vite dev :8891. No plugins (no ACF), no mu-plugins.
+Theme `wp-content/themes/legacytheme/` is a Timber v2 (Twig) starter with Vite (`@kucrut/vite-for-wp`), SCSS, TypeScript, and webawesome v3 web components (button/input/dropdown imported per-component in `src/ts/app.ts`). Scaffolding exists but is empty: `StarterSite::register_post_types()`/`register_taxonomies()` are stubs; SCSS partials (`_global`, `_hero`, `_button`, header, `_home`) and `SiteHeader.ts` are 0 bytes; `index.php` references `front-page.twig`/`home.twig` which don't exist; header markup is default starter in `base.twig`. Local site https://chapter.test:8890, Vite dev :8891. No plugins (no ACF), no mu-plugins.
 
-Reference design (socialists.nyc): red/black/cream, hero + about + events + get-involved sections, nav with JOIN button. Tokens: `#dd1111`, `#7c0909`, `#fff5e5`. Their stack (Neve + Otter) is NOT copied — structure/design only.
+Reference design (a peer chapter site): red/black/cream, hero + about + events + get-involved sections, nav with JOIN button. Tokens: `#dd1111`, `#7c0909`, `#fff5e5`. Their stack (Neve + Otter) is NOT copied — structure/design only.
 
-RGV DSA copy sources (old site archive + public info): tagline "From each according to their ability, to each according to their needs"; mission "…funded and run democratically by its members that seeks to build a mass movement and transfer power from the ruling elite to the working class…"; McAllen/Edinburg TX; general meetings 2nd Friday 6pm Zoom; socials facebook.com/dsargv, instagram/twitter dsa_rgv; join act.dsausa.org; newsletter via Action Network.
+the chapter copy sources (old site archive + public info): tagline "A better world is possible"; mission "…funded and run democratically by its members that seeks to build a mass movement and transfer power from the ruling elite to the working class…"; McAllen/Edinburg TX; general meetings 2nd Friday 6pm Zoom; socials facebook.com/legacy, instagram/twitter legacy; join act.dsausa.org; newsletter via Action Network.
 
 ## Goals / Non-Goals
 
 **Goals:**
 - Content model: events + working groups CPTs with meta, editable in wp-admin without plugins
-- Front page mirroring socialists.nyc section structure with generated RGV copy
+- Front page mirroring a peer chapter site section structure with generated regional copy
 - Real header/footer shared across templates
-- DSA design tokens as CSS custom properties, webawesome-compatible
+- Progress Now design tokens as CSS custom properties, webawesome-compatible
 - Seeded sample content so the front page renders meaningfully
 
 **Non-Goals:**
@@ -31,7 +31,7 @@ Use the existing `StarterSite::register_post_types()`/`register_taxonomies()` st
 ### D2: Content model
 - `chapter_event`: supports title/editor/excerpt/thumbnail; `has_archive => 'events'`; `rewrite => ['slug' => 'events']`; `menu_icon => 'dashicons-calendar-alt'`; `show_in_rest => true`.
 - `working_group`: same supports + `page-attributes` (menu_order controls grid order); archive/rewrite `working-groups`; `dashicons-groups`; `show_in_rest => true`.
-- Taxonomy `event_type` (non-hierarchical, on `chapter_event`, `show_in_rest`): "General Meeting", "DSA 101", "Action" — labels event cards.
+- Taxonomy `event_type` (non-hierarchical, on `chapter_event`, `show_in_rest`): "General Meeting", "Chapter 101", "Action" — labels event cards.
 - News/press = built-in Posts with a "Press Releases" category. No Campaigns CPT.
 
 ### D3: Meta without ACF
@@ -53,7 +53,7 @@ Copy hardcoded in Twig *(user confirmed)*; shared URLs/blurbs centralized as `ch
 `global/_global.scss` `:root`: `--color-red: #dd1111; --color-red-dark: #7c0909; --color-cream: #fff5e5; --color-black: #000; --color-white: #fff;` + spacing/max-width; map onto `--wa-color-brand-*`. Light reset, `body { background: var(--color-cream) }`, `.wrapper` (72rem, centered). `.btn` class for anchor CTAs (red fill, uppercase Montserrat); `wa-button` overrides for interactive controls. Newsletter CTA = styled external link to Action Network (no form v1).
 
 ### D6: Header/footer
-`base.twig` header block: black bar, logo `static/images/logos/rgv-dsa-full-color.png` linked home, primary nav (`menu.twig`), `.btn` JOIN link, mobile toggle `<button aria-expanded aria-controls>`. `SiteHeader.ts`: toggle `aria-expanded` + `is-open` class; imported from `app.ts` (matches per-component convention). `footer.twig`: dark-red; mission one-liner, socials (inline SVG icons), newsletter link, footer menu, meeting blurb. `register_nav_menus`: `primary`, `footer`.
+`base.twig` header block: black bar, logo `static/images/logos/legacy-full-color.png` linked home, primary nav (`menu.twig`), `.btn` JOIN link, mobile toggle `<button aria-expanded aria-controls>`. `SiteHeader.ts`: toggle `aria-expanded` + `is-open` class; imported from `app.ts` (matches per-component convention). `footer.twig`: dark-red; mission one-liner, socials (inline SVG icons), newsletter link, footer menu, meeting blurb. `register_nav_menus`: `primary`, `footer`.
 
 ### D7: Media placeholders
 No raster assets — decorative inline SVG (rose/star motifs) hand-rolled in Twig partials; solid-color blocks for card art.

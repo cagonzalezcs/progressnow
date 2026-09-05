@@ -5,7 +5,7 @@ TBD - created by archiving change chapter-theme-foundation. Update Purpose after
 ## Requirements
 
 ### Requirement: Front page template
-The theme SHALL provide `front-page.php` rendering `views/front-page.twig` via Timber (and `RouteFront.vue` in the Nuxt rendition), containing in order: hero, who-we-are, upcoming events, from-the-blog, closing CTA. Each band SHALL carry a `data-tone` attribute from the v4 set (`blue` hero and CTA, `white` who-we-are and blog, `alt` events) for high-contrast mode. No counties strip, get-involved steps, or Ponte Trucha band SHALL render.
+The theme SHALL provide `front-page.php` rendering `views/front-page.twig` via Timber (and `RouteFront.vue` in the Nuxt rendition), containing in order: hero, who-we-are, upcoming events, from-the-blog, closing CTA. Each band SHALL carry a `data-tone` attribute from the v4 set (`blue` hero and CTA, `white` who-we-are and blog, `alt` events) for high-contrast mode. No counties strip, get-involved steps, or Closing CTA band SHALL render.
 
 #### Scenario: Front page renders all sections
 - **WHEN** a visitor loads the site root with a static front page configured

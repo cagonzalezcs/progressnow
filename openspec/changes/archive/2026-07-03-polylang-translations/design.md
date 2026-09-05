@@ -4,7 +4,7 @@
 
 The theme (Timber/Twig + Vue islands + Vite, ACF Pro) was wired for GTranslate: client-side machine translation of a single English DOM, gated to the home page, driven by a hand-tuned cookie/bubbling-change bridge (`src/ts/translation.ts`). That plugin is now uninstalled; the theme still renders GTranslate's `[gt-link]` shortcode and expects the `GTranslate` option, so translation is inert. **Polylang 3.8.5 is installed with zero theme integration** (no `pll_*` calls anywhere).
 
-Polylang is a different model entirely: it stores real translated content as separate post objects, serves them at distinct URLs, and filters queries by the active language. The front page is a static WP Page (`page_on_front`) whose hero/who/get-involved copy are ACF fields **on that page** (`inc/options.php` → `rgvdsa/context/front_page` filter), with Twig literals as pre-seed fallbacks. Because those fields are per-post, an ES page translation naturally carries its own Spanish values — no per-field option gymnastics. Chapter Settings options (counties, socials, event count) are global and mostly language-neutral. The event CPT is `chapter_event`.
+Polylang is a different model entirely: it stores real translated content as separate post objects, serves them at distinct URLs, and filters queries by the active language. The front page is a static WP Page (`page_on_front`) whose hero/who/get-involved copy are ACF fields **on that page** (`inc/options.php` → `legacy/context/front_page` filter), with Twig literals as pre-seed fallbacks. Because those fields are per-post, an ES page translation naturally carries its own Spanish values — no per-field option gymnastics. Chapter Settings options (counties, socials, event count) are global and mostly language-neutral. The event CPT is `chapter_event`.
 
 User decisions locked: pretty `/es/` URLs; translate the whole visible front page including chrome and teasers; seed a Spanish draft that editors refine.
 
@@ -12,7 +12,7 @@ User decisions locked: pretty `/es/` URLs; translate the whole visible front pag
 
 **Goals:** genuine Spanish front page at `/es/` (hero, who, sections, chrome, teasers); a header toggle that switches languages by navigating to translation URLs; Polylang-native machinery (page pairs, string translations, per-language menus, language-filtered queries); complete removal of the GTranslate bridge; a seed path that produces a viewable ES home immediately.
 
-**Non-Goals:** translating every inner page (in-company team, later); native Spanish for all CPT content; hreflang beyond Polylang's default emission; Polylang Pro features; preserving the `rgvdsa_lang`/`googtrans` cookie contract.
+**Non-Goals:** translating every inner page (in-company team, later); native Spanish for all CPT content; hreflang beyond Polylang's default emission; Polylang Pro features; preserving the `legacy_lang`/`googtrans` cookie contract.
 
 ## Decisions
 
@@ -29,7 +29,7 @@ Create an ES translation of the Home Page; set the static-front-page per languag
 Static Twig headings/empty-states and Vue-island labels are registered with `pll_register_string()` (on `init`/`after_setup_theme`) and output through `pll__()` — for island labels, PHP resolves them and passes the translated strings as props (islands stay dumb). Header/footer nav uses per-language WP menus assigned in Polylang's menu-language UI; `Timber::get_menu()` returns the active-language menu. Expose a `pll__` Twig function via a Timber filter so Twig can translate inline. Language-neutral tokens keep their literals (the old `notranslate` classes become inert but harmless — leave in place, or strip opportunistically).
 
 ### D5: Teasers — make CPTs translatable, let Polylang filter, seed ES translations
-Register `post` and `chapter_event` (and their taxonomies) as translatable. Polylang then filters main and secondary queries by the active language, so `rgvdsa_events_front_page_context()` / `rgvdsa_blog_front_page_context()` return ES content on `/es/` with no query rewrite from us — **verify** each helper uses a normal `WP_Query`/`get_posts` (Polylang-filtered) rather than a language-agnostic raw SQL path; adjust only if it bypasses the query filter. Seed ES translations for the specific posts/events the home teases, linked to their EN originals. Untranslated sections fall through to their existing empty-states.
+Register `post` and `chapter_event` (and their taxonomies) as translatable. Polylang then filters main and secondary queries by the active language, so `legacy_events_front_page_context()` / `legacy_blog_front_page_context()` return ES content on `/es/` with no query rewrite from us — **verify** each helper uses a normal `WP_Query`/`get_posts` (Polylang-filtered) rather than a language-agnostic raw SQL path; adjust only if it bypasses the query filter. Seed ES translations for the specific posts/events the home teases, linked to their EN originals. Untranslated sections fall through to their existing empty-states.
 
 ### D6: Remove GTranslate; replace `inc/translation.php` with `inc/i18n.php`
 Deletions/edits enumerated in the proposal Impact + the `internationalization` REMOVED requirement. `inc/i18n.php` owns: Polylang post-type/taxonomy registration hooks (if not done in Polylang settings), the `languages` context builder, string registration, and Twig `pll__` helper. `functions.php` swaps the `require`. `src/ts/navigation.ts` drops the ES stand-down entirely — with per-language URLs every link is already language-correct, so fetch-based partial swaps stay within the active language naturally.
@@ -53,7 +53,7 @@ Extend `bin/seed.php`: ensure languages exist (`pll_*` admin APIs or direct term
 ## Open Questions
 
 1. Which Polylang setup steps must stay manual vs scriptable in `bin/seed.php`? (verify `pll_*` admin API coverage for URL mods + static-front-page-per-language)
-2. Do `rgvdsa_events_front_page_context()` / `rgvdsa_blog_front_page_context()` use Polylang-filtered `WP_Query`, or a raw path that needs language handling added?
+2. Do `legacy_events_front_page_context()` / `legacy_blog_front_page_context()` use Polylang-filtered `WP_Query`, or a raw path that needs language handling added?
 3. Seed ES translations for which exact teased posts/events — a fixed demo set, or whatever is currently featured?
 4. Keep the now-inert `notranslate` classes, or strip them in this change?
 5. Retire `src/composables/useLanguagePreference.ts` entirely, or keep it for a non-language use?

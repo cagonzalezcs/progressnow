@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [main, 'cg/**', 'feat/**']
+  pull_request:
+
+defaults:
+  run:
+    working-directory: wp-content/themes/progressnow
+
+jobs:
+  js:
+    name: Lint / typecheck / vitest / build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: wp-content/themes/progressnow/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build # includes vue-tsc typecheck
+
+  php:
+    name: PHPUnit (WorDBless)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+      - uses: ramsey/composer-install@v3
+        with:
+          working-directory: wp-content/themes/progressnow
+      - run: composer test
+
+  site:
+    name: Nuxt site — lint / typecheck / vitest / mock generate
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: site
+    env:
+      # Build against the fixture-backed nitro mock: no WordPress needed.
+      NUXT_MOCK_API: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run generate
+      - run: npm run verify:output
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site-mock-output
+          path: site/.output/public
+          retention-days: 3

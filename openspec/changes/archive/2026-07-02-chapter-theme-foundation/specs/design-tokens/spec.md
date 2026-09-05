@@ -3,7 +3,7 @@
 ## ADDED Requirements
 
 ### Requirement: Brand token custom properties
-`global/_global.scss` SHALL define `:root` CSS custom properties for the DSA palette — red `#dd1111`, dark red `#7c0909`, cream `#fff5e5`, black, white — plus spacing/max-width tokens, and map brand colors onto webawesome `--wa-color-brand-*` variables so `wa-*` components inherit the brand.
+`global/_global.scss` SHALL define `:root` CSS custom properties for the Progress Now palette — red `#dd1111`, dark red `#7c0909`, cream `#fff5e5`, black, white — plus spacing/max-width tokens, and map brand colors onto webawesome `--wa-color-brand-*` variables so `wa-*` components inherit the brand.
 
 #### Scenario: Tokens applied globally
 - **WHEN** the compiled stylesheet loads

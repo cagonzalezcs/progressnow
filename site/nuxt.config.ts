@@ -15,12 +15,12 @@ import tailwindcss from "@tailwindcss/vite";
  *                            WordPress that generate reads from (also what
  *                            the browser calls for search/filter/calendar)
  *   NUXT_DEV_WP_ORIGIN       local WordPress origin proxied by `nuxt dev`
- *                            (default https://rgvdsa.test:8890)
+ *                            (default https://chapter.test:8890)
  *   NUXT_MOCK_API=1          serve the fixture-backed nitro mock instead
  *   CHAPTER_CONTENT_VERSION  content version stamped into shell-manifest.json
  */
 const mock = process.env.NUXT_MOCK_API === "1";
-const devOrigin = process.env.NUXT_DEV_WP_ORIGIN || "https://rgvdsa.test:8890";
+const devOrigin = process.env.NUXT_DEV_WP_ORIGIN || "https://chapter.test:8890";
 const apiBase =
   process.env.NUXT_PUBLIC_WP_API_BASE || (mock ? "/mock/v1" : `${devOrigin}/wp-json/progressnow/v1`);
 
