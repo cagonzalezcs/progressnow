@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { ApiError } from "@/lib/api";
+import { failureDigest } from "@/lib/api";
 import { getEvents } from "@/lib/data";
 import { logger } from "@/lib/log";
 
@@ -27,11 +27,13 @@ export async function GET(request: NextRequest): Promise<Response> {
       headers: { "cache-control": "public, max-age=60, stale-while-revalidate=300" },
     });
   } catch (error) {
-    const status = error instanceof ApiError && error.status >= 500 ? 503 : 502;
-    logger.error("events-route", { status, error });
+    // A cached read failed (obfuscated across the 'use cache' boundary; the data layer logged
+    // the cause under this digest): the upstream is unavailable → 503, never a crash.
+    const digest = failureDigest(error);
+    logger.error("events-route", { status: 503, digest });
     return Response.json(
-      { error: "events temporarily unavailable" },
-      { status, headers: { "cache-control": "no-store" } },
+      { error: "events temporarily unavailable", digest },
+      { status: 503, headers: { "cache-control": "no-store" } },
     );
   }
 }

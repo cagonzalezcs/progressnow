@@ -80,3 +80,12 @@ test("calendar interactive states: list view, event dialog open", async ({ page 
   out = await scan(page, testInfo, "state-calendar-dialog-open");
   expect(out.errors, formatViolations(out.errors)).toEqual([]);
 });
+
+test("404 page has no axe-core violations in both languages", async ({ page }, testInfo) => {
+  for (const path of ["/does-not-exist/", "/es/no-existe/"]) {
+    await page.goto(path);
+    await settle(page);
+    const out = await scan(page, testInfo, `state-not-found${path.replace(/\W+/g, "_")}`);
+    expect(out.errors, formatViolations(out.errors)).toEqual([]);
+  }
+});

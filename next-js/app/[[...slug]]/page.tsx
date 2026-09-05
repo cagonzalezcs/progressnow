@@ -10,8 +10,11 @@ import { RoutePage } from "@/components/routes/RoutePage";
 import { RoutePost } from "@/components/routes/RoutePost";
 import { RoutePostsIndex } from "@/components/routes/RoutePostsIndex";
 import type { RouteProps } from "@/components/routes/types";
+import { ErrorSurface } from "@/components/site/ErrorSurface";
+import { failureDigest } from "@/lib/api";
 import { getRoutes } from "@/lib/data";
-import { requestPath } from "@/lib/request-path";
+import { logger } from "@/lib/log";
+import { isErrorRender, requestPath } from "@/lib/request-path";
 import { langForPath, resolveRoute } from "@/lib/routes";
 
 /* One catch-all page (design D3): every public WordPress URL, in both
@@ -19,7 +22,12 @@ import { langForPath, resolveRoute } from "@/lib/routes";
  * matching route component. Routes render per request from the cached data
  * layer (design D11): new content resolves on its first request, and the
  * build needs no API. `searchParams` are only read inside the route components
- * that need them (front, posts index), inside their own Suspense fragments. */
+ * that need them (front, posts index), inside their own Suspense fragments.
+ *
+ * The page renders concurrently with the root layout, so it must be as
+ * resilient to an upstream failure as the layout is: an uncaught throw here
+ * would abort the whole response (Next's bare "Internal Server Error") before
+ * the layout's error document could stream. */
 
 const ROUTES = {
   front: RouteFront,
@@ -33,10 +41,28 @@ const ROUTES = {
   event: RouteEvent,
 } satisfies Record<string, React.ComponentType<RouteProps>>;
 
+/** The manifest, or the error surface when WordPress cannot be read (status: proxy.ts). */
+async function loadManifest(): Promise<
+  { ok: true; manifest: Awaited<ReturnType<typeof getRoutes>> } | { ok: false; digest: string }
+> {
+  try {
+    return { ok: true, manifest: await getRoutes() };
+  } catch (error) {
+    // See app/layout.tsx: obfuscated across the 'use cache' boundary; the digest links the logs.
+    const digest = failureDigest(error);
+    logger.error("page_upstream_failure", { digest });
+    return { ok: false, digest };
+  }
+}
+
 export default async function Page({ params, searchParams }: PageProps<"/[[...slug]]">) {
+  // proxy.ts' internal 500 render: the layout draws the error document; nothing to add here.
+  if (await isErrorRender()) return null;
   // Unknown paths render the 404 view as a normal state; proxy.ts sets the 404 status
   // (a thrown notFound() would only reach the client behind the streamed shell).
-  const [manifest, { slug }] = await Promise.all([getRoutes(), params]);
+  const [loaded, { slug }] = await Promise.all([loadManifest(), params]);
+  if (!loaded.ok) return <ErrorSurface digest={loaded.digest} />;
+  const { manifest } = loaded;
   // Path-only resolution here: `?s=` etc. are handled by the components that read searchParams.
   const resolved = resolveRoute(manifest, slug);
   if (resolved.kind === "not_found") {

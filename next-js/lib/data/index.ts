@@ -1,5 +1,5 @@
 import { cacheLife, cacheTag } from "next/cache";
-import { api, ApiError, type EventsParams, type PostsParams } from "@/lib/api";
+import { api, isApiError, type EventsParams, type PostsParams } from "@/lib/api";
 import {
   eventsTag,
   eventTag,
@@ -28,7 +28,7 @@ async function nullOn404<T>(promise: Promise<T>): Promise<T | null> {
   try {
     return await promise;
   } catch (error) {
-    if (error instanceof ApiError && error.status === 404) return null;
+    if (isApiError(error) && error.status === 404) return null;
     throw error;
   }
 }

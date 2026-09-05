@@ -30,6 +30,7 @@ export function createProxyManifest({
   let fetchedAt = 0;
   let lastMissRefresh = 0;
   let inflight: Promise<RoutesManifest | null> | null = null;
+  let lastRefreshOk = false;
 
   async function refresh(): Promise<RoutesManifest | null> {
     if (inflight) return inflight;
@@ -39,13 +40,21 @@ export function createProxyManifest({
           headers: { Accept: "application/json" },
           signal: AbortSignal.timeout(5_000),
         });
-        if (!res.ok) return manifest;
+        if (!res.ok) {
+          lastRefreshOk = false;
+          return manifest;
+        }
         const parsed = routesManifestSchema.safeParse(await res.json());
-        if (!parsed.success) return manifest;
+        if (!parsed.success) {
+          lastRefreshOk = false;
+          return manifest;
+        }
         manifest = parsed.data;
         fetchedAt = now();
+        lastRefreshOk = true;
         return manifest;
       } catch {
+        lastRefreshOk = false;
         return manifest;
       } finally {
         inflight = null;
@@ -67,9 +76,14 @@ export function createProxyManifest({
       }
       return "unknown";
     },
+    /** Is WordPress answering right now? One fresh /routes fetch (dedupes in-flight). */
+    async probe(): Promise<boolean> {
+      await refresh();
+      return lastRefreshOk;
+    },
     /** Test seam. */
     get state() {
-      return { fetchedAt, hasManifest: manifest !== null };
+      return { fetchedAt, hasManifest: manifest !== null, lastRefreshOk };
     },
   };
 }
