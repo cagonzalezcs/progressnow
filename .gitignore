@@ -32,14 +32,18 @@ wp-config.php
 # Log files
 *.log
 
+# Backups / migration artifacts / upgrade temp
+/wp-content/backups-dup-lite/
+/wp-content/upgrade/
+/wp-content/upgrade-temp-backup/
+*.zip
+
 # htaccess
 /.htaccess
 
-# All plugins
-#
-# Note: If you wish to whitelist plugins,
-# uncomment the next line
-#/wp-content/plugins
+# Plugins are never vendored (ACF Pro + Polylang Pro are adopter-installed)
+/wp-content/plugins/
+/wp-content/mu-plugins/
 
 # All themes
 #
@@ -53,7 +57,7 @@ wp-config.php
 
 # Local tooling / design reference (not versioned)
 /.claude/
-/wp-content/themes/design_handoff_rgvdsa_vue/
+/wp-content/themes/design_handoff_vue/
 
 # Worktree runtime symlinks (bin/worktree-bootstrap.sh) — the directory
 # patterns above don't match symlinks.
@@ -61,8 +65,19 @@ wp-config.php
 /wp-includes
 /wp-content/uploads
 
+# Nuxt build output
+/site/dist/
+/site/.output/
+/site/.nuxt/
+/site/node_modules/
+/wp-content/themes/progressnow/node_modules/
+/wp-content/themes/progressnow/vendor/
+/wp-content/themes/progressnow/dist/
+/wp-content/themes/progressnow/wordpress/
+
 # Nuxt static rendition output synced to the docroot (CHAPTER_STATIC_DIR)
 /static-site/
 
 # Secrets
 .env
+/site/dist

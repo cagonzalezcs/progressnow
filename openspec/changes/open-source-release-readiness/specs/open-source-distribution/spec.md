@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: Repository carries a licence and community files
-The repository SHALL ship a root `LICENSE` (GPL-2.0-or-later) and consistent licence declarations in `wp-content/themes/progressnow/style.css`, `wp-content/themes/progressnow/composer.json`, `wp-content/themes/progressnow/package.json`, and `site/package.json`, together with a root `README.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, and `SECURITY.md`.
+The repository SHALL ship a root `LICENSE` (MIT) and consistent licence declarations in `wp-content/themes/progressnow/style.css`, `wp-content/themes/progressnow/composer.json`, `wp-content/themes/progressnow/package.json`, and `site/package.json`, together with a root `README.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, and `SECURITY.md`.
 
 #### Scenario: Fresh clone is publishable
 - **WHEN** the repository is cloned at its default branch

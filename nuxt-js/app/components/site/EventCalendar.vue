@@ -5,8 +5,9 @@
  * round month buttons + Bowlby label + segmented Month/List on an alt pill,
  * the v4 MonthGrid (dots + legend under 700px), EventCard list rows, the
  * dashed empty month, and the ink subscribe strip with Google / iCal pills.
- * The category filter chips are gone from the toolbar (not on the v4 canvas);
- * a `?category=` URL param still narrows the window. */
+ * The category filter row (FILTER: + "All events" / term chips with swatch
+ * dots) sits under the toolbar as on the reference site; `?category=` keeps
+ * the active chip across reloads. */
 import { computed, onMounted, ref, watch } from "vue";
 import EventDetailDialog from "@/components/site/EventDetailDialog.vue";
 import EventListView from "@/components/site/EventListView.vue";
@@ -39,6 +40,8 @@ const props = withDefaults(
     icsLabel?: string;
     monthLabelText?: string;
     listLabelText?: string;
+    filterLabelText?: string;
+    allEventsText?: string;
     viewLabel?: string;
     emptyTitle?: string;
     emptyBody?: string;
@@ -55,6 +58,8 @@ const props = withDefaults(
     icsLabel: "iCal / .ics",
     monthLabelText: "Month",
     listLabelText: "List",
+    filterLabelText: "Filter:",
+    allEventsText: "All events",
     viewLabel: "View event",
     emptyTitle: "Nothing scheduled this month",
     emptyBody: "Check the next month or subscribe below and never miss one.",
@@ -141,13 +146,16 @@ const NAV_BTN =
   "inline-flex size-11 flex-none cursor-pointer items-center justify-center rounded-full border-2 border-control bg-white p-0 text-[1.1rem] font-extrabold text-ink transition-colors hover:border-accent hover:bg-accent hover:text-white";
 const SEG_BTN =
   "cursor-pointer rounded-full border-none px-[22px] py-[9px] font-display text-[0.9rem] font-normal tracking-[0.03em] transition-colors";
+const CHIP =
+  "inline-flex cursor-pointer items-center gap-2 rounded-full border px-3.5 py-2 text-[0.85rem] font-bold leading-[1.5] transition-colors";
 </script>
 
 <template>
   <div class="event-calendar">
     <!-- Toolbar: month nav + Month/List segmented control -->
     <section class="bg-white px-6 pt-7 md:pt-10" data-tone="white">
-      <div class="mx-auto flex max-w-[1200px] flex-col gap-4 md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-5">
+      <div class="mx-auto flex max-w-[1200px] flex-col gap-5">
+      <div class="flex flex-col gap-4 md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-5">
         <div class="flex items-center justify-between gap-2.5 md:justify-start md:gap-3.5">
           <button type="button" aria-label="Previous month" :class="NAV_BTN" @click="monthOffset--">←</button>
           <div aria-live="polite" class="text-center font-display text-[1.25rem] md:min-w-[280px] md:text-[clamp(1.3rem,2.4vw,1.8rem)]">
@@ -164,6 +172,28 @@ const SEG_BTN =
             {{ listLabelText }}
           </button>
         </div>
+      </div>
+
+      <!-- Category filter chips: "All events" + one per term, swatch dot in term color -->
+      <div role="group" :aria-label="filterLabelText" class="flex flex-wrap items-center gap-2">
+        <span class="mr-1.5 font-display text-[0.82rem] font-bold uppercase tracking-[0.06em] text-muted">{{ filterLabelText }}</span>
+        <button
+          v-for="cat in EVENT_CATEGORIES"
+          :key="cat.id"
+          type="button"
+          :aria-pressed="activeCat === cat.id"
+          :class="[CHIP, activeCat === cat.id ? 'border-ink bg-ink text-white' : 'border-control bg-white text-ink hover:border-ink']"
+          @click="activeCat = cat.id"
+        >
+          <span
+            v-if="showCategoryColors && cat.color"
+            aria-hidden="true"
+            class="inline-block size-2.5 flex-none rounded-full"
+            :style="{ backgroundColor: cat.color }"
+          ></span>
+          {{ cat.id === 'all' ? allEventsText : cat.label }}
+        </button>
+      </div>
       </div>
     </section>
 

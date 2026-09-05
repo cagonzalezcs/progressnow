@@ -11,9 +11,9 @@
 ## 2. Contexts (inc/pages.php builders)
 
 - [x] 2.1 Add tri-state visibility reader (null/'' → true, else bool) and expose `visible` per section in `about.*` / `gi.*`
-- [x] 2.2 Route swapped wysiwyg fields through `rgvdsa_pages_text( ..., $kses = true )`
-- [x] 2.3 GI headings via `rgvdsa_pages_text` with current hardcoded strings as defaults; expose as `gi.join.heading` etc.
-- [x] 2.4 `gi.related` via `rgvdsa_pages_rows` + `rgvdsa_pages_link_row`, defaulted to the current three links; `about.committees.link` (label/url/external) with current defaults
+- [x] 2.2 Route swapped wysiwyg fields through `legacy_pages_text( ..., $kses = true )`
+- [x] 2.3 GI headings via `legacy_pages_text` with current hardcoded strings as defaults; expose as `gi.join.heading` etc.
+- [x] 2.4 `gi.related` via `legacy_pages_rows` + `legacy_pages_link_row`, defaulted to the current three links; `about.committees.link` (label/url/external) with current defaults
 - [x] 2.5 Build `about.nav` / `gi.nav` arrays `{ href, label }` from visible sections only, labels from headings
 
 ## 3. Templates
@@ -32,7 +32,7 @@
 
 - [x] 5.1 New tests/test-pages.php (WorDBless): design-copy fallbacks for both contexts with no ACF values
 - [x] 5.2 Kses: script/event-handler markup stripped from rich fields; plain-text legacy values pass through unchanged
-- [x] 5.3 `rgvdsa_pages_external`: relative, #anchor, mailto, same-host, cross-host
+- [x] 5.3 `legacy_pages_external`: relative, #anchor, mailto, same-host, cross-host
 - [x] 5.4 Repeater row dropping (missing title/label/url) + empty-repeater fallback for gi_related_links
 - [x] 5.5 Visibility tri-state (unset/''→true, 0→false) and nav arrays excluding hidden sections / empty when all hidden
 

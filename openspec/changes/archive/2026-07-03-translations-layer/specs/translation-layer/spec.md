@@ -3,7 +3,7 @@
 ## ADDED Requirements
 
 ### Requirement: Translation activation gate
-Translation SHALL be active only when the Chapter Settings `es_enabled` option is on AND the current request is the front page, computed server-side by `rgvdsa_translation_active()` and filterable via `rgvdsa/translation/active`. The gate SHALL be exposed to templates as `translation.active` in Timber context and to client scripts as a `data-translation-scope` attribute on `<body>` (`page` when active, `none` otherwise).
+Translation SHALL be active only when the Chapter Settings `es_enabled` option is on AND the current request is the front page, computed server-side by `legacy_translation_active()` and filterable via `legacy/translation/active`. The gate SHALL be exposed to templates as `translation.active` in Timber context and to client scripts as a `data-translation-scope` attribute on `<body>` (`page` when active, `none` otherwise).
 
 #### Scenario: Home is translatable
 - **WHEN** `es_enabled` is on and a visitor loads the front page
@@ -40,29 +40,29 @@ When the page is translation-scoped, flipping the header toggle to ES SHALL load
 - **THEN** the page auto-translates to Spanish on load
 
 ### Requirement: Cookie contract
-The theme's `rgvdsa_lang` cookie SHALL remain the authoritative language preference; `googtrans` SHALL be treated as derived state. On load of a translation-scoped page, startup reconciliation SHALL activate Spanish when `rgvdsa_lang=es` and no ES `googtrans` cookie exists. The `googtrans` cookie SHALL be left in place when leaving the front page so ES auto-resumes on return.
+The theme's `legacy_lang` cookie SHALL remain the authoritative language preference; `googtrans` SHALL be treated as derived state. On load of a translation-scoped page, startup reconciliation SHALL activate Spanish when `legacy_lang=es` and no ES `googtrans` cookie exists. The `googtrans` cookie SHALL be left in place when leaving the front page so ES auto-resumes on return.
 
 #### Scenario: Preference survives googtrans loss
-- **WHEN** `rgvdsa_lang=es` but the `googtrans` cookie is missing and the front page loads
+- **WHEN** `legacy_lang=es` but the `googtrans` cookie is missing and the front page loads
 - **THEN** the reconciler re-activates Spanish
 
 ### Requirement: Client-navigation standdown under ES
-While `rgvdsa_lang=es`, the fetch-based partial-swap navigation SHALL stand down (no click interception, no prefetch): all navigation is full page loads. Partial-swap head syncing SHALL keep `data-translation-scope` current for EN users.
+While `legacy_lang=es`, the fetch-based partial-swap navigation SHALL stand down (no click interception, no prefetch): all navigation is full page loads. Partial-swap head syncing SHALL keep `data-translation-scope` current for EN users.
 
 #### Scenario: ES navigation is full-load
 - **WHEN** a visitor with ES active on the front page clicks a nav link to the blog
 - **THEN** the browser performs a full page load and the blog renders in English
 
 #### Scenario: EN keeps partial swaps
-- **WHEN** a visitor with `rgvdsa_lang=en` navigates between pages
+- **WHEN** a visitor with `legacy_lang=en` navigates between pages
 - **THEN** fetch-based partial swaps behave as before this change
 
 ### Requirement: notranslate content policy
-All templates SHALL mark proper nouns, identifiers, and contact data with `class="notranslate"` — county names, social handles, email addresses, "RGV DSA"/"DSA" brand tokens, venue names and street addresses in server-rendered article/event fallbacks — and SHALL NOT mark descriptive copy. Content-island mount elements SHALL remain translatable.
+All templates SHALL mark proper nouns, identifiers, and contact data with `class="notranslate"` — county names, social handles, email addresses, "the chapter"/"Progress Now" brand tokens, venue names and street addresses in server-rendered article/event fallbacks — and SHALL NOT mark descriptive copy. Content-island mount elements SHALL remain translatable.
 
 #### Scenario: Identifiers survive translation
 - **WHEN** the front page is translated to ES
-- **THEN** county names (e.g. "Starr"), `@dsa_rgv`, contact emails, and "RGV DSA" render unchanged
+- **THEN** county names, `@chapterhandle`, contact emails, and "the chapter" render unchanged
 
 ### Requirement: Pinned plugin configuration
 The GTranslate plugin option SHALL be pinned to: default language `en`, included languages exactly `en` and `es`, `detect_browser_language` off, and no widget/block/menu placement — the hidden gt-link bootstrap is the only integration surface. Configuration SHALL be documented (and optionally seeded via `bin/seed.php`).

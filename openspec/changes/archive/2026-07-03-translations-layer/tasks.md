@@ -1,11 +1,11 @@
 # Tasks: translations-layer
 
-Theme paths relative to `wp-content/themes/rgvdsatheme/`. Sections ordered by dependency; each ends with a Verify task. Contract source: `wp-content/plugins/gtranslate/js/base.js` (doGTranslate, googtrans cookie, `gt_translate_script` guard).
+Theme paths relative to `wp-content/themes/legacytheme/`. Sections ordered by dependency; each ends with a Verify task. Contract source: `wp-content/plugins/gtranslate/js/base.js` (doGTranslate, googtrans cookie, `gt_translate_script` guard).
 
 ## 1. Plugin config + PHP gate
 
 - [x] 1.1 Pin GTranslate option (`GTranslate` in wp_options): `default_language` en, languages en+es only, `detect_browser_language` off, no widget/block/menu placement; add optional seeding in `bin/seed.php` and document values
-- [x] 1.2 New `inc/translation.php`: `rgvdsa_translation_active()` (`!is_admin() && es_enabled && is_front_page()`) wrapped in `apply_filters('rgvdsa/translation/active', …)`; `timber/context` filter adding `translation.active`; comment marking `is_front_page()` as the liftable home-only gate
+- [x] 1.2 New `inc/translation.php`: `legacy_translation_active()` (`!is_admin() && es_enabled && is_front_page()`) wrapped in `apply_filters('legacy/translation/active', …)`; `timber/context` filter adding `translation.active`; comment marking `is_front_page()` as the liftable home-only gate
 - [x] 1.3 `require_once` from `functions.php` alongside existing inc requires
 - [x] 1.4 Verify: with `es_enabled` on, front-page view-source shows gtranslate `base.js` + `gtranslateSettings` blob (after 2.1); a page/post/archive shows neither; `es_enabled` off removes both
 
@@ -18,11 +18,11 @@ Theme paths relative to `wp-content/themes/rgvdsatheme/`. Sections ordered by de
 
 ## 3. translation.ts bridge + toggle
 
-- [x] 3.1 New `src/ts/translation.ts`: `pageTranslatable()` (body dataset), `isSpanishPreferred()` (reuse exported `rgvdsa_lang` reader), `ensureTranslateLib()` (element.js injection honoring `window.gt_translate_script` guard), `activateSpanish()` (in-place doGTranslate w/ cookie+reload fallback), `restoreEnglish()` (expire all googtrans variants + reload), `initTranslation()` (startup reconcile: ES preferred + translatable + no googtrans → activate)
+- [x] 3.1 New `src/ts/translation.ts`: `pageTranslatable()` (body dataset), `isSpanishPreferred()` (reuse exported `legacy_lang` reader), `ensureTranslateLib()` (element.js injection honoring `window.gt_translate_script` guard), `activateSpanish()` (in-place doGTranslate w/ cookie+reload fallback), `restoreEnglish()` (expire all googtrans variants + reload), `initTranslation()` (startup reconcile: ES preferred + translatable + no googtrans → activate)
 - [x] 3.2 `src/composables/useLanguagePreference.ts`: export cookie reader for the bridge; refresh stale "site is not translated yet" comments; STOP pre-setting `<html lang>` from the preference (design D4b — it made Google no-op es→es and silently disabled translation)
 - [x] 3.3 `src/ts/app.ts`: call `initTranslation()` after `mountIslands()` / `initNavigation()`
 - [x] 3.4 `src/components/site/LanguageToggle.vue`: `onToggle` additionally calls `activateSpanish()`/`restoreEnglish()` when `esEnabled`; tooltip copy → "Español — disponible en la página de inicio"; refresh header comments
-- [x] 3.5 Verify: ES flip on home translates in place (user-witnessed working); EN flip reloads clean English (observed); toggle on inner page records preference only (observed); ES persistence now re-drives from `rgvdsa_lang` on load (combo drive observed; final visual blocked by Google browser flag — retest manually)
+- [x] 3.5 Verify: ES flip on home translates in place (user-witnessed working); EN flip reloads clean English (observed); toggle on inner page records preference only (observed); ES persistence now re-drives from `legacy_lang` on load (combo drive observed; final visual blocked by Google browser flag — retest manually)
 
 ## 4. Navigation standdown
 
@@ -32,13 +32,13 @@ Theme paths relative to `wp-content/themes/rgvdsatheme/`. Sections ordered by de
 
 ## 5. notranslate template pass (all templates)
 
-- [x] 5.1 `views/front-page.twig`: county names in counties strip, `@dsa_rgv`, contact email, "dsausa.org", "RGV DSA"/"DSA" brand tokens
+- [x] 5.1 `views/front-page.twig`: county names in counties strip, `@chapterhandle`, contact email, "dsausa.org", "the chapter"/"Progress Now" brand tokens
 - [x] 5.2 `views/single.twig` + `views/single-event.twig` server-rendered fallbacks: venue names, addresses, emails/RSVP URLs rendered as text
 - [x] 5.3 Sweep remaining views (`page*.twig`, `index.twig`, `archive.twig`, `search.twig`, `author.twig`, `404.twig`, `page-calendar.twig`): emails, handles, brand tokens; do NOT mark content-island mounts
-- [ ] 5.4 Verify: ES home leaves county names, `@dsa_rgv`, emails, "RGV DSA" intact — PARTIAL: notranslate markup verified in DOM on all templates; live ES survival check blocked by Google browser flag — retest manually
+- [ ] 5.4 Verify: ES home leaves county names, `@chapterhandle`, emails, "the chapter" intact — PARTIAL: notranslate markup verified in DOM on all templates; live ES survival check blocked by Google browser flag — retest manually
 
 ## 6. Wrap-up
 
 - [x] 6.1 Vitest coverage: translation.ts cookie/gate/fallback logic (13 tests, happy-dom)
 - [x] 6.2 `npm run typecheck`, `npm test` (27), `composer test` (75) green
-- [x] 6.3 README "Translations" section: cookie contract, plugin settings, gate-lift instructions for the in-company team (`rgvdsa/translation/active` filter, island data strategy per design D4)
+- [x] 6.3 README "Translations" section: cookie contract, plugin settings, gate-lift instructions for the in-company team (`legacy/translation/active` filter, island data strategy per design D4)

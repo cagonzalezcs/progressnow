@@ -9,8 +9,6 @@ export interface A11ySettings {
 }
 
 const STORAGE_KEY = "chapter-a11y";
-/** Pre-rename key: migrated to STORAGE_KEY on first load, then removed. */
-const LEGACY_STORAGE_KEY = "rgv-dsa-a11y";
 const STYLE_ID = "progressnow-a11y-css";
 const FONT_SIZES: Record<TextSize, string> = {
   default: "16px",
@@ -34,17 +32,7 @@ const isBrowser = typeof window !== "undefined" && typeof document !== "undefine
 function load(): A11ySettings {
   if (!isBrowser) return { ...DEFAULTS };
   try {
-    let raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      // One-time migration from the pre-rename key so returning visitors keep
-      // their contrast / motion / text-size choices.
-      const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
-      if (legacy) {
-        localStorage.setItem(STORAGE_KEY, legacy);
-        localStorage.removeItem(LEGACY_STORAGE_KEY);
-        raw = legacy;
-      }
-    }
+    const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) return { ...DEFAULTS, ...JSON.parse(raw) };
   } catch {
     /* corrupted storage falls back to defaults */

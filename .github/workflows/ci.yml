@@ -3,12 +3,12 @@
 # mock, next-js builds and tests against test/mock/server.mjs — both backed by
 # the theme's committed contract fixtures.
 #
-# The theme's PHPUnit/vitest job is added by nuxt4-static-platform task 7.3.
+# The theme's vitest + PHPUnit (WorDBless) jobs run without WordPress too.
 name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, 'cg/**', 'feat/**']
   pull_request:
 
 concurrency:
@@ -19,6 +19,37 @@ permissions:
   contents: read
 
 jobs:
+  theme-js:
+    name: theme (lint, vitest, build w/ vue-tsc)
+    runs-on: ubuntu-latest
+    defaults:
+      run: { working-directory: wp-content/themes/progressnow }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: wp-content/themes/progressnow/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build # includes vue-tsc typecheck
+
+  theme-php:
+    name: theme PHPUnit (WorDBless)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+      - uses: ramsey/composer-install@v3
+        with:
+          working-directory: wp-content/themes/progressnow
+      - run: composer test
+
   nuxt-js:
     name: nuxt-js (lint, typecheck, test, generate:mock)
     runs-on: ubuntu-latest
@@ -72,6 +103,9 @@ jobs:
         env: { PW_SKIP_BUILD: "1" }
       - name: Accessibility gate (axe-core against the build)
         run: npm run test:a11y
+        env: { PW_SKIP_BUILD: "1" }
+      - name: Upstream-failure e2e (serial, flips the mock)
+        run: npm run test:failure
         env: { PW_SKIP_BUILD: "1" }
       - name: Upload axe-core reports and screenshots
         if: always()

@@ -2,7 +2,7 @@
 
 ## Context
 
-Theme `wp-content/themes/rgvdsatheme`: Timber v2 + Vue 3 islands + Vite. Data flow: `inc/*.php` domain files hook `rgvdsa/context/*` filters → serializers shape island contracts → Twig prints `data-props` JSON → `src/ts/islands.ts` mounts. This change is phase 1 of 3 (before `gutenberg-post-blocks` and `rest-data-layer`); it repairs defects in the current embedded-props architecture without changing it.
+Theme `wp-content/themes/legacytheme`: Timber v2 + Vue 3 islands + Vite. Data flow: `inc/*.php` domain files hook `legacy/context/*` filters → serializers shape island contracts → Twig prints `data-props` JSON → `src/ts/islands.ts` mounts. This change is phase 1 of 3 (before `gutenberg-post-blocks` and `rest-data-layer`); it repairs defects in the current embedded-props architecture without changing it.
 
 ## Goals / Non-Goals
 
@@ -13,31 +13,31 @@ Theme `wp-content/themes/rgvdsatheme`: Timber v2 + Vue 3 islands + Vite. Data fl
 ## Decisions
 
 ### D1: `categories.json` at theme root, not a PHP constant
-Six entries `{ id, label, color }` (slugs `chapter/poled/mutual/labor/electoral/social`; colors = current PHP palette, `#B01B22` for chapter). PHP reads it in `inc/categories.php` (`rgvdsa_category_registry()` — static-cached `json_decode`; `rgvdsa_categories()` — merges term name + ACF term-meta `color` override, replacing the duplicated merge logic in `rgvdsa_post_categories()`/`rgvdsa_event_categories()`). TS: `src/lib/events.ts` replaces hand-typed `DEFAULT_CATEGORIES` with `import categories from "../../categories.json"` (Vite native). JSON is the only format both runtimes read without codegen.
+Six entries `{ id, label, color }` (slugs `chapter/poled/mutual/labor/electoral/social`; colors = current PHP palette, `#B01B22` for chapter). PHP reads it in `inc/categories.php` (`legacy_category_registry()` — static-cached `json_decode`; `legacy_categories()` — merges term name + ACF term-meta `color` override, replacing the duplicated merge logic in `legacy_post_categories()`/`legacy_event_categories()`). TS: `src/lib/events.ts` replaces hand-typed `DEFAULT_CATEGORIES` with `import categories from "../../categories.json"` (Vite native). JSON is the only format both runtimes read without codegen.
 
 ### D2: Tailwind tokens checked, not generated
 Tailwind v4 `@theme` can't import JSON. Keep `--color-cat-*` in `src/css/tailwind.css`; add a vitest test asserting each token equals the JSON color. Failing test on drift beats a codegen pipeline at this scale.
 
 ### D3: Slug-rename guard
-`add_filter( 'wp_update_term_data', 'rgvdsa_guard_canonical_term_slugs', 10, 4 )`: if a term in `category`/`event_category` currently has a canonical slug, force the slug back. Removes the silent degrade-to-`chapter` failure mode of `rgvdsa_blog_post_cat()`.
+`add_filter( 'wp_update_term_data', 'legacy_guard_canonical_term_slugs', 10, 4 )`: if a term in `category`/`event_category` currently has a canonical slug, force the slug back. Removes the silent degrade-to-`chapter` failure mode of `legacy_blog_post_cat()`.
 
 ### D4: kses at serialize time
-`rgvdsa_blog_kses_prose( $html )`: `wp_kses` allowlist `p,h2,h3,h4,ul,ol,li,a[href|title|rel|target],strong,em,b,i,br,blockquote,cite,code,sub,sup,mark,s`. Applied in the prose branch of `rgvdsa_blog_map_blocks()` (raw meta untouched). Captions/quotes/labels: `wp_strip_all_tags` or `br`-only. Ships now — `BlockProse.vue` `v-html` is live today; also reused verbatim by the Gutenberg serializer later.
+`legacy_blog_kses_prose( $html )`: `wp_kses` allowlist `p,h2,h3,h4,ul,ol,li,a[href|title|rel|target],strong,em,b,i,br,blockquote,cite,code,sub,sup,mark,s`. Applied in the prose branch of `legacy_blog_map_blocks()` (raw meta untouched). Captions/quotes/labels: `wp_strip_all_tags` or `br`-only. Ships now — `BlockProse.vue` `v-html` is live today; also reused verbatim by the Gutenberg serializer later.
 
 ### D5: Read minutes precomputed
-`add_action( 'save_post_post', 'rgvdsa_blog_store_read_minutes' )` → word count at 200 wpm → `_rgvdsa_read_minutes`. `rgvdsa_blog_read_minutes()` reads meta, computes only when absent. Pre-Gutenberg the hook counts `post_content` + ACF prose rows once at save; post-Gutenberg it's just `post_content`. Kills the per-card flexible-content load. (Open question: delete the manual `read_minutes` ACF override — it existed to dodge the expensive compute.)
+`add_action( 'save_post_post', 'legacy_blog_store_read_minutes' )` → word count at 200 wpm → `_legacy_read_minutes`. `legacy_blog_read_minutes()` reads meta, computes only when absent. Pre-Gutenberg the hook counts `post_content` + ACF prose rows once at save; post-Gutenberg it's just `post_content`. Kills the per-card flexible-content load. (Open question: delete the manual `read_minutes` ACF override — it existed to dodge the expensive compute.)
 
 ### D6: Query builder + cache priming
-Extract `rgvdsa_blog_posts_query( array $args ): WP_Query` (shared later by REST). After query: `update_post_author_caches( $query->posts )`, `update_post_thumbnail_cache( $query )`. WP_Query already primes meta/terms.
+Extract `legacy_blog_posts_query( array $args ): WP_Query` (shared later by REST). After query: `update_post_author_caches( $query->posts )`, `update_post_thumbnail_cache( $query )`. WP_Query already primes meta/terms.
 
 ### D7: Transient helper
-`inc/cache.php`: `rgvdsa_cache_remember( $key, $cb, $ttl = 900 )` keyed `rgvdsa_{$key}_{ver}`, `ver = get_option( 'rgvdsa_content_ver' )`. Bump on `save_post_post`, `save_post_event`, `deleted_post`, `edited_term` (both taxonomies), `acf/save_post` for options. Version bump is the real invalidation; TTL is backstop. Used by the calendar window now, REST later.
+`inc/cache.php`: `legacy_cache_remember( $key, $cb, $ttl = 900 )` keyed `legacy_{$key}_{ver}`, `ver = get_option( 'legacy_content_ver' )`. Bump on `save_post_post`, `save_post_event`, `deleted_post`, `edited_term` (both taxonomies), `acf/save_post` for options. Version bump is the real invalidation; TTL is backstop. Used by the calendar window now, REST later.
 
 ### D8: Teasers — classes move to Twig
-`rgvdsa_blog_front_page_context()` drops the `empty( $query->posts )` early-return; always sets `blog_featured` (or null) / `blog_rows` (or []), emitting raw `cat` slug + `cat_label`. Twig builds `bg-cat-{{ cat }} text-white` (featured) / `text-cat-{{ cat }} border-cat-{{ cat }}` (rows) — deletes the class-in-PHP pattern that caused the `cat_class`/`pill_class` mismatch. Section renders "Posts coming soon" state when null.
+`legacy_blog_front_page_context()` drops the `empty( $query->posts )` early-return; always sets `blog_featured` (or null) / `blog_rows` (or []), emitting raw `cat` slug + `cat_label`. Twig builds `bg-cat-{{ cat }} text-white` (featured) / `text-cat-{{ cat }} border-cat-{{ cat }}` (rows) — deletes the class-in-PHP pattern that caused the `cat_class`/`pill_class` mismatch. Section renders "Posts coming soon" state when null.
 
 ### D9: Calendar page template
-`page-templates/calendar.php` (`Template Name: Calendar`); `rgvdsa_events_calendar_context()` checks `is_page_template( 'page-templates/calendar.php' )` instead of `post_name === 'calendar'`. Editor-visible, slug-rename-proof. About/get-involved/styleguide Twig-name routing stays — that's template selection, not data wiring.
+`page-templates/calendar.php` (`Template Name: Calendar`); `legacy_events_calendar_context()` checks `is_page_template( 'page-templates/calendar.php' )` instead of `post_name === 'calendar'`. Editor-visible, slug-rename-proof. About/get-involved/styleguide Twig-name routing stays — that's template selection, not data wiring.
 
 ### D10: Editable content mapping
 - Counties strip → Chapter Settings repeater `counties` (name only); context always sets it.
@@ -54,7 +54,7 @@ Rename `tests/TestTimberStarterTheme.php` → `tests/test-timber-starter-theme.p
 
 - [Slug guard surprises an admin intentionally renaming] → guard only canonical slugs; behavior documented in field instructions.
 - [kses strips markup an editor expected] → allowlist covers the styleguide's prose set; extend list deliberately, not reactively.
-- [`rgvdsa_content_ver` bump on every save invalidates all transients] → chapter-scale; simplicity beats granularity.
+- [`legacy_content_ver` bump on every save invalidates all transients] → chapter-scale; simplicity beats granularity.
 - [Hero/counties as ACF fields adds admin surface] → matches existing Chapter Settings pattern; defaults seeded.
 
 ## Migration Plan

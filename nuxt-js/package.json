@@ -2,6 +2,7 @@
   "name": "progressnow-site",
   "private": true,
   "version": "0.1.0",
+  "license": "MIT",
   "type": "module",
   "description": "Nuxt 4 static rendition of the Progress Now WordPress theme (PHP shell first, Nuxt takes over).",
   "engines": {

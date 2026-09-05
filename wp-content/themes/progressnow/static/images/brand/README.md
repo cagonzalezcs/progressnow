@@ -19,7 +19,7 @@ a person, or a specific chapter.
 | `who-photo.jpg` (920×700) | “Who we are” photo (radius 24) | Who-we-are photo |
 | `cta-panel.svg` (1281×563) | The v4 blue panel on the home CTA band — fills `#1848D8` / `#3E4480` / `#FFC800` / `#FFFFFF`; decorative (empty alt) unless the chapter sets one | CTA panel artwork |
 | `about-photo.jpg` (1200×800) | Optional About page photo (the seed can attach it) | About page → Photo |
-| `flames-tile-light.png` (2816×384, seamless `repeat-x`) | Flame band above the CTA panel — consumed only as a CSS **mask** by `.ponte-trucha::after` (`src/css/tailwind.css`) so its color is a token; never rendered above 1× (height ≤ 240px) | — |
+| `flames-tile-light.png` (2816×384, seamless `repeat-x`) | Flame band above the CTA panel — consumed only as a CSS **mask** by `.closing-cta::after` (`src/css/tailwind.css`) so its color is a token; never rendered above 1× (height ≤ 240px) | — |
 | `star.svg`, `star-notch.svg`, `sparkle.svg` | Decorative stars (hero, who-we-are photo, 404 band) — inlined by `partials/star.twig` / `StarGlyph.vue` with `fill="currentColor"`, so the placement's `text-*` utility sets the color (`text-brand-light` on blue bands, `text-brand` on the photo) | — |
 | `icon-twitter.svg` / `icon-instagram.svg` / `icon-facebook.svg` | Reference copies; the footer inlines them (fill → `currentColor`) | — |
 

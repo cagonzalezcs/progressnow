@@ -3,11 +3,11 @@
 ## ADDED Requirements
 
 ### Requirement: Language toggle drives live translation
-The header EN/ES toggle SHALL, on translation-active pages (see `translation-layer`), trigger live translation via the GTranslate bridge in addition to recording the `rgvdsa_lang` preference. On pages where translation is not active it SHALL remain an interactive preference recorder whose ES label tooltip states the current scope ("Español — disponible en la página de inicio"). All responsive header instances SHALL stay in sync through the shared preference singleton. The theme SHALL NOT pre-set `<html lang>` from the preference — Google's element owns it while translating, and a pre-set "es" makes Google treat the page as already Spanish and skip translation entirely.
+The header EN/ES toggle SHALL, on translation-active pages (see `translation-layer`), trigger live translation via the GTranslate bridge in addition to recording the `legacy_lang` preference. On pages where translation is not active it SHALL remain an interactive preference recorder whose ES label tooltip states the current scope ("Español — disponible en la página de inicio"). All responsive header instances SHALL stay in sync through the shared preference singleton. The theme SHALL NOT pre-set `<html lang>` from the preference — Google's element owns it while translating, and a pre-set "es" makes Google treat the page as already Spanish and skip translation entirely.
 
 #### Scenario: Toggle on home
 - **WHEN** a visitor flips the toggle to ES on the front page
-- **THEN** the page translates and `rgvdsa_lang=es` is recorded
+- **THEN** the page translates and `legacy_lang=es` is recorded
 
 #### Scenario: Toggle on inner page
 - **WHEN** a visitor flips the toggle to ES on a non-translated page

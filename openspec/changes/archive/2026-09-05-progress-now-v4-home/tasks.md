@@ -14,7 +14,7 @@
 - [x] 3.2 `views/front-page.twig` who-we-are: duotone photo (.30, radius 24/18) + star, right-aligned desktop column, mobile order eyebrow → heading → photo → paragraphs → link
 - [x] 3.3 `views/front-page.twig` events band (`alt` tone, row-link cards, mobile 60px tile + date-only meta) and empty state (v4 dashed)
 - [x] 3.4 `views/front-page.twig` blog band (radius-24 featured + row cards, blue pills, mobile radius-18 + 96px rows) and empty state
-- [x] 3.5 `views/front-page.twig` closing CTA: desktop mask flame band + `#A9C7FF` band + panel + 44 %-inset overlay; mobile star-badge card; mask CSS in `tailwind.css`; delete `.ponte-trucha`
+- [x] 3.5 `views/front-page.twig` closing CTA: desktop mask flame band + `#A9C7FF` band + panel + 44 %-inset overlay; mobile star-badge card; mask CSS in `tailwind.css`; delete `.closing-cta`
 - [x] 3.6 `RouteFront.vue` ported 1:1 with identical class literals; copy any shared-source edits to `site/app`
 
 ## 4. Verification

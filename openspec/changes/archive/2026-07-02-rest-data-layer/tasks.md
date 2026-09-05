@@ -1,12 +1,12 @@
 # Tasks: rest-data-layer
 
-All theme paths relative to `wp-content/themes/rgvdsatheme/`. Depends on `backend-consolidation`; run after `gutenberg-post-blocks` (default order).
+All theme paths relative to `wp-content/themes/legacytheme/`. Depends on `backend-consolidation`; run after `gutenberg-post-blocks` (default order).
 
 ## 1. REST endpoints
 
 - [x] 1.1 New `inc/rest.php` (required from `functions.php`): route registration, arg schemas (`page`, `per_page` 1–50, `category` enum from registry, `s` max 100; `after`/`before` on events)
-- [x] 1.2 Handlers: `/posts` envelope via shared `rgvdsa_blog_posts_query()`; `/posts/{slug}` (`rgvdsa_post_not_found` 404) + readNext; `/events` window; `/categories`
-- [x] 1.3 Transient wrap via `rgvdsa_cache_remember()`; `rest_post_dispatch` filter — anon: `Cache-Control` + ETag/304, logged-in: `no-store`
+- [x] 1.2 Handlers: `/posts` envelope via shared `legacy_blog_posts_query()`; `/posts/{slug}` (`legacy_post_not_found` 404) + readNext; `/events` window; `/categories`
+- [x] 1.3 Transient wrap via `legacy_cache_remember()`; `rest_post_dispatch` filter — anon: `Cache-Control` + ETag/304, logged-in: `no-store`
 - [x] 1.4 PHPUnit `tests/test-rest.php` (`rest_do_request`): pagination math, category enum 400, search, slug 404, ETag 304, publish-only
 - [x] 1.5 Verify: `curl` each route; `If-None-Match` returns 304; draft posts absent
 

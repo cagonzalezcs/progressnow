@@ -41,7 +41,7 @@ The header toggle SHALL render `<a>` links (EN and ES) that navigate to the tran
 - **THEN** the ES segment is styled active with `aria-current` and the EN segment links to the English equivalent
 
 ### Requirement: Theme copy and menus translate the Polylang-native way
-Static theme strings rendered in Twig or passed into Vue islands SHALL be translatable via `pll_register_string()` and output through `pll__()`/`pll_e()`, so their Spanish values are managed in Polylang's String Translations. Header and footer navigation SHALL use per-language WP menus assigned through Polylang. Language-neutral tokens (county names, `@dsa_rgv`, emails, the "RGV DSA"/"DSA" brand, the EN/ES codes) SHALL remain untranslated.
+Static theme strings rendered in Twig or passed into Vue islands SHALL be translatable via `pll_register_string()` and output through `pll__()`/`pll_e()`, so their Spanish values are managed in Polylang's String Translations. Header and footer navigation SHALL use per-language WP menus assigned through Polylang. Language-neutral tokens (county names, `@chapterhandle`, emails, the "the chapter"/"Progress Now" brand, the EN/ES codes) SHALL remain untranslated.
 
 #### Scenario: Section headings in Spanish
 - **WHEN** the Spanish front page renders

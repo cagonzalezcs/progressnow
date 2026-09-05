@@ -2,9 +2,10 @@
 /* Month grid (openspec progress-now-v4-events D2, spec "Month grid (v4)"):
  * radius-20 card with --color-line 1px gaps, brand weekday header (single
  * letters under 700px), white in-month / alt out-of-month cells, 28px numeral
- * circle (yellow for today). Events are brand chips from 700px — the term
- * color survives as a left accent stripe — and 7px dots below; the legend
- * under the grid points at the list view for details. */
+ * circle (yellow for today). Events are solid chips from 700px, filled with
+ * the category term color (brand blue when colors are off / unset), and 7px
+ * dots in the same color below; the legend under the grid points at the list
+ * view for details. */
 import { computed } from "vue";
 import { type ChapterEvent, categoryById, WEEKDAYS } from "@/lib/events";
 
@@ -52,8 +53,8 @@ const cells = computed<DayCell[]>(() => {
   return out;
 });
 
-/** Term color as the chip's left accent (null → plain brand chip). */
-function accent(ev: ChapterEvent): string | undefined {
+/** Term color as the chip / dot fill (null → plain brand chip). */
+function fill(ev: ChapterEvent): string | undefined {
   return props.showCategoryColors ? (categoryById(ev.cat).color ?? undefined) : undefined;
 }
 </script>
@@ -84,17 +85,24 @@ function accent(ev: ChapterEvent): string | undefined {
           >
             {{ day.num }}
           </span>
-          <!-- < 700px: one dot per event day -->
-          <span v-if="day.events.length" aria-hidden="true" class="block size-[7px] rounded-full bg-brand min-[700px]:hidden"></span>
-          <!-- ≥ 700px: brand chips (term color as the left accent) -->
+          <!-- < 700px: one category-colored dot per event -->
+          <span v-if="day.events.length" aria-hidden="true" class="flex flex-wrap gap-[3px] min-[700px]:hidden">
+            <span
+              v-for="ev in day.events"
+              :key="ev.id"
+              class="block size-[7px] rounded-full bg-brand"
+              :style="fill(ev) ? { backgroundColor: fill(ev) } : undefined"
+            ></span>
+          </span>
+          <!-- ≥ 700px: solid chips filled with the term color -->
           <div class="hidden w-full flex-col gap-1 min-[700px]:flex">
             <button
               v-for="ev in day.events"
               :key="ev.id"
               type="button"
               :title="`${ev.title} — ${ev.time}`"
-              :style="accent(ev) ? { boxShadow: `inset 4px 0 0 ${accent(ev)}` } : undefined"
-              class="block w-full cursor-pointer truncate rounded-[8px] border-none bg-brand px-2 py-[5px] text-left text-[0.72rem] font-bold leading-[1.25] text-white transition-colors hover:bg-brand-deep"
+              :style="fill(ev) ? { backgroundColor: fill(ev) } : undefined"
+              class="block w-full cursor-pointer truncate rounded-[8px] border-none bg-brand px-2 py-[5px] text-left text-[0.72rem] font-bold leading-[1.25] text-white transition-[filter,background-color] hover:brightness-[.85]"
               @click="emit('select', ev.id)"
             >
               {{ ev.title }}

@@ -2,7 +2,7 @@
 
 ## Context
 
-The theme (Timber 2 + Vue islands) owns `<head>` via `views/html-header.twig` + `wp_head()`. `title-tag` is the only SEO output today. All copy/image sources already exist: post dek (`rgvdsa_blog_field`), excerpts, featured images, event ACF fields (`start_datetime`, `venue`, `city`, `rsvp_url`), Chapter Settings options. rest-data-layer added server-rendered article fallbacks, so crawlers see real content on posts. Single dev, chapter-scale traffic.
+The theme (Timber 2 + Vue islands) owns `<head>` via `views/html-header.twig` + `wp_head()`. `title-tag` is the only SEO output today. All copy/image sources already exist: post dek (`legacy_blog_field`), excerpts, featured images, event ACF fields (`start_datetime`, `venue`, `city`, `rsvp_url`), Chapter Settings options. rest-data-layer added server-rendered article fallbacks, so crawlers see real content on posts. Single dev, chapter-scale traffic.
 
 ## Goals / Non-Goals
 
@@ -16,7 +16,7 @@ The theme (Timber 2 + Vue islands) owns `<head>` via `views/html-header.twig` + 
 One domain file hooked to `wp_head` (priority 5), same one-file-per-domain pattern as the rest of `inc/`. Rationale: every data source is already serialized first-party; a plugin adds admin surface, upsell noise, and a second place where titles/descriptions are defined. Alternative considered: Yoast — rejected for chapter scale (its value is content-team workflows we don't have).
 
 ### D2: Description resolution ladder
-`rgvdsa_seo_description()` per surface: post → dek, else excerpt; page → interior `seo_description` field, else `lede`, else site tagline; posts page → its lede; event → trimmed `post_content`; front page → hero lede, else tagline. All through `rgvdsa_blog_kses_plain()`, trimmed ~155 chars on a word boundary.
+`legacy_seo_description()` per surface: post → dek, else excerpt; page → interior `seo_description` field, else `lede`, else site tagline; posts page → its lede; event → trimmed `post_content`; front page → hero lede, else tagline. All through `legacy_blog_kses_plain()`, trimmed ~155 chars on a word boundary.
 
 ### D3: Canonical + robots
 `rel=canonical` from `get_permalink()` / `get_pagenum_link()` (paged archives keep their own canonical, not page 1). `noindex,follow` on: search results, `?category=`/`?s=`-filtered archive states, 404, date/author archives. Island filter params (`?s=`, `?category=`, `?paged=`) canonicalize to the clean posts-page URL — the server-paged `/page/N/` path stays the indexable one.
@@ -29,7 +29,7 @@ One `<script type="application/ld+json">` per page via `wp_json_encode`:
 - Site-wide `Organization` (name, url, logo, `sameAs` Instagram from options).
 - Posts: `Article` (headline, description, datePublished/Modified, author Person/Organization by byline mode, image).
 - Event permalinks: `Event` (name, startDate/endDate in `America/Chicago` ISO-8601, location Place from venue/city, offers → `rsvp_url`) — mirrors the ICS feed fields exactly.
-Rationale: `Event` markup is the highest-leverage schema for an organizing chapter (event rich results); data is already normalized by `rgvdsa_event_to_chapter_event()`.
+Rationale: `Event` markup is the highest-leverage schema for an organizing chapter (event rich results); data is already normalized by `legacy_event_to_chapter_event()`.
 
 ### D6: Testing
 WorDBless suite `tests/test-seo.php`: capture `wp_head` output buffer per conditional context (post/page/search/front) via the existing seam patterns; assert description ladder, canonical, noindex set, OG completeness, JSON-LD validity (`json_decode` + `@type`). No live-crawl tooling.

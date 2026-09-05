@@ -298,9 +298,9 @@ function progressnow_front_who( $front_id ) {
 	$defaults = array(
 		'eyebrow'    => 'Who we are',
 		'heading'    => sprintf( 'We are <span class="notranslate">%s</span>', esc_html( $identity['short_name'] ) ),
-		'p1'         => sprintf( 'In %s, we’re on the frontlines of fascism. We have billionaires in our backyard, ICE in our neighborhoods, and jobs that leave us overworked and underpaid.', $identity['region_label'] ),
-		'p2'         => 'But it doesn’t have to stay that way.',
-		'p3'         => sprintf( 'Together, we’re building working class power on multiple fronts so that every person in %s can live a life with dignity, respect, and solidarity. Organizing our workplaces and organizing our community to make sure our future is for workers and by workers. A better world is possible.<br>We’re gonna win.', $identity['region_label'] ),
+		'p1'         => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua, quis nostrud exercitation ullamco laboris.',
+		'p2'         => 'Ut enim ad minim veniam, quis nostrud.',
+		'p3'         => 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis.<br>Lorem ipsum dolor sit amet.',
 		'link_label' => 'More about our chapter',
 		'link_url'   => function_exists( 'progressnow_i18n_localize_url' ) ? progressnow_i18n_localize_url( '/about/' ) : '/about/',
 	);

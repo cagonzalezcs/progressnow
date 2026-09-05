@@ -1,6 +1,6 @@
 ## Context
 
-Builds on `progress-now-v4-foundation-chrome` (tokens D1, duotone D4, artwork D9). Sources: `Progress Now Home v4.dc.html` (1440) and `Progress Now Home v4 Mobile.dc.html` (390) in `wp-content/themes/design_handoff_rgvdsa_vue/v4/`. Home data comes from `front:{lang}` + `site:{lang}` (hero/who ACF, events, blog teasers, identity) and every key is always set so empty states own the pre-seed render.
+Builds on `progress-now-v4-foundation-chrome` (tokens D1, duotone D4, artwork D9). Sources: `Progress Now Home v4.dc.html` (1440) and `Progress Now Home v4 Mobile.dc.html` (390) in `wp-content/themes/design_handoff_vue/v4/`. Home data comes from `front:{lang}` + `site:{lang}` (hero/who ACF, events, blog teasers, identity) and every key is always set so empty states own the pre-seed render.
 
 ## Goals / Non-Goals
 

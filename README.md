@@ -4,7 +4,7 @@ A chapter-neutral organizing-site kit for a **Progress Now** chapter: one WordPr
 
 Bilingual (EN at `/`, ES at `/es/…`), accessible (WCAG 2.2 AA target, built-in text-size / high-contrast / reduced-motion controls), no analytics, no third-party trackers.
 
-> This repository is a fresh start. The code was developed 2026-05 → 2026-09 for a single chapter (RGV DSA), then renamed, brand-scrubbed and re-platformed onto Nuxt 4. The design and decision history lives in `openspec/` (see [History](#history)); the original git history is not carried over.
+> This repository is a fresh start. The code was developed 2026-05 → 2026-09 as a single-chapter site, then renamed, made chapter-neutral and re-platformed onto Nuxt 4. The design and decision history lives in `openspec/` (see [History](#history)); the original git history is not carried over.
 
 ---
 
@@ -109,7 +109,7 @@ Key properties:
 │   ├── page-templates/ about, get-involved, calendar, styleguide
 │   ├── src/            shared Vue/TS/Tailwind source (copied into nuxt-js/app — see Design system)
 │   ├── static/         self-hosted fonts, brand placeholders, artwork
-│   ├── bin/            seed.php, scrub-brand.sh, migrate-post-blocks.php, worktree-bootstrap.sh
+│   ├── bin/            seed.php, migrate-post-blocks.php, worktree-bootstrap.sh
 │   ├── tests/          PHPUnit (WorDBless) + vitest, contract fixtures
 │   ├── categories.json canonical category registry (slugs, labels, colors)
 │   └── README.md       deep theme documentation
@@ -128,12 +128,11 @@ Key properties:
 │   └── accessibility-statement.md  EN/ES base text for the public Accessibility page
 ├── infra/terraform/     reference S3 + CloudFront + GitHub OIDC module (optional)
 ├── openspec/            specs (current behavior) + changes (proposals, designs, tasks)
-├── wp-content/plugins/  currently tracked; slated to be untracked (see Roadmap)
 ├── LICENSE
 └── wp-config-sample.php
 ```
 
-WordPress core, `wp-config.php`, uploads and the generated `static-site/` are git-ignored.
+WordPress core, `wp-config.php`, uploads, `wp-content/plugins/`, build output (`site/dist`, `site/.output`, theme `dist/`), `node_modules/`, `vendor/` and the synced `static-site/` are all git-ignored. Plugins are installed by the adopter, never vendored.
 
 ## Requirements
 
@@ -250,7 +249,7 @@ Three supported shapes, all documented step by step in `docs/deployment.md`:
 3. **Webhook**: WordPress POSTs a signed `{ event: "rebuild", … }` to any receiver (e.g. API Gateway → CodeBuild) that runs `npm ci && npm run generate`, syncs, and reports back with the same signed `POST /build-status`.
 4. **Headless Next.js** (`next-js/`): deploy the standalone build (Vercel, a container, or a VPS) and point the same signed webhook at `<next-origin>/api/rebuild`; the receiver revalidates its cache and reports back with `POST /build-status`. Guide section in progress (`next-js-site-implementation`).
 
-The rebuild workflow (`.github/workflows/rebuild-site.yml`, to be added to this repo) listens for `repository_dispatch` (`rebuild-site`), `workflow_dispatch`, and pushes to `main` touching `nuxt-js/`, with `concurrency: rebuild-site` so bursts of edits collapse into one build. Repository variables/secrets: `WP_API_BASE`, `STATIC_DEPLOY_TARGET`, `WP_BUILD_STATUS_URL`, `CHAPTER_REBUILD_SECRET`, plus rsync or S3 credentials.
+The rebuild workflow (`.github/workflows/rebuild-site.yml`) listens for `repository_dispatch` (`rebuild-site`), `workflow_dispatch`, and pushes to `main` touching `nuxt-js/`, with `concurrency: rebuild-site` so bursts of edits collapse into one build. Repository variables/secrets: `WP_API_BASE`, `STATIC_DEPLOY_TARGET`, `WP_BUILD_STATUS_URL`, `CHAPTER_REBUILD_SECRET`, plus rsync or S3 credentials.
 
 **Cutover** (§7): activate theme → seed → set constants with `CHAPTER_FRONTEND=islands` → trigger a build → verify `shell-manifest.json` → flip to `nuxt` → watch the Site build panel (`scheduled → requested → building → live`). **Rollback** (§8): flip `CHAPTER_FRONTEND` back, or restore a prior manifest from S3 versioning / re-run the workflow.
 
@@ -352,7 +351,7 @@ Timeline reconstructed from the predecessor repo's git log and the archived Open
 | Date | Change | Summary |
 |---|---|---|
 | 2026-05 | — | Repo created from the Timber starter theme + Vite. |
-| 2026-07-02 | `chapter-theme-foundation` | First real theme: CPTs, front page, header/footer, DSA red tokens. Followed by a v2 re-skin (warm/rounded blog + calendar islands). |
+| 2026-07-02 | `chapter-theme-foundation` | First real theme: CPTs, front page, header/footer, first token set. Followed by a v2 re-skin (warm/rounded blog + calendar islands). |
 | 2026-07-02 | `backend-consolidation` | `categories.json` registry, kses at serialize time, read-minutes meta, transient cache with content-version invalidation, calendar page template, fixed PHPUnit harness. |
 | 2026-07-02 | `gutenberg-post-blocks` | Post bodies move from ACF flexible content to native Gutenberg: 6 ACF blocks + 8 core blocks mapped onto the `PostBlock` contract, migration script. |
 | 2026-07-02 | `rest-data-layer` | Public read API, server-side search/filter/pagination, ETag caching, zod contracts + two-sided fixtures, designed empty states. |
@@ -361,7 +360,7 @@ Timeline reconstructed from the predecessor repo's git log and the archived Open
 | 2026-07-03 | `translations-layer` → `polylang-translations` → `interior-page-translations` | GTranslate approach superseded by Polylang Pro page pairs for home, then every interior page; translated menus and strings. |
 | 2026-08-27 | `home-v3-brand-refresh` | Designer's v3 red/orange system applied to Home. |
 | 2026-09-05 | `progress-now-v4-foundation-chrome`, `-home`, `-blog`, `-events`, `-interior-404` | v4 blue "Progress Now" design across every page, in both renderers; v3 scaffolding removed. |
-| 2026-09-05 | `nuxt4-static-platform` (51/59 tasks) | Theme renamed to Progress Now and brand-scrubbed; Nuxt 4 static rendition; PHP shell handoff; rebuild pipeline, Site build panel, WP-CLI, Terraform reference, deployment guide. |
+| 2026-09-05 | `nuxt4-static-platform` (51/59 tasks) | Theme renamed to Progress Now and made chapter-neutral; Nuxt 4 static rendition; PHP shell handoff; rebuild pipeline, Site build panel, WP-CLI, Terraform reference, deployment guide. |
 
 ## Roadmap
 
@@ -371,7 +370,7 @@ Open changes in `openspec/changes/` (task counts at time of writing):
 |---|---|---|
 | `nuxt4-static-platform` | 51/59 | Remaining: remove the Vite islands after cutover verification (tasks 7.x), final cleanup |
 | `next-js-site-implementation` | 0/53 | Headless Next.js frontend (`next-js/`): Tailwind v4 + shadcn/ui, SSR from `progressnow/v1`, signed-webhook revalidation, axe-core gate against the build, View Transitions; `site/` renamed to `nuxt-js/`; `CHAPTER_CANONICAL_ORIGIN` |
-| `open-source-release-readiness` | 0/27 | Untrack plugins/backups, declare ACF Pro + Polylang Pro as adopter-installed, community files, identifier + PII scrub, no-analytics policy, hygiene CI gate, release checklist |
+| `open-source-release-readiness` | partial | Plugins/backups untracked, MIT declared everywhere, `scrub-brand.sh` removed, dev origin neutralized (done in this repo's first commit). Remaining: plugin-missing admin notice, `CONTRIBUTING` / `CODE_OF_CONDUCT` / `SECURITY`, no-analytics policy, hygiene CI gate, release checklist |
 | `content-invalidation-completeness` | 0/27 | Bump content version on every public write (pages, menus, terms, attachments, strings), one bump per request, WP timezone, language-aware categories |
 | `security-sanitize-url-sinks` | 0/12 | `progressnow_safe_url()` scheme allow-list on every `:href`/`:src` sink |
 | `security-authoring-least-privilege` | 0/11 | Drop `unfiltered_html` for all roles, documented role model |
@@ -381,7 +380,7 @@ Open changes in `openspec/changes/` (task counts at time of writing):
 | `security-dependency-lifecycle` | 0/14 | Composer/npm audits, Renovate, patch SLA |
 | `security-remove-duplicator-and-purge-artifacts` | 0/16 | Superseded by `open-source-release-readiness` |
 
-Known items carried over from the theme README: Spanish home resolves at `/es/inicio/` (Polylang 301 from `/es/`); event teaser dates render in English (`wp_date()` switch pending); GitHub workflows (`ci.yml`, `rebuild-site.yml`) and `.github/scripts/build-status.mjs` still need to be brought into this repo.
+Known items carried over from the theme README: Spanish home resolves at `/es/inicio/` (Polylang 301 from `/es/`); event teaser dates render in English (`wp_date()` switch pending); CI (`.github/workflows/ci.yml`) runs the theme and site lint/typecheck/test jobs plus a mock `generate` + `verify:output` smoke build.
 
 ## License
 

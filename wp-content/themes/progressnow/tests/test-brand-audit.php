@@ -60,9 +60,6 @@ class TestBrandAudit extends BaseTestCase {
 		$hits = array();
 		foreach ( $this->shipped_files() as $path ) {
 			$contents = (string) file_get_contents( $path );
-			// The pre-rename a11y storage key is read once for migration and the
-			// legacy feed slug is kept only to 301 subscribers — both intentional.
-			$contents = str_replace( array( 'rgv-dsa-a11y', 'rgvdsa-events', 'design_handoff_rgvdsa_vue' ), '', $contents );
 			foreach ( explode( "\n", $contents ) as $i => $line ) {
 				if ( preg_match( self::PATTERN, $line ) ) {
 					$hits[] = str_replace( dirname( __DIR__ ) . '/', '', $path ) . ':' . ( $i + 1 ) . '  ' . trim( mb_substr( $line, 0, 120 ) );
@@ -75,7 +72,7 @@ class TestBrandAudit extends BaseTestCase {
 
 	public function test_no_regional_artwork_ships() {
 		$brand = dirname( __DIR__ ) . '/static/images/brand';
-		foreach ( array( 'county-map.svg', 'hero-headline.svg', 'luchador-panel.svg' ) as $gone ) {
+		foreach ( array( 'county-map.svg', 'hero-headline.svg' ) as $gone ) {
 			$this->assertFileDoesNotExist( $brand . '/' . $gone );
 		}
 		foreach ( array( 'logo-square.png', 'share-default.jpg', 'hero-photo.jpg', 'who-photo.jpg', 'cta-panel.svg', 'flames-tile-light.png', 'star.svg', 'star-notch.svg', 'sparkle.svg' ) as $placeholder ) {
@@ -133,7 +130,7 @@ class TestBrandAudit extends BaseTestCase {
 	}
 
 	public function test_legacy_feed_slugs_redirect_to_canonical() {
-		$this->assertSame( array( 'rgvdsa-events', 'progressnow-events' ), progressnow_events_legacy_feed_slugs() );
+		$this->assertSame( array( 'progressnow-events' ), progressnow_events_legacy_feed_slugs() );
 		$this->assertTrue( function_exists( 'progressnow_events_redirect_legacy_feed' ) );
 		// WorDBless has no pretty permalinks (?feed=…); the slug is what matters.
 		$this->assertStringContainsString( 'chapter-events', get_feed_link( 'chapter-events' ) );
@@ -142,7 +139,7 @@ class TestBrandAudit extends BaseTestCase {
 	public function test_seed_spanish_copy_is_still_spanish() {
 		$seed = (string) file_get_contents( dirname( __DIR__ ) . '/bin/seed.php' );
 
-		foreach ( array( 'Únete', 'Dónde organizamos', '¡Un mundo mejor es posible!', 'Somos un grupo organizador', 'Calendario de eventos' ) as $spanish ) {
+		foreach ( array( 'Únete', 'Dónde estamos', '¡Un mundo mejor es posible!', 'Sobre el capítulo', 'Calendario de eventos' ) as $spanish ) {
 			$this->assertStringContainsString( $spanish, $seed );
 		}
 		$this->assertDoesNotMatchRegularExpression( self::PATTERN, $seed );

@@ -12,16 +12,16 @@ Third of three changes. Serializers, registry, cache helper, and (ideally) Guten
 
 ## Decisions
 
-### D1: Endpoints (`inc/rest.php`, `rest_api_init` → `rgvdsa_rest_register_routes()`)
+### D1: Endpoints (`inc/rest.php`, `rest_api_init` → `legacy_rest_register_routes()`)
 
 | Route | Returns |
 |---|---|
-| `GET /rgvdsa/v1/posts` | `{ posts: BlogPost[], page, perPage, total, totalPages }` |
-| `GET /rgvdsa/v1/posts/{slug}` | `SinglePostData` + `readNext: BlogPost[]` |
-| `GET /rgvdsa/v1/events` | `{ events: ChapterEvent[], categories: EventCategory[] }` |
-| `GET /rgvdsa/v1/categories` | `{ categories: EventCategory[] }` |
+| `GET /legacy/v1/posts` | `{ posts: BlogPost[], page, perPage, total, totalPages }` |
+| `GET /legacy/v1/posts/{slug}` | `SinglePostData` + `readNext: BlogPost[]` |
+| `GET /legacy/v1/events` | `{ events: ChapterEvent[], categories: EventCategory[] }` |
+| `GET /legacy/v1/categories` | `{ categories: EventCategory[] }` |
 
-`/posts` args via `register_rest_route` `args` schemas (core validates): `page` (int ≥1), `per_page` (1–50, default 24), `category` (enum from registry → core 400 `rest_invalid_param`), `s` (max 100, `sanitize_text_field`). `/events`: `after`/`before` `Y-m-d`, defaulting to −1/+12 months. Handlers reuse `rgvdsa_post_to_blog_post()`, `rgvdsa_post_to_single()`, `rgvdsa_event_to_chapter_event()`, `rgvdsa_categories()`, and the shared `rgvdsa_blog_posts_query()` (envelope from `found_posts`/`max_num_pages`).
+`/posts` args via `register_rest_route` `args` schemas (core validates): `page` (int ≥1), `per_page` (1–50, default 24), `category` (enum from registry → core 400 `rest_invalid_param`), `s` (max 100, `sanitize_text_field`). `/events`: `after`/`before` `Y-m-d`, defaulting to −1/+12 months. Handlers reuse `legacy_post_to_blog_post()`, `legacy_post_to_single()`, `legacy_event_to_chapter_event()`, `legacy_categories()`, and the shared `legacy_blog_posts_query()` (envelope from `found_posts`/`max_num_pages`).
 
 ### D2: Embedded vs fetched boundary
 - **Fetched:** `BlogArchive` interactions (the feature), `EventCalendar` (month nav over a window; skeleton on load).
@@ -30,13 +30,13 @@ Third of three changes. Serializers, registry, cache helper, and (ideally) Guten
 
 ### D3: Permissions, caching, errors, versioning
 - `permission_callback => '__return_true'`; queries pinned `post_status => 'publish'`. GET-only ⇒ no nonces.
-- Transients: responses through `rgvdsa_cache_remember()` (version-bump invalidation from `backend-consolidation`).
+- Transients: responses through `legacy_cache_remember()` (version-bump invalidation from `backend-consolidation`).
 - HTTP: one `rest_post_dispatch` filter scoped to the namespace — anonymous: `Cache-Control: public, max-age=300, stale-while-revalidate=3600`, `ETag: "md5(body)"`, 304 on `If-None-Match`; logged-in: `no-store` (editors always fresh).
-- Errors: standard WP `{ code, message, data: { status } }`; named `rgvdsa_post_not_found` (404); no invented envelope. TS client normalizes to typed `ApiError`.
+- Errors: standard WP `{ code, message, data: { status } }`; named `legacy_post_not_found` (404); no invented envelope. TS client normalizes to typed `ApiError`.
 - `/v1` namespace; policy: additive = non-breaking, rename/remove = `/v2`. Cheap insurance — consumer deploys atomically.
 
 ### D4: Archive island rework
-Delete the client-side `filtered` computed (`BlogArchive.vue:58-65`) — the double-filter bug. `src/lib/api.ts`: `fetchPosts({ s, category, page })` against `apiBase` prop (`rest_url('rgvdsa/v1')` embedded in `views/index.twig`). Search debounced 300 ms (`useDebounceFn`, @vueuse/core already a dep); `AbortController` cancels stale requests; loading + error states in the results section. URL sync keeps `?s=&category=`, adds `paged`; result line uses envelope `total` (counts stop lying). Pagination island-driven; keep real `<a href>` + `@click.prevent` so middle-click/no-JS hit the server-paged archive (`/page/2/` still works via Twig context).
+Delete the client-side `filtered` computed (`BlogArchive.vue:58-65`) — the double-filter bug. `src/lib/api.ts`: `fetchPosts({ s, category, page })` against `apiBase` prop (`rest_url('legacy/v1')` embedded in `views/index.twig`). Search debounced 300 ms (`useDebounceFn`, @vueuse/core already a dep); `AbortController` cancels stale requests; loading + error states in the results section. URL sync keeps `?s=&category=`, adds `paged`; result line uses envelope `total` (counts stop lying). Pagination island-driven; keep real `<a href>` + `@click.prevent` so middle-click/no-JS hit the server-paged archive (`/page/2/` still works via Twig context).
 
 ### D5: Fixture strip + empty states
 `SAMPLE_POSTS/SAMPLE_SINGLE/SAMPLE_EVENTS` + island-local lorem → `src/lib/fixtures/`, imported only by `Styleguide.vue` (keeps the visual-regression page). Remove `withDefaults` fixture fallbacks in all 8 islands. Designed empty states: archive "No posts yet", calendar "No events scheduled — subscribe", front-page states from `backend-consolidation`. PHP contexts in `inc/blog.php`/`inc/events.php`/`inc/interior.php` switch to always-set (possibly empty) keys.

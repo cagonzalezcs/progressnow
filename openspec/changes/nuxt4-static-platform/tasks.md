@@ -12,15 +12,15 @@
 - [x] 2.3 Rewrite the ES defaults/seed translations the same way — Spanish stays Spanish, only regional mentions change
 - [x] 2.4 `src/StarterSite.php`: social/newsletter defaults → empty; `inc/seo.php`: `og:site_name`/`Organization.name` from identity, `sameAs` only for configured socials, share-image fallback = shipped placeholder, `logo` = square logo
 - [x] 2.5 `inc/events.php`: ICS `PRODID`/`X-WR-CALNAME` from identity; feed `chapter-events`; both legacy slugs 301 to it; `progressnow_events_build_ics()` split out for tests
-- [x] 2.6 Polylang string group "RGV DSA" → "Chapter"
+- [x] 2.6 Polylang string group "the chapter" → "Chapter"
 - [x] 2.7 Current islands: SiteHeader/SiteFooter take `orgName`; share subjects/title suffix dropped; subscribe strip and Instagram channel render only when configured; styleguide demo data neutral; a11y key `chapter-a11y` with one-time migration from the old key
-- [x] 2.8 Artwork: regional files removed (`hero-headline.svg`, `county-map.svg` + partial, `luchador-panel.svg`, `logos/`, `cactus-mark-red.png`, webp variants); placeholders added with generic names (`logo-header.svg`, `logo-footer.svg`, `logo-square.{svg,png}`, `feature-art.svg`, `cta-panel.svg`, `share-default.jpg`, `hero-photo.jpg`+2x, `about-photo.jpg` — photos from picsum.photos); hero headline rendered as text via `.hero-headline`; brand README rewritten
+- [x] 2.8 Artwork: regional files removed (`hero-headline.svg`, `county-map.svg` + partial, `cta-panel.svg`, `logos/`, `cactus-mark-red.png`, webp variants); placeholders added with generic names (`logo-header.svg`, `logo-footer.svg`, `logo-square.{svg,png}`, `feature-art.svg`, `cta-panel.svg`, `share-default.jpg`, `hero-photo.jpg`+2x, `about-photo.jpg` — photos from picsum.photos); hero headline rendered as text via `.hero-headline`; brand README rewritten
 - [x] 2.9 Theme metadata: `style.css` (Progress Now), theme `README.md`, `humans.txt`
 - [x] 2.10 Rewrite `bin/seed.php` demo content EN + ES (event venues, titles, descriptions, pages, options, string translations) with no regional tokens; idempotency and Polylang linking kept
 - [x] 2.11 Add `bin/scrub-brand.sh`: `--yes` confirmation, snapshot, rename data migration (block names, ACF keys, options slug, theme mods, content version, active theme), EN/ES phrase replacements via `wp search-replace`, `blogname`/`blogdescription`, re-seed, rewrite flush, audit query
 - [x] 2.12 Tests: `tests/test-brand-audit.php` (shipped files, placeholder assets, contexts, ICS, legacy slugs, seed ES); `test-seo`, `test-front-page`, `test-pages` updated for identity + no-placeholder socials; PHPUnit 105 green, vitest green, vue-tsc + eslint clean
 - [ ] 2.13 Run `bin/scrub-brand.sh --yes` against the local DB (MAMP/MySQL up); audit reports zero; spot-check `/`, `/es/`, About, calendar, ICS feed in both languages
-- [x] 2.14 Organization scrub (user decision): no DSA anywhere — identity defaults "Progress Now"; "Join us" CTA pointing at Get Involved; membership/dues/YDSA copy rewritten EN + ES; `dsausa.org` links removed; font "Manifold DSA" → "Manifold" (`static/fonts/manifold/Manifold-*.woff2`); star mark replaces the rose in all placeholder art; brand-audit pattern extended; `bin/scrub-brand.sh` migrates the DB phrases
+- [x] 2.14 Organization scrub (user decision): no Progress Now anywhere — identity defaults "Progress Now"; "Join us" CTA pointing at Get Involved; membership/dues/YDSA copy rewritten EN + ES; `dsausa.org` links removed; font "Manifold" → "Manifold" (`static/fonts/manifold/Manifold-*.woff2`); star mark replaces the rose in all placeholder art; brand-audit pattern extended; `bin/scrub-brand.sh` migrates the DB phrases
 
 ## 3. REST contracts (theme)
 

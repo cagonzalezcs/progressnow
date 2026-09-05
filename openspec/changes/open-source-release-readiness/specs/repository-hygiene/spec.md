@@ -8,7 +8,7 @@ The repository SHALL NOT track installed dependencies (`node_modules/`, `vendor/
 - **THEN** only paths under `wp-content/themes/progressnow/` are returned
 
 #### Scenario: Ignore rules prevent re-adding
-- **WHEN** a file is created under `wp-content/plugins/`, `wp-content/themes/rgvdsatheme/`, `wp-content/backups-dup-lite/`, or matches an artifact pattern
+- **WHEN** a file is created under `wp-content/plugins/`, `wp-content/themes/legacytheme/`, `wp-content/backups-dup-lite/`, or matches an artifact pattern
 - **THEN** `git status` does not list it as untracked
 
 #### Scenario: Planted artifact fails CI

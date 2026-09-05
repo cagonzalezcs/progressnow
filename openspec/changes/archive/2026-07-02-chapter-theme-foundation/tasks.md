@@ -1,16 +1,16 @@
 # Tasks: chapter-theme-foundation
 
-All theme paths relative to `wp-content/themes/rgvdsatheme/`.
+All theme paths relative to `wp-content/themes/legacytheme/`.
 
 ## 1. Cleanup & foundations
 
 - [x] 1.1 `src/StarterSite.php`: remove `theme_enqueue_styles()` and its `add_action` (dead `/dist/app.css` enqueue; Vite handles CSS)
 - [x] 1.2 `src/StarterSite.php`: remove demo context values `foo`/`stuff`/`notes`, `myfoo()` method, and its TwigFilter registration
 - [x] 1.3 `src/StarterSite.php`: add `register_nav_menus(['primary' => 'Primary Menu', 'footer' => 'Footer Menu'])` in `theme_supports()`
-- [x] 1.4 `src/StarterSite.php` `add_to_context()`: use `Timber::get_menu('primary')`, add `footer_menu`, add `chapter` array (join URL act.dsausa.org, facebook.com/dsargv, instagram.com/dsa_rgv, twitter.com/dsa_rgv, Action Network newsletter URL, meeting blurb "General meetings: 2nd Friday of each month, 6pm, on Zoom")
+- [x] 1.4 `src/StarterSite.php` `add_to_context()`: use `Timber::get_menu('primary')`, add `footer_menu`, add `chapter` array (join URL act.dsausa.org, facebook.com/legacy, instagram.com/legacy, twitter.com/legacy, Action Network newsletter URL, meeting blurb "General meetings: 2nd Friday of each month, 6pm, on Zoom")
 - [x] 1.5 `index.php`: remove `$context['foo']` and the `is_home()` `front-page.twig` unshift
 - [x] 1.6 Delete stray `components.json` (shadcn-vue/Tailwind, not installed)
-- [x] 1.7 Verify: site renders at https://rgvdsa.test:8890, no PHP notices, no app.css 404 in network tab
+- [x] 1.7 Verify: site renders at https://chapter.test:8890, no PHP notices, no app.css 404 in network tab
 
 ## 2. Post types, taxonomy, meta
 
@@ -30,7 +30,7 @@ All theme paths relative to `wp-content/themes/rgvdsatheme/`.
 
 ## 4. Header & footer
 
-- [x] 4.1 Rewrite header block in `views/base.twig`: black bar, logo `static/images/logos/rgv-dsa-full-color.png` linked home, primary menu include, `.btn` Join link (`chapter.join_url`), mobile toggle button (`aria-expanded`/`aria-controls`); guard/remove starter `{% if title %}` h1
+- [x] 4.1 Rewrite header block in `views/base.twig`: black bar, logo `static/images/logos/legacy-full-color.png` linked home, primary menu include, `.btn` Join link (`chapter.join_url`), mobile toggle button (`aria-expanded`/`aria-controls`); guard/remove starter `{% if title %}` h1
 - [x] 4.2 `views/footer.twig`: dark-red footer — mission one-liner, social links (inline SVG icons), newsletter CTA, footer menu, meeting info
 - [x] 4.3 `src/ts/components/SiteHeader.ts`: nav toggle (aria-expanded + `is-open` class); import from `src/ts/app.ts`
 - [x] 4.4 Style header/nav in `src/scss/components/site-header/_header.scss` + `_menu.scss` (collapsed/expanded states, breakpoint ~768px)
@@ -40,8 +40,8 @@ All theme paths relative to `wp-content/themes/rgvdsatheme/`.
 
 - [x] 5.1 Create `front-page.php` controller: Timber context + `upcoming_events` (3 × `chapter_event`, `event_date` meta >= now, ASC) + `working_groups` (6 × `menu_order` ASC), render `front-page.twig`
 - [x] 5.2 Create `views/front-page.twig` extending `base.twig`, composing `views/ui/` partials
-- [x] 5.3 `views/ui/hero.twig`: headline "We're fighting for the Rio Grande Valley we deserve.", tagline, Join CTA + events CTA, inline SVG rose/star motif
-- [x] 5.4 `views/ui/section-about.twig`: mission paragraph, McAllen/Edinburg blurb, link to news
+- [x] 5.3 `views/ui/hero.twig`: headline "We're fighting for the the region we deserve.", tagline, Join CTA + events CTA, inline SVG rose/star motif
+- [x] 5.4 `views/ui/section-about.twig`: mission paragraph, regional blurb, link to news
 - [x] 5.5 `views/ui/section-events.twig` + `event-card.twig`: date/title/location/event_type/RSVP; empty-state with `/events/` link
 - [x] 5.6 `views/ui/section-involved.twig` + `group-card.twig`: name/excerpt/placeholder block art
 - [x] 5.7 `views/ui/section-newsletter.twig`: Action Network CTA + social inline SVG icons
@@ -50,7 +50,7 @@ All theme paths relative to `wp-content/themes/rgvdsatheme/`.
 
 - [x] 6.1 `src/scss/ui/_hero.scss`: red/black hero, chunky uppercase Montserrat headline, responsive
 - [x] 6.2 `src/scss/pages/_home.scss`: section rhythm, events/groups card grids (1px black borders / flat shadows), newsletter band; single column <768px
-- [x] 6.3 Verify: front page approximates socialists.nyc look at desktop + mobile widths
+- [x] 6.3 Verify: front page approximates a peer chapter site look at desktop + mobile widths
 
 ## 7. Seed content & WP settings
 
@@ -61,7 +61,7 @@ All theme paths relative to `wp-content/themes/rgvdsatheme/`.
 
 ## 8. End-to-end verification
 
-- [x] 8.1 Browse https://rgvdsa.test:8890: all 5 front-page sections render; event ordering soonest-first, past events excluded
+- [x] 8.1 Browse https://chapter.test:8890: all 5 front-page sections render; event ordering soonest-first, past events excluded
 - [x] 8.2 Archives + singles for both CPTs resolve; 404/search unaffected
 - [x] 8.3 `npm run lint`, `npm run stylelint`, `npm run typecheck`, `npm run build` all pass
 - [x] 8.4 HMR sanity: edit `_hero.scss`, live update via :8891

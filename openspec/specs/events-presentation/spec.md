@@ -20,7 +20,7 @@ Under the header a white toolbar SHALL hold month navigation — 44px round butt
 - **THEN** the label advances one month, the grid/list shows that month, and the URL reflects it
 
 ### Requirement: Month grid (v4)
-Month view SHALL render a radius-20 card (shadow `0 4px 18px rgba(27,27,34,.12)`, `#D9E1F2` gap color) with a `#1848D8` weekday header (800 .85rem `.08em` white; single letters at .7rem on mobile) and a 7-column day grid of `min-height:96px` cells (white in-month, `#F2F5FB` out-of-month with `#9DA9C4` numerals). The day numeral SHALL be a 28px circle, filled `#FFC800` for today. Each event SHALL render as a `#1848D8` radius-8 chip (700 .72rem, ellipsized) that opens the event dialog/permalink as today; on mobile (<700px) events render as 7px `#1848D8` dots with a legend line "● = event day — switch to List for details." under the grid. Category colors from term meta SHALL continue to tint chips.
+Month view SHALL render a radius-20 card (shadow `0 4px 18px rgba(27,27,34,.12)`, `#D9E1F2` gap color) with a `#1848D8` weekday header (800 .85rem `.08em` white; single letters at .7rem on mobile) and a 7-column day grid of `min-height:96px` cells (white in-month, `#F2F5FB` out-of-month with `#9DA9C4` numerals). The day numeral SHALL be a 28px circle, filled `#FFC800` for today. Each event SHALL render as a radius-8 chip (700 .72rem, white text, ellipsized) filled solid with its category term color (`#1848D8` when colors are off or unset) that opens the event dialog/permalink as today; on mobile (<700px) each event renders as a 7px dot in the same category color with a legend line "● = event day — switch to List for details." under the grid.
 
 #### Scenario: Today and events
 - **WHEN** the current month renders

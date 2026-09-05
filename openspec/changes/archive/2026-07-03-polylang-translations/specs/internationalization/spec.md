@@ -25,7 +25,7 @@ The static front page (`page_on_front`) SHALL have a Polylang Spanish translatio
 - **THEN** its ACF fields are independently editable without affecting the English page
 
 ### Requirement: Header language switcher navigates to translations
-The header toggle SHALL render `<a>` links (EN and ES) that navigate to the translation URL of the current page, provided by Polylang server-side. When the current page has no translation in the target language, the link SHALL fall back to that language's home (`/` or `/es/`). The active language segment SHALL be styled as current and marked with `aria-current`. The switcher SHALL NOT depend on a client-side `rgvdsa_lang` cookie or any machine-translation bridge.
+The header toggle SHALL render `<a>` links (EN and ES) that navigate to the translation URL of the current page, provided by Polylang server-side. When the current page has no translation in the target language, the link SHALL fall back to that language's home (`/` or `/es/`). The active language segment SHALL be styled as current and marked with `aria-current`. The switcher SHALL NOT depend on a client-side `legacy_lang` cookie or any machine-translation bridge.
 
 #### Scenario: Switch to Spanish from a translated page
 - **WHEN** a visitor on the English front page clicks ES
@@ -40,7 +40,7 @@ The header toggle SHALL render `<a>` links (EN and ES) that navigate to the tran
 - **THEN** the ES segment is styled active with `aria-current` and the EN segment links to the English equivalent
 
 ### Requirement: Theme copy and menus translate the Polylang-native way
-Static theme strings rendered in Twig or passed into Vue islands SHALL be translatable via `pll_register_string()` and output through `pll__()`/`pll_e()`, so their Spanish values are managed in Polylang's String Translations. Header and footer navigation SHALL use per-language WP menus assigned through Polylang. Language-neutral tokens (county names, `@dsa_rgv`, emails, the "RGV DSA"/"DSA" brand, the EN/ES codes) SHALL remain untranslated.
+Static theme strings rendered in Twig or passed into Vue islands SHALL be translatable via `pll_register_string()` and output through `pll__()`/`pll_e()`, so their Spanish values are managed in Polylang's String Translations. Header and footer navigation SHALL use per-language WP menus assigned through Polylang. Language-neutral tokens (county names, `@chapterhandle`, emails, the "the chapter"/"Progress Now" brand, the EN/ES codes) SHALL remain untranslated.
 
 #### Scenario: Section headings in Spanish
 - **WHEN** the Spanish front page renders
@@ -65,4 +65,4 @@ Front-page teaser queries (`chapter_event` upcoming events, blog featured/rows) 
 
 ### Requirement: GTranslate machine-translation bridge
 **Reason**: GTranslate was uninstalled and replaced by Polylang, which serves real translated content at distinct URLs instead of mutating a single English DOM client-side.
-**Migration**: Delete `src/ts/translation.ts` and its tests, drop `initTranslation()` from `src/ts/app.ts`, remove the SPA-navigation ES stand-down and `data-translation-scope` mirroring in `src/ts/navigation.ts`, remove the hidden `[gt-link]` shortcode block and `data-translation-scope` from `views/base.twig`, delete `inc/translation.php` (replaced by `inc/i18n.php`), remove the `es_enabled`/`es_url` ACF fields from `inc/options.php`, and remove the `GTranslate` option pin from `bin/seed.php`. The `rgvdsa_lang` cookie and `googtrans` cookie handling are retired; Polylang owns language state.
+**Migration**: Delete `src/ts/translation.ts` and its tests, drop `initTranslation()` from `src/ts/app.ts`, remove the SPA-navigation ES stand-down and `data-translation-scope` mirroring in `src/ts/navigation.ts`, remove the hidden `[gt-link]` shortcode block and `data-translation-scope` from `views/base.twig`, delete `inc/translation.php` (replaced by `inc/i18n.php`), remove the `es_enabled`/`es_url` ACF fields from `inc/options.php`, and remove the `GTranslate` option pin from `bin/seed.php`. The `legacy_lang` cookie and `googtrans` cookie handling are retired; Polylang owns language state.

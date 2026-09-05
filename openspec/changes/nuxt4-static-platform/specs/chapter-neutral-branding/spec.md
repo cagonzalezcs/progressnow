@@ -1,10 +1,10 @@
 ## ADDED Requirements
 
 ### Requirement: No regional references on visible surfaces
-No page, feed, head metadata, admin field label, seed content, or Polylang string — in English or Spanish — SHALL contain a reference to the Rio Grande Valley, "RGV", "DSA RGV", "DSARGV", the `@dsa_rgv`/`dsargv` social handles, the `dsa-rgv` newsletter form, RGV county names, or RGV cities. Spanish translations SHALL be preserved as Spanish content with only the regional mentions rewritten.
+No page, feed, head metadata, admin field label, seed content, or Polylang string — in English or Spanish — SHALL contain a reference to the the region, "regional", "the chapter", the `@chapterhandle`/`legacy` social handles, the `legacy` newsletter form, regional county names, or regional cities. Spanish translations SHALL be preserved as Spanish content with only the regional mentions rewritten.
 
 ### Requirement: No organization references on visible surfaces
-The theme SHALL NOT relate to the Democratic Socialists of America: no surface, asset, font name, link, or shipped file SHALL contain "DSA", "Democratic Socialists of America", "democratic socialism/socialist" copy, YDSA, `dsausa.org` links, national-dues copy, or the rose mark. The palette, layout, typography faces, and organizing spirit (labor, mutual aid, political education, electoral, socials) SHALL be kept; the default organization name is "Progress Now".
+The theme SHALL NOT relate to the the parent organization: no surface, asset, font name, link, or shipped file SHALL contain "Progress Now", "the parent organization", "democratic organizing/organizing" copy, YDSA, `dsausa.org` links, national-dues copy, or the rose mark. The palette, layout, typography faces, and organizing spirit (labor, mutual aid, political education, electoral, socials) SHALL be kept; the default organization name is "Progress Now".
 
 #### Scenario: Organization tokens audited
 - **WHEN** the brand-audit test scans the shipped files, seed (EN + ES), contexts, ICS feed, and structured data
@@ -38,7 +38,7 @@ Chapter Settings SHALL provide `chapter_name`, `chapter_short_name`, and `region
 - **THEN** the header aria-label, footer, ICS calendar name, JSON-LD organization, `og:site_name`, and share subjects all reflect it on the next render
 
 ### Requirement: Brand media are settings-driven with neutral defaults
-Header logo, footer logo, who-we-are artwork, hero headline artwork (optional), and default share image SHALL be Chapter Settings media fields. Defaults SHALL be neutral in-repo assets: the hero headline defaults to real text ("A better world is possible!", translatable) styled in the display face; the who-we-are artwork defaults to a neutral SVG composed from the star brand elements; the logo lockups default to neutral "Progress Now" lockups with a star mark. The RGV county map, the RGV headline artwork, and any rose mark SHALL NOT ship.
+Header logo, footer logo, who-we-are artwork, hero headline artwork (optional), and default share image SHALL be Chapter Settings media fields. Defaults SHALL be neutral in-repo assets: the hero headline defaults to real text ("A better world is possible!", translatable) styled in the display face; the who-we-are artwork defaults to a neutral SVG composed from the star brand elements; the logo lockups default to neutral "Progress Now" lockups with a star mark. The regional county map, the regional headline artwork, and any rose mark SHALL NOT ship.
 
 #### Scenario: Neutral defaults ship
 - **WHEN** no brand media is configured
@@ -78,8 +78,8 @@ The events ICS feed SHALL be served at `/feed/chapter-events/`; requests to `/fe
 - **THEN** it receives a 301 to `/feed/chapter-events/` and the new URL returns the ICS payload
 
 ### Requirement: Accessibility preferences key migration
-The a11y widget SHALL persist to localStorage key `chapter-a11y`; on first load it SHALL migrate an existing `rgv-dsa-a11y` value and remove the old key.
+The a11y widget SHALL persist to localStorage key `chapter-a11y`; on first load it SHALL migrate an existing `legacy-a11y` value and remove the old key.
 
 #### Scenario: Existing visitor keeps settings
-- **WHEN** a visitor with `rgv-dsa-a11y` stored loads the site
+- **WHEN** a visitor with `legacy-a11y` stored loads the site
 - **THEN** their contrast/motion settings apply unchanged and only `chapter-a11y` remains

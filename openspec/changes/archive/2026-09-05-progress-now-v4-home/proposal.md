@@ -8,7 +8,7 @@ The home page is the chapter's front door and the first artboard pair on the v4 
 - **Who we are:** duotone photo + star replaces the feature artwork; right-aligned copy on desktop, eyebrow/heading/photo/paragraphs on mobile.
 - **Upcoming events:** `alt` band, row-link cards with brand date tiles, mobile compact rows.
 - **From the blog:** radius-24 cards with blue pills; mobile stack.
-- **Closing CTA:** editor-owned `cta_line` (default "Progress now, not someday!"); desktop flame-mask band + light band + blue panel with 44 %-inset overlay; mobile star-badge card. **BREAKING:** the Ponte Trucha band, `.ponte-trucha` CSS and its artwork are removed.
+- **Closing CTA:** editor-owned `cta_line` (default "Progress now, not someday!"); desktop flame-mask band + light band + blue panel with 44 %-inset overlay; mobile star-badge card. **BREAKING:** the Closing CTA band, `.closing-cta` CSS and its artwork are removed.
 - ACF: any hero/who/CTA field may be renamed or regrouped as needed (owner-approved); the front envelope gains `cta.line`.
 
 ## Capabilities
@@ -17,10 +17,10 @@ The home page is the chapter's front door and the first artboard pair on the v4 
 - none
 
 ### Modified Capabilities
-- `front-page`: template order/tones, hero, who-we-are (v4), events band + empty state (v4), blog teasers, closing CTA (v4); Ponte Trucha and headline-artwork requirements removed.
+- `front-page`: template order/tones, hero, who-we-are (v4), events band + empty state (v4), blog teasers, closing CTA (v4); Closing CTA and headline-artwork requirements removed.
 
 ## Impact
 
-- Theme: `views/front-page.twig`, `inc/options.php` (`cta_line`, front hero/who groups), `inc/identity.php` (drop `hero_headline_image`), `inc/i18n.php`, `tests/fixtures/front-page.json`, `tests/test-blog-front-page.php`, `src/css/tailwind.css` (flame mask rule; `.ponte-trucha` removed), `src/lib/schemas.ts`.
+- Theme: `views/front-page.twig`, `inc/options.php` (`cta_line`, front hero/who groups), `inc/identity.php` (drop `hero_headline_image`), `inc/i18n.php`, `tests/fixtures/front-page.json`, `tests/test-blog-front-page.php`, `src/css/tailwind.css` (flame mask rule; `.closing-cta` removed), `src/lib/schemas.ts`.
 - Nuxt: `app/components/routes/RouteFront.vue`, `app/lib/fixtures`, `site/test/unit` contract tests.
 - Depends on `progress-now-v4-foundation-chrome` (tokens, `DuotoneImage`, stars, panel/flame assets).

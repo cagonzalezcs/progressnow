@@ -3,7 +3,7 @@
 ## ADDED Requirements
 
 ### Requirement: Site header
-All templates SHALL render a site header (via `base.twig`) containing the chapter logo linked home, the `primary` nav menu, and a prominent "Join DSA" CTA button linking to the DSA membership URL. The starter Timber header markup SHALL be replaced.
+All templates SHALL render a site header (via `base.twig`) containing the chapter logo linked home, the `primary` nav menu, and a prominent "Join" CTA button linking to the Progress Now membership URL. The starter Timber header markup SHALL be replaced.
 
 #### Scenario: Header on every template
 - **WHEN** a visitor loads the front page, a single event, or an archive

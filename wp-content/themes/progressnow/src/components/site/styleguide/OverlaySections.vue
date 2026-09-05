@@ -176,7 +176,7 @@ const scrollEvents = [
           <ul class="mt-4 space-y-2 border-2 border-ink bg-white p-4 text-sm">
             <li class="font-bold">Mutual Aid — brake lights, fridges, disaster response</li>
             <li class="font-bold">Political Education — reading groups, ABCs of Organizing</li>
-            <li class="font-bold">Labor — workplace organizing and strike support</li>
+            <li class="font-bold">Labor — workplace organizing and worker support</li>
             <li class="font-bold">Electoral — candidate endorsements and canvassing</li>
           </ul>
         </CollapsibleContent>

@@ -48,7 +48,7 @@ class TestFrontPage extends BaseTestCase {
 		$this->assertSame( 'We’re fighting for the future Springfield deserves.', $hero['subhead'] );
 		$this->assertSame( 'New member? Start with Springfield Forward 101. Sign up here', $hero['cta_secondary_label'] );
 		$this->assertStringContainsString( 'Springfield Forward', $who['heading'] );
-		$this->assertStringContainsString( 'In Springfield,', $who['p1'] );
+		// Who-we-are paragraphs are lorem placeholders; only the heading carries identity.
 	}
 
 	/** Who we are: three paragraphs, v3 copy, arrow-free link label. */
@@ -56,8 +56,8 @@ class TestFrontPage extends BaseTestCase {
 		$who = progressnow_front_who( 0 );
 
 		$this->assertArrayHasKey( 'p3', $who );
-		$this->assertStringContainsString( 'frontlines of fascism', $who['p1'] );
-		$this->assertStringContainsString( 'We’re gonna win.', $who['p3'] );
+		$this->assertStringContainsString( 'Lorem ipsum dolor sit amet', $who['p1'] );
+		$this->assertStringContainsString( 'Lorem ipsum dolor sit amet.', $who['p3'] );
 		$this->assertSame( 'More about our chapter', $who['link_label'] );
 		$this->assertStringContainsString( '>Progress Now<', $who['heading'] );
 	}
@@ -119,8 +119,6 @@ class TestFrontPage extends BaseTestCase {
 		$this->assertStringNotContainsString( 'get-involved-steps', $twig );
 		$this->assertStringNotContainsString( 'home_involved', preg_replace( '/\{#.*?#\}/s', '', $twig ) );
 
-		$this->assertStringNotContainsString( 'ponte-trucha', $twig );
-
 		// The <h1> is the identity headline as real text (`.hero-headline`); the
 		// v3 artwork override is gone (progress-now-v4-home D3). The closing CTA
 		// line is the editor's `cta.line`, uppercased by CSS only.
@@ -128,7 +126,6 @@ class TestFrontPage extends BaseTestCase {
 		$this->assertMatchesRegularExpression( '#<h1 class="hero-headline">\{\{ identity\.hero_headline \}\}</h1>#', $twig );
 		$this->assertStringNotContainsString( 'hero-headline.svg', $twig );
 		$this->assertStringNotContainsString( 'county-map', $twig );
-		$this->assertStringNotContainsString( 'Ponte trucha', $twig );
 		$this->assertSame( 2, substr_count( $twig, '{{ cta.line }}' ), 'cta.line renders in both CTA compositions' );
 		$this->assertMatchesRegularExpression( '#font-brush[^"]*uppercase#', $twig );
 

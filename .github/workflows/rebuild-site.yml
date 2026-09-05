@@ -1,0 +1,174 @@
+# Static site rebuild (openspec design D7).
+#
+# Triggered by WordPress (inc/rebuild.php, transport `github`) through
+# repository_dispatch, by hand, or by a push to main touching site/.
+# Generates the Nuxt static rendition from the live WordPress REST API and
+# deploys it by STATIC_DEPLOY_TARGET. GitHub's concurrency group coalesces
+# bursts: one run in progress, one queued, later requests collapse into it.
+#
+# Repository variables (Settings → Variables):
+#   WP_API_BASE               https://example.org/wp-json/progressnow/v1  (required)
+#   STATIC_DEPLOY_TARGET      s3 | rsync | artifact                        (default artifact)
+#   AWS_REGION                e.g. us-east-1                               (s3)
+#   AWS_ROLE_ARN              GitHub OIDC role from infra/terraform outputs (s3)
+#   S3_BUCKET                 bucket name from infra/terraform outputs      (s3)
+#   CLOUDFRONT_DISTRIBUTION_ID  optional; invalidates after upload          (s3)
+#   RSYNC_TARGET              user@host:/path/to/docroot/static-site        (rsync)
+#   RSYNC_HOST_KEY            optional known_hosts line                     (rsync)
+#   WP_BUILD_STATUS_URL       optional https://example.org/wp-json/progressnow/v1/build-status
+# Secrets:
+#   RSYNC_SSH_KEY             private key for the rsync target             (rsync)
+#   CHAPTER_REBUILD_SECRET    HMAC secret shared with wp-config.php         (build-status)
+name: Rebuild site
+
+on:
+  repository_dispatch:
+    types: [rebuild-site]
+  workflow_dispatch:
+    inputs:
+      contentVersion:
+        description: Content version to stamp into shell-manifest.json (blank = from /routes)
+        required: false
+        default: ''
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - '.github/workflows/rebuild-site.yml'
+
+concurrency:
+  group: rebuild-site
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build:
+    name: Generate + deploy (${{ vars.STATIC_DEPLOY_TARGET || 'artifact' }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DEPLOY_TARGET: ${{ vars.STATIC_DEPLOY_TARGET || 'artifact' }}
+      NUXT_PUBLIC_WP_API_BASE: ${{ vars.WP_API_BASE }}
+      CHAPTER_CONTENT_VERSION: ${{ github.event.client_payload.contentVersion || github.event.inputs.contentVersion || '' }}
+      REQUEST_ID: ${{ github.event.client_payload.requestId || '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - name: Require WP_API_BASE
+        run: |
+          if [ -z "$NUXT_PUBLIC_WP_API_BASE" ]; then
+            echo "::error::Repository variable WP_API_BASE is not set" && exit 1
+          fi
+          echo "Reading from $NUXT_PUBLIC_WP_API_BASE (content v${CHAPTER_CONTENT_VERSION:-from /routes}, request ${REQUEST_ID:-n/a})"
+
+      - name: Report build started
+        if: vars.WP_BUILD_STATUS_URL != ''
+        env:
+          CHAPTER_REBUILD_SECRET: ${{ secrets.CHAPTER_REBUILD_SECRET }}
+        run: |
+          node .github/scripts/build-status.mjs "${{ vars.WP_BUILD_STATUS_URL }}" started "run-${{ github.run_id }}" "$REQUEST_ID" "$CHAPTER_CONTENT_VERSION" || echo "::warning::build-status (started) failed"
+
+      - name: Install
+        working-directory: site
+        run: npm ci
+
+      - name: Generate
+        working-directory: site
+        run: |
+          npm run generate
+          npm run verify:output
+
+      - name: Read manifest
+        id: manifest
+        working-directory: site
+        run: |
+          echo "buildId=$(node -p 'require("./.output/public/shell-manifest.json").buildId')" >> "$GITHUB_OUTPUT"
+          echo "contentVersion=$(node -p 'require("./.output/public/shell-manifest.json").contentVersion')" >> "$GITHUB_OUTPUT"
+
+      # ---- s3 (+ optional CloudFront) ----
+      - name: Configure AWS credentials (OIDC)
+        if: env.DEPLOY_TARGET == 's3'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Sync to S3 (assets immutable, pages/payloads short-lived, manifest last)
+        if: env.DEPLOY_TARGET == 's3'
+        working-directory: site/.output/public
+        run: |
+          set -euo pipefail
+          BUCKET="s3://${{ vars.S3_BUCKET }}"
+          # 1. hashed assets: immutable
+          aws s3 sync _nuxt "$BUCKET/_nuxt" --no-progress \
+            --cache-control "public, max-age=31536000, immutable"
+          # 2. everything else except the manifest: revalidate every minute
+          aws s3 sync . "$BUCKET" --no-progress --delete \
+            --exclude "_nuxt/*" --exclude "shell-manifest.json" \
+            --cache-control "public, max-age=60"
+          # 3. the manifest last, so it only ever points at uploaded assets
+          aws s3 cp shell-manifest.json "$BUCKET/shell-manifest.json" \
+            --cache-control "public, max-age=60" --content-type "application/json"
+
+      - name: Invalidate CloudFront
+        if: env.DEPLOY_TARGET == 's3' && vars.CLOUDFRONT_DISTRIBUTION_ID != ''
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}" \
+            --paths "/shell-manifest.json" "/_payload.json" "/*/_payload.json" "/_nuxt/builds/*"
+
+      # ---- rsync (same-host mode: into CHAPTER_STATIC_DIR) ----
+      - name: Prepare SSH
+        if: env.DEPLOY_TARGET == 'rsync'
+        env:
+          SSH_KEY: ${{ secrets.RSYNC_SSH_KEY }}
+          HOST_KEY: ${{ vars.RSYNC_HOST_KEY }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_deploy && chmod 600 ~/.ssh/id_deploy
+          if [ -n "$HOST_KEY" ]; then printf '%s\n' "$HOST_KEY" >> ~/.ssh/known_hosts; fi
+          HOST="${{ vars.RSYNC_TARGET }}"; HOST="${HOST#*@}"; HOST="${HOST%%:*}"
+          if [ -z "$HOST_KEY" ]; then ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts 2>/dev/null; fi
+
+      - name: Rsync (manifest last)
+        if: env.DEPLOY_TARGET == 'rsync'
+        working-directory: site/.output/public
+        run: |
+          set -euo pipefail
+          TARGET="${{ vars.RSYNC_TARGET }}"
+          RSH="ssh -i ~/.ssh/id_deploy -o StrictHostKeyChecking=yes"
+          rsync -az --delete --exclude shell-manifest.json -e "$RSH" ./ "$TARGET/"
+          rsync -az -e "$RSH" shell-manifest.json "$TARGET/shell-manifest.json"
+
+      # ---- artifact (dry run / inspection) ----
+      - name: Upload artifact
+        if: env.DEPLOY_TARGET == 'artifact'
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-${{ steps.manifest.outputs.buildId }}
+          path: site/.output/public
+          retention-days: 7
+
+      - name: Report build succeeded
+        if: vars.WP_BUILD_STATUS_URL != ''
+        env:
+          CHAPTER_REBUILD_SECRET: ${{ secrets.CHAPTER_REBUILD_SECRET }}
+        run: |
+          node .github/scripts/build-status.mjs "${{ vars.WP_BUILD_STATUS_URL }}" succeeded "${{ steps.manifest.outputs.buildId }}" "$REQUEST_ID" "${{ steps.manifest.outputs.contentVersion }}" || echo "::warning::build-status (succeeded) failed"
+
+      - name: Report build failed
+        if: failure() && vars.WP_BUILD_STATUS_URL != ''
+        env:
+          CHAPTER_REBUILD_SECRET: ${{ secrets.CHAPTER_REBUILD_SECRET }}
+        run: |
+          node .github/scripts/build-status.mjs "${{ vars.WP_BUILD_STATUS_URL }}" failed "run-${{ github.run_id }}" "$REQUEST_ID" "$CHAPTER_CONTENT_VERSION" "Workflow run ${{ github.run_id }} failed" || true

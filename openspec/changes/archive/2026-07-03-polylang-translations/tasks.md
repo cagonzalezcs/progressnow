@@ -39,7 +39,7 @@
 
 ## 5. Language-aware front page + teasers
 
-- [x] 5.1 Audit `rgvdsa_events_front_page_context()` and `rgvdsa_blog_front_page_context()` — confirm they use Polylang-filtered `WP_Query` (not raw SQL / `suppress_filters`); adjust if they bypass the filter (D5)
+- [x] 5.1 Audit `legacy_events_front_page_context()` and `legacy_blog_front_page_context()` — confirm they use Polylang-filtered `WP_Query` (not raw SQL / `suppress_filters`); adjust if they bypass the filter (D5)
 - [x] 5.2 Verify `front-page.php` / `page_on_front` resolves the ES page on `/es/` and English on `/`
 - [x] 5.3 Confirm per-post ACF (`hero_*`, `who_*`, `home_involved_*`, steps) reads from the ES page on `/es/`
 

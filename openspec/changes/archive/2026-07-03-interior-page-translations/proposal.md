@@ -21,6 +21,6 @@ The Polylang migration translated the front page, header/footer chrome, and stat
 ## Impact
 
 - **Content / data**: new Spanish `page` posts (one per interior page) linked via `pll_save_post_translations`; `page_for_posts` resolved per language for the ES blog page.
-- **Code**: `bin/seed.php` (new ES interior-page seeding block, ES ACF/lede values); `inc/i18n.php` (`rgvdsa_i18n_header_menus` hrefs → language-aware `/es/` URLs, or per-language WP menus); possibly `inc/pages.php` / `inc/interior.php` / `inc/blog.php` where interior ACF content is read, to confirm per-post (not `option`) storage so ES values are independent.
+- **Code**: `bin/seed.php` (new ES interior-page seeding block, ES ACF/lede values); `inc/i18n.php` (`legacy_i18n_header_menus` hrefs → language-aware `/es/` URLs, or per-language WP menus); possibly `inc/pages.php` / `inc/interior.php` / `inc/blog.php` where interior ACF content is read, to confirm per-post (not `option`) storage so ES values are independent.
 - **No REST/query changes**: interior-page event/post lists already filter by language (fixed in the REST i18n change); this change only adds the page shells + Spanish copy.
 - **Dependencies**: builds on the completed `polylang-translations` change (Polylang config, translatable post types, switcher).

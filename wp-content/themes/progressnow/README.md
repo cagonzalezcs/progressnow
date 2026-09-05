@@ -29,8 +29,6 @@ composer test      # PHPUnit (WorDBless) — no DB needed
 
 Every default string in `inc/options.php`, `inc/pages.php`, and the Twig ledes is built from the identity, so an unconfigured install reads as a generic chapter and never as a specific place. `tests/test-brand-audit.php` scans the shipped files, the seed (EN + ES), the rendered contexts, the ICS feed, and the SEO head for regional tokens.
 
-**Migrating an existing database** (rename + scrub, idempotent, snapshot first): `bin/scrub-brand.sh --yes` (add `--dry-run` to preview). It rewrites the pre-rename identifiers to `progressnow*`, replaces the regional phrases in EN and ES content, re-runs the seed, and prints an audit of anything left.
-
 ## Architecture
 
 ### Frontend modes (`CHAPTER_FRONTEND`)

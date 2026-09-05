@@ -3,7 +3,7 @@
 ## ADDED Requirements
 
 ### Requirement: Server-truth archive interactions
-`BlogArchive` SHALL fetch search/filter/pagination results from `/rgvdsa/v1/posts` (debounced, abortable, loading and error states), render its first browse page from embedded props without a fetch, sync state to URL params, and report counts from the response envelope. Client-side re-filtering of embedded posts SHALL be removed.
+`BlogArchive` SHALL fetch search/filter/pagination results from `/legacy/v1/posts` (debounced, abortable, loading and error states), render its first browse page from embedded props without a fetch, sync state to URL params, and report counts from the response envelope. Client-side re-filtering of embedded posts SHALL be removed.
 
 #### Scenario: Search spans all posts
 - **WHEN** a visitor searches a term that matches a post beyond the first 24
@@ -18,7 +18,7 @@
 - **THEN** the island fetches and renders that exact state
 
 ### Requirement: Windowed calendar fetch
-`EventCalendar` SHALL fetch its event window from `/rgvdsa/v1/events` on mount with a skeleton state, instead of receiving the full window embedded.
+`EventCalendar` SHALL fetch its event window from `/legacy/v1/events` on mount with a skeleton state, instead of receiving the full window embedded.
 
 #### Scenario: Calendar loads
 - **WHEN** the calendar page opens

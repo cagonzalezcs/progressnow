@@ -3,7 +3,7 @@
 ## MODIFIED Requirements
 
 ### Requirement: Blog teasers driven by published posts
-The home "From the blog" section SHALL render the latest published posts (sticky-aware featured card + two rows) from context supplied by `rgvdsa_blog_front_page_context()`; the context keys SHALL always be set (nullable/empty allowed), category pill classes SHALL be built in Twig from the raw `cat` slug, and an empty state SHALL render when no posts exist.
+The home "From the blog" section SHALL render the latest published posts (sticky-aware featured card + two rows) from context supplied by `legacy_blog_front_page_context()`; the context keys SHALL always be set (nullable/empty allowed), category pill classes SHALL be built in Twig from the raw `cat` slug, and an empty state SHALL render when no posts exist.
 
 #### Scenario: Real posts on home
 - **WHEN** published posts exist

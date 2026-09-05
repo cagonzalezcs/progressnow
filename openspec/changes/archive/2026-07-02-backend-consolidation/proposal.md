@@ -8,9 +8,9 @@ This change consolidates and hardens the existing embedded-props integration bef
 
 ## What Changes
 
-- Add `categories.json` (theme root) as the single source for the six canonical category slugs/labels/colors; new `inc/categories.php` registry consumed by PHP, TS (Vite JSON import), and a Tailwind-token drift test. Delete `rgvdsa_blog_canonical_palette()` and `rgvdsa_events_palette()`. Guard canonical term slugs against rename via `wp_update_term_data`.
-- Sanitize prose HTML at serialize time with a `wp_kses` allowlist (`rgvdsa_blog_kses_prose()`).
-- Precompute read minutes on save (`_rgvdsa_read_minutes` meta); prime author/thumbnail caches in a shared query builder; add `inc/cache.php` transient helper with content-version invalidation.
+- Add `categories.json` (theme root) as the single source for the six canonical category slugs/labels/colors; new `inc/categories.php` registry consumed by PHP, TS (Vite JSON import), and a Tailwind-token drift test. Delete `legacy_blog_canonical_palette()` and `legacy_events_palette()`. Guard canonical term slugs against rename via `wp_update_term_data`.
+- Sanitize prose HTML at serialize time with a `wp_kses` allowlist (`legacy_blog_kses_prose()`).
+- Precompute read minutes on save (`_legacy_read_minutes` meta); prime author/thumbnail caches in a shared query builder; add `inc/cache.php` transient helper with content-version invalidation.
 - Fix home blog teasers: PHP always sets `blog_featured`/`blog_rows` (null/empty allowed), emits raw `cat` slug; Twig builds pill classes and renders an empty state.
 - Dedupe committees fixture (blog defers to options); replace calendar magic-slug check with a page template; make hardcoded content editable (counties strip, posts-page lede, CoC/grievance section, footer contact email, hero copy); wire `EmailSubscribeStrip` to the existing `newsletter_url` option.
 - Fix the test harness (`phpunit.xml` pattern/file rename) and add unit tests for the new behavior; update `bin/seed.php` for new fields.

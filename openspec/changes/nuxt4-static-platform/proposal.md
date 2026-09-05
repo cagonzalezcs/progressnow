@@ -1,6 +1,6 @@
 ## Why
 
-The site was a single-chapter build: "Rio Grande Valley"/"RGV DSA" was baked into the theme's name and identifiers, copy defaults, artwork, seed content, feed metadata, and social URLs, so it could not be re-pointed at any other chapter without a code change. At the same time its front end is a hand-rolled Vue-islands-plus-custom-SPA layer inside the WordPress theme, which the front-end team wants to replace with a standard Nuxt 4 application that is generated statically and rebuilt on demand — without ever running `node` on the WordPress host, and with a process that stays seamless for visitors and editors.
+The site was a single-chapter build: "the region"/"the chapter" was baked into the theme's name and identifiers, copy defaults, artwork, seed content, feed metadata, and social URLs, so it could not be re-pointed at any other chapter without a code change. At the same time its front end is a hand-rolled Vue-islands-plus-custom-SPA layer inside the WordPress theme, which the front-end team wants to replace with a standard Nuxt 4 application that is generated statically and rebuilt on demand — without ever running `node` on the WordPress host, and with a process that stays seamless for visitors and editors.
 
 ## What Changes
 
@@ -32,7 +32,7 @@ The site was a single-chapter build: "Rio Grande Valley"/"RGV DSA" was baked int
 
 ## Impact
 
-- **Theme (`wp-content/themes/progressnow`)**: renamed from `rgvdsatheme`; new `inc/identity.php` (done), `inc/shell.php`, `inc/rebuild.php`; `inc/rest.php` extended; `inc/seo.php` refactored to serialize per-route SEO; copy defaults rewritten (done); `views/*.twig` slimmed to shell markup; `bin/seed.php` rewritten (done); new `bin/scrub-brand.sh` and `bin/worktree-bootstrap.sh` (done); `src/`, `dist/`, `vite.config.js`, `package.json`, npm deps removed at cutover; `composer.json` drops `kucrut/vite-for-wp`.
+- **Theme (`wp-content/themes/progressnow`)**: renamed from `legacytheme`; new `inc/identity.php` (done), `inc/shell.php`, `inc/rebuild.php`; `inc/rest.php` extended; `inc/seo.php` refactored to serialize per-route SEO; copy defaults rewritten (done); `views/*.twig` slimmed to shell markup; `bin/seed.php` rewritten (done); new `bin/scrub-brand.sh` and `bin/worktree-bootstrap.sh` (done); `src/`, `dist/`, `vite.config.js`, `package.json`, npm deps removed at cutover; `composer.json` drops `kucrut/vite-for-wp`.
 - **New `nuxt-js/`**: Nuxt 4 app (Vue 3.5, Tailwind v4, shadcn-vue, zod, vitest, eslint) — owned by the front-end team after the scaffold and data layer land.
 - **New `.github/workflows/rebuild-site.yml`**, **`infra/terraform/`** (reference module, not applied), **`docs/deployment.md`** (operator guide).
 - **CI**: `.github/workflows/ci.yml` path updated (done) and gains a `site` job (lint/typecheck/test/generate against fixtures); keeps the PHPUnit job.

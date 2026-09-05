@@ -19,28 +19,28 @@ Block ↔ contract map:
 
 | Contract | Editor block | Notes |
 |---|---|---|
-| `prose` | `core/paragraph`, `core/heading` (2–4), `core/list`(+item), `core/quote` | consecutive prose-class blocks coalesce into one `{type:'prose', html}` via `render_block()` + `rgvdsa_blog_kses_prose()` |
+| `prose` | `core/paragraph`, `core/heading` (2–4), `core/list`(+item), `core/quote` | consecutive prose-class blocks coalesce into one `{type:'prose', html}` via `render_block()` + `legacy_blog_kses_prose()` |
 | `image` | `core/image` | `breakout: true` when `align` ∈ {wide, full}; `credit` from attachment ACF field |
 | `pull_quote` | `core/pullquote` | `value`→`quote`, `citation`→`attribution` |
 | `gallery` | `core/gallery` | `register_block_style` `essay` (default) / `grid`; serializer reads `is-style-grid` |
-| `person_quote` | `rgvdsa/person-quote` | photo, quote, translation, name, role, lang |
-| `video` | `rgvdsa/video` | url, poster, caption, transcript_url (core/embed lacks transcript — a11y contract requirement) |
-| `audio` | `rgvdsa/audio` | file, title, duration, transcript file |
-| `document` | `rgvdsa/document` | file, title, description (core/file lacks description) |
-| `event_embed` | `rgvdsa/event-embed` | post_object → `event` CPT; serializes `event: null` when unpublished |
-| `action_callout` | `rgvdsa/action-callout` | heading, body, buttons repeater (label/url/style) |
+| `person_quote` | `legacy/person-quote` | photo, quote, translation, name, role, lang |
+| `video` | `legacy/video` | url, poster, caption, transcript_url (core/embed lacks transcript — a11y contract requirement) |
+| `audio` | `legacy/audio` | file, title, duration, transcript file |
+| `document` | `legacy/document` | file, title, description (core/file lacks description) |
+| `event_embed` | `legacy/event-embed` | post_object → `event` CPT; serializes `event: null` when unpublished |
+| `action_callout` | `legacy/action-callout` | heading, body, buttons repeater (label/url/style) |
 
 ### D2: Allowlist + template
 `allowed_block_types_all` filter: for `post_type === 'post'` return the 8 core + 6 custom; other types untouched. Post template `[ ['core/paragraph'] ]`, not locked. Featured caption/credit move to the attachment (`credit` ACF field on attachments; caption is native) so credit travels with the photo — the per-post `featured_caption`/`featured_credit` fields are deleted after migration.
 
 ### D3: Serializer + dispatcher
-`rgvdsa_blog_blocks_from_content( WP_Post ): array` walks top-level `parse_blocks()` output through the map. `rgvdsa_blog_map_blocks( $post_id )` becomes: `has_blocks( $post )` → new parser; else legacy ACF path. Transitional by design — rollback of any migrated post (revert `post_content`) transparently reactivates the legacy path. Final task deletes legacy path + ACF `post_blocks` group registration.
+`legacy_blog_blocks_from_content( WP_Post ): array` walks top-level `parse_blocks()` output through the map. `legacy_blog_map_blocks( $post_id )` becomes: `has_blocks( $post )` → new parser; else legacy ACF path. Transitional by design — rollback of any migrated post (revert `post_content`) transparently reactivates the legacy path. Final task deletes legacy path + ACF `post_blocks` group registration.
 
 ### D4: Migration script
 `bin/migrate-post-blocks.php` via `wp eval-file bin/migrate-post-blocks.php [dry]` (mirrors `bin/seed.php`):
 - Skips posts where `has_blocks()` is already true (idempotent).
 - Maps ACF rows → block arrays: prose HTML split by top-level tag into paragraph/heading/list blocks, unrecognized markup → `core/html`; custom layouts → ACF-block comments with `data` attrs.
-- `serialize_blocks()` → `wp_update_post`; stamps `_rgvdsa_blocks_migrated`; **does not delete ACF meta** (rollback path).
+- `serialize_blocks()` → `wp_update_post`; stamps `_legacy_blocks_migrated`; **does not delete ACF meta** (rollback path).
 - `dry` prints would-be markup per post. Volume is tiny — eyeball every post in the editor afterward.
 
 ### D5: Nullable event embed
