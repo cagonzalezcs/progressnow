@@ -118,12 +118,14 @@ test("head: canonical verbatim, hreflang alternates, OG url = canonical, share i
     expect(head.og["og:type"]).toBe("article");
     expect(head.og["og:image"]).toMatch(/\/static\/images\/brand\/share-default\.jpg$/); // ladder fallback
     expect(head.robots).toEqual(["index, follow"]);
-    // <title> is the envelope's seo.title verbatim (WordPress composes "Title – Site").
-    const envelope = (await (
-      await request.get(`${MOCK}/wp-json/progressnow/v1/posts/contract-test-post?lang=${lang}`)
-    ).json()) as { seo: { title: string } };
-    expect(head.title).toBe(envelope.seo.title);
+    expect(head.title).toBeTruthy(); // the receiver e2e renames this post in parallel → no exact match
   }
+  // <title> is the envelope's seo.title verbatim (WordPress composes "Title – Site"); the About
+  // page is never mutated by other specs.
+  const aboutEnvelope = (await (
+    await request.get(`${MOCK}/wp-json/progressnow/v1/pages/about?lang=en`)
+  ).json()) as { seo: { title: string } };
+  expect((await headTags(request, "/about/")).title).toBe(aboutEnvelope.seo.title);
   const about = await headTags(request, "/about/");
   expect(about.og["og:type"]).toBe("website");
   const filtered = await headTags(request, "/blog/?category=labor");

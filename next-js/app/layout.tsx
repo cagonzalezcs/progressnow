@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { after } from "next/server";
 import "./globals.css";
+import "./route-loading.css";
 import { ErrorDocument } from "@/components/layout/ErrorDocument";
 import { RootDocument } from "@/components/layout/RootDocument";
 import { SiteShell } from "@/components/layout/SiteShell";

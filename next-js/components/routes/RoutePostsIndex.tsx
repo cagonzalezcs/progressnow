@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { RoutePending } from "@/components/nav/RoutePending";
 import { interiorPaths } from "@/components/routes/RoutePage";
 import type { RouteProps } from "@/components/routes/types";
 import { PageHeader } from "@/components/site/PageHeader";
@@ -61,7 +62,15 @@ export async function RoutePostsIndex({ resolved, searchParams }: RouteProps) {
         wide
         wpOrigin={wpOrigin}
       />
-      <Suspense fallback={<div aria-hidden="true" className="h-40 animate-pulse bg-alt" />}>
+      {/* RoutePending also holds the footer back (app/route-loading.css): the skeleton is
+          shorter than the results it stands in for, so the footer would jump when they land. */}
+      <Suspense
+        fallback={
+          <RoutePending>
+            <div aria-hidden="true" className="h-40 animate-pulse bg-alt" />
+          </RoutePending>
+        }
+      >
         <ArchiveWithQuery
           resolved={resolved}
           searchParams={searchParams}

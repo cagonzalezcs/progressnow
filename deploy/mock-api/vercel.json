@@ -1,0 +1,19 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    { "source": "/wp-json/progressnow/v1/(.*)", "destination": "/api/index?__path=$1" },
+    { "source": "/wp-json/progressnow/v1", "destination": "/api/index?__path=" }
+  ],
+  "headers": [
+    {
+      "source": "/wp-content/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" }
+      ]
+    }
+  ],
+  "functions": {
+    "api/index.mjs": { "includeFiles": "snapshot.json" }
+  }
+}
