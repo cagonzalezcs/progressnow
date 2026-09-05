@@ -7,12 +7,12 @@ origin and re-renders when WordPress posts its signed rebuild webhook. Design:
 
 ## See it running
 
-| Command                                          | What you get                                                                                                             |
-| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
-| `npm run dev`                                    | http://localhost:3000 against the WordPress in `.env.local` (copy `.env.example`)                                        |
-| `npm run dev:mock`                               | http://localhost:3001 against the fixture-backed mock API — no WordPress needed                                          |
-| `npm run build:mock && npm run start:standalone` | the production build (standalone server) on http://127.0.0.1:3000, mock API                                              |
-| `npm run build`                                  | production build against `.env.local`'s WordPress (routes render per request; the build itself needs no API)             |
+| Command                                          | What you get                                                                                                 |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| `npm run dev`                                    | http://localhost:3000 against the WordPress in `.env.local` (copy `.env.example`)                            |
+| `npm run dev:mock`                               | http://localhost:3001 against the fixture-backed mock API — no WordPress needed                              |
+| `npm run build:mock && npm run start:standalone` | the production build (standalone server) on http://127.0.0.1:3000, mock API                                  |
+| `npm run build`                                  | production build against `.env.local`'s WordPress (routes render per request; the build itself needs no API) |
 
 Routes: `/`, `/blog/`, `/blog/<slug>/`, `/calendar/`, `/events/<slug>/`, `/about/`,
 `/get-involved/`, `/es/…` — the design system + shadcn/ui kitchen sink is at
