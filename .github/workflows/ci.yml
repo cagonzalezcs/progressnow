@@ -1,9 +1,20 @@
+# CI for the theme and the two JS frontends (openspec next-test-harness § CI job).
+# No job needs a WordPress instance: the theme runs PHPUnit on WorDBless,
+# nuxt-js generates against its nitro mock, next-js builds and tests against
+# test/mock/server.mjs — all backed by the theme's committed contract fixtures.
 name: CI
 
 on:
   push:
-    branches: [main, 'cg/**', 'feat/**']
+    branches: [main, 'cg/**', 'feat/**', 'feature/**']
   pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 defaults:
   run:
@@ -39,30 +50,73 @@ jobs:
           working-directory: wp-content/themes/progressnow
       - run: composer test
 
-  site:
-    name: Nuxt site — lint / typecheck / vitest / mock generate
+  nuxt-js:
+    name: nuxt-js (lint, typecheck, test, generate:mock)
     runs-on: ubuntu-latest
     defaults:
-      run:
-        working-directory: site
-    env:
-      # Build against the fixture-backed nitro mock: no WordPress needed.
-      NUXT_MOCK_API: '1'
+      run: { working-directory: nuxt-js }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: site/package-lock.json
+          cache-dependency-path: nuxt-js/package-lock.json
       - run: npm ci
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
-      - run: npm run generate
+      - run: npm run generate:mock
       - run: npm run verify:output
       - uses: actions/upload-artifact@v4
         with:
-          name: site-mock-output
-          path: site/.output/public
+          name: nuxt-js-mock-output
+          path: nuxt-js/.output/public
           retention-days: 3
+
+  next-js:
+    name: next-js (lint, typecheck, unit, build, e2e + budget, a11y)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run: { working-directory: next-js }
+    env:
+      CI: "1"
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: next-js/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run typecheck
+      - run: npm run test:unit
+      # Build once with the same env Playwright uses, then reuse it for both
+      # Playwright projects (PW_SKIP_BUILD) so e2e and a11y test one artifact.
+      # generateStaticParams reads the routes manifest at build time, so the
+      # build runs against the fixture mock (started and stopped by the script).
+      - name: Build (mock API)
+        run: npm run build:mock
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Functional e2e (production build + mock API)
+        run: npm run test:e2e
+        env: { PW_SKIP_BUILD: "1" }
+      - name: Accessibility gate (axe-core against the build)
+        run: npm run test:a11y
+        env: { PW_SKIP_BUILD: "1" }
+      - name: Upload axe-core reports and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-js-axe-and-screenshots
+          path: |
+            next-js/test-results/axe/**
+            next-js/test-results/styleguide/**
+            next-js/playwright-report/**
+          if-no-files-found: ignore
+          retention-days: 14

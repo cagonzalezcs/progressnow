@@ -1,8 +1,12 @@
 ## Team
 
-Progress Now
-https://example.org/
+Cesar Gonzalez — sole maintainer
+GitHub: https://github.com/cagonzalezcs
+LinkedIn: https://www.linkedin.com/in/cesar-gonzalez-31926447/
+
+(Contributed to this repo? Add yourself here. Name + a link is plenty.)
 
 ## Site
 
 Software: Built with [Timber](https://upstatement.com/timber/) by Upstatement
+AI: Written with Claude Code (Claude Fable 5.1 and Claude Opus 5). Vibe-coded; expect rough edges.

@@ -56,5 +56,5 @@ cat <<EOF
 Worktree docroot ready: $WORKTREE
   - Point MAMP (or a second host) at that path.
   - It shares $SOURCE/wp-config.php → the SAME database as the full checkout.
-  - Static build for the shell (CHAPTER_STATIC_DIR) lives at site/.output/public.
+  - Static build for the shell (CHAPTER_STATIC_DIR) lives at nuxt-js/.output/public.
 EOF

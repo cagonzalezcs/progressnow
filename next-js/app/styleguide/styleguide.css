@@ -1,0 +1,11 @@
+/* Styleguide only. The theme's role tokens `accent` (#0E62E6, links) and `muted`
+ * (#4A5568, muted text) share names with shadcn's semantic colors (light hover /
+ * light surface) and win in globals.css. Inside the kitchen sink the registry
+ * examples mean shadcn's semantics, so the two utilities are re-pointed at the
+ * semantic variables — which are already the chapter's values (`--muted`,
+ * `--accent` in :root, swapped by html.a11y-contrast). Site components are not
+ * affected: they never render inside [data-shadcn-scope]. */
+[data-shadcn-scope] {
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+}

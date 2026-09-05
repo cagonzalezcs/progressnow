@@ -1,7 +1,7 @@
 # Static site rebuild (openspec design D7).
 #
 # Triggered by WordPress (inc/rebuild.php, transport `github`) through
-# repository_dispatch, by hand, or by a push to main touching site/.
+# repository_dispatch, by hand, or by a push to main touching nuxt-js/.
 # Generates the Nuxt static rendition from the live WordPress REST API and
 # deploys it by STATIC_DEPLOY_TARGET. GitHub's concurrency group coalesces
 # bursts: one run in progress, one queued, later requests collapse into it.
@@ -33,7 +33,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'site/**'
+      - 'nuxt-js/**'
       - '.github/workflows/rebuild-site.yml'
 
 concurrency:
@@ -61,7 +61,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: site/package-lock.json
+          cache-dependency-path: nuxt-js/package-lock.json
 
       - name: Require WP_API_BASE
         run: |
@@ -78,18 +78,18 @@ jobs:
           node .github/scripts/build-status.mjs "${{ vars.WP_BUILD_STATUS_URL }}" started "run-${{ github.run_id }}" "$REQUEST_ID" "$CHAPTER_CONTENT_VERSION" || echo "::warning::build-status (started) failed"
 
       - name: Install
-        working-directory: site
+        working-directory: nuxt-js
         run: npm ci
 
       - name: Generate
-        working-directory: site
+        working-directory: nuxt-js
         run: |
           npm run generate
           npm run verify:output
 
       - name: Read manifest
         id: manifest
-        working-directory: site
+        working-directory: nuxt-js
         run: |
           echo "buildId=$(node -p 'require("./.output/public/shell-manifest.json").buildId')" >> "$GITHUB_OUTPUT"
           echo "contentVersion=$(node -p 'require("./.output/public/shell-manifest.json").contentVersion')" >> "$GITHUB_OUTPUT"
@@ -104,7 +104,7 @@ jobs:
 
       - name: Sync to S3 (assets immutable, pages/payloads short-lived, manifest last)
         if: env.DEPLOY_TARGET == 's3'
-        working-directory: site/.output/public
+        working-directory: nuxt-js/.output/public
         run: |
           set -euo pipefail
           BUCKET="s3://${{ vars.S3_BUCKET }}"
@@ -142,7 +142,7 @@ jobs:
 
       - name: Rsync (manifest last)
         if: env.DEPLOY_TARGET == 'rsync'
-        working-directory: site/.output/public
+        working-directory: nuxt-js/.output/public
         run: |
           set -euo pipefail
           TARGET="${{ vars.RSYNC_TARGET }}"
@@ -156,7 +156,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: site-${{ steps.manifest.outputs.buildId }}
-          path: site/.output/public
+          path: nuxt-js/.output/public
           retention-days: 7
 
       - name: Report build succeeded

@@ -66,10 +66,10 @@ wp-config.php
 /wp-content/uploads
 
 # Nuxt build output
-/site/dist/
-/site/.output/
-/site/.nuxt/
-/site/node_modules/
+/nuxt-js/dist/
+/nuxt-js/.output/
+/nuxt-js/.nuxt/
+/nuxt-js/node_modules/
 /wp-content/themes/progressnow/node_modules/
 /wp-content/themes/progressnow/vendor/
 /wp-content/themes/progressnow/dist/
@@ -80,4 +80,7 @@ wp-config.php
 
 # Secrets
 .env
-/site/dist
+/nuxt-js/dist
+
+# Frontend
+/node_modules/

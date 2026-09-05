@@ -1,0 +1,34 @@
+{
+  "scheme": "hex(hmac_sha256(secret, timestamp . '.' . body)); header X-Chapter-Signature = 'sha256=' . hex; |now - timestamp| <= 300",
+  "generatedWith": "php 8.4.12",
+  "vectors": [
+    {
+      "name": "dispatcher payload",
+      "secret": "playwright-test-secret",
+      "timestamp": "1788604800",
+      "body": "{\"event\":\"rebuild\",\"requestId\":\"req-1\",\"contentVersion\":8,\"reason\":\"post_updated\",\"siteUrl\":\"https:\\/\\/wp.example\",\"requestedAt\":\"2026-09-05T12:00:00+00:00\"}",
+      "signature": "c9569999173eeae20980a979acaa8dae576de8551ae74a8debd87fced78e44c1"
+    },
+    {
+      "name": "empty body",
+      "secret": "playwright-test-secret",
+      "timestamp": "1788604800",
+      "body": "",
+      "signature": "1ea70f186c0c68ced4d852dc2a9829062acfb21ff0e3ab7833e7c13c5b949b69"
+    },
+    {
+      "name": "unicode body",
+      "secret": "sécret-ünïcode-0123456789",
+      "timestamp": "1700000000",
+      "body": "{\"reason\":\"Participa – calendario ✓\"}",
+      "signature": "e25388045597588b998c44ec97eab72c1bdc239ef4d63bac08299842b4e93ec0"
+    },
+    {
+      "name": "status callback",
+      "secret": "another-shared-secret-32-chars-long!!",
+      "timestamp": "1788604900",
+      "body": "{\"buildId\":\"6f2a1c3e-0000-4000-8000-000000000000\",\"status\":\"succeeded\",\"contentVersion\":8}",
+      "signature": "d12ec86d69016f1dc8573823e80e5277d27b93ca5ed9661d2bdea4deb34c8987"
+    }
+  ]
+}
