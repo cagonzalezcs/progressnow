@@ -173,7 +173,7 @@ const h2Class =
       <div class="space-y-6">
         <div data-tone="blue" class="rounded-[18px] bg-brand px-6 py-8 text-white">
           <p class="hero-headline">A better tomorrow is possible!</p>
-          <p class="mt-2 text-center text-xs font-extrabold uppercase tracking-[0.12em] text-brand-light">
+          <p class="mt-2 text-center text-xs font-extrabold uppercase tracking-[0.12em] text-white">
             Hero H1 — Bowlby One, 0.09em deep-blue offset
           </p>
         </div>
@@ -281,7 +281,7 @@ const h2Class =
       <div class="overflow-hidden rounded-[18px] border border-line">
         <div data-tone="blue" class="bg-brand px-6 py-8 text-white">
           <p class="font-display uppercase">data-tone="blue"</p>
-          <p class="text-sm text-brand-light">High contrast → #0F2E9C; focus ring white</p>
+          <p class="text-sm text-white">High contrast → #0F2E9C; focus ring white</p>
         </div>
         <div data-tone="white" class="bg-white px-6 py-8 text-ink">
           <p class="font-display uppercase">data-tone="white"</p>
