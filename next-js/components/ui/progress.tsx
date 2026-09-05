@@ -12,6 +12,8 @@ function Progress({
   return (
     <ProgressPrimitive.Root
       data-slot="progress"
+      // a11y: a progressbar needs a name (axe aria-progressbar-name); callers should pass their own.
+      aria-label={props["aria-label"] ?? (props["aria-labelledby"] ? undefined : "Progress")}
       className={cn(
         "relative flex h-1 w-full items-center overflow-x-hidden rounded-full bg-muted",
         className

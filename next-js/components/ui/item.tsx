@@ -64,8 +64,11 @@ function Item({
 }: React.ComponentProps<"div"> &
   VariantProps<typeof itemVariants> & { asChild?: boolean }) {
   const Comp = asChild ? Slot.Root : "div"
+  // a11y: ItemGroup is role="list", so a plain Item is its listitem (axe aria-required-children).
+  const role = props.role ?? (asChild ? undefined : "listitem")
   return (
     <Comp
+      role={role}
       data-slot="item"
       data-variant={variant}
       data-size={size}

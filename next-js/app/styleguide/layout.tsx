@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "../globals.css";
+import "./styleguide.css";
 import { RootDocument } from "@/components/layout/RootDocument";
 
 /* Second root layout: /styleguide/ is its own segment so the shadcn kitchen

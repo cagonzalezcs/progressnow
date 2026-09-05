@@ -134,7 +134,11 @@ ${imports}
 export function KitchenSink() {
   return (
     <TooltipProvider>
+      {/* data-shadcn-scope: app/styleguide/styleguide.css restores shadcn's muted/accent semantics here;
+          data-kitchen-sink: the axe gate tracks these vendored examples as a ratcheting baseline. */}
+      <div data-shadcn-scope data-kitchen-sink>
 ${sections}
+      </div>
       <Toaster />
     </TooltipProvider>
   );

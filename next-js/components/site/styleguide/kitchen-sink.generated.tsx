@@ -63,6 +63,9 @@ import TooltipExample from "@/components/styleguide/examples/tooltip-example";
 export function KitchenSink() {
   return (
     <TooltipProvider>
+      {/* data-shadcn-scope: app/styleguide/styleguide.css restores shadcn's muted/accent semantics here;
+          data-kitchen-sink: the axe gate tracks these vendored examples as a ratcheting baseline. */}
+      <div data-shadcn-scope data-kitchen-sink>
       <h2 className="mb-10 mt-20 font-display text-3xl font-normal uppercase text-ink">Form controls</h2>
       <Section id="button" title="Button">
         <ButtonExample />
@@ -229,6 +232,7 @@ export function KitchenSink() {
       <Section id="chart" title="Chart">
         <ChartExample />
       </Section>
+      </div>
       <Toaster />
     </TooltipProvider>
   );

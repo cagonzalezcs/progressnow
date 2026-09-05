@@ -7,6 +7,8 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
     <div
       data-slot="table-container"
+      // a11y: a horizontally scrollable region needs keyboard access (axe scrollable-region-focusable).
+      tabIndex={0}
       className="relative w-full overflow-x-auto"
     >
       <table
