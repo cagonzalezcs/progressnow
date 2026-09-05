@@ -67,7 +67,11 @@ export function readEnv(source: Record<string, string | undefined>): Env {
   const result = schema.safeParse(input);
   if (!result.success) {
     const problems = result.error.issues.map((i) => `${i.path.join(".") || "env"}: ${i.message}`);
-    throw new EnvError(`Invalid environment:\n  - ${problems.join("\n  - ")}`);
+    throw new EnvError(
+      `Invalid environment:\n  - ${problems.join("\n  - ")}\n\n` +
+        "Local development: copy next-js/.env.example to .env.local (MAMP's self-signed certificate also needs " +
+        "NODE_TLS_REJECT_UNAUTHORIZED=0), or run `npm run dev:mock` to use the fixture-backed mock API without WordPress.",
+    );
   }
   const parsed = result.data;
   const wpOrigin = parsed.WP_ORIGIN ?? new URL(parsed.WP_API_BASE).origin;
