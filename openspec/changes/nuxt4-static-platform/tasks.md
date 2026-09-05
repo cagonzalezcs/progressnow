@@ -31,13 +31,13 @@
 - [x] 3.5 `GET /front-page`, `GET /pages/{path}` (About/Get Involved/Calendar/interior groups, documents, grievance, kses'd content), `GET /events/{slug}`; 404 error codes
 - [x] 3.6 `lang` on every endpoint with cache-key participation (`progressnow_lang_switch()` makes Polylang follow it); `seo` block on `/front-page`, `/pages/{path}`, `/posts/{slug}`, `/events/{slug}`
 - [x] 3.7 Signature helper (HMAC + timestamp window) and `POST /build-status` (idempotent per `buildId`, 401 on bad signature) — `inc/rebuild.php` (dispatcher + transports landed with it, see 6.1)
-- [x] 3.8 Fixtures + PHPUnit contract tests for `site`, `routes-manifest`, `front-page`, `page-about`, `page-get-involved`, `page-calendar`, `single-event`; zod schemas for every new envelope + `shell-manifest`/`shellData` (theme `src/lib/schemas.ts`, moves to `site/` in 4.3); PHPUnit 137 green, vitest 22 green
+- [x] 3.8 Fixtures + PHPUnit contract tests for `site`, `routes-manifest`, `front-page`, `page-about`, `page-get-involved`, `page-calendar`, `single-event`; zod schemas for every new envelope + `shell-manifest`/`shellData` (theme `src/lib/schemas.ts`, moves to `nuxt-js/` in 4.3); PHPUnit 137 green, vitest 22 green
 
-## 4. Nuxt 4 app (`site/`)
+## 4. Nuxt 4 app (`nuxt-js/`)
 
-- [x] 4.1 Scaffold `site/` (Nuxt 4.5 `app/` layout, pinned versions, Node 22 engines), eslint (`@nuxt/eslint` + vuejs-accessibility)/prettier/tsconfig/vitest config, `site/.htaccess` (deny), `site/.gitignore`, `.env.example`, `README.md`
+- [x] 4.1 Scaffold `nuxt-js/` (Nuxt 4.5 `app/` layout, pinned versions, Node 22 engines), eslint (`@nuxt/eslint` + vuejs-accessibility)/prettier/tsconfig/vitest config, `nuxt-js/.htaccess` (deny), `nuxt-js/.gitignore`, `.env.example`, `README.md`
 - [x] 4.2 `app/assets/css/tailwind.css` with absolute theme URLs for fonts/masks; `@source` for the theme's `views/` and `inc/`
-- [x] 4.3 `site/app/lib`: schemas (copy of the theme's, now with `categories` on the site envelope, `showMetaRail` on single posts, `prefetch`/`importmap`/`runtimeConfig` on the shell manifest), api (`$fetch`-aware + route-payload fetchers), posts/events/languages/menu/utils/fixtures; router-backed `location.ts` + `url-state.ts` (the theme got the `history` twin, islands use it); `@fixtures` alias → theme `tests/fixtures`
+- [x] 4.3 `nuxt-js/app/lib`: schemas (copy of the theme's, now with `categories` on the site envelope, `showMetaRail` on single posts, `prefetch`/`importmap`/`runtimeConfig` on the shell manifest), api (`$fetch`-aware + route-payload fetchers), posts/events/languages/menu/utils/fixtures; router-backed `location.ts` + `url-state.ts` (the theme got the `history` twin, islands use it); `@fixtures` alias → theme `tests/fixtures`
 - [x] 4.4 Components copied verbatim (`components.json` updated); SSR guards landed in the theme sources first (SiteHeader origin, BlogArchive/EventCalendar url-state, useA11ySettings)
 - [x] 4.5 `modules/routes-manifest.ts`: fetches `/routes` once per build, bundles it (`#build/progressnow-routes.mjs`) and feeds `nitro.prerender.routes`; absolute-URL check + fetch failure fail the build; `prepare` skips, mock uses fixtures
 - [x] 4.6 `plugins/shell.client.ts` (parse + seed `payload.data`, manifest fetch → guard) + `useChapterData()` (`resolveCached` order) + `middleware/freshness.global.ts`; Nuxt-free logic in `app/lib/chapter/*`

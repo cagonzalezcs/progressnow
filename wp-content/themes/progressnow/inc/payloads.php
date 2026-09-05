@@ -50,7 +50,7 @@ function progressnow_payload_key( $kind, $lang = '', $slug = '' ) {
 /**
  * Key for a posts-page list: `posts:{lang}` for the first browse page,
  * `posts:{lang}:{page}:{category}` for any other state (mirrors
- * site/app/lib/chapter/keys.ts postsKey()).
+ * nuxt-js/app/lib/chapter/keys.ts postsKey()).
  *
  * @param string $lang     Language slug.
  * @param int    $page     1-based page.

@@ -1,0 +1,5 @@
+{
+  "$comment": "Ratchet for the vendored shadcn registry examples in /styleguide/ (openspec next-accessibility \u00a7 axe-core gate). The a11y gate fails if the kitchen sink's offending node count EXCEEDS this; lower it as examples are patched (task 4.10). Site code is always held at zero.",
+  "maxKitchenSinkNodes": 192,
+  "measured": "2026-09-05 after primitive fixes + token scope"
+}

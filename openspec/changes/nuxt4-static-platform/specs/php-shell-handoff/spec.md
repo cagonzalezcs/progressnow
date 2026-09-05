@@ -59,10 +59,10 @@ A `CHAPTER_FRONTEND` constant (`islands` default, `nuxt`) SHALL select between t
 - **THEN** the page contains the Nuxt entry tags and no `main-app-script` enqueue; when `islands`, the reverse
 
 ### Requirement: Static passthrough (same-host mode)
-When `CHAPTER_STATIC_DIR` is defined, WordPress SHALL serve `/_nuxt/*`, `*/_payload.json`, `/_payload.json`, and `/shell-manifest.json` from that directory (ignoring any query string, e.g. `?_b=<buildId>`) with correct `Content-Type`, `Cache-Control` (`immutable` for `/_nuxt/*`, `max-age=60` otherwise), and 404 for missing files, before WordPress routing runs — in development (pointed at `site/.output/public`) and in production as the fallback behind the web server's own rules. Path traversal outside the directory SHALL be rejected. When the constant is undefined the passthrough SHALL be inert.
+When `CHAPTER_STATIC_DIR` is defined, WordPress SHALL serve `/_nuxt/*`, `*/_payload.json`, `/_payload.json`, and `/shell-manifest.json` from that directory (ignoring any query string, e.g. `?_b=<buildId>`) with correct `Content-Type`, `Cache-Control` (`immutable` for `/_nuxt/*`, `max-age=60` otherwise), and 404 for missing files, before WordPress routing runs — in development (pointed at `nuxt-js/.output/public`) and in production as the fallback behind the web server's own rules. Path traversal outside the directory SHALL be rejected. When the constant is undefined the passthrough SHALL be inert.
 
 #### Scenario: Generated assets served
-- **WHEN** the constant points at `site/.output/public` and `/_nuxt/entry.abc.js` is requested
+- **WHEN** the constant points at `nuxt-js/.output/public` and `/_nuxt/entry.abc.js` is requested
 - **THEN** the file is returned as `text/javascript` with an immutable cache header
 
 #### Scenario: Traversal rejected

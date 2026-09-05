@@ -1,0 +1,8 @@
+[
+  { "id": "chapter", "label": "Chapter-Wide", "color": "#B01B22" },
+  { "id": "poled", "label": "Political Education", "color": "#33518F" },
+  { "id": "mutual", "label": "Mutual Aid", "color": "#1B6B40" },
+  { "id": "labor", "label": "Labor", "color": "#8F5715" },
+  { "id": "electoral", "label": "Electoral", "color": "#6E3B87" },
+  { "id": "social", "label": "Social", "color": "#0A6B74" }
+]
