@@ -1,4 +1,5 @@
 import { SiteLink } from "@/components/site/SiteLink";
+import { cn } from "@/lib/utils";
 
 /* Sidebar link-list card (openspec progress-now-v4-blog D2 / -interior-404
  * D1): white radius-20 card, uppercase 800 heading, accent 700 links. The
@@ -10,6 +11,7 @@ export interface LinkListCardProps {
   rows?: { label: string; value: string }[];
   id?: string;
   ariaLabel?: string;
+  className?: string;
   wpOrigin: string;
 }
 
@@ -19,6 +21,7 @@ export function LinkListCard({
   rows = [],
   id,
   ariaLabel,
+  className,
   wpOrigin,
 }: LinkListCardProps) {
   const Tag = links.length ? "nav" : "div";
@@ -26,7 +29,10 @@ export function LinkListCard({
     <Tag
       id={id}
       aria-label={links.length ? ariaLabel || heading : undefined}
-      className="link-list-card flex flex-col gap-[9px] rounded-[16px] bg-white px-[22px] py-5 shadow-card lg:gap-2.5 lg:rounded-[20px] lg:px-[26px] lg:py-6"
+      className={cn(
+        "link-list-card flex flex-col gap-[9px] rounded-[16px] bg-white px-[22px] py-5 shadow-card lg:gap-2.5 lg:rounded-[20px] lg:px-[26px] lg:py-6",
+        className,
+      )}
     >
       <div className="mb-0.5 text-[0.95rem] font-extrabold uppercase tracking-[0.04em] text-ink lg:mb-1 lg:text-base">
         {heading}
