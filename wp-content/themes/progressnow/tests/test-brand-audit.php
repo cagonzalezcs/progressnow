@@ -13,7 +13,7 @@ use WorDBless\BaseTestCase;
 class TestBrandAudit extends BaseTestCase {
 
 	/** Regional tokens that must not appear anywhere visible. */
-	const PATTERN = '/rio\s+grande|r[ií]o\s+grande|\brgv\b|legacy|legacy|legacy|legacy|legacy|\bhidalgo\b|\bwillacy\b|mcallen|brownsville|harlingen|edinburg|weslaco|\bpharr\b|utrgv|\(956\)|\b956 mask\b|\bdsa\b|democratic socialis|socialis[mt]|dsausa|ydsa/iu';
+	const PATTERN = '/rio\s+grande|r[ií]o\s+grande|\brgv\b|rgv-dsa|rgvdsa|dsargv|dsa_rgv|dsa-rgv|\bhidalgo\b|\bwillacy\b|mcallen|brownsville|harlingen|edinburg|weslaco|\bpharr\b|utrgv|\(956\)|\b956 mask\b|\bdsa\b|democratic socialis|socialis[mt]|dsausa|ydsa/iu';
 
 	public function set_up() {
 		switch_theme( basename( dirname( __DIR__ ) ) );

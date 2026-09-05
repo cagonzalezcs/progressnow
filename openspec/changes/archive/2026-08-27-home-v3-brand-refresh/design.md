@@ -35,7 +35,7 @@ Existing behavior that must survive unchanged: About dropdown, Polylang EN/ES sw
 ## Risks / Trade-offs
 
 - [SVG exports unlabeled (`Asset N.svg`) → wrong asset mapping] → Visually inspect each against prototype PNGs before wiring; record mapping in a manifest comment.
-- [Luchador spray texture may degrade in SVG] → Handoff pre-authorizes 2x PNG fallback for that one asset.
+- [CTA-figure spray texture may degrade in SVG] → Handoff pre-authorizes 2x PNG fallback for that one asset.
 - [Headline art is English; `/es/` home shows EN art] → Open question below; interim: same art with Spanish `alt`.
 - [Bowlby/Manifold metrics differ from Montserrat → layout shifts on shared components] → Chrome-only font swap is contained to header/footer/Home; interior pages keep v2 faces via scoped tokens.
 - [v2+v3 token coexistence bloats CSS] → Acceptable short-term; consolidation scheduled for interior-page delta.

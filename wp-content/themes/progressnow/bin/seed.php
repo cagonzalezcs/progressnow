@@ -116,13 +116,13 @@ $progressnow_seed_events = array(
 	array( 'date' => '2026-07-15', 'time' => '7:00–8:00 PM', 'cat' => 'chapter', 'title' => 'Progress Now 101 (New Member Orientation)', 'location' => 'Online (Zoom)', 'desc' => 'New or curious? This one’s for you. A friendly intro to the chapter: who we are, what we’re working on, and how to plug in at whatever capacity you have.' ),
 	array( 'date' => '2026-07-18', 'time' => '9:00 AM–12:00 PM', 'cat' => 'mutual', 'title' => 'Brake Light Clinic', 'location' => 'Parking lot, 500 W Main St', 'desc' => 'Free brake light replacement for anyone who pulls up — a broken light shouldn’t mean a traffic stop. Volunteers get a quick training at 8:30 AM. Tools and bulbs provided.' ),
 	array( 'date' => '2026-07-21', 'time' => '7:00–9:00 PM', 'cat' => 'electoral', 'title' => 'Candidate Endorsement Forum', 'location' => 'Northside — Neighborhood Center', 'desc' => 'Hear from candidates seeking the chapter’s endorsement ahead of the fall elections. Members vote on endorsements at the August general meeting.' ),
-	array( 'date' => '2026-07-23', 'time' => '7:30–9:00 PM', 'cat' => 'poled', 'title' => 'Reading Circle: A People’s Guide to Capitalism', 'location' => 'Eastside — Corner Café', 'desc' => 'Chapters 1–2. New readers welcome; we always start with a recap. Copies available to borrow from the chapter library.' ),
+	array( 'date' => '2026-07-23', 'time' => '7:30–9:00 PM', 'cat' => 'poled', 'title' => 'Reading Circle: Community Organizing 101', 'location' => 'Eastside — Corner Café', 'desc' => 'Chapters 1–2. New readers welcome; we always start with a recap. Copies available to borrow from the chapter library.' ),
 	array( 'date' => '2026-07-25', 'time' => '6:00–9:00 PM', 'cat' => 'social', 'title' => 'Ice Cream Social', 'location' => 'Riverside Park', 'desc' => 'No agenda, no sign-in sheet — just popsicles, lawn games, and neighbors. Families welcome. First round of popsicles is on the chapter.' ),
 	array( 'date' => '2026-07-28', 'time' => '7:00–8:30 PM', 'cat' => 'labor', 'title' => 'Picket Support Training', 'location' => 'Online (Zoom)', 'desc' => 'How to show up well for striking workers: picket line etiquette, marshaling basics, and what support locals actually ask for.' ),
 	array( 'date' => '2026-08-01', 'time' => '2:00–4:00 PM', 'cat' => 'chapter', 'title' => 'August General Meeting', 'location' => 'Downtown — Community Center (+ Zoom)', 'desc' => 'Monthly all-member meeting. Endorsement votes from the July forum are on the agenda — members in good standing can vote.' ),
 	array( 'date' => '2026-08-04', 'time' => '6:30–8:00 PM', 'cat' => 'mutual', 'title' => 'School Supply Distro Prep', 'location' => 'Member’s garage (address in WhatsApp)', 'desc' => 'Sorting and packing backpacks for the back-to-school distribution on the 15th. Snacks provided.' ),
 	array( 'date' => '2026-08-08', 'time' => '10:00 AM–1:00 PM', 'cat' => 'electoral', 'title' => 'Voter Registration Drive', 'location' => 'Farmers market, Main St', 'desc' => 'Tabling and registering voters ahead of the October deadline. Volunteer deputy registrars will be on site — come learn how it’s done.' ),
-	array( 'date' => '2026-08-13', 'time' => '7:00–8:30 PM', 'cat' => 'poled', 'title' => 'Night School: Immigration & Labor', 'location' => 'Central Library, Community Room B', 'desc' => 'Session two of summer night school: a locally focused look at labor, migration, and the immigrant working class.' ),
+	array( 'date' => '2026-08-13', 'time' => '7:00–8:30 PM', 'cat' => 'poled', 'title' => 'Night School: How Local Government Works', 'location' => 'Central Library, Community Room B', 'desc' => 'Session two of summer night school: a locally focused look at labor, migration, and the immigrant working class.' ),
 );
 
 $progressnow_seed_event_ids = array(); // title → post ID
@@ -1185,13 +1185,13 @@ if ( function_exists( 'pll_set_post_language' ) && function_exists( 'pll_save_po
 		'Progress Now 101 (New Member Orientation)'          => 'Progress Now 101 (Orientación para nuevos miembros)',
 		'Brake Light Clinic'                        => 'Clínica de luces de freno',
 		'Candidate Endorsement Forum'               => 'Foro de respaldo a candidatos',
-		'Reading Circle: A People’s Guide to Capitalism' => 'Círculo de lectura: una guía popular del capitalismo',
+		'Reading Circle: Community Organizing 101' => 'Círculo de lectura: organización comunitaria 101',
 		'Ice Cream Social'                             => 'Convivio con popsicles',
 		'Picket Support Training'                   => 'Capacitación de apoyo a piquetes',
 		'August General Meeting'                    => 'Reunión general de agosto',
 		'School Supply Distro Prep'                 => 'Preparación de la distribución de útiles escolares',
 		'Voter Registration Drive'                  => 'Jornada de registro de votantes',
-		'Night School: Immigration & Labor'     => 'Escuela nocturna: migración y trabajo',
+		'Night School: How Local Government Works'     => 'Escuela nocturna: migración y trabajo',
 	);
 	$progressnow_seed_en_events = get_posts( array(
 		'post_type'   => 'event',

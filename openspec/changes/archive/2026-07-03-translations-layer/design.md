@@ -41,7 +41,7 @@ Bridge mechanics (`src/ts/translation.ts`): `activateSpanish()` requires the pag
 The cookie is inert on inner pages (no element.js) and makes ES auto-resume when the visitor returns to home (`base.js` auto-loads on init). Clearing it on every inner-page load would add cookie churn for no behavioral gain.
 
 ### D8: notranslate content policy
-`class="notranslate"` (Google-honored) on proper nouns, identifiers, and contact data only — never descriptive copy: county names (Starr would machine-translate), `@chapterhandle`, emails, "the chapter"/"Progress Now" brand tokens, venue names/addresses in the server-rendered single/event fallbacks. Existing `lang="es"` spans stay. Plugin settings pinned: languages en+es, `detect_browser_language` OFF (it auto-fires `doGTranslate` and would fight the toggle and the gate), no widget placement.
+`class="notranslate"` (Google-honored) on proper nouns, identifiers, and contact data only — never descriptive copy: county names (a county name would machine-translate), `@chapterhandle`, emails, "the chapter"/"Progress Now" brand tokens, venue names/addresses in the server-rendered single/event fallbacks. Existing `lang="es"` spans stay. Plugin settings pinned: languages en+es, `detect_browser_language` OFF (it auto-fires `doGTranslate` and would fight the toggle and the gate), no widget placement.
 
 ## Risks / Trade-offs
 
