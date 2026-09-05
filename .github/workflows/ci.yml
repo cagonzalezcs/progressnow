@@ -1,19 +1,20 @@
-<<<<<<< HEAD
-=======
-# CI for the two JS frontends (openspec next-test-harness § CI job).
-# Neither job needs a WordPress instance: nuxt-js generates against its nitro
-# mock, next-js builds and tests against test/mock/server.mjs — both backed by
-# the theme's committed contract fixtures.
-#
-# The theme's PHPUnit/vitest job is added by nuxt4-static-platform task 7.3.
->>>>>>> claude/next-js-site-implementation-f8da2b
+# CI for the theme and the two JS frontends (openspec next-test-harness § CI job).
+# No job needs a WordPress instance: the theme runs PHPUnit on WorDBless,
+# nuxt-js generates against its nitro mock, next-js builds and tests against
+# test/mock/server.mjs — all backed by the theme's committed contract fixtures.
 name: CI
 
 on:
   push:
-<<<<<<< HEAD
-    branches: [main, 'cg/**', 'feat/**']
+    branches: [main, 'cg/**', 'feat/**', 'feature/**']
   pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 defaults:
   run:
@@ -49,59 +50,29 @@ jobs:
           working-directory: wp-content/themes/progressnow
       - run: composer test
 
-  site:
-    name: Nuxt site — lint / typecheck / vitest / mock generate
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: site
-    env:
-      # Build against the fixture-backed nitro mock: no WordPress needed.
-      NUXT_MOCK_API: '1'
-=======
-    branches: [main]
-  pull_request:
-
-concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
-
-permissions:
-  contents: read
-
-jobs:
   nuxt-js:
     name: nuxt-js (lint, typecheck, test, generate:mock)
     runs-on: ubuntu-latest
     defaults:
       run: { working-directory: nuxt-js }
->>>>>>> claude/next-js-site-implementation-f8da2b
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-<<<<<<< HEAD
-          cache-dependency-path: site/package-lock.json
-=======
           cache-dependency-path: nuxt-js/package-lock.json
->>>>>>> claude/next-js-site-implementation-f8da2b
       - run: npm ci
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
-<<<<<<< HEAD
-      - run: npm run generate
+      - run: npm run generate:mock
       - run: npm run verify:output
       - uses: actions/upload-artifact@v4
         with:
-          name: site-mock-output
-          path: site/.output/public
+          name: nuxt-js-mock-output
+          path: nuxt-js/.output/public
           retention-days: 3
-=======
-      - run: npm run generate:mock
-      - run: npm run verify:output
 
   next-js:
     name: next-js (lint, typecheck, unit, build, e2e + budget, a11y)
@@ -149,4 +120,3 @@ jobs:
             next-js/playwright-report/**
           if-no-files-found: ignore
           retention-days: 14
->>>>>>> claude/next-js-site-implementation-f8da2b

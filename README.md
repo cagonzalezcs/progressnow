@@ -135,7 +135,7 @@ Key properties:
 └── wp-config-sample.php
 ```
 
-WordPress core, `wp-config.php`, uploads, `wp-content/plugins/`, build output (`site/dist`, `site/.output`, theme `dist/`), `node_modules/`, `vendor/` and the synced `static-site/` are all git-ignored. Plugins are installed by the adopter, never vendored.
+WordPress core, `wp-config.php`, uploads, `wp-content/plugins/`, build output (`nuxt-js/dist`, `nuxt-js/.output`, theme `dist/`), `node_modules/`, `vendor/` and the synced `static-site/` are all git-ignored. Plugins are installed by the adopter, never vendored.
 
 ## Requirements
 
@@ -252,11 +252,7 @@ Three supported shapes, all documented step by step in `docs/deployment.md`:
 3. **Webhook**: WordPress POSTs a signed `{ event: "rebuild", … }` to any receiver (e.g. API Gateway → CodeBuild) that runs `npm ci && npm run generate`, syncs, and reports back with the same signed `POST /build-status`.
 4. **Headless Next.js** (`next-js/`): deploy the standalone build (Vercel, a container, or a VPS) and point the same signed webhook at `<next-origin>/api/rebuild`; the receiver revalidates its cache and reports back with `POST /build-status`. Guide section in progress (`next-js-site-implementation`).
 
-<<<<<<< HEAD
-The rebuild workflow (`.github/workflows/rebuild-site.yml`) listens for `repository_dispatch` (`rebuild-site`), `workflow_dispatch`, and pushes to `main` touching `site/`, with `concurrency: rebuild-site` so bursts of edits collapse into one build. Repository variables/secrets: `WP_API_BASE`, `STATIC_DEPLOY_TARGET`, `WP_BUILD_STATUS_URL`, `CHAPTER_REBUILD_SECRET`, plus rsync or S3 credentials.
-=======
-The rebuild workflow (`.github/workflows/rebuild-site.yml`, to be added to this repo) listens for `repository_dispatch` (`rebuild-site`), `workflow_dispatch`, and pushes to `main` touching `nuxt-js/`, with `concurrency: rebuild-site` so bursts of edits collapse into one build. Repository variables/secrets: `WP_API_BASE`, `STATIC_DEPLOY_TARGET`, `WP_BUILD_STATUS_URL`, `CHAPTER_REBUILD_SECRET`, plus rsync or S3 credentials.
->>>>>>> claude/next-js-site-implementation-f8da2b
+The rebuild workflow (`.github/workflows/rebuild-site.yml`) listens for `repository_dispatch` (`rebuild-site`), `workflow_dispatch`, and pushes to `main` touching `nuxt-js/`, with `concurrency: rebuild-site` so bursts of edits collapse into one build. Repository variables/secrets: `WP_API_BASE`, `STATIC_DEPLOY_TARGET`, `WP_BUILD_STATUS_URL`, `CHAPTER_REBUILD_SECRET`, plus rsync or S3 credentials.
 
 **Cutover** (§7): activate theme → seed → set constants with `CHAPTER_FRONTEND=islands` → trigger a build → verify `shell-manifest.json` → flip to `nuxt` → watch the Site build panel (`scheduled → requested → building → live`). **Rollback** (§8): flip `CHAPTER_FRONTEND` back, or restore a prior manifest from S3 versioning / re-run the workflow.
 
@@ -376,12 +372,8 @@ Open changes in `openspec/changes/` (task counts at time of writing):
 | Change | Status | Scope |
 |---|---|---|
 | `nuxt4-static-platform` | 51/59 | Remaining: remove the Vite islands after cutover verification (tasks 7.x), final cleanup |
-<<<<<<< HEAD
-| `open-source-release-readiness` | partial | Plugins/backups untracked, MIT declared everywhere, `scrub-brand.sh` removed, dev origin neutralized (done in this repo's first commit). Remaining: plugin-missing admin notice, `CONTRIBUTING` / `CODE_OF_CONDUCT` / `SECURITY`, no-analytics policy, hygiene CI gate, release checklist |
-=======
 | `next-js-site-implementation` | 0/53 | Headless Next.js frontend (`next-js/`): Tailwind v4 + shadcn/ui, SSR from `progressnow/v1`, signed-webhook revalidation, axe-core gate against the build, View Transitions; `site/` renamed to `nuxt-js/`; `CHAPTER_CANONICAL_ORIGIN` |
-| `open-source-release-readiness` | 0/27 | Untrack plugins/backups, declare ACF Pro + Polylang Pro as adopter-installed, community files, identifier + PII scrub, no-analytics policy, hygiene CI gate, release checklist |
->>>>>>> claude/next-js-site-implementation-f8da2b
+| `open-source-release-readiness` | partial | Plugins/backups untracked, MIT declared everywhere, `scrub-brand.sh` removed, dev origin neutralized (done in this repo's first commit). Remaining: plugin-missing admin notice, `CONTRIBUTING` / `CODE_OF_CONDUCT` / `SECURITY`, no-analytics policy, hygiene CI gate, release checklist |
 | `content-invalidation-completeness` | 0/27 | Bump content version on every public write (pages, menus, terms, attachments, strings), one bump per request, WP timezone, language-aware categories |
 | `security-sanitize-url-sinks` | 0/12 | `progressnow_safe_url()` scheme allow-list on every `:href`/`:src` sink |
 | `security-authoring-least-privilege` | 0/11 | Drop `unfiltered_html` for all roles, documented role model |
