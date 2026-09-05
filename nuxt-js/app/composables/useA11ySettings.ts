@@ -28,7 +28,7 @@ const DEFAULTS: A11ySettings = {
 // settings object so a change in any widget applies everywhere at once.
 let settings: A11ySettings | undefined;
 
-/** False while the Nuxt rendition (site/) prerenders — no DOM, no storage. */
+/** False while the Nuxt rendition (nuxt-js/) prerenders — no DOM, no storage. */
 const isBrowser = typeof window !== "undefined" && typeof document !== "undefined";
 
 function load(): A11ySettings {

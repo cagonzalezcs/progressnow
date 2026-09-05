@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: Route parity with WordPress permalinks
-The Nuxt app (`site/`) SHALL render a page for every public WordPress route in both languages — front page, posts page and `/page/N/`, single posts, calendar, single events, About, Get Involved, interior pages, search results, and 404 — at the exact WordPress URL, resolving paths against the `/routes` manifest rather than hard-coded slugs, so editor slug changes and Polylang `/es/` prefixes need no code change.
+The Nuxt app (`nuxt-js/`) SHALL render a page for every public WordPress route in both languages — front page, posts page and `/page/N/`, single posts, calendar, single events, About, Get Involved, interior pages, search results, and 404 — at the exact WordPress URL, resolving paths against the `/routes` manifest rather than hard-coded slugs, so editor slug changes and Polylang `/es/` prefixes need no code change.
 
 #### Scenario: Editor-controlled slug resolves
 - **WHEN** the calendar page slug is changed in wp-admin and the site is regenerated

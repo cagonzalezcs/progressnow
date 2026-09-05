@@ -5,7 +5,7 @@ Chapter-neutral WordPress theme for a Progress Now chapter site. Everything that
 ## Stack
 
 - **WordPress + Timber 2** (Twig templates) — routing + content
-- **Vue 3** (Composition API, `<script setup lang="ts">`) — interactive islands (moving to the Nuxt 4 app in `site/`, see `openspec/changes/nuxt4-static-platform`)
+- **Vue 3** (Composition API, `<script setup lang="ts">`) — interactive islands (moving to the Nuxt 4 app in `nuxt-js/`, see `openspec/changes/nuxt4-static-platform`)
 - **Tailwind CSS v4** (CSS-first config in `src/css/tailwind.css`, no `tailwind.config.js`)
 - **shadcn-vue** — project-owned component library generated into `src/components/ui/`
 - **Vite 7** via `@kucrut/vite-for-wp` (npm) + `kucrut/vite-for-wp` (Composer) — dev server/HMR + production enqueue
@@ -36,7 +36,7 @@ Every default string in `inc/options.php`, `inc/pages.php`, and the Twig ledes i
 ### Frontend modes (`CHAPTER_FRONTEND`)
 
 - **`islands`** (default) — the Vite islands described below.
-- **`nuxt`** — the PHP shell + static Nuxt rendition (`site/`, openspec change
+- **`nuxt`** — the PHP shell + static Nuxt rendition (`nuxt-js/`, openspec change
   `nuxt4-static-platform`): every page is still rendered by WordPress (SEO head,
   crawlable chrome/content, a `__SHELL_DATA__` route payload built by
   `inc/payloads.php`), then the Nuxt client mounts into `#__nuxt` and takes over.
@@ -100,7 +100,7 @@ The whole site reads one token set declared in `src/css/tailwind.css` (`@theme`,
 - **Fonts** (`static/fonts/`, self-hosted, preloaded by `StarterSite::preload_fonts()`): Public Sans variable (`PublicSans[wght].woff2`, body — 500 default, 600 ledes, 700 emphasis, 800 eyebrows), Bowlby One (display: headings, nav, pills, month label — 400 only, never faux-bold), Special Season Brush (the home CTA line).
 - **Tones**: every band carries `data-tone="blue|white|alt|ink"`; the a11y widget's high-contrast mode re-colors bands by tone (`useA11ySettings.ts`) and the focus ring flips to white on `blue`/`ink`.
 - **Radius**: 20px cards/figures/callouts (18px tablet, 16px mobile), 14px disclosure rows and agenda rows (12px mobile), 10–12px nav pills and tiles, 999 for pills and breadcrumbs; shadcn `--radius` is 4px.
-- **Shared source**: `src/components/site/**`, `src/components/ui/**`, `src/composables/useA11ySettings.ts`, `src/lib/schemas.ts` and `src/css/tailwind.css` are copied verbatim into `site/app/` (the Nuxt rendition) — edit here, re-copy, and `site/test/unit/shared-source-drift.test.ts` fails on drift. Twig twins in `views/partials/` (`page-header`, `cta-card`, `link-list-card`, `dashed-note`, `subscribe-strip`, `duotone`, `star`) and the static header/footer shell in `views/base.twig` must keep the same class literals as their Vue components.
+- **Shared source**: `src/components/site/**`, `src/components/ui/**`, `src/composables/useA11ySettings.ts`, `src/lib/schemas.ts` and `src/css/tailwind.css` are copied verbatim into `nuxt-js/app/` (the Nuxt rendition) — edit here, re-copy, and `nuxt-js/test/unit/shared-source-drift.test.ts` fails on drift. Twig twins in `views/partials/` (`page-header`, `cta-card`, `link-list-card`, `dashed-note`, `subscribe-strip`, `duotone`, `star`) and the static header/footer shell in `views/base.twig` must keep the same class literals as their Vue components.
 - **Photos** render full color (the canvas's grayscale + brand-multiply duotone was retired 2026-09-05); the `.duotone` wrapper only clips to the slot's radius.
 
 ### Styling conventions

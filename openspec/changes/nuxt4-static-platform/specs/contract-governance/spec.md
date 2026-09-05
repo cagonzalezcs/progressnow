@@ -1,7 +1,7 @@
 ## MODIFIED Requirements
 
 ### Requirement: Single contract definition
-Island contract types SHALL be defined once as zod schemas in the Nuxt app (`site/app/lib/schemas.ts`) with TS types derived via `z.infer`; canonical category slugs derive from the theme's `categories.json`. The shell payload envelope, `/site`, `/routes`, `/front-page`, `/pages/{path}`, `/events/{slug}`, and `shell-manifest.json` SHALL have schemas there too.
+Island contract types SHALL be defined once as zod schemas in the Nuxt app (`nuxt-js/app/lib/schemas.ts`) with TS types derived via `z.infer`; canonical category slugs derive from the theme's `categories.json`. The shell payload envelope, `/site`, `/routes`, `/front-page`, `/pages/{path}`, `/events/{slug}`, and `shell-manifest.json` SHALL have schemas there too.
 
 #### Scenario: One edit point
 - **WHEN** a contract field is added

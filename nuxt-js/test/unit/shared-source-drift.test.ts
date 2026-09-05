@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 
 /* Shell/app parity guard (openspec progress-now-v4-foundation-chrome, design D8).
  * The theme's `src/` is the source of truth for the shared site components,
- * the a11y composable, the zod contracts and the Tailwind stylesheet; `site/app`
+ * the a11y composable, the zod contracts and the Tailwind stylesheet; `nuxt-js/app`
  * carries byte-for-byte copies so the PHP first paint and the Nuxt rendition
  * draw the same pixels. Edit the theme copy, then re-copy — this test fails on
  * any drift. The stylesheet is compared after normalizing the only intended
@@ -46,7 +46,7 @@ function normalizeCss(css: string): string {
   );
 }
 
-describe("theme src ↔ site/app shared source drift", () => {
+describe("theme src ↔ nuxt-js/app shared source drift", () => {
   for (const pair of PAIRS) {
     const themeRoot = join(THEME, pair.theme);
     const appRoot = join(APP, pair.app);

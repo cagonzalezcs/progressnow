@@ -72,7 +72,7 @@ Settings → Secrets and variables → Actions:
 | s3 | `AWS_REGION` `AWS_ROLE_ARN` `S3_BUCKET` `CLOUDFRONT_DISTRIBUTION_ID` (vars) | from `terraform output github_variables` |
 
 The workflow is `.github/workflows/rebuild-site.yml`: `repository_dispatch`
-(`rebuild-site`), `workflow_dispatch`, and pushes to `main` touching `site/`.
+(`rebuild-site`), `workflow_dispatch`, and pushes to `main` touching `nuxt-js/`.
 `concurrency: rebuild-site` queues at most one extra run — bursts of edits
 collapse into one build. Each run: `npm ci` → `nuxt generate` against
 `WP_API_BASE` with `CHAPTER_CONTENT_VERSION` from the dispatch → verify →
@@ -106,8 +106,8 @@ RewriteRule ^(_nuxt/.*|shell-manifest\.json|(.*/)?_payload\.json)$ /static-site/
   Header set Cache-Control "public, max-age=60"
 </LocationMatch>
 </IfModule>
-# Keep the source tree unreachable (site/.htaccess also denies).
-RedirectMatch 404 ^/site/
+# Keep the source tree unreachable (nuxt-js/.htaccess also denies).
+RedirectMatch 404 ^/nuxt-js/
 ```
 
 **nginx:**
@@ -123,7 +123,7 @@ location ~ ^/(shell-manifest\.json|(.*/)?_payload\.json)$ {
     add_header Cache-Control "public, max-age=60";
     try_files $uri =404;
 }
-location ^~ /site/ { return 404; }
+location ^~ /nuxt-js/ { return 404; }
 ```
 
 Note the `?_b=<buildId>` query string on payload requests — `try_files $uri`
@@ -188,12 +188,12 @@ fits this contract; reporting back is the same signed `POST /build-status`
 
 ## 9. Local development
 
-- `site/.env`: `NUXT_DEV_WP_ORIGIN=https://rgvdsa.test:8890`,
+- `nuxt-js/.env`: `NUXT_DEV_WP_ORIGIN=https://rgvdsa.test:8890`,
   `NUXT_PUBLIC_WP_API_BASE=https://rgvdsa.test:8890/wp-json/progressnow/v1`,
   `NODE_TLS_REJECT_UNAUTHORIZED=0` for the MAMP certificate.
-- `npm run dev` in `site/` for component work (proxied `/wp-json` + `/wp-content`).
-- Full handoff locally: `npm run generate` in `site/`, then in wp-config.php
-  `define( 'CHAPTER_FRONTEND', 'nuxt' ); define( 'CHAPTER_STATIC_DIR', ABSPATH . 'site/.output/public' );`
+- `npm run dev` in `nuxt-js/` for component work (proxied `/wp-json` + `/wp-content`).
+- Full handoff locally: `npm run generate` in `nuxt-js/`, then in wp-config.php
+  `define( 'CHAPTER_FRONTEND', 'nuxt' ); define( 'CHAPTER_STATIC_DIR', ABSPATH . 'nuxt-js/.output/public' );`
   — the PHP passthrough serves the generated files.
 - No WordPress at all: `npm run generate:mock` (fixture-backed nitro mock) and
   `npm run preview`.

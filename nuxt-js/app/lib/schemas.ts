@@ -543,7 +543,7 @@ export const singleEventEnvelopeSchema = z.object({
   seo: seoSchema,
 });
 
-/** What nuxt generate writes last (site/modules/shell-manifest.ts) and the PHP
+/** What nuxt generate writes last (nuxt-js/modules/shell-manifest.ts) and the PHP
  * shell reads to emit the app's script/style tags (inc/shell.php). */
 export const shellManifestSchema = z.object({
   buildId: z.string(),

@@ -1,4 +1,4 @@
-# Progress Now — Nuxt 4 static rendition (`site/`)
+# Progress Now — Nuxt 4 static rendition (`nuxt-js/`)
 
 The visitor-facing app. WordPress (theme `wp-content/themes/progressnow`) serves
 every public URL first as a PHP shell — full SEO head, crawlable content, and an
