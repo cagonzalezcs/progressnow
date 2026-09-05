@@ -409,8 +409,12 @@ export function createMock(options = {}) {
   /** @param {Record<string, unknown>} query */
   function events(query) {
     const lang = langOf(query.lang);
+    const all = [{ ...chapterEventFixture, url: abs(translationOf(lang, "event")) }];
+    // `after`/`before` (yyyy-mm-dd) narrow the window like WordPress does; no range = everything.
+    const after = typeof query.after === "string" ? query.after : "";
+    const before = typeof query.before === "string" ? query.before : "";
     return {
-      events: [{ ...chapterEventFixture, url: abs(translationOf(lang, "event")) }],
+      events: all.filter((e) => (!after || e.date >= after) && (!before || e.date <= before)),
       categories: categoriesFixture.categories,
     };
   }
