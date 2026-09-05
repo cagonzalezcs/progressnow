@@ -22,7 +22,8 @@
     "test:unit": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test --project=e2e",
-    "test:a11y": "playwright test --project=a11y"
+    "test:a11y": "playwright test --project=a11y",
+    "start:standalone": "node scripts/start-standalone.mjs"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",
@@ -49,7 +50,7 @@
     "@types/node": "^22.18.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@vitejs/plugin-react": "^6.1.1",
+    "@vitejs/plugin-react": "^5.1.0",
     "axe-core": "4.13.0",
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
@@ -61,7 +62,8 @@
     "shadcn": "^4.21.0",
     "tailwindcss": "^4.3.3",
     "typescript": "^5",
-    "vitest": "^5.0.0"
+    "vite": "^7.3.0",
+    "vitest": "^4.1.11"
   },
   "overrides": {
     "jest-axe": {

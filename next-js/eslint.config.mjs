@@ -23,11 +23,13 @@ const eslintConfig = defineConfig([
           // bg-[#1848d8], text-[rgb(...)], rounded-[7px] … — use the shared tokens.
           selector:
             "Literal[value=/(?:^|[\\s\"'`])(?:bg|text|border|ring|fill|stroke|from|to|via|shadow|outline|decoration|accent|caret)-\\[(?:#|rgb|hsl|oklch|color-mix)/]",
-          message: "Use a role-named color token (brand, accent, alt, ink, …) instead of an arbitrary color value.",
+          message:
+            "Use a role-named color token (brand, accent, alt, ink, …) instead of an arbitrary color value.",
         },
         {
           selector: "Literal[value=/(?:^|[\\s\"'`])rounded(?:-[a-z]+)?-\\[\\d+(?:px|rem)\\]/]",
-          message: "Use the radius scale (20/14/999 via the shared tokens) instead of an arbitrary radius.",
+          message:
+            "Use the radius scale (20/14/999 via the shared tokens) instead of an arbitrary radius.",
         },
       ],
     },
@@ -37,7 +39,15 @@ const eslintConfig = defineConfig([
     files: ["components/ui/**/*.tsx"],
     rules: { "no-restricted-syntax": "off" },
   },
-  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts", "test-results/**", "playwright-report/**", "lib/schemas.ts"]),
+  globalIgnores([
+    ".next/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts",
+    "test-results/**",
+    "playwright-report/**",
+    "lib/schemas.ts",
+  ]),
   eslintConfigPrettier,
 ]);
 

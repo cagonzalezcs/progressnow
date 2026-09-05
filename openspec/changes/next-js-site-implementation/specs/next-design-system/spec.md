@@ -61,7 +61,7 @@ The styleguide route SHALL render every site component and every used shadcn com
 - **THEN** a screenshot per styleguide section is attached to the CI run
 
 ### Requirement: Client bundle budget
-The first-load client JavaScript for the front page SHALL stay under a budget asserted in CI (initial value 130 kB gzipped, adjusted only by an explicit change to the budget file), keeping interactive islands thin.
+The first-load client JavaScript for the front page — every script the prerendered shell loads, gzipped — SHALL stay under a budget asserted in CI after `next build` (initial value 240 kB gzipped: the Next 16.3 / React 19.2 runtime with Cache Components measured ~173 kB before any app code on 2026-09-05, leaving ~67 kB for the app's islands; adjusted only by an explicit change to `budget.json`), keeping interactive islands thin.
 
 #### Scenario: Budget exceeded
 - **WHEN** a change pushes the front page's first-load JS over budget

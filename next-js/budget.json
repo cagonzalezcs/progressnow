@@ -1,0 +1,5 @@
+{
+  "$comment": "Client JS budget asserted after `next build` by scripts/check-bundle-budget.mjs (openspec next-design-system § Client bundle budget). Sum of gzipped bytes of every script the prerendered front-page shell loads. Baseline measured 2026-09-05 on Next 16.3.4 + React 19.2 with Cache Components: ~173 kB is framework runtime before any app code. Change this number only on purpose.",
+  "route": "/",
+  "firstLoadJsGzipBytes": 245760
+}

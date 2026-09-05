@@ -13,7 +13,9 @@ import type { NextConfig } from "next";
  * Runtime validation of the full env contract lives in lib/env.ts; this file
  * only needs the origin to wire the static-asset proxy and image hosts. */
 
-const apiBase = process.env.WP_API_BASE ?? (process.env.MOCK_API === "1" ? "http://127.0.0.1:8787/wp-json/progressnow/v1" : "");
+const apiBase =
+  process.env.WP_API_BASE ??
+  (process.env.MOCK_API === "1" ? "http://127.0.0.1:8787/wp-json/progressnow/v1" : "");
 const wpOrigin = process.env.WP_ORIGIN ?? (apiBase ? new URL(apiBase).origin : "");
 
 /** Hosts next/image may optimize from: IMAGE_HOSTS, else the WordPress host. */
