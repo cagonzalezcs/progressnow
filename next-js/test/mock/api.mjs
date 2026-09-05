@@ -33,7 +33,7 @@ export const POST_SLUG = "contract-test-post";
 export const EVENT_SLUG = "contract-test-event";
 
 /** @typedef {"en" | "es"} Lang */
-/** @typedef {{ lang: Lang; path: string; slug: string; kind: "posts_index" | "about" | "get_involved" | "calendar" | "page"; template: string; title: string }} MockPage */
+/** @typedef {{ lang: Lang; path: string; slug: string; kind: "posts_index" | "about" | "get_involved" | "calendar" | "page" | "styleguide"; template: string; title: string }} MockPage */
 
 /** @type {Record<Lang, string>} */
 const HOME = { en: "/", es: "/es/" };
@@ -111,6 +111,14 @@ export const PAGES = [
     kind: "calendar",
     template: "page-templates/calendar.php",
     title: "Calendario de eventos",
+  },
+  {
+    lang: "en",
+    path: "/styleguide/",
+    slug: "styleguide",
+    kind: "styleguide",
+    template: "page-templates/styleguide.php",
+    title: "Styleguide",
   },
 ];
 

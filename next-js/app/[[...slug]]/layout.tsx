@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { slug } from "next/root-params";
 import "../globals.css";
+import { RootDocument } from "@/components/layout/RootDocument";
 import { getRoutes } from "@/lib/data";
 import { langForPath, pathFromSegments } from "@/lib/routes";
 
@@ -14,9 +15,5 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: LayoutProps<"/[[...slug]]">) {
   const manifest = await getRoutes();
   const lang = langForPath(manifest, pathFromSegments(await slug())) || "en";
-  return (
-    <html lang={lang}>
-      <body>{children}</body>
-    </html>
-  );
+  return <RootDocument lang={lang}>{children}</RootDocument>;
 }

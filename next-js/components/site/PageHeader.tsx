@@ -24,6 +24,8 @@ export interface PageHeaderProps {
   pullUp?: boolean;
   /** Accessible name of the breadcrumb nav (`strings.blog_crumb_*` family). */
   breadcrumbLabel?: string;
+  /** Routes render the page's h1; demos (styleguide) lower it to keep one h1 per document. */
+  titleAs?: "h1" | "h2" | "h3" | "p";
   before?: ReactNode;
   children?: ReactNode;
   wpOrigin: string;
@@ -37,6 +39,7 @@ export function PageHeader({
   wide = false,
   pullUp = false,
   breadcrumbLabel = "Breadcrumb",
+  titleAs: Title = "h1",
   before,
   children,
   wpOrigin,
@@ -90,7 +93,7 @@ export function PageHeader({
           </ol>
         </nav>
         {before}
-        <h1 className={cn("m-0 font-display font-normal", titleClass)}>{title}</h1>
+        <Title className={cn("m-0 font-display font-normal", titleClass)}>{title}</Title>
         {lede ? (
           <p className="m-0 max-w-[56ch] text-[1.05rem] font-semibold leading-[1.5] md:text-[1.12rem] xl:text-[1.25rem]">
             {lede}

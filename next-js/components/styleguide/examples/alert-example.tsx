@@ -1,15 +1,7 @@
-import {
-  Example,
-  ExampleWrapper,
-} from "@/components/example"
-import {
-  Alert,
-  AlertAction,
-  AlertDescription,
-  AlertTitle,
-} from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { Example, ExampleWrapper } from "@/components/styleguide/examples/example";
+import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -17,16 +9,10 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import {
-  Item,
-  ItemContent,
-  ItemDescription,
-  ItemMedia,
-  ItemTitle,
-} from "@/components/ui/item"
+} from "@/components/ui/card";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@/components/ui/item";
 import {
   Select,
   SelectContent,
@@ -34,8 +20,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { CircleAlertIcon, FolderIcon } from "lucide-react"
+} from "@/components/ui/select";
+import { CircleAlertIcon, FolderIcon } from "lucide-react";
 
 export default function AlertExample() {
   return (
@@ -46,7 +32,7 @@ export default function AlertExample() {
       <AlertExample4 />
       <AlertExample5 />
     </ExampleWrapper>
-  )
+  );
 }
 
 function AlertExample1() {
@@ -58,18 +44,14 @@ function AlertExample1() {
         </Alert>
         <Alert>
           <AlertTitle>Success! Your changes have been saved.</AlertTitle>
-          <AlertDescription>
-            This is an alert with title and description.
-          </AlertDescription>
+          <AlertDescription>This is an alert with title and description.</AlertDescription>
         </Alert>
         <Alert>
-          <AlertDescription>
-            This one has a description only. No title. No icon.
-          </AlertDescription>
+          <AlertDescription>This one has a description only. No title. No icon.</AlertDescription>
         </Alert>
       </div>
     </Example>
-  )
+  );
 }
 
 function AlertExample2() {
@@ -77,67 +59,56 @@ function AlertExample2() {
     <Example title="With Icons" className="style-sera:bg-transparent">
       <div className="mx-auto flex w-full max-w-lg flex-col gap-4">
         <Alert>
-          <CircleAlertIcon
-          />
+          <CircleAlertIcon />
           <AlertTitle>
             Let&apos;s try one with icon, title and a <a href="#">link</a>.
           </AlertTitle>
         </Alert>
         <Alert>
-          <CircleAlertIcon
-          />
+          <CircleAlertIcon />
           <AlertDescription>
-            This one has an icon and a description only. No title.{" "}
-            <a href="#">But it has a link</a> and a <a href="#">second link</a>.
+            This one has an icon and a description only. No title. <a href="#">But it has a link</a>{" "}
+            and a <a href="#">second link</a>.
           </AlertDescription>
         </Alert>
 
         <Alert>
-          <CircleAlertIcon
-          />
+          <CircleAlertIcon />
           <AlertTitle>Success! Your changes have been saved</AlertTitle>
-          <AlertDescription>
-            This is an alert with icon, title and description.
-          </AlertDescription>
+          <AlertDescription>This is an alert with icon, title and description.</AlertDescription>
         </Alert>
         <Alert>
-          <CircleAlertIcon
-          />
+          <CircleAlertIcon />
           <AlertTitle>
-            This is a very long alert title that demonstrates how the component
-            handles extended text content and potentially wraps across multiple
-            lines
+            This is a very long alert title that demonstrates how the component handles extended
+            text content and potentially wraps across multiple lines
           </AlertTitle>
         </Alert>
         <Alert>
-          <CircleAlertIcon
-          />
+          <CircleAlertIcon />
           <AlertDescription>
-            This is a very long alert description that demonstrates how the
-            component handles extended text content and potentially wraps across
-            multiple lines
+            This is a very long alert description that demonstrates how the component handles
+            extended text content and potentially wraps across multiple lines
           </AlertDescription>
         </Alert>
         <Alert>
-          <CircleAlertIcon
-          />
+          <CircleAlertIcon />
           <AlertTitle>
-            This is an extremely long alert title that spans multiple lines to
-            demonstrate how the component handles very lengthy headings while
-            maintaining readability and proper text wrapping behavior
+            This is an extremely long alert title that spans multiple lines to demonstrate how the
+            component handles very lengthy headings while maintaining readability and proper text
+            wrapping behavior
           </AlertTitle>
           <AlertDescription>
-            This is an equally long description that contains detailed
-            information about the alert. It shows how the component can
-            accommodate extensive content while preserving proper spacing,
-            alignment, and readability across different screen sizes and
-            viewport widths. This helps ensure the user experience remains
-            consistent regardless of the content length.
+            This is an equally long description that contains detailed information about the alert.
+            It shows how the component can accommodate extensive content while preserving proper
+            spacing, alignment, and readability across different screen sizes and viewport widths.
+            This helps ensure the user experience remains consistent regardless of the content
+            length.
           </AlertDescription>
         </Alert>
       </div>
     </Example>
-  )
+  );
 }
 
 function AlertExample3() {
@@ -145,21 +116,16 @@ function AlertExample3() {
     <Example title="Destructive" className="style-sera:bg-transparent">
       <div className="mx-auto flex w-full max-w-lg flex-col gap-4">
         <Alert variant="destructive">
-          <CircleAlertIcon
-          />
+          <CircleAlertIcon />
           <AlertTitle>Something went wrong!</AlertTitle>
-          <AlertDescription>
-            Your session has expired. Please log in again.
-          </AlertDescription>
+          <AlertDescription>Your session has expired. Please log in again.</AlertDescription>
         </Alert>
         <Alert variant="destructive">
-          <CircleAlertIcon
-          />
+          <CircleAlertIcon />
           <AlertTitle>Unable to process your payment.</AlertTitle>
           <AlertDescription>
             <p>
-              Please verify your <a href="#">billing information</a> and try
-              again.
+              Please verify your <a href="#">billing information</a> and try again.
             </p>
             <ul className="list-inside list-disc">
               <li>Check your card details</li>
@@ -170,7 +136,7 @@ function AlertExample3() {
         </Alert>
       </div>
     </Example>
-  )
+  );
 }
 
 function AlertExample4() {
@@ -178,20 +144,18 @@ function AlertExample4() {
     <Example title="With Actions" className="style-sera:bg-transparent">
       <div className="mx-auto flex w-full max-w-lg flex-col gap-4">
         <Alert>
-          <CircleAlertIcon
-          />
+          <CircleAlertIcon />
           <AlertTitle>The selected emails have been marked as spam.</AlertTitle>
           <AlertAction>
             <Button size="xs">Undo</Button>
           </AlertAction>
         </Alert>
         <Alert>
-          <CircleAlertIcon
-          />
+          <CircleAlertIcon />
           <AlertTitle>The selected emails have been marked as spam.</AlertTitle>
           <AlertDescription>
-            This is a very long alert title that demonstrates how the component
-            handles extended text content.
+            This is a very long alert title that demonstrates how the component handles extended
+            text content.
           </AlertDescription>
           <AlertAction>
             <Badge variant="secondary">Badge</Badge>
@@ -199,7 +163,7 @@ function AlertExample4() {
         </Alert>
       </div>
     </Example>
-  )
+  );
 }
 
 function AlertExample5() {
@@ -208,20 +172,13 @@ function AlertExample5() {
       <Card className="mx-auto w-full max-w-lg">
         <CardHeader>
           <CardTitle>Create project</CardTitle>
-          <CardDescription>
-            Fill in the form below to create a new project.
-          </CardDescription>
+          <CardDescription>Fill in the form below to create a new project.</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4 style-sera:gap-8">
           <Alert>
-            <CircleAlertIcon
-            />
-            <AlertTitle>
-              You have reached the limit of 3 free projects.
-            </AlertTitle>
-            <AlertDescription>
-              Upgrade to Pro to create unlimited projects.
-            </AlertDescription>
+            <CircleAlertIcon />
+            <AlertTitle>You have reached the limit of 3 free projects.</AlertTitle>
+            <AlertDescription>Upgrade to Pro to create unlimited projects.</AlertDescription>
           </Alert>
           <FieldGroup>
             <Field>
@@ -247,8 +204,7 @@ function AlertExample5() {
           </FieldGroup>
           <Item variant="outline">
             <ItemMedia variant="image" className="border">
-              <FolderIcon
-              />
+              <FolderIcon />
             </ItemMedia>
             <ItemContent>
               <ItemTitle>Project Alpha</ItemTitle>
@@ -261,5 +217,5 @@ function AlertExample5() {
         </CardFooter>
       </Card>
     </Example>
-  )
+  );
 }

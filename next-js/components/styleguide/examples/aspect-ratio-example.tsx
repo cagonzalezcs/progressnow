@@ -1,10 +1,7 @@
-import Image from "next/image"
+import Image from "next/image";
 
-import {
-  Example,
-  ExampleWrapper,
-} from "@/components/example"
-import { AspectRatio } from "@/components/ui/aspect-ratio"
+import { Example, ExampleWrapper } from "@/components/styleguide/examples/example";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 export default function AspectRatioExample() {
   return (
@@ -14,7 +11,7 @@ export default function AspectRatioExample() {
       <AspectRatio1x1 />
       <AspectRatio9x16 />
     </ExampleWrapper>
-  )
+  );
 }
 
 function AspectRatio16x9() {
@@ -32,7 +29,7 @@ function AspectRatio16x9() {
         />
       </AspectRatio>
     </Example>
-  )
+  );
 }
 
 function AspectRatio1x1() {
@@ -50,7 +47,7 @@ function AspectRatio1x1() {
         />
       </AspectRatio>
     </Example>
-  )
+  );
 }
 
 function AspectRatio9x16() {
@@ -68,7 +65,7 @@ function AspectRatio9x16() {
         />
       </AspectRatio>
     </Example>
-  )
+  );
 }
 
 function AspectRatio21x9() {
@@ -86,5 +83,5 @@ function AspectRatio21x9() {
         />
       </AspectRatio>
     </Example>
-  )
+  );
 }

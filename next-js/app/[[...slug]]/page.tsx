@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { slug } from "next/root-params";
 import { Suspense } from "react";
 import { RouteAbout } from "@/components/routes/RouteAbout";
@@ -9,7 +9,6 @@ import { RouteGetInvolved } from "@/components/routes/RouteGetInvolved";
 import { RoutePage } from "@/components/routes/RoutePage";
 import { RoutePost } from "@/components/routes/RoutePost";
 import { RoutePostsIndex } from "@/components/routes/RoutePostsIndex";
-import { RouteStyleguide } from "@/components/routes/RouteStyleguide";
 import type { RouteProps } from "@/components/routes/types";
 import { getRoutes } from "@/lib/data";
 import { resolveRoute } from "@/lib/routes";
@@ -26,7 +25,8 @@ import { resolveRoute } from "@/lib/routes";
 
 export async function generateStaticParams() {
   const manifest = await getRoutes();
-  return manifest.routes.map((route) => ({ slug: route.path.split("/").filter(Boolean) }));
+  // /styleguide/ is its own segment (app/styleguide); other-language styleguide paths redirect to it.
+  return manifest.routes.filter((route) => route.kind !== "styleguide").map((route) => ({ slug: route.path.split("/").filter(Boolean) }));
 }
 
 const ROUTES = {
@@ -39,8 +39,7 @@ const ROUTES = {
   search: RoutePostsIndex,
   post: RoutePost,
   event: RouteEvent,
-  styleguide: RouteStyleguide,
-} satisfies Record<string, (props: RouteProps) => Promise<React.ReactElement> | React.ReactElement>;
+} satisfies Record<string, React.ComponentType<RouteProps>>;
 
 export default async function Page({ searchParams }: PageProps<"/[[...slug]]">) {
   // Resolve BEFORE any Suspense boundary: a 404 must be decided before the
@@ -49,6 +48,7 @@ export default async function Page({ searchParams }: PageProps<"/[[...slug]]">) 
   // Path-only resolution here: `?s=` etc. are handled by the components that read searchParams.
   const resolved = resolveRoute(manifest, await slug());
   if (resolved.kind === "not_found") notFound();
+  if (resolved.kind === "styleguide") permanentRedirect("/styleguide/");
   const Component = ROUTES[resolved.kind as keyof typeof ROUTES];
   return (
     <Suspense fallback={<main id="main" aria-busy="true" />}>

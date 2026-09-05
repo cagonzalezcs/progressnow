@@ -22,11 +22,11 @@ Tailwind SHALL be v4 via `@tailwindcss/postcss` with configuration in CSS (`@the
 - **THEN** no file exists under `next-js/`
 
 ### Requirement: shadcn/ui component set
-UI primitives SHALL be shadcn/ui (`new-york`, `neutral` base, CSS variables, `lucide-react`) installed per component under `components/ui/`, only those the site components use; the shadcn semantic variables SHALL map to the shared tokens exactly as the theme's `:root` block does; Radix keyboard and ARIA behavior SHALL not be overridden.
+UI primitives SHALL be shadcn/ui (Radix base, `neutral`, CSS variables, `lucide-react`) installed per component under `components/ui/`; the site components use a small subset, and the full registry `ui` set is installed for the styleguide kitchen sink. The shadcn semantic variables SHALL map to the shared tokens exactly as the theme's `:root` block does; Radix keyboard and ARIA behavior SHALL not be overridden; the kitchen sink SHALL be imported only by the styleguide route so no other route's bundle grows.
 
-#### Scenario: Unused component absent
-- **WHEN** a shadcn component is not imported by any site component
-- **THEN** it is not present in `components/ui/`
+#### Scenario: Kitchen sink is route-isolated
+- **WHEN** the front page's first-load JavaScript is measured
+- **THEN** it contains no shadcn component the front page does not render
 
 #### Scenario: Semantic variables resolve to tokens
 - **WHEN** a shadcn `Button` renders with the default variant
@@ -54,7 +54,7 @@ Site components SHALL use role-named tokens (`brand`, `accent`, `alt`, `ink`, `-
 - **THEN** lint fails
 
 ### Requirement: Visual parity surface
-The styleguide route SHALL render every site component and every used shadcn component in each tone band and a11y mode; the e2e suite SHALL capture per-section screenshots as review artifacts for parity review against the Nuxt rendition.
+The styleguide route SHALL render every site component and the shadcn/ui kitchen sink — every installed registry component through its canonical registry example — in each tone band and a11y mode, grouped and anchored (brand tokens, site components, form controls, overlays & navigation, data & complex) with an in-page table of contents, so it serves as the visual guide to the library on the chapter tokens; the e2e suite SHALL capture per-section screenshots as review artifacts for parity review against the Nuxt rendition.
 
 #### Scenario: Screenshot artifacts
 - **WHEN** the e2e job runs

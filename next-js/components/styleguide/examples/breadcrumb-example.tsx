@@ -1,9 +1,6 @@
-import Link from "next/link"
+import Link from "next/link";
 
-import {
-  Example,
-  ExampleWrapper,
-} from "@/components/example"
+import { Example, ExampleWrapper } from "@/components/styleguide/examples/example";
 import {
   Breadcrumb,
   BreadcrumbEllipsis,
@@ -12,14 +9,14 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { Button } from "@/components/ui/button"
+} from "@/components/ui/breadcrumb";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 
 export default function BreadcrumbExample() {
   return (
@@ -28,7 +25,7 @@ export default function BreadcrumbExample() {
       <BreadcrumbWithDropdown />
       <BreadcrumbWithLink />
     </ExampleWrapper>
-  )
+  );
 }
 
 function BreadcrumbBasic() {
@@ -50,7 +47,7 @@ function BreadcrumbBasic() {
         </BreadcrumbList>
       </Breadcrumb>
     </Example>
-  )
+  );
 }
 
 function BreadcrumbWithDropdown() {
@@ -88,7 +85,7 @@ function BreadcrumbWithDropdown() {
         </BreadcrumbList>
       </Breadcrumb>
     </Example>
-  )
+  );
 }
 
 function BreadcrumbWithLink() {
@@ -118,5 +115,5 @@ function BreadcrumbWithLink() {
         </BreadcrumbList>
       </Breadcrumb>
     </Example>
-  )
+  );
 }

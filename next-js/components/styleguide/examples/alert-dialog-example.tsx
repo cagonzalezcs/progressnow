@@ -1,7 +1,4 @@
-import {
-  Example,
-  ExampleWrapper,
-} from "@/components/example"
+import { Example, ExampleWrapper } from "@/components/styleguide/examples/example";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,8 +10,8 @@ import {
   AlertDialogMedia,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { Button } from "@/components/ui/button"
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -23,8 +20,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { BluetoothIcon, Trash2Icon } from "lucide-react"
+} from "@/components/ui/dialog";
+import { BluetoothIcon, Trash2Icon } from "lucide-react";
 
 export default function AlertDialogExample() {
   return (
@@ -36,7 +33,7 @@ export default function AlertDialogExample() {
       <AlertDialogDestructive />
       <AlertDialogInDialog />
     </ExampleWrapper>
-  )
+  );
 }
 
 function AlertDialogBasic() {
@@ -50,8 +47,8 @@ function AlertDialogBasic() {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your
-              account and remove your data from our servers.
+              This action cannot be undone. This will permanently delete your account and remove
+              your data from our servers.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -61,7 +58,7 @@ function AlertDialogBasic() {
         </AlertDialogContent>
       </AlertDialog>
     </Example>
-  )
+  );
 }
 
 function AlertDialogSmall() {
@@ -85,7 +82,7 @@ function AlertDialogSmall() {
         </AlertDialogContent>
       </AlertDialog>
     </Example>
-  )
+  );
 }
 
 function AlertDialogWithMedia() {
@@ -98,13 +95,11 @@ function AlertDialogWithMedia() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogMedia>
-              <BluetoothIcon
-              />
+              <BluetoothIcon />
             </AlertDialogMedia>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete your account and remove your data
-              from our servers.
+              This will permanently delete your account and remove your data from our servers.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -114,7 +109,7 @@ function AlertDialogWithMedia() {
         </AlertDialogContent>
       </AlertDialog>
     </Example>
-  )
+  );
 }
 
 function AlertDialogSmallWithMedia() {
@@ -127,8 +122,7 @@ function AlertDialogSmallWithMedia() {
         <AlertDialogContent size="sm">
           <AlertDialogHeader>
             <AlertDialogMedia>
-              <BluetoothIcon
-              />
+              <BluetoothIcon />
             </AlertDialogMedia>
             <AlertDialogTitle>Allow accessory to connect?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -142,7 +136,7 @@ function AlertDialogSmallWithMedia() {
         </AlertDialogContent>
       </AlertDialog>
     </Example>
-  )
+  );
 }
 
 function AlertDialogDestructive() {
@@ -155,14 +149,12 @@ function AlertDialogDestructive() {
         <AlertDialogContent size="sm">
           <AlertDialogHeader>
             <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
-              <Trash2Icon
-              />
+              <Trash2Icon />
             </AlertDialogMedia>
             <AlertDialogTitle>Delete chat?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete this chat conversation. View{" "}
-              <a href="#">Settings</a> delete any memories saved during this
-              chat.
+              This will permanently delete this chat conversation. View <a href="#">Settings</a>{" "}
+              delete any memories saved during this chat.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -172,7 +164,7 @@ function AlertDialogDestructive() {
         </AlertDialogContent>
       </AlertDialog>
     </Example>
-  )
+  );
 }
 
 function AlertDialogInDialog() {
@@ -185,9 +177,7 @@ function AlertDialogInDialog() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Alert Dialog Example</DialogTitle>
-            <DialogDescription>
-              Click the button below to open an alert dialog.
-            </DialogDescription>
+            <DialogDescription>Click the button below to open an alert dialog.</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <AlertDialog>
@@ -198,8 +188,8 @@ function AlertDialogInDialog() {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete
-                    your account and remove your data from our servers.
+                    This action cannot be undone. This will permanently delete your account and
+                    remove your data from our servers.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -212,5 +202,5 @@ function AlertDialogInDialog() {
         </DialogContent>
       </Dialog>
     </Example>
-  )
+  );
 }

@@ -145,8 +145,8 @@ The browser SHALL make no requests to the WordPress origin for data or scripts; 
 - **THEN** the only requests to the WordPress origin are image requests
 
 ### Requirement: Styleguide route
-`/styleguide/` SHALL render every site component and shadcn/ui component in use with fixture data, in every tone band and a11y mode, and SHALL be `noindex,follow`; it is the visual-parity and first axe-core target.
+`/styleguide/` SHALL render every site component with fixture data and the shadcn/ui kitchen sink (every installed registry component via its canonical example), in every tone band and a11y mode, with an in-page table of contents, and SHALL be `noindex,follow`; it is the visual guide to the library, the visual-parity surface, and the first axe-core target.
 
 #### Scenario: Styleguide complete
 - **WHEN** `/styleguide/` renders
-- **THEN** it contains a section per site component and per tone band, and its robots directive is `noindex,follow`
+- **THEN** it contains a section per site component, per tone band, and per installed shadcn/ui component, each reachable from the table of contents, and its robots directive is `noindex,follow`

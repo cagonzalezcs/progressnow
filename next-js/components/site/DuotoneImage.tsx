@@ -37,7 +37,8 @@ export function DuotoneImage({
       className={["duotone", className].filter(Boolean).join(" ")}
       style={{ ["--duotone-opacity" as string]: String(opacity) } as React.CSSProperties}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element -- WordPress-sized srcset; see design D4 */}
+      {/* WordPress-sized srcset; see design D4 */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={src}
         alt={alt}
