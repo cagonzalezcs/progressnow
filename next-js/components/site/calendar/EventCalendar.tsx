@@ -17,13 +17,16 @@ import {
   type EventWindow,
   type YearMonth,
 } from "@/lib/calendar";
+import { eventCategories } from "@/lib/categories";
 import type { ChapterEvent, EventCategory } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 
 /* Calendar island (openspec progress-now-v4-events D1/D2/D5; next-headless-site
  * § Interactive archive and calendar). The server renders the requested month
  * from the REST window it fetched (−1 → +12 months) and hands it over as props;
- * the island owns month paging, the Month/List toggle and the preview dialog.
+ * the island owns month paging, the Month/List toggle, the category filter
+ * chips (FILTER: All events / term chips with swatch dots, as on the reference
+ * site) and the preview dialog.
  * URL state (`?view=`, `?month=`, `?category=`) is written with
  * history.replaceState so a reload or a shared link lands on the same month.
  * Months outside the window load through the same-origin /api/events with a
@@ -32,6 +35,8 @@ export interface CalendarLabels {
   monthLabelText: string;
   listLabelText: string;
   viewGroupLabel: string;
+  filterLabel: string;
+  allEventsLabel: string;
   prevLabel: string;
   nextLabel: string;
   viewLabel: string;
@@ -50,6 +55,8 @@ export const DEFAULT_CALENDAR_LABELS: CalendarLabels = {
   monthLabelText: "Month",
   listLabelText: "List",
   viewGroupLabel: "View",
+  filterLabel: "Filter:",
+  allEventsLabel: "All events",
   prevLabel: "Previous month",
   nextLabel: "Next month",
   viewLabel: "View event",
@@ -66,6 +73,8 @@ export const DEFAULT_CALENDAR_LABELS: CalendarLabels = {
 
 const NAV_BTN =
   "inline-flex size-11 flex-none cursor-pointer items-center justify-center rounded-full border-2 border-control bg-white p-0 text-[1.1rem] font-extrabold text-ink transition-colors hover:border-accent hover:bg-accent hover:text-white";
+const CHIP =
+  "inline-flex cursor-pointer items-center gap-2 rounded-full border px-3.5 py-2 text-[0.85rem] font-bold leading-[1.5] transition-colors";
 const SEG_BTN =
   "cursor-pointer rounded-full border-none px-[22px] py-[9px] font-display text-[0.9rem] font-normal tracking-[0.03em] transition-colors";
 
@@ -82,7 +91,7 @@ export function EventCalendar({
   initialView = "month",
   defaultView = "month",
   initialMonth,
-  category = "all",
+  category: initialCategory = "all",
   categories,
   showCategoryColors = true,
   basePath,
@@ -100,7 +109,7 @@ export function EventCalendar({
   initialView?: "month" | "list";
   defaultView?: "month" | "list";
   initialMonth?: YearMonth;
-  /** `?category=` narrows the window (no chips in v4) */
+  /** initial `?category=` (the chips write it back) */
   category?: string;
   categories?: EventCategory[] | null;
   showCategoryColors?: boolean;
@@ -119,7 +128,9 @@ export function EventCalendar({
   const currentMonth = monthOf(todayISO);
   const [view, setView] = useState<"month" | "list">(initialView);
   const [ym, setYm] = useState<YearMonth>(initialMonth ?? currentMonth);
+  const [category, setCategory] = useState(initialCategory);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const palette = eventCategories(categories);
   const [extra, setExtra] = useState<Record<string, MonthState>>({});
   const [retryTick, setRetryTick] = useState(0);
   /** months already requested (ref: read/written only in effects and handlers) */
@@ -208,51 +219,87 @@ export function EventCalendar({
     <div className="event-calendar" data-calendar="">
       {/* Toolbar: month nav + Month/List segmented control */}
       <section className="bg-white px-6 pt-7 md:pt-10" data-tone="white">
-        <div className="mx-auto flex max-w-[1200px] flex-col gap-4 md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-5">
-          <div className="flex items-center justify-between gap-2.5 md:justify-start md:gap-3.5">
-            <button
-              type="button"
-              aria-label={L.prevLabel}
-              className={NAV_BTN}
-              onClick={() => changeMonth(-1)}
+        <div className="mx-auto flex max-w-[1200px] flex-col gap-5">
+          <div className="flex flex-col gap-4 md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-5">
+            <div className="flex items-center justify-between gap-2.5 md:justify-start md:gap-3.5">
+              <button
+                type="button"
+                aria-label={L.prevLabel}
+                className={NAV_BTN}
+                onClick={() => changeMonth(-1)}
+              >
+                <span aria-hidden="true">←</span>
+              </button>
+              <h2
+                id={headingId}
+                aria-live="polite"
+                className="m-0 text-center font-display text-[1.25rem] font-normal md:min-w-[280px] md:text-[clamp(1.3rem,2.4vw,1.8rem)]"
+              >
+                {monthLabel(ym)}
+              </h2>
+              <button
+                type="button"
+                aria-label={L.nextLabel}
+                className={NAV_BTN}
+                onClick={() => changeMonth(1)}
+              >
+                <span aria-hidden="true">→</span>
+              </button>
+            </div>
+            <div
+              role="group"
+              aria-label={L.viewGroupLabel}
+              className="flex items-center gap-0.5 self-center rounded-full bg-alt p-1 md:self-auto"
             >
-              <span aria-hidden="true">←</span>
-            </button>
-            <h2
-              id={headingId}
-              aria-live="polite"
-              className="m-0 text-center font-display text-[1.25rem] font-normal md:min-w-[280px] md:text-[clamp(1.3rem,2.4vw,1.8rem)]"
-            >
-              {monthLabel(ym)}
-            </h2>
-            <button
-              type="button"
-              aria-label={L.nextLabel}
-              className={NAV_BTN}
-              onClick={() => changeMonth(1)}
-            >
-              <span aria-hidden="true">→</span>
-            </button>
+              {(["month", "list"] as const).map((v) => (
+                <button
+                  key={v}
+                  type="button"
+                  aria-pressed={view === v}
+                  className={cn(
+                    SEG_BTN,
+                    view === v
+                      ? "bg-brand text-white"
+                      : "bg-transparent text-ink hover:bg-control-faint",
+                  )}
+                  onClick={() => setView(v)}
+                >
+                  {v === "month" ? L.monthLabelText : L.listLabelText}
+                </button>
+              ))}
+            </div>
           </div>
+
+          {/* Category filter chips: "All events" + one per term, swatch dot in term color */}
           <div
             role="group"
-            aria-label={L.viewGroupLabel}
-            className="flex items-center gap-0.5 self-center rounded-full bg-alt p-1 md:self-auto"
+            aria-label={L.filterLabel}
+            className="flex flex-wrap items-center gap-2"
           >
-            {(["month", "list"] as const).map((v) => (
+            <span className="mr-1.5 font-display text-[0.82rem] font-bold uppercase tracking-[0.06em] text-muted">
+              {L.filterLabel}
+            </span>
+            {palette.map((cat) => (
               <button
-                key={v}
+                key={cat.id}
                 type="button"
-                aria-pressed={view === v}
+                aria-pressed={category === cat.id}
                 className={cn(
-                  SEG_BTN,
-                  view === v
-                    ? "bg-brand text-white"
-                    : "bg-transparent text-ink hover:bg-control-faint",
+                  CHIP,
+                  category === cat.id
+                    ? "border-ink bg-ink text-white"
+                    : "border-control bg-white text-ink hover:border-ink",
                 )}
-                onClick={() => setView(v)}
+                onClick={() => setCategory(cat.id)}
               >
-                {v === "month" ? L.monthLabelText : L.listLabelText}
+                {showCategoryColors && cat.color ? (
+                  <span
+                    aria-hidden="true"
+                    className="inline-block size-2.5 flex-none rounded-full"
+                    style={{ backgroundColor: cat.color }}
+                  />
+                ) : null}
+                {cat.id === "all" ? L.allEventsLabel : cat.label}
               </button>
             ))}
           </div>

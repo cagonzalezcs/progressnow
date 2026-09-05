@@ -97,7 +97,8 @@ describe("EventCalendar", () => {
     expect(window.location.search).toBe("");
   });
 
-  it("initial props come from the URL: list view, requested month, category filter", () => {
+  it("initial props come from the URL: list view, requested month, category filter; chips change it", async () => {
+    const user = userEvent.setup();
     renderCalendar({
       events: [event, second],
       initialView: "list",
@@ -107,6 +108,16 @@ describe("EventCalendar", () => {
     expect(screen.getByRole("button", { name: "List" })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getAllByRole("link", { name: /View event/ })).toHaveLength(1);
     expect(screen.getByRole("link", { name: "View event: Second Event" })).toBeInTheDocument();
+    const filter = screen.getByRole("group", { name: "Filter:" });
+    expect(within(filter).getByRole("button", { name: "Labor" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await user.click(within(filter).getByRole("button", { name: "All events" }));
+    expect(screen.getAllByRole("link", { name: /View event/ })).toHaveLength(2);
+    expect(window.location.search).toBe("?view=list"); // July is the current month → no month param
+    await user.click(within(filter).getByRole("button", { name: "Chapter-Wide" }));
+    expect(window.location.search).toBe("?view=list&category=chapter");
   });
 
   it("arrow keys move one tab stop across days; Enter opens the day's event; Escape restores focus", async () => {

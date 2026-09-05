@@ -10,9 +10,10 @@ import { cn } from "@/lib/utils";
 /* Month grid (openspec progress-now-v4-events D2, spec "Month grid (v4)";
  * next-accessibility § Keyboard): radius-20 card with --color-line gaps, brand
  * weekday header (single letters under 700px), white in-month / alt
- * out-of-month cells, 28px numeral circle (yellow for today). Events are brand
- * chips from 700px — the term color survives as a left accent stripe — and 7px
- * dots below. Keyboard: one tab stop; arrows move between days (Home/End =
+ * out-of-month cells, 28px numeral circle (yellow for today). Events are solid
+ * chips from 700px, filled with the category term color (brand blue when
+ * colors are off / unset), and one dot per event in the same color below.
+ * Keyboard: one tab stop; arrows move between days (Home/End =
  * week edges, PageUp/PageDown = previous/next month), Enter/Space on a day
  * opens its event (or focuses its chips when there are several). */
 export function MonthGrid({
@@ -114,7 +115,8 @@ export function MonthGrid({
     }
   }
 
-  const accent = (ev: ChapterEvent) =>
+  /** Term color as the chip / dot fill (null → plain brand chip). */
+  const fill = (ev: ChapterEvent) =>
     showCategoryColors ? (categoryById(ev.cat, palette).color ?? undefined) : undefined;
 
   return (
@@ -177,13 +179,24 @@ export function MonthGrid({
                   {count ? (
                     <span
                       aria-hidden="true"
-                      className="block size-[7px] rounded-full bg-brand min-[700px]:hidden"
-                    />
+                      className="flex flex-wrap gap-[3px] min-[700px]:hidden"
+                    >
+                      {day.events.map((ev) => {
+                        const color = fill(ev);
+                        return (
+                          <span
+                            key={ev.id}
+                            className="block size-[7px] rounded-full bg-brand"
+                            style={color ? { backgroundColor: color } : undefined}
+                          />
+                        );
+                      })}
+                    </span>
                   ) : null}
                   {count ? (
                     <div className="hidden w-full flex-col gap-1 min-[700px]:flex">
                       {day.events.map((ev, i) => {
-                        const color = accent(ev);
+                        const color = fill(ev);
                         return (
                           <button
                             key={ev.id}
@@ -194,8 +207,8 @@ export function MonthGrid({
                               else chipRefs.current.delete(ev.id);
                             }}
                             aria-label={`${ev.title} — ${ev.time}`}
-                            style={color ? { boxShadow: `inset 4px 0 0 ${color}` } : undefined}
-                            className="block w-full cursor-pointer truncate rounded-[8px] border-none bg-brand px-2 py-[5px] text-left text-[0.72rem] font-bold leading-[1.25] text-white transition-colors hover:bg-brand-deep"
+                            style={color ? { backgroundColor: color } : undefined}
+                            className="block w-full cursor-pointer truncate rounded-[8px] border-none bg-brand px-2 py-[5px] text-left text-[0.72rem] font-bold leading-[1.25] text-white transition-[filter,background-color] hover:brightness-[.85]"
                             onClick={() => onSelect(ev.id)}
                             onKeyDown={(e) => onChipKey(e, day, i)}
                           >

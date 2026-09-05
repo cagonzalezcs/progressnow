@@ -121,6 +121,8 @@ export function calendarLabels(site: SiteEnvelope): Partial<CalendarLabels> {
     emptyTitle: str("cal_empty_h"),
     emptyBody: str("cal_empty_p"),
     icsLabel: str("cal_ics"),
+    filterLabel: str("cal_filter"),
+    allEventsLabel: str("cal_all_events"),
     prevLabel: str("cal_prev"),
     nextLabel: str("cal_next"),
     loading: str("cal_loading"),
