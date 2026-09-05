@@ -84,3 +84,5 @@ wp-config.php
 
 # Frontend
 /node_modules/
+.vercel
+.env*
