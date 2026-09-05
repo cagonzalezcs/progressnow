@@ -1,9 +1,9 @@
 ## 1. Rename `site/` → `nuxt-js/` (shippable alone)
 
-- [ ] 1.1 `git mv site nuxt-js`; fix self-references (`nuxt-js/README.md` title, `test/unit/shared-source-drift.test.ts` comments/describe); in `nuxt-js/`: `npm ci && npm run lint && npm run typecheck && npm test && npm run generate:mock && npm run verify:output` — all green (relative `../wp-content` paths keep the same depth)
-- [ ] 1.2 Update every path reference: root `README.md` (8), `docs/deployment.md` (11), `wp-content/themes/progressnow/bin/worktree-bootstrap.sh`, theme `README.md` (3), `inc/payloads.php` comment, `openspec/changes/nuxt4-static-platform/{proposal,design,tasks}.md` + its `specs/**` (`site/` → `nuxt-js/`; the future `.github/workflows/{ci,rebuild-site}.yml` from nuxt4 tasks 6.x/7.3 must use `nuxt-js/` — no workflow files exist yet)
-- [ ] 1.3 Rewrite root `README.md` around "one CMS, three frontends": PHP theme (server-rendered, no Node) / `nuxt-js` (static rendition + PHP shell handoff) / `next-js` (headless, Node-hosted); per-install decision table (frontend, `CHAPTER_REBUILD_TRANSPORT`, `CHAPTER_CANONICAL_ORIGIN`, `CHAPTER_STATIC_DIR`); links to each app's README
-- [ ] 1.4 Verify: `grep -rn "site/"` outside `components/site` and `openspec/changes/archive` returns nothing actionable; commit "Rename site/ to nuxt-js/" (one mechanical commit, revertable)
+- [x] 1.1 `git mv site nuxt-js`; fix self-references (`nuxt-js/README.md` title, `test/unit/shared-source-drift.test.ts` comments/describe); in `nuxt-js/`: `npm ci && npm run lint && npm run typecheck && npm test && npm run generate:mock && npm run verify:output` — all green (relative `../wp-content` paths keep the same depth)
+- [x] 1.2 Update every path reference: root `README.md` (8), `docs/deployment.md` (11), `wp-content/themes/progressnow/bin/worktree-bootstrap.sh`, theme `README.md` (3), `inc/payloads.php` comment, `openspec/changes/nuxt4-static-platform/{proposal,design,tasks}.md` + its `specs/**` (`site/` → `nuxt-js/`; the future `.github/workflows/{ci,rebuild-site}.yml` from nuxt4 tasks 6.x/7.3 must use `nuxt-js/` — no workflow files exist yet)
+- [x] 1.3 Rewrite root `README.md` around "one CMS, three frontends": PHP theme (server-rendered, no Node) / `nuxt-js` (static rendition + PHP shell handoff) / `next-js` (headless, Node-hosted); per-install decision table (frontend, `CHAPTER_REBUILD_TRANSPORT`, `CHAPTER_CANONICAL_ORIGIN`, `CHAPTER_STATIC_DIR`); links to each app's README
+- [x] 1.4 Verify: `grep -rn "site/"` outside `components/site` and `openspec/changes/archive` returns nothing actionable; commit "Rename site/ to nuxt-js/" (one mechanical commit, revertable)
 
 ## 2. Scaffold `next-js/` and the test harness (no UI yet)
 
