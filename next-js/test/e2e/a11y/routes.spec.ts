@@ -65,3 +65,18 @@ test("chrome interactive states: mobile nav open, a11y popover open", async ({
   out = await scan(page, testInfo, "state-a11y-popover-open");
   expect(out.errors, formatViolations(out.errors)).toEqual([]);
 });
+
+test("calendar interactive states: list view, event dialog open", async ({ page }, testInfo) => {
+  await page.goto("/calendar/?month=2026-07&view=list");
+  await expect(page.getByRole("link", { name: /View event: / })).toBeVisible(); // out-of-window fetch done
+  await settle(page);
+  let out = await scan(page, testInfo, "state-calendar-list");
+  expect(out.errors, formatViolations(out.errors)).toEqual([]);
+
+  await page.goto("/calendar/?month=2026-07");
+  await page.getByRole("button", { name: /Contract Test Event —/ }).click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await settle(page);
+  out = await scan(page, testInfo, "state-calendar-dialog-open");
+  expect(out.errors, formatViolations(out.errors)).toEqual([]);
+});

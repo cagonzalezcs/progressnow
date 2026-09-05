@@ -123,7 +123,7 @@ A single mechanical commit: `git mv site nuxt-js`, then update `README.md`, `doc
 - [Drift tests couple to the theme path] → same as Nuxt; CI checks out the monorepo; documented.
 - [Visual parity without pixel diffs] → styleguide route + per-route screenshots as review artifacts; pixel diffs are an opt-in follow-up.
 - [Next view-transition support is experimental] → isolated to one wrapper component; feature-flagged; e2e asserts both the animated and the reduced-motion paths so removing the flag is a one-line change.
-- [Client bundle growth from shadcn/Radix] → islands only (D6); bundle budget asserted in CI (`next build` size output checked against a threshold).
+- [Client bundle growth from shadcn/Radix] → islands only (D6); bundle budget asserted in CI (`next build` size output checked against a threshold). **Learned 2026-09-05 (task 6.6):** with a single `[[...slug]]` page, every client component statically imported by any route lands in the page's shared chunks, so the front page pays for the calendar island; `next/dynamic` called from a server component did not split it under Turbopack. The working split point is a dynamic `import()` inside the client graph (`CalendarIsland.tsx`: a tiny `"use client"` wrapper with `React.lazy` + `Suspense`, still server-rendered). Use that pattern for any further route-specific island of size.
 - [Hardcoded copy sneaking in] → components accept `strings` props; e2e runs in `es` and fails on English fallbacks for known keys.
 - [Receiver exposed publicly] → constant-time HMAC, replay window, size cap, no upstream call on failure; rate limiting left to the host/edge and documented.
 

@@ -31,7 +31,11 @@ export function resolveHref(raw: string, wpOrigin: string): ResolvedHref {
   if (url.origin !== new URL(wpOrigin).origin) {
     return { kind: "external", href };
   }
-  if (WORDPRESS_ONLY.test(url.pathname) || FILE.test(url.pathname)) {
+  if (
+    WORDPRESS_ONLY.test(url.pathname) ||
+    FILE.test(url.pathname) ||
+    url.searchParams.has("feed") // `?feed=chapter-events` (plain permalinks)
+  ) {
     return { kind: "wordpress", href: url.href };
   }
   return { kind: "internal", href: `${url.pathname}${url.search}${url.hash}` };
