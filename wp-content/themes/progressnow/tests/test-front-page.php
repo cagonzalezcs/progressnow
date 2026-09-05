@@ -48,7 +48,7 @@ class TestFrontPage extends BaseTestCase {
 		$this->assertSame( 'We’re fighting for the future Springfield deserves.', $hero['subhead'] );
 		$this->assertSame( 'New member? Start with Springfield Forward 101. Sign up here', $hero['cta_secondary_label'] );
 		$this->assertStringContainsString( 'Springfield Forward', $who['heading'] );
-		$this->assertStringContainsString( 'In Springfield,', $who['p1'] );
+		// Who-we-are paragraphs are lorem placeholders; only the heading carries identity.
 	}
 
 	/** Who we are: three paragraphs, v3 copy, arrow-free link label. */

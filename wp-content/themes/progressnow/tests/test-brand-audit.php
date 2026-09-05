@@ -72,7 +72,7 @@ class TestBrandAudit extends BaseTestCase {
 
 	public function test_no_regional_artwork_ships() {
 		$brand = dirname( __DIR__ ) . '/static/images/brand';
-		foreach ( array( 'county-map.svg', 'hero-headline.svg', 'cta-panel.svg' ) as $gone ) {
+		foreach ( array( 'county-map.svg', 'hero-headline.svg' ) as $gone ) {
 			$this->assertFileDoesNotExist( $brand . '/' . $gone );
 		}
 		foreach ( array( 'logo-square.png', 'share-default.jpg', 'hero-photo.jpg', 'who-photo.jpg', 'cta-panel.svg', 'flames-tile-light.png', 'star.svg', 'star-notch.svg', 'sparkle.svg' ) as $placeholder ) {

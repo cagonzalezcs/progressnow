@@ -183,74 +183,74 @@ $progressnow_seed_enriched = array(
 		'rsvp_required' => 1,
 		'rsvp_url'      => '/get-involved/#join',
 		'capacity'      => 40,
-		'contact_name'  => 'Political Education Committee',
-		'contact_email' => 'poled@example.org',
+		'contact_name'  => 'Education Committee',
+		'contact_email' => 'education@example.org',
 		'contact_phone' => '(555) 555-0142',
 		'body'          => array(
 			array(
 				'acf_fc_layout' => 'prose',
-				'content'       => '<p>Curious about organizing but not sure where to start? This is the session for you. We break down what people-powered organizing actually means, where it comes from, and — most importantly — what it looks like organizing here in our community.</p><p>No prior reading is required and there are no wrong questions. Come as you are, bring a friend, and stay for the conversation afterward.</p>',
+				'content'       => '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p><p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.</p>',
 			),
 			array(
 				'acf_fc_layout' => 'agenda',
 				'items'         => array(
-					array( 'title' => 'Welcome & introductions', 'desc' => 'New folks say hi and share what brought them.' ),
-					array( 'title' => 'What is organizing?', 'desc' => 'A short, plain-language talk — no jargon.' ),
-					array( 'title' => 'Small-group discussion', 'desc' => 'Break out and talk through the ideas together.' ),
-					array( 'title' => 'Q&A and next steps', 'desc' => 'Ask anything; learn how to plug in.' ),
+					array( 'title' => 'Welcome & introductions', 'desc' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.' ),
+					array( 'title' => 'Presentation', 'desc' => 'Sed do eiusmod tempor incididunt ut labore et dolore.' ),
+					array( 'title' => 'Small-group discussion', 'desc' => 'Ut enim ad minim veniam, quis nostrud exercitation.' ),
+					array( 'title' => 'Q&A and next steps', 'desc' => 'Duis aute irure dolor in reprehenderit in voluptate.' ),
 				),
 			),
 			array(
 				'acf_fc_layout' => 'good_to_know',
 				'items'         => array(
-					array( 'text' => 'Doors open 30 minutes early — come early to mingle.' ),
-					array( 'text' => 'Free snacks and coffee provided.' ),
-					array( 'text' => 'Free parking in the library lot.' ),
+					array( 'text' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.' ),
+					array( 'text' => 'Sed do eiusmod tempor incididunt ut labore.' ),
+					array( 'text' => 'Ut enim ad minim veniam, quis nostrud exercitation.' ),
 				),
 			),
 			array(
 				'acf_fc_layout' => 'a11y_note',
-				'content'       => '<p>The venue is wheelchair accessible. Childcare and Spanish interpretation are available on request — email us at least 48 hours ahead and we will make it happen.</p>',
+				'content'       => '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>',
 			),
 			array( 'acf_fc_layout' => 'map' ),
 		),
 	),
 	// Online — exercises the Online row; the map layout is dropped.
-	'Know Your Rights at Work'                    => array(
-		'event_summary' => 'A practical, worker-to-worker workshop on your rights on the job — what they are, and how to protect them.',
+	'Online Workshop'                    => array(
+		'event_summary' => 'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.',
 		'doors_time'    => '',
 		'location_type' => 'online',
 		'cost'          => 'Free · open to the public',
 		'rsvp_required' => 1,
 		'rsvp_url'      => '/get-involved/#join',
 		'capacity'      => 100,
-		'contact_name'  => 'Labor Committee',
-		'contact_email' => 'labor@example.org',
+		'contact_name'  => 'Workshops Committee',
+		'contact_email' => 'workshops@example.org',
 		'contact_phone' => '',
 		'body'          => array(
 			array(
 				'acf_fc_layout' => 'prose',
-				'content'       => '<p>Whether you are salaried, hourly, or gig, you have rights on the job — and knowing them is the first step to defending them. This online workshop covers concerted activity, retaliation, and what to document, led by members of the Labor committee alongside guest organizers.</p><p>Bring your questions. The Zoom link is shared with everyone who RSVPs.</p>',
+				'content'       => '<p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet.</p><p>Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam.</p>',
 			),
 			array(
 				'acf_fc_layout' => 'agenda',
 				'items'         => array(
-					array( 'title' => 'Your rights at work', 'desc' => 'Concerted activity and what it protects.' ),
-					array( 'title' => 'Spotting retaliation', 'desc' => 'What it looks like and what to do.' ),
-					array( 'title' => 'Documentation clinic', 'desc' => 'Practical habits for building a record.' ),
-					array( 'title' => 'Open Q&A', 'desc' => 'Bring your workplace questions.' ),
+					array( 'title' => 'Opening remarks', 'desc' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.' ),
+					array( 'title' => 'Presentation', 'desc' => 'Sed do eiusmod tempor incididunt ut labore et dolore.' ),
+					array( 'title' => 'Breakout session', 'desc' => 'Ut enim ad minim veniam, quis nostrud exercitation.' ),
+					array( 'title' => 'Open Q&A', 'desc' => 'Duis aute irure dolor in reprehenderit in voluptate.' ),
 				),
 			),
 			array(
 				'acf_fc_layout' => 'good_to_know',
 				'items'         => array(
 					array( 'text' => 'The Zoom link is emailed to everyone who RSVPs.' ),
-					array( 'text' => 'Live Spanish interpretation available on request.' ),
+					array( 'text' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.' ),
 				),
 			),
 			array(
 				'acf_fc_layout' => 'a11y_note',
-				'content'       => '<p>Auto-captions are enabled on the call. Need something else to take part? Email us and we will arrange it.</p>',
+				'content'       => '<p>Auto-captions are enabled on the call. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>',
 			),
 			array( 'acf_fc_layout' => 'map' ),
 		),
@@ -530,7 +530,7 @@ if ( $progressnow_seed_share_id && ! get_field( 'default_share_image', 'option' 
 /* --- p1: block markup using every block type (SAMPLE_SINGLE fixture). */
 
 if ( $progressnow_seed_p1_id ) {
-	$brake_light_id = isset( $progressnow_seed_event_ids['Brake Light Clinic'] ) ? (int) $progressnow_seed_event_ids['Brake Light Clinic'] : 0;
+	$brake_light_id = isset( $progressnow_seed_event_ids['Volunteer Morning'] ) ? (int) $progressnow_seed_event_ids['Volunteer Morning'] : 0;
 	$doc_id         = $progressnow_seed_pdf_id ? (int) $progressnow_seed_pdf_id : 0;
 
 	$acf_block = function ( $name, $data ) {
@@ -724,12 +724,12 @@ update_field( 'field_progressnow_options_facebook_url', '', 'option' );
 update_field( 'field_progressnow_options_twitter_url', '', 'option' );
 update_field( 'field_progressnow_options_event_count', 5, 'option' );
 update_field( 'field_progressnow_options_committees', array(
-	array( 'name' => 'Political Education', 'desc' => 'Reading groups, night school, and workshops that build our shared analysis.' ),
-	array( 'name' => 'Mutual Aid', 'desc' => "Meeting our neighbors' immediate needs while organizing for lasting change." ),
-	array( 'name' => 'Labor', 'desc' => 'Supporting workers organizing on the job across our community.' ),
-	array( 'name' => 'Communications', 'desc' => "Social media, design, and this website — telling the chapter's story." ),
-	array( 'name' => 'Electoral', 'desc' => 'Backing candidates and ballot measures that fight for working people.' ),
-	array( 'name' => 'Membership & Onboarding', 'desc' => 'Welcoming new members and making sure no one falls through the cracks.' ),
+	array( 'name' => 'Education', 'desc' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.' ),
+	array( 'name' => 'Community', 'desc' => 'Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' ),
+	array( 'name' => 'Workshops', 'desc' => 'Ut enim ad minim veniam, quis nostrud exercitation ullamco.' ),
+	array( 'name' => 'Communications', 'desc' => 'Duis aute irure dolor in reprehenderit in voluptate velit esse.' ),
+	array( 'name' => 'Outreach', 'desc' => 'Excepteur sint occaecat cupidatat non proident, sunt in culpa.' ),
+	array( 'name' => 'Membership & Onboarding', 'desc' => 'Sed ut perspiciatis unde omnis iste natus error sit voluptatem.' ),
 ), 'option' );
 update_field( 'field_progressnow_options_counties', array_map(
 	static function ( $name ) {
@@ -742,7 +742,7 @@ update_field( 'field_progressnow_options_counties', array_map(
 // Chapter Settings field empty so the design default renders (editors may still set one).
 update_field( 'field_progressnow_options_footer_tagline', '', 'option' );
 update_field( 'field_progressnow_options_newhere_heading', 'New here?', 'option' );
-update_field( 'field_progressnow_options_newhere_body', 'Come to a <span class="notranslate">Progress Now 101</span> — our intro session for new and curious folks.', 'option' );
+update_field( 'field_progressnow_options_newhere_body', 'Come to a <span class="notranslate">Progress Now 101</span> — our intro session for newcomers.', 'option' );
 update_field( 'field_progressnow_options_newhere_link_label', 'Find a session', 'option' );
 update_field( 'field_progressnow_options_newhere_link_url', '/calendar/', 'option' );
 progressnow_seed_log( 'chapter settings options seeded' );
@@ -752,19 +752,19 @@ progressnow_seed_log( 'chapter settings options seeded' );
 
 /* --- Posts-page lede (interior `lede` field on the page_for_posts page). */
 if ( $blog_page_id ) {
-	update_field( 'field_progressnow_interior_lede', 'News, analysis, and dispatches from chapter organizers across our community.', $blog_page_id );
+	update_field( 'field_progressnow_interior_lede', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.', $blog_page_id );
 	progressnow_seed_log( "posts-page lede seeded (#{$blog_page_id})" );
 }
 
 /* --- Home hero copy (front-page ACF group). Needs a front page assigned. */
 $progressnow_seed_front_id = (int) get_option( 'page_on_front' );
 if ( $progressnow_seed_front_id ) {
-	update_field( 'field_progressnow_hero_lede', 'We’re a member-run organization building working-class power in our community.', $progressnow_seed_front_id );
+	update_field( 'field_progressnow_hero_lede', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.', $progressnow_seed_front_id );
 	update_field( 'field_progressnow_hero_cta_primary_label', 'Join us', $progressnow_seed_front_id );
 	update_field( 'field_progressnow_hero_cta_primary_url', '/get-involved/#join', $progressnow_seed_front_id );
 	// v3 home: subhead under the headline; the secondary CTA is the dashed
 	// "New member?" box → Get Involved.
-	update_field( 'field_progressnow_hero_subhead', 'We’re fighting for the future our community deserves.', $progressnow_seed_front_id );
+	update_field( 'field_progressnow_hero_subhead', 'Ut enim ad minim veniam, quis nostrud exercitation ullamco.', $progressnow_seed_front_id );
 	update_field( 'field_progressnow_hero_cta_secondary_label', 'New member? Start with Progress Now 101. Sign up here', $progressnow_seed_front_id );
 	update_field( 'field_progressnow_hero_cta_secondary_url', '/get-involved/', $progressnow_seed_front_id );
 	progressnow_seed_log( "home hero copy seeded (#{$progressnow_seed_front_id})" );
@@ -775,9 +775,9 @@ if ( $progressnow_seed_front_id ) {
 	update_field( 'field_progressnow_who_p1', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua, quis nostrud exercitation ullamco laboris.', $progressnow_seed_front_id );
 	update_field( 'field_progressnow_who_p2', 'Ut enim ad minim veniam, quis nostrud.', $progressnow_seed_front_id );
 	update_field( 'field_progressnow_who_p3', "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis.\nLorem ipsum dolor sit amet.", $progressnow_seed_front_id );
-	update_field( 'field_progressnow_who_link_label', 'More about our chapter', $progressnow_seed_front_id );
+	update_field( 'field_progressnow_who_link_label', 'More about us', $progressnow_seed_front_id );
 	update_field( 'field_progressnow_who_link_url', '/about/', $progressnow_seed_front_id );
-	update_field( 'field_progressnow_cta_line', 'Progress now, not someday!', $progressnow_seed_front_id );
+	update_field( 'field_progressnow_cta_line', 'Lorem ipsum dolor sit amet!', $progressnow_seed_front_id );
 	progressnow_seed_log( "home sections copy seeded (#{$progressnow_seed_front_id})" );
 } else {
 	progressnow_seed_log( 'WARN: no page_on_front — home hero copy not seeded (assign a static front page)' );
@@ -790,9 +790,9 @@ if ( $progressnow_seed_front_id ) {
 $progressnow_seed_bylaws = get_page_by_path( 'bylaws-code-of-conduct' );
 if ( $progressnow_seed_bylaws && $progressnow_seed_pdf_id ) {
 	update_field( 'field_progressnow_interior_documents', array(
-		array( 'title' => 'Chapter Bylaws', 'description' => 'Last amended March 2026', 'file' => $progressnow_seed_pdf_id ),
-		array( 'title' => 'Code of Conduct', 'description' => 'Adopted January 2026', 'file' => $progressnow_seed_pdf_id ),
-		array( 'title' => 'Grievance Policy', 'description' => 'Adopted January 2026', 'file' => $progressnow_seed_pdf_id ),
+		array( 'title' => 'Bylaws', 'description' => 'Lorem ipsum dolor sit amet', 'file' => $progressnow_seed_pdf_id ),
+		array( 'title' => 'Code of Conduct', 'description' => 'Consectetur adipiscing elit', 'file' => $progressnow_seed_pdf_id ),
+		array( 'title' => 'Grievance Policy', 'description' => 'Sed do eiusmod tempor', 'file' => $progressnow_seed_pdf_id ),
 	), $progressnow_seed_bylaws->ID );
 	progressnow_seed_log( "bylaws documents seeded (#{$progressnow_seed_bylaws->ID}, 3 rows)" );
 } else {

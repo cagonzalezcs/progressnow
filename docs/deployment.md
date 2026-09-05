@@ -157,9 +157,8 @@ fits this contract; reporting back is the same signed `POST /build-status`
 ## 7. First build and cutover
 
 1. Merge, activate the **Progress Now** theme, run
-   `wp eval-file wp-content/themes/progressnow/bin/seed.php` (fresh install)
-   or `sh wp-content/themes/progressnow/bin/scrub-brand.sh --yes` (existing
-   content; take a DB snapshot first).
+   `wp eval-file wp-content/themes/progressnow/bin/seed.php` on a fresh install
+   (take a DB snapshot first on an existing site).
 2. Set the constants (§2) with `CHAPTER_FRONTEND` still `islands`; configure
    the repository (§3).
 3. Trigger a build: Site build → "Rebuild now" (or `wp chapter rebuild --wait`,
