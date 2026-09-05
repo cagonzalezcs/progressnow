@@ -27,9 +27,12 @@ const eslintConfig = defineConfig([
             "Use a role-named color token (brand, accent, alt, ink, …) instead of an arbitrary color value.",
         },
         {
-          selector: "Literal[value=/(?:^|[\\s\"'`])rounded(?:-[a-z]+)?-\\[\\d+(?:px|rem)\\]/]",
+          // The theme writes its radius scale as arbitrary values (4/8/10/12/14/16/18/20px, 999);
+          // anything outside that scale is ad-hoc.
+          selector:
+            "Literal[value=/(?:^|[\\s\"'`])rounded(?:-[a-z]+)?-\\[(?!(?:3|4|6|8|10|12|14|16|18|20|999)px\\])\\d+(?:px|rem)\\]/]",
           message:
-            "Use the radius scale (20/14/999 via the shared tokens) instead of an arbitrary radius.",
+            "Use the radius scale (4/8/10/12/14/16/18/20px, 999) instead of an ad-hoc radius.",
         },
       ],
     },
