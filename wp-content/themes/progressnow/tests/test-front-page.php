@@ -56,8 +56,8 @@ class TestFrontPage extends BaseTestCase {
 		$who = progressnow_front_who( 0 );
 
 		$this->assertArrayHasKey( 'p3', $who );
-		$this->assertStringContainsString( 'frontlines of fascism', $who['p1'] );
-		$this->assertStringContainsString( 'We’re gonna win.', $who['p3'] );
+		$this->assertStringContainsString( 'Lorem ipsum dolor sit amet', $who['p1'] );
+		$this->assertStringContainsString( 'Lorem ipsum dolor sit amet.', $who['p3'] );
 		$this->assertSame( 'More about our chapter', $who['link_label'] );
 		$this->assertStringContainsString( '>Progress Now<', $who['heading'] );
 	}

@@ -2848,3 +2848,10 @@ Stack trace:
 [05-Sep-2026 11:22:16 UTC] PHP Deprecated:  Creation of dynamic property User_Command::$fetcher is deprecated in phar:///Applications/MAMP/Library/bin/wp/vendor/wp-cli/entity-command/src/User_Command.php on line 54
 [05-Sep-2026 11:22:16 UTC] PHP Deprecated:  Creation of dynamic property User_Command::$sitefetcher is deprecated in phar:///Applications/MAMP/Library/bin/wp/vendor/wp-cli/entity-command/src/User_Command.php on line 55
 [05-Sep-2026 11:22:17 UTC] PHP Deprecated:  Creation of dynamic property Theme_Command::$fetcher is deprecated in phar:///Applications/MAMP/Library/bin/wp/vendor/wp-cli/extension-command/src/WP_CLI/CommandWithUpgrade.php on line 45
+[05-Sep-2026 11:36:17 UTC] PHP Warning:  mysqli_real_connect(): (HY000/2002): No such file or directory in /Users/cesargonzalez/Sites/progressnow/wp-includes/class-wpdb.php on line 1990
+[05-Sep-2026 11:36:17 UTC] PHP Warning:  mysqli_real_connect(): (HY000/2002): No such file or directory in /Users/cesargonzalez/Sites/progressnow/wp-includes/class-wpdb.php on line 1990
+[05-Sep-2026 11:36:51 UTC] PHP Warning:  mysqli_real_connect(): (HY000/2002): No such file or directory in /Users/cesargonzalez/Sites/progressnow/wp-includes/class-wpdb.php on line 1990
+[05-Sep-2026 11:43:15 UTC] PHP Warning:  mysqli_real_connect(): (HY000/2002): No such file or directory in /Users/cesargonzalez/Sites/progressnow/wp-includes/class-wpdb.php on line 1990
+[05-Sep-2026 11:43:15 UTC] PHP Warning:  mysqli_real_connect(): (HY000/2002): No such file or directory in /Users/cesargonzalez/Sites/progressnow/wp-includes/class-wpdb.php on line 1990
+[05-Sep-2026 11:44:27 UTC] PHP Warning:  mysqli_real_connect(): (HY000/2002): No such file or directory in /Users/cesargonzalez/Sites/progressnow/wp-includes/class-wpdb.php on line 1990
+[05-Sep-2026 11:44:27 UTC] PHP Warning:  mysqli_real_connect(): (HY000/2002): No such file or directory in /Users/cesargonzalez/Sites/progressnow/wp-includes/class-wpdb.php on line 1990

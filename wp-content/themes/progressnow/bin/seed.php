@@ -772,9 +772,9 @@ if ( $progressnow_seed_front_id ) {
 	// Home sections (Who we are — v3 prototype copy).
 	update_field( 'field_progressnow_who_eyebrow', 'Who we are', $progressnow_seed_front_id );
 	update_field( 'field_progressnow_who_heading', 'We are <span class="notranslate">Progress Now</span>', $progressnow_seed_front_id );
-	update_field( 'field_progressnow_who_p1', 'In our community, we’re on the frontlines of fascism. We have billionaires in our backyard, ICE in our neighborhoods, and jobs that leave us overworked and underpaid.', $progressnow_seed_front_id );
-	update_field( 'field_progressnow_who_p2', 'But it doesn’t have to stay that way.', $progressnow_seed_front_id );
-	update_field( 'field_progressnow_who_p3', "Together, we’re building working class power on multiple fronts so that every person in our community can live a life with dignity, respect, and solidarity. Organizing our workplaces and organizing our community to make sure our future is for workers and by workers. A better world is possible.\nWe’re gonna win.", $progressnow_seed_front_id );
+	update_field( 'field_progressnow_who_p1', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua, quis nostrud exercitation ullamco laboris.', $progressnow_seed_front_id );
+	update_field( 'field_progressnow_who_p2', 'Ut enim ad minim veniam, quis nostrud.', $progressnow_seed_front_id );
+	update_field( 'field_progressnow_who_p3', "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis.\nLorem ipsum dolor sit amet.", $progressnow_seed_front_id );
 	update_field( 'field_progressnow_who_link_label', 'More about our chapter', $progressnow_seed_front_id );
 	update_field( 'field_progressnow_who_link_url', '/about/', $progressnow_seed_front_id );
 	update_field( 'field_progressnow_cta_line', 'Progress now, not someday!', $progressnow_seed_front_id );
