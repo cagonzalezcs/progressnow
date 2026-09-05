@@ -32,8 +32,8 @@ for (const [lang, path, home, calendar] of [
       "href",
       calendar,
     );
-    expect(await page.locator("meta[name='robots']").getAttribute("content")).toBe(
-      "noindex,follow",
+    expect(await page.locator("meta[name='robots']").getAttribute("content")).toMatch(
+      /noindex,\s*follow/,
     );
     // The chrome stays: header nav + footer are present around the band
     await expect(page.getByRole("navigation", { name: "Main" }).first()).toBeAttached();

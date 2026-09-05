@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { failureDigest } from "@/lib/api";
+import { failureDigest, isHangingPromiseRejection } from "@/lib/api";
 import { getEvents } from "@/lib/data";
 import { logger } from "@/lib/log";
 
@@ -27,6 +27,7 @@ export async function GET(request: NextRequest): Promise<Response> {
       headers: { "cache-control": "public, max-age=60, stale-while-revalidate=300" },
     });
   } catch (error) {
+    if (isHangingPromiseRejection(error)) throw error;
     // A cached read failed (obfuscated across the 'use cache' boundary; the data layer logged
     // the cause under this digest): the upstream is unavailable → 503, never a crash.
     const digest = failureDigest(error);

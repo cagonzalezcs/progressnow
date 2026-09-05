@@ -63,7 +63,7 @@
 
 ## 7. SEO, sitemap, and the PHP canonical origin
 
-- [ ] 7.1 Test first `test/unit/metadata.spec.ts`; implement `lib/metadata.ts` (`generateMetadata`: title, description, robots, canonical verbatim, `alternates.languages` from `hreflang`, OG `url` = canonical, OG image ladder route image → `identity.share_image`; styleguide forced `noindex,follow`)
+- [x] 7.1 Test first `test/unit/metadata.spec.ts`; implement `lib/metadata.ts` (`generateMetadata`: title, description, robots, canonical verbatim, `alternates.languages` from `hreflang`, OG `url` = canonical, OG image ladder route image → `identity.share_image`; styleguide forced `noindex,follow`)
 - [ ] 7.2 `app/sitemap.ts` + `app/robots.ts` from `/routes` on `NEXT_PUBLIC_SITE_ORIGIN` (both languages, hreflang alternates, exclude search + styleguide); unit tests; e2e fetches both
 - [ ] 7.3 JSON-LD parity with spec `structured-data`: Organization (identity), Article (posts), Event (events) from envelopes via `components/seo/JsonLd.tsx`; unit tests validate required properties
 - [ ] 7.4 PHP test first `tests/test-seo.php` (default no-op; `CHAPTER_CANONICAL_ORIGIN` swaps origin of canonical, every `hreflang`, `og:url`; core sitemap `<loc>` rewritten); implement `progressnow_seo_public_url()` in `inc/seo.php` (constant or `progressnow/seo/canonical_origin` filter) applied in `progressnow_seo_canonical()`, `progressnow_seo_hreflang()`, `og:url`, and `wp_sitemaps_posts_entry|wp_sitemaps_taxonomies_entry|wp_sitemaps_users_entry`; regenerate fixtures if any canonical changed; PHPUnit green

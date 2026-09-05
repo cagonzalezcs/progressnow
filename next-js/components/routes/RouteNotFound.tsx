@@ -8,7 +8,8 @@ import { frontRoute } from "@/lib/routes";
  * presentation § 404 page) — twin of views/404.twig with the `nf_*` strings.
  * Rendered as an ordinary server-rendered state — not via notFound() — because
  * under Cache Components a thrown not-found only reaches the client behind the
- * streamed shell; the HTTP status and x-robots-tag come from proxy.ts. */
+ * streamed shell; the HTTP status and x-robots-tag come from proxy.ts, the
+ * noindex meta from generateMetadata. */
 export async function RouteNotFound({ lang }: { lang: string }) {
   const [site, manifest] = await Promise.all([getSite(lang), getRoutes()]);
   const s = site.strings as Record<string, string>;
@@ -18,7 +19,6 @@ export async function RouteNotFound({ lang }: { lang: string }) {
     manifest.routes.find((r) => r.kind === "calendar" && r.lang === lang)?.path ?? "/calendar/";
   return (
     <>
-      <meta name="robots" content="noindex,follow" />
       <ErrorBand
         kind="not_found"
         numeral="404"

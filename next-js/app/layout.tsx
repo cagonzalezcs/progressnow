@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
+import { after } from "next/server";
 import "./globals.css";
 import { ErrorDocument } from "@/components/layout/ErrorDocument";
 import { RootDocument } from "@/components/layout/RootDocument";
 import { SiteShell } from "@/components/layout/SiteShell";
-import { failureDigest } from "@/lib/api";
+import { failureDigest, isHangingPromiseRejection } from "@/lib/api";
 import { getRoutes, getSite } from "@/lib/data";
 import { getRouteLanguages } from "@/lib/data/languages";
 import { getEnv } from "@/lib/env";
@@ -51,10 +52,12 @@ async function loadShell(path: string): Promise<Shell> {
     const [site, languages] = await Promise.all([getSite(lang), getRouteLanguages(resolved)]);
     return { ok: true, lang, site, languages };
   } catch (error) {
+    if (isHangingPromiseRejection(error)) throw error; // prerender pass, not a failure
     // Production obfuscates errors crossing the 'use cache' boundary: only the digest survives,
     // and the data layer has already logged the cause under it. Any failure here = no chrome.
     const digest = failureDigest(error);
-    logger.error("layout_upstream_failure", { path, digest });
+    // after(): the logger reads the clock, which Next forbids inside the prerender pass.
+    after(() => logger.error("layout_upstream_failure", { path, digest }));
     return { ok: false, digest };
   }
 }

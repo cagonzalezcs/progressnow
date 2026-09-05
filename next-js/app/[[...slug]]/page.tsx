@@ -1,4 +1,6 @@
+import type { Metadata } from "next";
 import { permanentRedirect } from "next/navigation";
+import { after } from "next/server";
 import { Suspense } from "react";
 import { RouteAbout } from "@/components/routes/RouteAbout";
 import { RouteCalendar } from "@/components/routes/RouteCalendar";
@@ -11,9 +13,12 @@ import { RoutePost } from "@/components/routes/RoutePost";
 import { RoutePostsIndex } from "@/components/routes/RoutePostsIndex";
 import type { RouteProps } from "@/components/routes/types";
 import { ErrorSurface } from "@/components/site/ErrorSurface";
-import { failureDigest } from "@/lib/api";
-import { getRoutes } from "@/lib/data";
+import { failureDigest, isHangingPromiseRejection } from "@/lib/api";
+import { getRoutes, getSite } from "@/lib/data";
+import { getRouteSeo, shareImage } from "@/lib/data/seo";
+import { getEnv } from "@/lib/env";
 import { logger } from "@/lib/log";
+import { metadataFor, noindexMetadata } from "@/lib/metadata";
 import { isErrorRender, requestPath } from "@/lib/request-path";
 import { langForPath, resolveRoute } from "@/lib/routes";
 
@@ -41,6 +46,45 @@ const ROUTES = {
   event: RouteEvent,
 } satisfies Record<string, React.ComponentType<RouteProps>>;
 
+/* <head> metadata from the envelope's `seo` block (design D5; seo-metadata
+ * delta): canonical/hreflang verbatim, OG url = canonical, OG image ladder.
+ * Island filter state (?s=, ?category=, ?paged=) is noindex with the clean
+ * canonical; 404 and search take their title from the site strings. Any data
+ * failure yields empty metadata — the page/layout render the error surface. */
+export async function generateMetadata({
+  params,
+  searchParams,
+}: PageProps<"/[[...slug]]">): Promise<Metadata> {
+  try {
+    const [manifest, { slug }, sp] = await Promise.all([getRoutes(), params, searchParams]);
+    const resolved = resolveRoute(manifest, slug);
+    const lang = resolved.lang || "en";
+    const strings = (await getSite(lang)).strings as Record<string, string>;
+    if (resolved.kind === "not_found")
+      return noindexMetadata(strings.nf_doc_title || "Page not found");
+    if (resolved.kind === "search")
+      return noindexMetadata(strings.blog_search_results || "Search results");
+    const [routeSeo, fallbackImage] = await Promise.all([getRouteSeo(resolved), shareImage(lang)]);
+    if (!routeSeo) return noindexMetadata(strings.nf_doc_title || "Page not found");
+    const filtered =
+      resolved.kind === "posts_index" && ["s", "category", "paged"].some((k) => Boolean(sp[k]));
+    const env = getEnv();
+    return metadataFor({
+      seo: routeSeo.seo,
+      images: [routeSeo.image, fallbackImage],
+      type: routeSeo.type,
+      filtered,
+      siteOrigin: env.NEXT_PUBLIC_SITE_ORIGIN,
+      wpOrigin: env.WP_ORIGIN,
+    });
+  } catch (error) {
+    if (isHangingPromiseRejection(error)) throw error; // prerender pass, not a failure
+    const digest = failureDigest(error);
+    after(() => logger.error("metadata_upstream_failure", { digest })); // no clock reads in render
+    return {};
+  }
+}
+
 /** The manifest, or the error surface when WordPress cannot be read (status: proxy.ts). */
 async function loadManifest(): Promise<
   { ok: true; manifest: Awaited<ReturnType<typeof getRoutes>> } | { ok: false; digest: string }
@@ -48,9 +92,10 @@ async function loadManifest(): Promise<
   try {
     return { ok: true, manifest: await getRoutes() };
   } catch (error) {
+    if (isHangingPromiseRejection(error)) throw error; // prerender pass, not a failure
     // See app/layout.tsx: obfuscated across the 'use cache' boundary; the digest links the logs.
     const digest = failureDigest(error);
-    logger.error("page_upstream_failure", { digest });
+    after(() => logger.error("page_upstream_failure", { digest }));
     return { ok: false, digest };
   }
 }

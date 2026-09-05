@@ -118,7 +118,6 @@ async function ArchiveWithQuery({
         clear: "Clear filters",
       }}
     >
-      {!isBrowse(state) ? <meta name="robots" content="noindex,follow" /> : null}
       {isBrowse(state) ? (
         <Browse posts={posts} site={site} basePath={basePath} page={page} wpOrigin={wpOrigin} />
       ) : (

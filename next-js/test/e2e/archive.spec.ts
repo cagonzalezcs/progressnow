@@ -30,7 +30,7 @@ test("filtered and paged states are fully server-rendered (no JavaScript)", asyn
   const html = await (await request.get("/blog/?category=labor")).text();
   expect(html).toContain('data-results-status=""');
   expect(html).toMatch(/posts? in Labor/);
-  expect(html).toContain('name="robots" content="noindex,follow"');
+  expect(html).toMatch(/name="robots" content="noindex,\s*follow"/); // generateMetadata (Next spaces the list)
   const paged = await (await request.get("/blog/page/2/")).text();
   expect(paged).toContain('data-archive="browse"');
 });

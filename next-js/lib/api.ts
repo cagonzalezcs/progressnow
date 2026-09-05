@@ -64,7 +64,16 @@ export function isApiError(error: unknown): error is ApiError {
  * the data layer already logged the specific cause with the same digest. */
 export function failureDigest(error: unknown): string {
   const digest = (error as { digest?: unknown } | null)?.digest;
-  return typeof digest === "string" && digest ? digest : `local-${Date.now().toString(36)}`;
+  // Never mint a time-based fallback: this runs inside render, where Next treats
+  // `Date.now()` during the prerender pass as a fatal "unstable value".
+  return typeof digest === "string" && digest ? digest : "unknown";
+}
+
+/** Cache Components' prerender pass aborts pending cached reads with this
+ * rejection; it is not a data failure and must propagate so Next can switch the
+ * render to request time. Every catch around a cached read rethrows it. */
+export function isHangingPromiseRejection(error: unknown): boolean {
+  return (error as { digest?: unknown } | null)?.digest === "HANGING_PROMISE_REJECTION";
 }
 
 export interface ContractErrorReport {
