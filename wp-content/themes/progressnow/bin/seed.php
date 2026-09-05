@@ -110,20 +110,20 @@ function progressnow_seed_split_location( $location ) {
 $progressnow_seed_events = array(
 	// Locations are generic placeholders — a chapter replaces them with real venues.
 	// Copy is placeholder (lorem ipsum) — titles are generic sample events.
-	array( 'date' => '2026-07-02', 'time' => '7:00–8:30 PM', 'cat' => 'poled', 'title' => 'Workshop: Introduction Session', 'location' => 'Central Library, Community Room B', 'desc' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' ),
-	array( 'date' => '2026-07-07', 'time' => '6:30–8:00 PM', 'cat' => 'mutual', 'title' => 'Community Cleanup Day', 'location' => 'Meeting point at 10th & Main', 'desc' => 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.' ),
-	array( 'date' => '2026-07-09', 'time' => '7:00–8:00 PM', 'cat' => 'labor', 'title' => 'Online Workshop', 'location' => 'Online (Zoom)', 'desc' => 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.' ),
-	array( 'date' => '2026-07-11', 'time' => '2:00–4:00 PM', 'cat' => 'chapter', 'title' => 'July General Meeting', 'location' => 'Downtown — Community Hall (+ Zoom)', 'desc' => 'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.' ),
-	array( 'date' => '2026-07-15', 'time' => '7:00–8:00 PM', 'cat' => 'chapter', 'title' => 'Progress Now 101 (New Member Orientation)', 'location' => 'Online (Zoom)', 'desc' => 'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.' ),
-	array( 'date' => '2026-07-18', 'time' => '9:00 AM–12:00 PM', 'cat' => 'mutual', 'title' => 'Volunteer Morning', 'location' => 'Parking lot, 500 W Main St', 'desc' => 'Totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.' ),
-	array( 'date' => '2026-07-21', 'time' => '7:00–9:00 PM', 'cat' => 'electoral', 'title' => 'Community Forum', 'location' => 'Northside — Neighborhood Center', 'desc' => 'Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores.' ),
-	array( 'date' => '2026-07-23', 'time' => '7:30–9:00 PM', 'cat' => 'poled', 'title' => 'Reading Circle', 'location' => 'Eastside — Corner Café', 'desc' => 'Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit.' ),
-	array( 'date' => '2026-07-25', 'time' => '6:00–9:00 PM', 'cat' => 'social', 'title' => 'Summer Social', 'location' => 'Riverside Park', 'desc' => 'Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur.' ),
-	array( 'date' => '2026-07-28', 'time' => '7:00–8:30 PM', 'cat' => 'labor', 'title' => 'Volunteer Training', 'location' => 'Online (Zoom)', 'desc' => 'At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum.' ),
-	array( 'date' => '2026-08-01', 'time' => '2:00–4:00 PM', 'cat' => 'chapter', 'title' => 'August General Meeting', 'location' => 'Downtown — Community Center (+ Zoom)', 'desc' => 'Et harum quidem rerum facilis est et expedita distinctio nam libero tempore cum soluta nobis.' ),
-	array( 'date' => '2026-08-04', 'time' => '6:30–8:00 PM', 'cat' => 'mutual', 'title' => 'Supply Drive Prep', 'location' => 'Community room (address shared with volunteers)', 'desc' => 'Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet.' ),
-	array( 'date' => '2026-08-08', 'time' => '10:00 AM–1:00 PM', 'cat' => 'electoral', 'title' => 'Community Tabling', 'location' => 'Farmers market, Main St', 'desc' => 'Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias.' ),
-	array( 'date' => '2026-08-13', 'time' => '7:00–8:30 PM', 'cat' => 'poled', 'title' => 'Workshop: Second Session', 'location' => 'Central Library, Community Room B', 'desc' => 'Omnis voluptas assumenda est, omnis dolor repellendus, ut aut reiciendis voluptatibus maiores.' ),
+	array( 'date' => '2026-09-03', 'time' => '7:00–8:30 PM', 'cat' => 'poled', 'title' => 'Workshop: Introduction Session', 'location' => 'Central Library, Community Room B', 'desc' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' ),
+	array( 'date' => '2026-09-10', 'time' => '6:30–8:00 PM', 'cat' => 'mutual', 'title' => 'Community Cleanup Day', 'location' => 'Meeting point at 10th & Main', 'desc' => 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.' ),
+	array( 'date' => '2026-09-15', 'time' => '7:00–8:00 PM', 'cat' => 'labor', 'title' => 'Online Workshop', 'location' => 'Online (Zoom)', 'desc' => 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.' ),
+	array( 'date' => '2026-09-19', 'time' => '2:00–4:00 PM', 'cat' => 'chapter', 'title' => 'September General Meeting', 'location' => 'Downtown — Community Hall (+ Zoom)', 'desc' => 'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.' ),
+	array( 'date' => '2026-09-24', 'time' => '7:00–8:00 PM', 'cat' => 'chapter', 'title' => 'Progress Now 101 (New Member Orientation)', 'location' => 'Online (Zoom)', 'desc' => 'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.' ),
+	array( 'date' => '2026-10-03', 'time' => '9:00 AM–12:00 PM', 'cat' => 'mutual', 'title' => 'Volunteer Morning', 'location' => 'Parking lot, 500 W Main St', 'desc' => 'Totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.' ),
+	array( 'date' => '2026-10-08', 'time' => '7:00–9:00 PM', 'cat' => 'electoral', 'title' => 'Community Forum', 'location' => 'Northside — Neighborhood Center', 'desc' => 'Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores.' ),
+	array( 'date' => '2026-10-14', 'time' => '7:30–9:00 PM', 'cat' => 'poled', 'title' => 'Reading Circle', 'location' => 'Eastside — Corner Café', 'desc' => 'Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit.' ),
+	array( 'date' => '2026-10-17', 'time' => '6:00–9:00 PM', 'cat' => 'social', 'title' => 'Fall Social', 'location' => 'Riverside Park', 'desc' => 'Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur.' ),
+	array( 'date' => '2026-10-22', 'time' => '7:00–8:30 PM', 'cat' => 'labor', 'title' => 'Volunteer Training', 'location' => 'Online (Zoom)', 'desc' => 'At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum.' ),
+	array( 'date' => '2026-10-31', 'time' => '2:00–4:00 PM', 'cat' => 'chapter', 'title' => 'October General Meeting', 'location' => 'Downtown — Community Center (+ Zoom)', 'desc' => 'Et harum quidem rerum facilis est et expedita distinctio nam libero tempore cum soluta nobis.' ),
+	array( 'date' => '2026-11-05', 'time' => '6:30–8:00 PM', 'cat' => 'mutual', 'title' => 'Supply Drive Prep', 'location' => 'Community room (address shared with volunteers)', 'desc' => 'Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet.' ),
+	array( 'date' => '2026-11-12', 'time' => '10:00 AM–1:00 PM', 'cat' => 'electoral', 'title' => 'Community Tabling', 'location' => 'Farmers market, Main St', 'desc' => 'Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias.' ),
+	array( 'date' => '2026-11-19', 'time' => '7:00–8:30 PM', 'cat' => 'poled', 'title' => 'Workshop: Second Session', 'location' => 'Central Library, Community Room B', 'desc' => 'Omnis voluptas assumenda est, omnis dolor repellendus, ut aut reiciendis voluptatibus maiores.' ),
 );
 
 $progressnow_seed_event_ids = array(); // title → post ID
@@ -281,7 +281,7 @@ foreach ( $progressnow_seed_enriched as $title => $fields ) {
 }
 
 /* -------------------------------------------------------------------------
- * 3. Blog — posts page, the 9 SAMPLE_POSTS, p1 block markup.
+ * 3. Blog — posts page, 30 lorem posts (>24 so the archive paginates), p1 block markup.
  * ---------------------------------------------------------------------- */
 
 $progressnow_seed_blog_page = get_page_by_path( 'blog' );
@@ -343,15 +343,36 @@ if ( $calendar_page_id ) {
 }
 
 $progressnow_seed_posts = array(
-	array( 'slug' => 'lorem-ipsum-dolor', 'title' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod', 'cat' => 'mutual', 'date' => '2026-06-14 10:00:00', 'excerpt' => 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.', 'dek' => 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.', 'byline_mode' => 'named', 'committee' => 'Mutual Aid Committee', 'sticky' => true ),
+	array( 'slug' => 'lorem-ipsum-dolor', 'title' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod', 'cat' => 'mutual', 'date' => '2026-06-14 10:00:00', 'excerpt' => 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.', 'dek' => 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.', 'byline_mode' => 'named', 'committee' => 'Community Committee', 'sticky' => true ),
 	array( 'slug' => 'sed-ut-perspiciatis', 'title' => 'Sed ut perspiciatis unde omnis iste natus error sit voluptatem', 'cat' => 'poled', 'date' => '2026-06-28 10:00:00', 'excerpt' => 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.', 'byline_mode' => 'named' ),
-	array( 'slug' => 'nemo-enim-ipsam', 'title' => 'Nemo enim ipsam voluptatem quia voluptas sit aspernatur', 'cat' => 'labor', 'date' => '2026-06-21 10:00:00', 'excerpt' => 'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.', 'byline_mode' => 'committee', 'committee' => 'Labor Committee' ),
+	array( 'slug' => 'nemo-enim-ipsam', 'title' => 'Nemo enim ipsam voluptatem quia voluptas sit aspernatur', 'cat' => 'labor', 'date' => '2026-06-21 10:00:00', 'excerpt' => 'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.', 'byline_mode' => 'committee', 'committee' => 'Workshops Committee' ),
 	array( 'slug' => 'ut-enim-ad-minima', 'title' => 'Ut enim ad minima veniam quis nostrum', 'cat' => 'chapter', 'date' => '2026-06-08 10:00:00', 'excerpt' => 'Totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae.', 'byline_mode' => 'named' ),
-	array( 'slug' => 'quis-autem-vel-eum', 'title' => 'Quis autem vel eum iure reprehenderit', 'cat' => 'electoral', 'date' => '2026-05-30 10:00:00', 'excerpt' => 'At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium.', 'byline_mode' => 'committee', 'committee' => 'Electoral Committee' ),
+	array( 'slug' => 'quis-autem-vel-eum', 'title' => 'Quis autem vel eum iure reprehenderit', 'cat' => 'electoral', 'date' => '2026-05-30 10:00:00', 'excerpt' => 'At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium.', 'byline_mode' => 'committee', 'committee' => 'Outreach Committee' ),
 	array( 'slug' => 'neque-porro-quisquam', 'title' => 'Neque porro quisquam est qui dolorem', 'cat' => 'social', 'date' => '2026-05-22 10:00:00', 'excerpt' => 'Et harum quidem rerum facilis est et expedita distinctio nam libero tempore.', 'byline_mode' => 'named' ),
 	array( 'slug' => 'temporibus-autem', 'title' => 'Temporibus autem quibusdam et aut officiis debitis', 'cat' => 'labor', 'date' => '2026-05-16 10:00:00', 'excerpt' => 'Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus.', 'byline_mode' => 'named' ),
-	array( 'slug' => 'nam-libero-tempore', 'title' => 'Nam libero tempore cum soluta nobis', 'cat' => 'poled', 'date' => '2026-05-09 10:00:00', 'excerpt' => 'Omnis voluptas assumenda est, omnis dolor repellendus maiores alias consequatur.', 'byline_mode' => 'committee', 'committee' => 'Political Education Committee' ),
+	array( 'slug' => 'nam-libero-tempore', 'title' => 'Nam libero tempore cum soluta nobis', 'cat' => 'poled', 'date' => '2026-05-09 10:00:00', 'excerpt' => 'Omnis voluptas assumenda est, omnis dolor repellendus maiores alias consequatur.', 'byline_mode' => 'committee', 'committee' => 'Education Committee' ),
 	array( 'slug' => 'at-vero-eos', 'title' => 'At vero eos et accusamus et iusto odio', 'cat' => 'mutual', 'date' => '2026-05-02 10:00:00', 'excerpt' => 'Quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.', 'byline_mode' => 'named' ),
+	array( 'slug' => 'similique-sunt-in-culpa', 'title' => 'Similique sunt in culpa qui officia deserunt mollitia animi', 'cat' => 'social', 'date' => '2026-04-25 10:00:00', 'excerpt' => 'Id est laborum et dolorum fuga et harum quidem rerum facilis est et expedita distinctio.', 'byline_mode' => 'committee', 'committee' => 'Communications Committee' ),
+	array( 'slug' => 'nam-libero-cum-soluta', 'title' => 'Nam libero tempore, cum soluta nobis est eligendi optio', 'cat' => 'chapter', 'date' => '2026-04-18 10:00:00', 'excerpt' => 'Cumque nihil impedit quo minus id quod maxime placeat facere possimus.', 'byline_mode' => 'named' ),
+	array( 'slug' => 'omnis-voluptas-assumenda', 'title' => 'Omnis voluptas assumenda est, omnis dolor repellendus', 'cat' => 'labor', 'date' => '2026-04-11 10:00:00', 'excerpt' => 'Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus.', 'byline_mode' => 'committee', 'committee' => 'Workshops Committee' ),
+	array( 'slug' => 'saepe-eveniet-ut-et', 'title' => 'Saepe eveniet ut et voluptates repudiandae sint', 'cat' => 'electoral', 'date' => '2026-04-04 10:00:00', 'excerpt' => 'Et molestiae non recusandae itaque earum rerum hic tenetur a sapiente delectus.', 'byline_mode' => 'named' ),
+	array( 'slug' => 'ut-aut-reiciendis', 'title' => 'Ut aut reiciendis voluptatibus maiores alias consequatur', 'cat' => 'poled', 'date' => '2026-03-28 10:00:00', 'excerpt' => 'Aut perferendis doloribus asperiores repellat lorem ipsum dolor sit amet.', 'byline_mode' => 'committee', 'committee' => 'Education Committee' ),
+	array( 'slug' => 'consectetur-adipiscing-elit', 'title' => 'Consectetur adipiscing elit, sed do eiusmod tempor incididunt', 'cat' => 'mutual', 'date' => '2026-03-21 10:00:00', 'excerpt' => 'Ut labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation.', 'byline_mode' => 'named' ),
+	array( 'slug' => 'ullamco-laboris-nisi', 'title' => 'Ullamco laboris nisi ut aliquip ex ea commodo consequat', 'cat' => 'social', 'date' => '2026-03-14 10:00:00', 'excerpt' => 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore.', 'byline_mode' => 'named' ),
+	array( 'slug' => 'eu-fugiat-nulla-pariatur', 'title' => 'Eu fugiat nulla pariatur excepteur sint occaecat cupidatat', 'cat' => 'chapter', 'date' => '2026-03-07 10:00:00', 'excerpt' => 'Non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.', 'byline_mode' => 'committee', 'committee' => 'Membership & Onboarding Committee' ),
+	array( 'slug' => 'accusantium-doloremque', 'title' => 'Accusantium doloremque laudantium, totam rem aperiam', 'cat' => 'labor', 'date' => '2026-02-28 10:00:00', 'excerpt' => 'Eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta.', 'byline_mode' => 'named' ),
+	array( 'slug' => 'vitae-dicta-sunt', 'title' => 'Vitae dicta sunt explicabo nemo enim ipsam voluptatem', 'cat' => 'poled', 'date' => '2026-02-21 10:00:00', 'excerpt' => 'Quia voluptas sit aspernatur aut odit aut fugit sed quia consequuntur magni dolores.', 'byline_mode' => 'named' ),
+	array( 'slug' => 'eos-qui-ratione', 'title' => 'Eos qui ratione voluptatem sequi nesciunt neque porro', 'cat' => 'mutual', 'date' => '2026-02-14 10:00:00', 'excerpt' => 'Quisquam est qui dolorem ipsum quia dolor sit amet consectetur adipisci velit.', 'byline_mode' => 'committee', 'committee' => 'Community Committee' ),
+	array( 'slug' => 'sed-quia-non-numquam', 'title' => 'Sed quia non numquam eius modi tempora incidunt', 'cat' => 'social', 'date' => '2026-02-07 10:00:00', 'excerpt' => 'Ut labore et dolore magnam aliquam quaerat voluptatem ut enim ad minima veniam.', 'byline_mode' => 'named' ),
+	array( 'slug' => 'quis-nostrum-exercitationem', 'title' => 'Quis nostrum exercitationem ullam corporis suscipit', 'cat' => 'chapter', 'date' => '2026-01-31 10:00:00', 'excerpt' => 'Laboriosam nisi ut aliquid ex ea commodi consequatur quis autem vel eum iure.', 'byline_mode' => 'committee', 'committee' => 'Membership & Onboarding Committee' ),
+	array( 'slug' => 'reprehenderit-qui-in-ea', 'title' => 'Reprehenderit qui in ea voluptate velit esse quam nihil', 'cat' => 'electoral', 'date' => '2026-01-24 10:00:00', 'excerpt' => 'Molestiae consequatur vel illum qui dolorem eum fugiat quo voluptas nulla pariatur.', 'byline_mode' => 'named' ),
+	array( 'slug' => 'at-vero-eos-accusamus', 'title' => 'At vero eos et accusamus et iusto odio dignissimos', 'cat' => 'labor', 'date' => '2026-01-17 10:00:00', 'excerpt' => 'Ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores.', 'byline_mode' => 'committee', 'committee' => 'Workshops Committee' ),
+	array( 'slug' => 'quas-molestias-excepturi', 'title' => 'Quas molestias excepturi sint occaecati cupiditate', 'cat' => 'poled', 'date' => '2026-01-10 10:00:00', 'excerpt' => 'Non provident similique sunt in culpa qui officia deserunt mollitia animi id est.', 'byline_mode' => 'named' ),
+	array( 'slug' => 'laborum-et-dolorum-fuga', 'title' => 'Laborum et dolorum fuga et harum quidem rerum facilis', 'cat' => 'mutual', 'date' => '2026-01-03 10:00:00', 'excerpt' => 'Est et expedita distinctio nam libero tempore cum soluta nobis est eligendi optio.', 'byline_mode' => 'committee', 'committee' => 'Community Committee' ),
+	array( 'slug' => 'cumque-nihil-impedit', 'title' => 'Cumque nihil impedit quo minus id quod maxime placeat', 'cat' => 'social', 'date' => '2025-12-27 10:00:00', 'excerpt' => 'Facere possimus omnis voluptas assumenda est omnis dolor repellendus temporibus.', 'byline_mode' => 'named' ),
+	array( 'slug' => 'autem-quibusdam-et-aut', 'title' => 'Autem quibusdam et aut officiis debitis aut rerum', 'cat' => 'chapter', 'date' => '2025-12-20 10:00:00', 'excerpt' => 'Necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non.', 'byline_mode' => 'named' ),
+	array( 'slug' => 'recusandae-itaque-earum', 'title' => 'Recusandae itaque earum rerum hic tenetur a sapiente', 'cat' => 'electoral', 'date' => '2025-12-13 10:00:00', 'excerpt' => 'Delectus ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis.', 'byline_mode' => 'committee', 'committee' => 'Outreach Committee' ),
+	array( 'slug' => 'doloribus-asperiores-repellat', 'title' => 'Doloribus asperiores repellat lorem ipsum dolor sit amet', 'cat' => 'labor', 'date' => '2025-12-06 10:00:00', 'excerpt' => 'Consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore.', 'byline_mode' => 'named' ),
 );
 
 $progressnow_seed_p1_id = 0;
@@ -680,7 +701,7 @@ progressnow_seed_menu( 'Primary', 'primary', array(
 progressnow_seed_menu( 'Header — About', 'about', array(
 	'About the Chapter'        => '/about/#chapter',
 	'Mission & History'        => '/about/#mission',
-	'Where We Organize'        => '/about/#counties',
+	'Where We Are'              => '/about/#counties',
 	'Committees'               => '/about/#committees',
 	'Bylaws & Code of Conduct' => '/about/#bylaws',
 	'FAQ'                      => '/about/#faq',
@@ -689,7 +710,7 @@ progressnow_seed_menu( 'Header — About', 'about', array(
 progressnow_seed_menu( 'Footer — About', 'footer_about', array(
 	'About the Chapter'        => '/about/',
 	'Mission & History'        => '/about/#mission',
-	'Where We Organize'        => '/about/#counties',
+	'Where We Are'              => '/about/#counties',
 	'Bylaws & Code of Conduct' => '/about/#bylaws',
 	'FAQ'                      => '/about/#faq',
 ) );
@@ -831,86 +852,86 @@ function progressnow_seed_template_page( $slug, $title, $template ) {
 
 $progressnow_seed_about_id = progressnow_seed_template_page( 'about', 'About the Chapter', 'page-templates/about.php' );
 if ( $progressnow_seed_about_id ) {
-	update_field( 'field_progressnow_interior_lede', 'A member-run chapter of the Progress Now, organizing for working people across our community.', $progressnow_seed_about_id );
-	update_field( 'field_progressnow_about_mission_eyebrow', 'What we believe', $progressnow_seed_about_id );
-	update_field( 'field_progressnow_about_mission_body', 'We believe our economy should be built democratically, by and for working people — not by billionaires for profit.', $progressnow_seed_about_id );
+	update_field( 'field_progressnow_interior_lede', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.', $progressnow_seed_about_id );
+	update_field( 'field_progressnow_about_mission_eyebrow', 'Our mission', $progressnow_seed_about_id );
+	update_field( 'field_progressnow_about_mission_body', 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.', $progressnow_seed_about_id );
 	update_field( 'field_progressnow_about_chapter_heading', 'About the Chapter', $progressnow_seed_about_id );
-	update_field( 'field_progressnow_about_intro_p1', 'We are a member-run, member-funded organizing group. Our grassroots work focuses on labor organizing, mutual aid, and political education across our community.', $progressnow_seed_about_id );
-	update_field( 'field_progressnow_about_intro_p2', 'Everything we do is member-led, member-funded, and open to anyone who wants to build a community that works for working people. We regularly host community meetings to share updates, plan campaigns, and hold political education lectures. If you’re a student, ask us about our campus branch.', $progressnow_seed_about_id );
+	update_field( 'field_progressnow_about_intro_p1', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.', $progressnow_seed_about_id );
+	update_field( 'field_progressnow_about_intro_p2', 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.', $progressnow_seed_about_id );
 	update_field( 'field_progressnow_about_ctas', array(
 		array( 'label' => 'Come to a meeting', 'url' => '/calendar/' ),
 		array( 'label' => 'Get involved', 'url' => '/get-involved/' ),
 		array( 'label' => 'Students', 'url' => '/get-involved/' ),
 	), $progressnow_seed_about_id );
 	update_field( 'field_progressnow_about_history_heading', 'Mission & History', $progressnow_seed_about_id );
-	update_field( 'field_progressnow_about_history_body', 'We fight for a future where housing, healthcare, and a dignified living are guaranteed — and we believe the people who live and work in our community should be the ones deciding it. Our work centers on three pillars: labor organizing, mutual aid, and political education.', $progressnow_seed_about_id );
-	// 20XX years are chapter-copy placeholders — the chapter fills them in via wp-admin.
+	update_field( 'field_progressnow_about_history_body', 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.', $progressnow_seed_about_id );
+	// 20XX years are placeholders — filled in via wp-admin.
 	update_field( 'field_progressnow_about_timeline', array(
-		array( 'year' => '1982', 'text' => 'Progress Now is founded as a member-run organizing project.' ),
-		array( 'year' => '20XX', 'text' => 'Local organizers form an organizing committee and begin meeting. <em class="text-[#78716c]">(Year and details to be filled in by the chapter.)</em>' ),
-		array( 'year' => '20XX', 'text' => 'The chapter is chartered as an official local chapter. <em class="text-[#78716c]">(Year and details to be filled in by the chapter.)</em>' ),
+		array( 'year' => '20XX', 'text' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.' ),
+		array( 'year' => '20XX', 'text' => 'Sed do eiusmod tempor incididunt ut labore et dolore. <em class="text-[#78716c]">(Year and details to be filled in.)</em>' ),
+		array( 'year' => '20XX', 'text' => 'Ut enim ad minim veniam, quis nostrud exercitation. <em class="text-[#78716c]">(Year and details to be filled in.)</em>' ),
 	), $progressnow_seed_about_id );
-	update_field( 'field_progressnow_about_counties_heading', 'Where We Organize', $progressnow_seed_about_id );
-	update_field( 'field_progressnow_about_counties_intro', 'One chapter, many communities. Wherever you are in our community, you’re covered — and if you can help us organize deeper in your neighborhood, we want to hear from you.', $progressnow_seed_about_id );
-	// Placeholder areas — the chapter replaces these in wp-admin.
+	update_field( 'field_progressnow_about_counties_heading', 'Where We Are', $progressnow_seed_about_id );
+	update_field( 'field_progressnow_about_counties_intro', 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.', $progressnow_seed_about_id );
+	// Placeholder areas — replaced in wp-admin.
 	update_field( 'field_progressnow_about_county_cards', array(
-		array( 'name' => 'Central', 'cities' => 'Downtown · Midtown', 'note' => 'Home base — most meetings held here' ),
+		array( 'name' => 'Central', 'cities' => 'Downtown · Midtown', 'note' => 'Lorem ipsum dolor sit amet' ),
 		array( 'name' => 'North', 'cities' => 'Northside · Uptown', 'note' => '' ),
 		array( 'name' => 'South', 'cities' => 'Southside · Riverside', 'note' => '' ),
 		array( 'name' => 'Campus', 'cities' => 'Student branch', 'note' => '' ),
 	), $progressnow_seed_about_id );
 	update_field( 'field_progressnow_about_committees_heading', 'Committees', $progressnow_seed_about_id );
-	update_field( 'field_progressnow_about_committees_intro', 'Committees are where the work happens. Each one meets regularly and welcomes new members.', $progressnow_seed_about_id );
+	update_field( 'field_progressnow_about_committees_intro', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore.', $progressnow_seed_about_id );
 	update_field( 'field_progressnow_about_committees_link_label', 'Join a committee', $progressnow_seed_about_id );
 	update_field( 'field_progressnow_about_committees_link_url', '/get-involved/#committees', $progressnow_seed_about_id );
 	update_field( 'field_progressnow_about_governance_heading', 'Bylaws & Code of Conduct', $progressnow_seed_about_id );
-	update_field( 'field_progressnow_about_governance_intro', 'The chapter is governed by its members through documents we debate and vote on together. Everything is public.', $progressnow_seed_about_id );
+	update_field( 'field_progressnow_about_governance_intro', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut enim ad minim veniam, quis nostrud exercitation.', $progressnow_seed_about_id );
 	update_field( 'field_progressnow_about_governance_docs', array(
-		array( 'title' => 'Chapter Bylaws', 'covers' => 'How the chapter runs: officers, elections, quorum, committees, and how decisions get made.', 'action' => 'Read', 'url' => '/bylaws-code-of-conduct/#documents' ),
-		array( 'title' => 'Code of Conduct', 'covers' => 'What we expect of each other in every chapter space — meetings, actions, and online.', 'action' => 'Read', 'url' => '/bylaws-code-of-conduct/#documents' ),
-		array( 'title' => 'Grievance Policy', 'covers' => 'How to report harm and how the chapter handles conflict, confidentially and fairly.', 'action' => 'Read', 'url' => '/bylaws-code-of-conduct/#grievance' ),
-		array( 'title' => 'Meeting Minutes', 'covers' => 'Records and resolutions from general meetings, available to all members.', 'action' => 'Browse', 'url' => '/bylaws-code-of-conduct/#documents' ),
+		array( 'title' => 'Bylaws', 'covers' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', 'action' => 'Read', 'url' => '/bylaws-code-of-conduct/#documents' ),
+		array( 'title' => 'Code of Conduct', 'covers' => 'Sed do eiusmod tempor incididunt ut labore et dolore.', 'action' => 'Read', 'url' => '/bylaws-code-of-conduct/#documents' ),
+		array( 'title' => 'Grievance Policy', 'covers' => 'Ut enim ad minim veniam, quis nostrud exercitation.', 'action' => 'Read', 'url' => '/bylaws-code-of-conduct/#grievance' ),
+		array( 'title' => 'Meeting Minutes', 'covers' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', 'action' => 'Browse', 'url' => '/bylaws-code-of-conduct/#documents' ),
 	), $progressnow_seed_about_id );
 	update_field( 'field_progressnow_about_faq_heading', 'FAQ', $progressnow_seed_about_id );
 	update_field( 'field_progressnow_about_faq', array(
-		array( 'question' => 'Do I have to be a member to come to events?', 'answer' => "Nope — most of our events are open to everyone. Come to a 101 or a social, meet folks, and see if it's for you." ),
-		array( 'question' => 'How much are dues?', 'answer' => 'Dues are sliding-scale — most folks pay a few dollars a month. No one is turned away for inability to pay.' ),
-		array( 'question' => 'How do I change my dues rate?', 'answer' => 'Enter the email associated with your membership in the dues form with your new dues amount, and your current dues will be canceled and updated.' ),
-		array( 'question' => "I've never done anything political before. Is that okay?", 'answer' => "More than okay — it's the norm. Most members joined without any organizing experience. Progress Now 101 exists exactly for this." ),
-		array( 'question' => 'Can I participate without being publicly visible?', 'answer' => "Yes. There are plenty of ways to contribute behind the scenes, and we take members' privacy and safety seriously." ),
-		array( 'question' => 'How much time does membership take?', 'answer' => 'As much or as little as you have. Some members show up to one event a month; others help lead committees.' ),
+		array( 'question' => 'Do I have to be a member to come to events?', 'answer' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' ),
+		array( 'question' => 'How much are dues?', 'answer' => 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.' ),
+		array( 'question' => 'How do I change my dues rate?', 'answer' => 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.' ),
+		array( 'question' => 'Is prior experience required?', 'answer' => 'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.' ),
+		array( 'question' => 'Can I participate without being publicly visible?', 'answer' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore.' ),
+		array( 'question' => 'How much time does membership take?', 'answer' => 'Ut enim ad minim veniam, quis nostrud exercitation. Lorem ipsum dolor sit amet, consectetur adipiscing elit.' ),
 	), $progressnow_seed_about_id );
 	update_field( 'field_progressnow_about_dues_heading', 'Switching your dues rate?', $progressnow_seed_about_id );
-	update_field( 'field_progressnow_about_dues_body', 'Already a member and changing your dues rate? Enter the email associated with your membership in the dues form with your new dues amount, and your current dues will be canceled and updated.', $progressnow_seed_about_id );
+	update_field( 'field_progressnow_about_dues_body', 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.', $progressnow_seed_about_id );
 	progressnow_seed_log( "about page copy seeded (#{$progressnow_seed_about_id})" );
 }
 
 $progressnow_seed_gi_id = progressnow_seed_template_page( 'get-involved', 'Get involved', 'page-templates/get-involved.php' );
 if ( $progressnow_seed_gi_id ) {
-	update_field( 'field_progressnow_interior_lede', "No experience needed, no perfect politics required. If you want a better world, there's a place for you here.", $progressnow_seed_gi_id );
+	update_field( 'field_progressnow_interior_lede', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.', $progressnow_seed_gi_id );
 	update_field( 'field_progressnow_gi_join_heading', 'How to join', $progressnow_seed_gi_id );
 	update_field( 'field_progressnow_gi_steps', array(
-		array( 'title' => 'Become a member', 'body' => 'Sign up in a few minutes. Dues are sliding-scale — pay what you can, and <strong>no one is turned away for lack of funds</strong>.', 'link_label' => 'Join now →', 'link_url' => '/get-involved/#join' ),
-		array( 'title' => 'Come to Progress Now 101', 'body' => "Our intro session for new and curious folks — what we stand for, what our chapter is working on, and how to plug in. Offered virtually and in person, multiple times a month. You don't have to be a member yet to attend.", 'link_label' => 'Find a session →', 'link_url' => '/calendar/' ),
-		array( 'title' => 'Get onboarded & plug in', 'body' => "After 101, we'll add you to our WhatsApp and match you with a committee that fits your interests and capacity — whether that's an hour a month or a night a week.", 'link_label' => 'Browse committees ↓', 'link_url' => '#committees' ),
+		array( 'title' => 'Become a member', 'body' => 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.', 'link_label' => 'Join now →', 'link_url' => '/get-involved/#join' ),
+		array( 'title' => 'Come to Progress Now 101', 'body' => 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.', 'link_label' => 'Find a session →', 'link_url' => '/calendar/' ),
+		array( 'title' => 'Get onboarded', 'body' => 'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.', 'link_label' => 'Browse committees ↓', 'link_url' => '#committees' ),
 	), $progressnow_seed_gi_id );
 	update_field( 'field_progressnow_gi_committees_heading', 'Committees', $progressnow_seed_gi_id );
-	update_field( 'field_progressnow_gi_committees_intro', 'Committees are where the work happens. Each one meets regularly and welcomes new members — reach out through the WhatsApp or at any general meeting.', $progressnow_seed_gi_id );
+	update_field( 'field_progressnow_gi_committees_intro', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore.', $progressnow_seed_gi_id );
 	update_field( 'field_progressnow_gi_channels_heading', 'Communication channels', $progressnow_seed_gi_id );
 	update_field( 'field_progressnow_gi_channels', array(
-		array( 'label' => 'WhatsApp', 'desc' => 'Our main channel — members receive an invite during onboarding', 'link_label' => '', 'url' => '', 'badge' => 'Members only' ),
+		array( 'label' => 'Group chat', 'desc' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', 'link_label' => '', 'url' => '', 'badge' => 'Members only' ),
 		array( 'label' => 'Email', 'desc' => 'Questions, press, and anything else', 'link_label' => 'Write us', 'url' => 'mailto:hello@example.org', 'badge' => '' ),
 	), $progressnow_seed_gi_id );
 	update_field( 'field_progressnow_gi_faq_heading', 'Common questions', $progressnow_seed_gi_id );
 	update_field( 'field_progressnow_gi_faq', array(
-		array( 'question' => 'Do I have to be a member to come to events?', 'answer' => "Nope — most of our events are open to everyone. Come to a 101 or a social, meet folks, and see if it's for you. No pressure." ),
-		array( 'question' => 'How much are dues?', 'answer' => 'Dues are sliding-scale — most folks pay a few dollars a month. If dues are a barrier, talk to us: no one is turned away for lack of funds.' ),
-		array( 'question' => "I've never done anything political before. Is that okay?", 'answer' => "More than okay — it's the norm. Most members joined without any organizing experience. Progress Now 101 exists exactly for this, and committees will teach you everything as you go." ),
-		array( 'question' => 'Can I participate without being publicly visible?', 'answer' => "Yes. There are plenty of ways to contribute behind the scenes, and we take members' privacy and safety seriously. Talk to us about what you're comfortable with." ),
-		array( 'question' => 'How much time does membership take?', 'answer' => "As much or as little as you have. Some members show up to one event a month; others help lead committees. Capacity changes — that's fine. The work is a marathon, not a sprint." ),
+		array( 'question' => 'Do I have to be a member to come to events?', 'answer' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' ),
+		array( 'question' => 'How much are dues?', 'answer' => 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.' ),
+		array( 'question' => 'Is prior experience required?', 'answer' => 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.' ),
+		array( 'question' => 'Can I participate without being publicly visible?', 'answer' => 'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.' ),
+		array( 'question' => 'How much time does membership take?', 'answer' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore.' ),
 	), $progressnow_seed_gi_id );
 	update_field( 'field_progressnow_gi_card_heading', 'Ready right now?', $progressnow_seed_gi_id );
-	update_field( 'field_progressnow_gi_card_body', 'Membership takes five minutes, and dues are pay-what-you-can.', $progressnow_seed_gi_id );
+	update_field( 'field_progressnow_gi_card_body', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', $progressnow_seed_gi_id );
 	update_field( 'field_progressnow_gi_card_link_label', 'Join us', $progressnow_seed_gi_id );
 	update_field( 'field_progressnow_gi_card_link_url', '/get-involved/#join', $progressnow_seed_gi_id );
 	update_field( 'field_progressnow_gi_related_links', array(
@@ -1108,22 +1129,22 @@ if ( function_exists( 'pll_set_post_language' ) && function_exists( 'pll_save_po
 
 		// 6.9c — Spanish front-page ACF copy (mirrors the EN fields above).
 		if ( $progressnow_seed_es_home ) {
-			update_field( 'field_progressnow_hero_lede', 'Somos una organización dirigida por sus miembros que construye el poder de la clase trabajadora en nuestra comunidad.', $progressnow_seed_es_home );
+			update_field( 'field_progressnow_hero_lede', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.', $progressnow_seed_es_home );
 			update_field( 'field_progressnow_hero_cta_primary_label', 'Únete', $progressnow_seed_es_home );
 			update_field( 'field_progressnow_hero_cta_primary_url', '/get-involved/#join', $progressnow_seed_es_home );
-			update_field( 'field_progressnow_hero_subhead', 'Luchamos por el futuro que nuestra comunidad merece.', $progressnow_seed_es_home );
+			update_field( 'field_progressnow_hero_subhead', 'Ut enim ad minim veniam, quis nostrud exercitation.', $progressnow_seed_es_home );
 			update_field( 'field_progressnow_hero_cta_secondary_label', '¿Nuevo miembro? Empieza con Progress Now 101. Inscríbete aquí', $progressnow_seed_es_home );
 			update_field( 'field_progressnow_hero_cta_secondary_url', '/es/participa/', $progressnow_seed_es_home );
 
 			update_field( 'field_progressnow_who_eyebrow', 'Quiénes somos', $progressnow_seed_es_home );
-			// v3 who-we-are (Spanish drafts of the prototype copy, chapter-neutral).
+			// Spanish headings + lorem body (placeholder).
 			update_field( 'field_progressnow_who_heading', 'Somos <span class="notranslate">Progress Now</span>', $progressnow_seed_es_home );
-			update_field( 'field_progressnow_who_p1', 'En nuestra comunidad estamos en la primera línea contra el fascismo. Tenemos multimillonarios en nuestro patio, a ICE en nuestros vecindarios y empleos que nos dejan sobrecargados y mal pagados.', $progressnow_seed_es_home );
-			update_field( 'field_progressnow_who_p2', 'Pero no tiene por qué seguir así.', $progressnow_seed_es_home );
-			update_field( 'field_progressnow_who_p3', "Juntos, construimos poder de la clase trabajadora en varios frentes para que cada persona de nuestra comunidad pueda vivir con dignidad, respeto y solidaridad. Organizamos nuestros lugares de trabajo y nuestra comunidad para asegurar que nuestro futuro sea para y por la clase trabajadora. Un mundo mejor es posible.\nVamos a ganar.", $progressnow_seed_es_home );
-			update_field( 'field_progressnow_who_link_label', 'Más sobre nuestro capítulo', $progressnow_seed_es_home );
+			update_field( 'field_progressnow_who_p1', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.', $progressnow_seed_es_home );
+			update_field( 'field_progressnow_who_p2', 'Ut enim ad minim veniam, quis nostrud exercitation.', $progressnow_seed_es_home );
+			update_field( 'field_progressnow_who_p3', "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\nLorem ipsum dolor sit amet, consectetur adipiscing elit.", $progressnow_seed_es_home );
+			update_field( 'field_progressnow_who_link_label', 'Más sobre nosotros', $progressnow_seed_es_home );
 			update_field( 'field_progressnow_who_link_url', '/es/acerca-de/', $progressnow_seed_es_home );
-			update_field( 'field_progressnow_cta_line', '¡Progreso ahora, no algún día!', $progressnow_seed_es_home );
+			update_field( 'field_progressnow_cta_line', '¡Lorem ipsum dolor sit amet!', $progressnow_seed_es_home );
 
 
 			progressnow_seed_log( "polylang: es home ACF copy seeded (#{$progressnow_seed_es_home})" );
@@ -1146,6 +1167,7 @@ if ( function_exists( 'pll_set_post_language' ) && function_exists( 'pll_save_po
 		'About the Chapter'      => 'Sobre el capítulo',
 		'Mission & History'      => 'Misión e historia',
 		'Where We Organize'      => 'Dónde organizamos',
+		'Where We Are'           => 'Dónde estamos',
 		'Committees'             => 'Comités',
 		'Bylaws & Code of Conduct' => 'Estatutos y código de conducta',
 		'FAQ'                    => 'Preguntas frecuentes',
@@ -1155,13 +1177,13 @@ if ( function_exists( 'pll_set_post_language' ) && function_exists( 'pll_save_po
 		'tell us how we can do better.' => 'dinos cómo podemos mejorar.',
 		// Home v3 — headline + art alt text (inc/identity.php).
 		'A better world is possible!' => '¡Un mundo mejor es posible!',
-		'Chapter members gathered at a community action' => 'Miembros del capítulo reunidos en una acción comunitaria',
+		'Chapter members gathered at a community action' => 'Miembros del capítulo reunidos en un evento comunitario',
 		'Chapter artwork' => 'Arte del capítulo',
 		// Home v3 — headings, arrow links (no "→": the arrow is an SVG), empty states.
 		'Upcoming events'        => 'Próximos eventos',
 		'Full calendar'          => 'Calendario completo',
 		'No events on the books yet' => 'Aún no hay eventos programados',
-		'New meetings and actions land on the %s first — subscribe there and never miss one.' => 'Las nuevas reuniones y acciones aparecen primero en el %s — suscríbete allí y no te pierdas ninguna.',
+		'New meetings and actions land on the %s first — subscribe there and never miss one.' => 'Las nuevas reuniones y eventos aparecen primero en el %s — suscríbete allí y no te pierdas ninguno.',
 		'calendar'               => 'calendario',
 		'View event'             => 'Ver evento',
 		'From the blog'          => 'Del blog',
@@ -1180,19 +1202,19 @@ if ( function_exists( 'pll_set_post_language' ) && function_exists( 'pll_save_po
 	// 6.9e — Spanish translations of the upcoming events (home teasers). Keyed
 	// by English title so re-runs and ID shifts stay stable.
 	$progressnow_seed_es_events = array(
-		'Community Fridge Restock & Cleanup'        => 'Reabastecimiento y limpieza del refrigerador comunitario',
-		'Know Your Rights at Work'                  => 'Conoce tus derechos en el trabajo',
-		'July General Meeting'                      => 'Reunión general de julio',
-		'Progress Now 101 (New Member Orientation)'          => 'Progress Now 101 (Orientación para nuevos miembros)',
-		'Brake Light Clinic'                        => 'Clínica de luces de freno',
-		'Candidate Endorsement Forum'               => 'Foro de respaldo a candidatos',
-		'Reading Circle: Community Organizing 101' => 'Círculo de lectura: organización comunitaria 101',
-		'Ice Cream Social'                             => 'Convivio con popsicles',
-		'Picket Support Training'                   => 'Capacitación de apoyo a piquetes',
-		'August General Meeting'                    => 'Reunión general de agosto',
-		'School Supply Distro Prep'                 => 'Preparación de la distribución de útiles escolares',
-		'Voter Registration Drive'                  => 'Jornada de registro de votantes',
-		'Night School: How Local Government Works'     => 'Escuela nocturna: migración y trabajo',
+		'Community Cleanup Day'                     => 'Día de limpieza comunitaria',
+		'Online Workshop'                           => 'Taller en línea',
+		'September General Meeting'                 => 'Reunión general de septiembre',
+		'Progress Now 101 (New Member Orientation)' => 'Progress Now 101 (Orientación para nuevos miembros)',
+		'Volunteer Morning'                         => 'Mañana de voluntariado',
+		'Community Forum'                           => 'Foro comunitario',
+		'Reading Circle'                            => 'Círculo de lectura',
+		'Fall Social'                             => 'Convivio de otoño',
+		'Volunteer Training'                        => 'Capacitación de voluntarios',
+		'October General Meeting'                   => 'Reunión general de octubre',
+		'Supply Drive Prep'                         => 'Preparación de la colecta de materiales',
+		'Community Tabling'                         => 'Mesa informativa comunitaria',
+		'Workshop: Second Session'                  => 'Taller: segunda sesión',
 	);
 	$progressnow_seed_en_events = get_posts( array(
 		'post_type'   => 'event',
@@ -1217,100 +1239,100 @@ if ( function_exists( 'pll_set_post_language' ) && function_exists( 'pll_save_po
 	// replaces the English Twig fallback.
 	if ( $calendar_page_id ) {
 		progressnow_seed_translate_page( $calendar_page_id, 'Calendario de eventos', 'calendario', array(
-			'field_progressnow_interior_lede' => 'Reuniones, acciones, capacitaciones y convivios por toda nuestra comunidad. Todo es abierto al público a menos que se indique — trae a alguien.',
+			'field_progressnow_interior_lede' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
 		) );
 	}
 
 	// Blog (page_for_posts) — Polylang resolves the ES posts page from the link.
 	if ( $blog_page_id ) {
 		progressnow_seed_translate_page( $blog_page_id, 'Blog', 'blog', array(
-			'field_progressnow_interior_lede' => 'Noticias, análisis y crónicas de los organizadores del capítulo en toda nuestra comunidad.',
+			'field_progressnow_interior_lede' => 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
 		) );
 	}
 
 	// About — full page ACF group in Spanish. Internal links use /es/ slugs.
 	if ( $progressnow_seed_about_id ) {
 		progressnow_seed_translate_page( $progressnow_seed_about_id, 'Sobre el capítulo', 'acerca-de', array(
-			'field_progressnow_interior_lede'               => 'Un capítulo dirigido por sus miembros, organizando por la gente trabajadora en toda nuestra comunidad.',
-			'field_progressnow_about_mission_eyebrow'       => 'En qué creemos',
-			'field_progressnow_about_mission_body'          => 'Creemos que nuestra economía debe construirse democráticamente, por y para la gente trabajadora — no por los multimillonarios para su lucro.',
+			'field_progressnow_interior_lede'               => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+			'field_progressnow_about_mission_eyebrow'       => 'Nuestra misión',
+			'field_progressnow_about_mission_body'          => 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
 			'field_progressnow_about_chapter_heading'       => 'Sobre el capítulo',
-			'field_progressnow_about_intro_p1'              => 'Somos un grupo organizador dirigido y financiado por sus miembros. Nuestro trabajo de base se enfoca en la organización laboral, la ayuda mutua y la educación política en toda nuestra comunidad.',
-			'field_progressnow_about_intro_p2'              => 'Todo lo que hacemos es dirigido por los miembros, financiado por los miembros y abierto a cualquiera que quiera construir una comunidad que funcione para la gente trabajadora. Organizamos reuniones comunitarias con regularidad para compartir novedades, planear campañas y ofrecer charlas de educación política. Si eres estudiante, pregúntanos por nuestra rama universitaria.',
+			'field_progressnow_about_intro_p1'              => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+			'field_progressnow_about_intro_p2'              => 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
 			'field_progressnow_about_ctas'                  => array(
 				array( 'label' => 'Ven a una reunión', 'url' => '/es/calendario/' ),
 				array( 'label' => 'Participa', 'url' => '/es/participa/' ),
 				array( 'label' => 'Estudiantes', 'url' => '/es/participa/' ),
 			),
 			'field_progressnow_about_history_heading'       => 'Misión e historia',
-			'field_progressnow_about_history_body'          => 'Luchamos por un futuro donde la vivienda, la salud y una vida digna estén garantizadas — y creemos que quienes viven y trabajan en nuestra comunidad deben ser quienes lo decidan. Nuestro trabajo se centra en tres pilares: la organización laboral, la ayuda mutua y la educación política.',
+			'field_progressnow_about_history_body'          => 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
 			'field_progressnow_about_timeline'              => array(
-				array( 'year' => '1982', 'text' => 'Se funda Progress Now como un proyecto organizador dirigido por sus miembros.' ),
-				array( 'year' => '20XX', 'text' => 'Organizadores locales forman un comité organizador y comienzan a reunirse. <em class="text-[#78716c]">(El capítulo completará el año y los detalles.)</em>' ),
-				array( 'year' => '20XX', 'text' => 'El capítulo se constituye como capítulo local oficial. <em class="text-[#78716c]">(El capítulo completará el año y los detalles.)</em>' ),
+				array( 'year' => '20XX', 'text' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.' ),
+				array( 'year' => '20XX', 'text' => 'Sed do eiusmod tempor incididunt ut labore et dolore. <em class="text-[#78716c]">(Se completará el año y los detalles.)</em>' ),
+				array( 'year' => '20XX', 'text' => 'Ut enim ad minim veniam, quis nostrud exercitation. <em class="text-[#78716c]">(Se completará el año y los detalles.)</em>' ),
 			),
-			'field_progressnow_about_counties_heading'      => 'Dónde organizamos',
-			'field_progressnow_about_counties_intro'        => 'Un capítulo, muchas comunidades. Dondequiera que estés en nuestra comunidad, te tenemos cubierto — y si puedes ayudarnos a organizar más a fondo en tu vecindario, queremos saber de ti.',
-			// Áreas de ejemplo — el capítulo las reemplaza en wp-admin.
+			'field_progressnow_about_counties_heading'      => 'Dónde estamos',
+			'field_progressnow_about_counties_intro'        => 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
+			// Áreas de ejemplo — se reemplazan en wp-admin.
 			'field_progressnow_about_county_cards'          => array(
-				array( 'name' => 'Centro', 'cities' => 'Centro · Zona media', 'note' => 'Base principal — aquí se realizan la mayoría de las reuniones' ),
+				array( 'name' => 'Centro', 'cities' => 'Centro · Zona media', 'note' => 'Lorem ipsum dolor sit amet' ),
 				array( 'name' => 'Norte', 'cities' => 'Zona norte · Alta', 'note' => '' ),
 				array( 'name' => 'Sur', 'cities' => 'Zona sur · Ribera', 'note' => '' ),
 				array( 'name' => 'Campus', 'cities' => 'Rama estudiantil', 'note' => '' ),
 			),
 			'field_progressnow_about_committees_heading'     => 'Comités',
-			'field_progressnow_about_committees_intro'       => 'Los comités son donde ocurre el trabajo. Cada uno se reúne con regularidad y da la bienvenida a nuevos miembros.',
+			'field_progressnow_about_committees_intro'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore.',
 			'field_progressnow_about_committees_link_label'  => 'Únete a un comité',
 			'field_progressnow_about_committees_link_url'    => '/es/participa/#committees',
 			'field_progressnow_about_governance_heading'     => 'Estatutos y código de conducta',
-			'field_progressnow_about_governance_intro'       => 'El capítulo se gobierna por sus miembros a través de documentos que debatimos y votamos juntos. Todo es público.',
+			'field_progressnow_about_governance_intro'       => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut enim ad minim veniam, quis nostrud exercitation.',
 			'field_progressnow_about_governance_docs'        => array(
-				array( 'title' => 'Estatutos del capítulo', 'covers' => 'Cómo funciona el capítulo: dirigentes, elecciones, quórum, comités y cómo se toman las decisiones.', 'action' => 'Leer', 'url' => '/bylaws-code-of-conduct/#documents' ),
-				array( 'title' => 'Código de conducta', 'covers' => 'Lo que esperamos de cada quien en todos los espacios del capítulo: reuniones, acciones y en línea.', 'action' => 'Leer', 'url' => '/bylaws-code-of-conduct/#documents' ),
-				array( 'title' => 'Política de quejas', 'covers' => 'Cómo reportar un daño y cómo el capítulo maneja los conflictos, de forma confidencial y justa.', 'action' => 'Leer', 'url' => '/bylaws-code-of-conduct/#grievance' ),
-				array( 'title' => 'Actas de reuniones', 'covers' => 'Registros y resoluciones de las reuniones generales, disponibles para todos los miembros.', 'action' => 'Explorar', 'url' => '/bylaws-code-of-conduct/#documents' ),
+				array( 'title' => 'Estatutos', 'covers' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', 'action' => 'Leer', 'url' => '/bylaws-code-of-conduct/#documents' ),
+				array( 'title' => 'Código de conducta', 'covers' => 'Sed do eiusmod tempor incididunt ut labore et dolore.', 'action' => 'Leer', 'url' => '/bylaws-code-of-conduct/#documents' ),
+				array( 'title' => 'Política de quejas', 'covers' => 'Ut enim ad minim veniam, quis nostrud exercitation.', 'action' => 'Leer', 'url' => '/bylaws-code-of-conduct/#grievance' ),
+				array( 'title' => 'Actas de reuniones', 'covers' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', 'action' => 'Explorar', 'url' => '/bylaws-code-of-conduct/#documents' ),
 			),
 			'field_progressnow_about_faq_heading'           => 'Preguntas frecuentes',
 			'field_progressnow_about_faq'                   => array(
-				array( 'question' => '¿Tengo que ser miembro para asistir a los eventos?', 'answer' => 'No — la mayoría de nuestros eventos son abiertos a todo el mundo. Ven a un 101 o a un convivio, conoce a la gente y ve si es para ti.' ),
-				array( 'question' => '¿Cuánto son las cuotas?', 'answer' => 'Las cuotas son de escala móvil — la mayoría paga unos pocos dólares al mes. A nadie se le rechaza por no poder pagar.' ),
-				array( 'question' => '¿Cómo cambio mi cuota?', 'answer' => 'Ingresa el correo asociado a tu membresía en el formulario de cuotas con tu nuevo monto, y tu cuota actual se cancelará y se actualizará.' ),
-				array( 'question' => 'Nunca he participado en algo político. ¿Está bien?', 'answer' => 'Más que bien — es lo normal. La mayoría de los miembros se unieron sin experiencia organizando. Progress Now 101 existe justo para esto.' ),
-				array( 'question' => '¿Puedo participar sin ser visible públicamente?', 'answer' => 'Sí. Hay muchas maneras de contribuir tras bambalinas, y tomamos en serio la privacidad y la seguridad de los miembros.' ),
-				array( 'question' => '¿Cuánto tiempo requiere la membresía?', 'answer' => 'Tanto o tan poco como tengas. Algunos miembros asisten a un evento al mes; otros ayudan a dirigir comités.' ),
+				array( 'question' => '¿Tengo que ser miembro para asistir a los eventos?', 'answer' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' ),
+				array( 'question' => '¿Cuánto son las cuotas?', 'answer' => 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.' ),
+				array( 'question' => '¿Cómo cambio mi cuota?', 'answer' => 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.' ),
+				array( 'question' => '¿Se requiere experiencia previa?', 'answer' => 'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.' ),
+				array( 'question' => '¿Puedo participar sin ser visible públicamente?', 'answer' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore.' ),
+				array( 'question' => '¿Cuánto tiempo requiere la membresía?', 'answer' => 'Ut enim ad minim veniam, quis nostrud exercitation. Lorem ipsum dolor sit amet, consectetur adipiscing elit.' ),
 			),
 			'field_progressnow_about_dues_heading'          => '¿Cambiando tu cuota?',
-			'field_progressnow_about_dues_body'             => '¿Ya eres miembro y quieres cambiar tu cuota? Ingresa el correo asociado a tu membresía en el formulario de cuotas con tu nuevo monto, y tu cuota actual se cancelará y se actualizará.',
+			'field_progressnow_about_dues_body'             => 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
 		) );
 	}
 
 	// Get Involved — full page ACF group in Spanish.
 	if ( $progressnow_seed_gi_id ) {
 		progressnow_seed_translate_page( $progressnow_seed_gi_id, 'Participa', 'participa', array(
-			'field_progressnow_interior_lede'        => 'No se necesita experiencia ni una política perfecta. Si quieres un mundo mejor, aquí hay un lugar para ti.',
+			'field_progressnow_interior_lede'        => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
 			'field_progressnow_gi_join_heading'      => 'Cómo unirte',
 			'field_progressnow_gi_steps'             => array(
-				array( 'title' => 'Hazte miembro', 'body' => 'Regístrate en unos minutos. Las cuotas son de escala móvil — paga lo que puedas, y <strong>a nadie se le rechaza por falta de fondos</strong>.', 'link_label' => 'Únete ahora →', 'link_url' => '/get-involved/#join' ),
-				array( 'title' => 'Ven a Progress Now 101', 'body' => 'Nuestra sesión introductoria para gente nueva y curiosa: qué defendemos, en qué trabaja nuestro capítulo y cómo sumarte. Se ofrece virtual y en persona, varias veces al mes. No tienes que ser miembro todavía para asistir.', 'link_label' => 'Encuentra una sesión →', 'link_url' => '/es/calendario/' ),
-				array( 'title' => 'Recibe orientación y súmate', 'body' => 'Después del 101, te agregamos a nuestro WhatsApp y te conectamos con un comité que se ajuste a tus intereses y tu disponibilidad — ya sea una hora al mes o una noche a la semana.', 'link_label' => 'Explora los comités ↓', 'link_url' => '#committees' ),
+				array( 'title' => 'Hazte miembro', 'body' => 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.', 'link_label' => 'Únete ahora →', 'link_url' => '/get-involved/#join' ),
+				array( 'title' => 'Ven a Progress Now 101', 'body' => 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.', 'link_label' => 'Encuentra una sesión →', 'link_url' => '/es/calendario/' ),
+				array( 'title' => 'Recibe orientación', 'body' => 'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.', 'link_label' => 'Explora los comités ↓', 'link_url' => '#committees' ),
 			),
 			'field_progressnow_gi_committees_heading' => 'Comités',
-			'field_progressnow_gi_committees_intro'   => 'Los comités son donde ocurre el trabajo. Cada uno se reúne con regularidad y da la bienvenida a nuevos miembros — comunícate por el WhatsApp o en cualquier reunión general.',
+			'field_progressnow_gi_committees_intro'   => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore.',
 			'field_progressnow_gi_channels_heading'  => 'Canales de comunicación',
 			'field_progressnow_gi_channels'          => array(
-				array( 'label' => 'WhatsApp', 'desc' => 'Nuestro canal principal — los miembros reciben una invitación durante la orientación', 'link_label' => '', 'url' => '', 'badge' => 'Solo miembros' ),
+				array( 'label' => 'Chat grupal', 'desc' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', 'link_label' => '', 'url' => '', 'badge' => 'Solo miembros' ),
 				array( 'label' => 'Correo', 'desc' => 'Preguntas, prensa y cualquier otra cosa', 'link_label' => 'Escríbenos', 'url' => 'mailto:hello@example.org', 'badge' => '' ),
 			),
 			'field_progressnow_gi_faq_heading'       => 'Preguntas comunes',
 			'field_progressnow_gi_faq'               => array(
-				array( 'question' => '¿Tengo que ser miembro para asistir a los eventos?', 'answer' => 'No — la mayoría de nuestros eventos son abiertos a todo el mundo. Ven a un 101 o a un convivio, conoce a la gente y ve si es para ti. Sin presión.' ),
-				array( 'question' => '¿Cuánto son las cuotas?', 'answer' => 'Las cuotas son de escala móvil — la mayoría paga unos pocos dólares al mes. Si las cuotas son un obstáculo, háblanos: a nadie se le rechaza por falta de fondos.' ),
-				array( 'question' => 'Nunca he participado en algo político. ¿Está bien?', 'answer' => 'Más que bien — es lo normal. La mayoría de los miembros se unieron sin experiencia organizando. Progress Now 101 existe justo para esto, y los comités te enseñarán todo sobre la marcha.' ),
-				array( 'question' => '¿Puedo participar sin ser visible públicamente?', 'answer' => 'Sí. Hay muchas maneras de contribuir tras bambalinas, y tomamos en serio la privacidad y la seguridad de los miembros. Háblanos sobre con qué te sientes cómodo.' ),
-				array( 'question' => '¿Cuánto tiempo requiere la membresía?', 'answer' => 'Tanto o tan poco como tengas. Algunos miembros asisten a un evento al mes; otros ayudan a dirigir comités. La disponibilidad cambia — está bien. El trabajo es una maratón, no un sprint.' ),
+				array( 'question' => '¿Tengo que ser miembro para asistir a los eventos?', 'answer' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' ),
+				array( 'question' => '¿Cuánto son las cuotas?', 'answer' => 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.' ),
+				array( 'question' => '¿Se requiere experiencia previa?', 'answer' => 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.' ),
+				array( 'question' => '¿Puedo participar sin ser visible públicamente?', 'answer' => 'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.' ),
+				array( 'question' => '¿Cuánto tiempo requiere la membresía?', 'answer' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore.' ),
 			),
 			'field_progressnow_gi_card_heading'      => '¿Con ganas de empezar ya?',
-			'field_progressnow_gi_card_body'         => 'Hacerte miembro toma cinco minutos, y las cuotas son de paga-lo-que-puedas.',
+			'field_progressnow_gi_card_body'         => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
 			'field_progressnow_gi_card_link_label'   => 'Únete',
 			'field_progressnow_gi_card_link_url'     => '/get-involved/#join',
 			'field_progressnow_gi_related_links'     => array(

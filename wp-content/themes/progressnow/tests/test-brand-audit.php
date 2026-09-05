@@ -139,7 +139,7 @@ class TestBrandAudit extends BaseTestCase {
 	public function test_seed_spanish_copy_is_still_spanish() {
 		$seed = (string) file_get_contents( dirname( __DIR__ ) . '/bin/seed.php' );
 
-		foreach ( array( 'Únete', 'Dónde organizamos', '¡Un mundo mejor es posible!', 'Somos un grupo organizador', 'Calendario de eventos' ) as $spanish ) {
+		foreach ( array( 'Únete', 'Dónde estamos', '¡Un mundo mejor es posible!', 'Sobre el capítulo', 'Calendario de eventos' ) as $spanish ) {
 			$this->assertStringContainsString( $spanish, $seed );
 		}
 		$this->assertDoesNotMatchRegularExpression( self::PATTERN, $seed );
