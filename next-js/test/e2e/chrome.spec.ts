@@ -262,6 +262,81 @@ test("a short route keeps the footer below the fold, and reachable by scrolling"
   await expect(page.getByRole("contentinfo")).toBeVisible();
 });
 
+/** Counts document.startViewTransition calls, tagged with the URL at the time. */
+async function countViewTransitions(page: Page) {
+  await page.addInitScript(() => {
+    (window as unknown as { __vt: { url: string }[] }).__vt = [];
+    const orig = document.startViewTransition?.bind(document);
+    if (orig) {
+      document.startViewTransition = ((cb: () => void) => {
+        (window as unknown as { __vt: { url: string }[] }).__vt.push({
+          url: location.pathname + location.search,
+        });
+        return orig(cb);
+      }) as typeof document.startViewTransition;
+    }
+  });
+  return {
+    reset: () => page.evaluate(() => ((window as unknown as { __vt: unknown[] }).__vt.length = 0)),
+    read: () => page.evaluate(() => (window as unknown as { __vt: { url: string }[] }).__vt),
+  };
+}
+
+test("a URL-state update does not start a view transition", async ({ page }) => {
+  // Design D6: "URL-state updates (search, filter, page, view) ... do not trigger a
+  // transition." They did — every keystroke of the blog search cross-faded the whole
+  // page instead of updating the results fragment in place.
+  const vt = await countViewTransitions(page);
+  await page.goto("/blog/");
+  await vt.reset();
+
+  const search = page.getByRole("searchbox").first();
+  await search.click();
+  await search.type("union", { delay: 60 });
+  await expect(page).toHaveURL(/[?&]s=union/);
+  await page.waitForTimeout(800);
+
+  expect(await vt.read(), "typing in the archive search should not animate the page").toEqual([]);
+});
+
+test("a route change starts exactly one view transition, content landing starts none", async ({
+  page,
+  request,
+}) => {
+  // The second half is the regression that mattered: the archive results resolving
+  // behind their skeleton ran a SECOND full-page cross-fade after the route had
+  // already arrived, so the page appeared to reload itself. React reads `default`
+  // from RouteTransition's last render, and a Suspense reveal re-renders nothing
+  // there — the boundary was still holding the navigation's `vt-page`.
+  const vt = await countViewTransitions(page);
+  await page.setViewportSize({ width: 1440, height: 900 });
+
+  try {
+    await request.post(`${MOCK}/__mock/delay`, { data: { ms: 700, path: "posts" } });
+    await page.goto("/");
+    await evictContentCache(request);
+    await vt.reset();
+
+    await page
+      .getByRole("navigation", { name: "Main" })
+      .last()
+      .getByRole("link", { name: "Blog" })
+      .click();
+    await expect(page).toHaveURL(/\/blog\/$/);
+    // Long enough for the held envelope to land and the stand-in to be replaced.
+    await expect(page.getByTestId("archive-fallback")).toHaveCount(0, { timeout: 15_000 });
+    await page.waitForTimeout(600);
+
+    const calls = await vt.read();
+    expect(
+      calls.map((c) => c.url),
+      "one transition for the navigation, none for the content arriving",
+    ).toHaveLength(1);
+  } finally {
+    await request.post(`${MOCK}/__mock/reset`, { data: {} });
+  }
+});
+
 test("POST /__mock/delay holds envelopes and /__mock/reset releases them", async ({ request }) => {
   // The knob the navigation test depends on (openspec next-test-harness § Fixture-backed
   // mock API). Validation of the value itself is unit-tested.

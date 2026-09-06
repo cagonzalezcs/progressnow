@@ -53,6 +53,29 @@ The `vt-page` transition groups SHALL fade through `--color-background`, the gro
 - **WHEN** the drift test runs after the transition ground is changed
 - **THEN** `app/globals.css` still matches the theme's `src/css/tailwind.css` byte for byte after URL normalization
 
+### Requirement: Only a change of pathname animates
+
+`RouteTransition` SHALL start a view transition only when the pathname changes. A URL-state update on the current route — `?s=`, `?category=`, `?paged=`, `?view=`, written with `router.replace(…, { scroll: false })` — and a Suspense reveal below the boundary SHALL NOT animate. This makes true what design D6 already states: URL-state updates "do not trigger a transition".
+
+The settled pathname SHALL be held in state, not a ref. React reads the boundary's configuration from this component's last render, and a Suspense reveal below it re-renders nothing here — with a ref the boundary would still be holding the navigation's `vt-page` and the reveal would animate anyway. Setting state forces the re-render that commits `"none"` before the content lands.
+
+Measured before the fix, on a cold `/blog/` with the `posts` envelope held 700ms: one transition at t=65ms for the navigation and a second at t=767ms when the results replaced their skeleton, so the page appeared to reload itself. Typing in the archive search cross-faded the whole page on every keystroke.
+
+#### Scenario: URL-state update
+
+- **WHEN** a visitor types in the archive search, or chooses a category, on an already-loaded route
+- **THEN** no view transition is started, and the results fragment updates in place
+
+#### Scenario: Content landing after a route change
+
+- **WHEN** a route arrives with a stand-in and its content resolves afterwards
+- **THEN** exactly one view transition has run — the navigation's — and the content appears without a second
+
+#### Scenario: Direct load
+
+- **WHEN** a route is loaded directly
+- **THEN** no view transition runs, because the first render's pathname is already the settled one
+
 ### Requirement: The anchor is exercised end to end
 
 The fixture-backed mock SHALL expose `POST /__mock/delay { ms, path? }`, which holds envelopes whose path starts with `path` (default: all) for `ms`, cleared by `POST /__mock/reset`. An e2e test SHALL use it, together with a signed rebuild that evicts the content tags, to open a real loading window and assert the invariant through an actual navigation — a warm route's payload arrives whole, fallback and all, so a cold cache is required. Because the mock is shared by specs running in parallel, the delay SHALL be scoped to the envelope the spec under test needs slowed.
