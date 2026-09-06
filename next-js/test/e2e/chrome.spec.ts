@@ -203,7 +203,11 @@ async function evictContentCache(request: APIRequestContext) {
   expect(res.status(), "the rebuild receiver refused the eviction webhook").toBe(202);
 }
 
-test("an empty <main> still fills the viewport, so the footer starts where it stays", async ({
+/* The suite's only user of the shared mock delay, and its only extra source of
+ * rebuilds. Keeping it to one test is deliberate: a second one clears this one's
+ * delay in its teardown, and its eviction lands in the middle of receiver.spec's
+ * assertions. */
+test("an empty <main> still fills the viewport, and only the navigation animates", async ({
   page,
   request,
 }) => {
@@ -212,6 +216,7 @@ test("an empty <main> still fills the viewport, so the footer starts where it st
   // slow envelope once it is cold. The delay is scoped to `posts` because the mock is
   // shared with specs that time the calendar.
   await page.setViewportSize({ width: 1440, height: 900 });
+  const vt = await countViewTransitions(page);
   const blog = () =>
     page.getByRole("navigation", { name: "Main" }).last().getByRole("link", { name: "Blog" });
 
@@ -221,6 +226,7 @@ test("an empty <main> still fills the viewport, so the footer starts where it st
       await request.post(`${MOCK}/__mock/delay`, { data: { ms: 700, path: "posts" } });
       await page.goto("/");
       await evictContentCache(request);
+      await vt.reset();
       samples = await sampleFooterThrough(page, async () => {
         await blog().click();
         await expect(page).toHaveURL(/\/blog\/$/);
@@ -241,6 +247,15 @@ test("an empty <main> still fills the viewport, so the footer starts where it st
     // Anchored, not hidden. An earlier revision hid it while the route loaded, which
     // flashed the page dark → white → dark on every navigation.
     expect(samples.filter((s) => s.visibility !== "visible")).toEqual([]);
+
+    // And the content landing did not animate. React reads `default` from
+    // RouteTransition's last render, and a Suspense reveal re-renders nothing there —
+    // the boundary used to still be holding the navigation's `vt-page`, so the page
+    // cross-faded a second time and appeared to reload itself.
+    expect(
+      (await vt.read()).map((c) => c.url),
+      "one transition for the navigation, none for the content arriving",
+    ).toHaveLength(1);
   } finally {
     await request.post(`${MOCK}/__mock/reset`, { data: {} });
   }
@@ -312,67 +327,4 @@ test("archive filtering and search do not start a view transition", async ({ pag
   await expect(page).toHaveURL(/[?&]s=union/);
   await page.waitForTimeout(800);
   expect(await vt.read(), "typing in the archive search should not animate the page").toEqual([]);
-});
-
-test("a route change starts exactly one view transition, content landing starts none", async ({
-  page,
-  request,
-}) => {
-  // The second half is the regression that mattered: the archive results resolving
-  // behind their skeleton ran a SECOND full-page cross-fade after the route had
-  // already arrived, so the page appeared to reload itself. React reads `default`
-  // from RouteTransition's last render, and a Suspense reveal re-renders nothing
-  // there — the boundary was still holding the navigation's `vt-page`.
-  const vt = await countViewTransitions(page);
-  await page.setViewportSize({ width: 1440, height: 900 });
-
-  try {
-    await request.post(`${MOCK}/__mock/delay`, { data: { ms: 700, path: "posts" } });
-    await page.goto("/");
-    await evictContentCache(request);
-    await vt.reset();
-
-    await page
-      .getByRole("navigation", { name: "Main" })
-      .last()
-      .getByRole("link", { name: "Blog" })
-      .click();
-    await expect(page).toHaveURL(/\/blog\/$/);
-    // Long enough for the held envelope to land and the stand-in to be replaced.
-    await expect(page.getByTestId("archive-fallback")).toHaveCount(0, { timeout: 15_000 });
-    await page.waitForTimeout(600);
-
-    const calls = await vt.read();
-    expect(
-      calls.map((c) => c.url),
-      "one transition for the navigation, none for the content arriving",
-    ).toHaveLength(1);
-  } finally {
-    await request.post(`${MOCK}/__mock/reset`, { data: {} });
-  }
-});
-
-test("POST /__mock/delay holds envelopes and /__mock/reset releases them", async ({ request }) => {
-  // The knob the navigation test depends on (openspec next-test-harness § Fixture-backed
-  // mock API). Validation of the value itself is unit-tested.
-  try {
-    await request.post(`${MOCK}/__mock/delay`, { data: { ms: 600, path: "posts" } });
-
-    const held = Date.now();
-    await request.get(`${MOCK}/wp-json/progressnow/v1/posts?lang=en`);
-    expect(Date.now() - held).toBeGreaterThanOrEqual(600);
-
-    // Scoped: an envelope outside the prefix is untouched, so a delay set here cannot
-    // slow the routes another spec is timing.
-    const other = Date.now();
-    await request.get(`${MOCK}/wp-json/progressnow/v1/site?lang=en`);
-    expect(Date.now() - other).toBeLessThan(600);
-
-    await request.post(`${MOCK}/__mock/reset`, { data: {} });
-    const released = Date.now();
-    await request.get(`${MOCK}/wp-json/progressnow/v1/posts?lang=en`);
-    expect(Date.now() - released).toBeLessThan(600);
-  } finally {
-    await request.post(`${MOCK}/__mock/reset`, { data: {} });
-  }
 });

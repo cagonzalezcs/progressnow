@@ -53,7 +53,13 @@ export const ROUTE_TRANSITION_CLASS = "vt-page";
  * would update silently and the boundary would still be holding the
  * `vt-page` prop from the navigation render, so the reveal animated anyway
  * (measured: still a second transition at t=751ms). Setting state forces the
- * re-render that commits `"none"` before the content lands. */
+ * re-render that commits `"none"` before the content lands.
+ *
+ * The settle is deferred to the next frame rather than run straight from the
+ * effect: a synchronous setState there cascades renders (and
+ * react-hooks/set-state-in-effect rejects it). A frame is the right moment
+ * anyway — after the navigation's transition has been captured, and long
+ * before content that is still in flight can arrive. */
 export function RouteTransition({ children }: { children: ReactNode }) {
   const reduce = useReducedMotion();
   const pathname = usePathname();
@@ -61,8 +67,14 @@ export function RouteTransition({ children }: { children: ReactNode }) {
   const isRouteChange = settled !== pathname;
 
   React.useEffect(() => {
-    if (settled !== pathname) setSettled(pathname);
-  }, [pathname, settled]);
+    if (!isRouteChange) return;
+    if (typeof requestAnimationFrame !== "function") {
+      const id = setTimeout(() => setSettled(pathname), 0);
+      return () => clearTimeout(id);
+    }
+    const frame = requestAnimationFrame(() => setSettled(pathname));
+    return () => cancelAnimationFrame(frame);
+  }, [pathname, isRouteChange]);
 
   return (
     <ViewTransition default={reduce || !isRouteChange ? "none" : ROUTE_TRANSITION_CLASS}>
