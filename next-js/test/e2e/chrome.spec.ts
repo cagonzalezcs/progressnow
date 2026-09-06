@@ -1,4 +1,8 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
+import { signatureHeader } from "../../lib/signing";
+
+const MOCK = process.env.MOCK_ORIGIN ?? `http://127.0.0.1:${process.env.MOCK_PORT ?? 8787}`;
+const REBUILD_SECRET = process.env.CHAPTER_REBUILD_SECRET ?? "playwright-test-secret";
 
 /* Site chrome in the production build (openspec next-accessibility § Landmarks
  * and skip link, § Focus and announcement, § Accessibility settings widget
@@ -111,26 +115,216 @@ test("client navigation moves focus to main and cross-fades unless motion is red
   await expect(page).toHaveURL(/\/calendar\/$/);
   await expect(page.locator("main#main")).toBeFocused();
 });
+type FooterSample = {
+  t: number;
+  top: number;
+  bottom: number;
+  visibility: string;
+  mainHeight: number;
+  standIn: boolean;
+  path: string;
+};
 
-test("the footer is held back while a route's content is loading", async ({ page }) => {
-  // components/nav/RoutePending.tsx raises this flag for as long as a Suspense
-  // fallback stands in for route content, so the footer never paints under an
-  // empty <main> and then jumps down when the content lands. Driving the
-  // attribute directly keeps the assertion on what ships: the rule in
-  // app/route-loading.css, in the production bundle.
+/* Frames where any part of the footer was inside the viewport. The TOP edge is the
+ * invariant that matters: an earlier revision anchored the footer's BOTTOM edge to
+ * the viewport's, which passed its own test while 352px of footer rose into view
+ * during the load and slid back out when the content landed. (Valid only at scroll
+ * top, which is where a route change leaves the visitor.) */
+function footerInsideViewport(samples: FooterSample[], path: string, viewportHeight: number) {
+  return samples
+    .filter((s) => s.path === path && s.top < viewportHeight)
+    .map(
+      (s) =>
+        `t=${s.t}ms top=${s.top} (viewport ${viewportHeight}, ${viewportHeight - s.top}px showing)`,
+    );
+}
+
+/* Every animation frame of the navigation: where the footer is, whether it is
+ * painted, how tall <main> is, and whether a stand-in still occupies it.
+ * `standIn` is the witness that a loading window opened, keyed on the automation
+ * testids rather than on markup shape — the stand-ins differ (an empty aria-busy
+ * region for the whole route, a sized skeleton for a fragment) and only the
+ * testids are stable across all of them. */
+async function sampleFooterThrough(page: Page, navigate: () => Promise<unknown>, ms = 2500) {
+  await page.evaluate((limit) => {
+    (window as unknown as { __footer: unknown[] }).__footer = [];
+    const t0 = performance.now();
+    const tick = () => {
+      const f = document.querySelector(".site-footer");
+      if (f) {
+        const box = f.getBoundingClientRect();
+        (window as unknown as { __footer: unknown[] }).__footer.push({
+          t: Math.round(performance.now() - t0),
+          top: Math.round(box.top),
+          bottom: Math.round(box.bottom),
+          visibility: getComputedStyle(f).visibility,
+          mainHeight: Math.round(
+            document.getElementById("main")?.getBoundingClientRect().height ?? 0,
+          ),
+          standIn: Boolean(
+            document.querySelector(
+              "main#main [data-testid='route-pending'], main#main [data-testid='archive-fallback'], main#main [data-testid='route-calendar-fallback']",
+            ),
+          ),
+          path: location.pathname,
+        });
+      }
+      if (performance.now() - t0 < limit) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }, ms);
+  await navigate();
+  await page.waitForTimeout(ms + 300);
+  return page.evaluate(() => (window as unknown as { __footer: FooterSample[] }).__footer);
+}
+
+/* A signed rebuild evicts the `content`, `routes` and `site` tags — the only supported
+ * way to make a route cold again inside a running server, and a cold route is what a
+ * loading window needs. receiver.spec.ts owns the receiver's own contract; it selects
+ * its callback by buildId so this second source does not disturb it. */
+async function evictContentCache(request: APIRequestContext) {
+  const body = JSON.stringify({
+    event: "rebuild",
+    requestId: "e2e-sticky-footer",
+    contentVersion: 0,
+    reason: "test_cache_evict",
+    siteUrl: MOCK,
+    requestedAt: new Date().toISOString(),
+  });
+  const timestamp = String(Math.floor(Date.now() / 1000));
+  const res = await request.post("/api/rebuild", {
+    data: Buffer.from(body, "utf8"),
+    headers: {
+      "content-type": "application/json",
+      "x-chapter-timestamp": timestamp,
+      "x-chapter-signature": signatureHeader(body, timestamp, REBUILD_SECRET),
+    },
+  });
+  expect(res.status(), "the rebuild receiver refused the eviction webhook").toBe(202);
+}
+
+/* The suite's only user of the shared mock delay, and its only extra source of
+ * rebuilds. Keeping it to one test is deliberate: a second one clears this one's
+ * delay in its teardown, and its eviction lands in the middle of receiver.spec's
+ * assertions. */
+test("an empty <main> still fills the viewport, and only the navigation animates", async ({
+  page,
+  request,
+}) => {
+  // The whole mechanism, through a real navigation. Opening a loading window needs a
+  // cold server cache (a warm route's payload arrives whole, fallback and all) and a
+  // slow envelope once it is cold. The delay is scoped to `posts` because the mock is
+  // shared with specs that time the calendar.
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto("/");
-  const footer = page.getByRole("contentinfo");
-  await expect(footer).toBeVisible();
+  const vt = await countViewTransitions(page);
+  const blog = () =>
+    page.getByRole("navigation", { name: "Main" }).last().getByRole("link", { name: "Blog" });
 
-  await page.evaluate(() => document.documentElement.setAttribute("data-route-loading", ""));
-  // `visibility: hidden`: unpainted, and with it out of the accessibility tree and
-  // the tab order — so the role locator stops matching it altogether.
-  expect(await page.locator(".site-footer").evaluate((el) => getComputedStyle(el).visibility)).toBe(
-    "hidden",
-  );
-  await expect(footer).toHaveCount(0);
+  try {
+    let samples: Awaited<ReturnType<typeof sampleFooterThrough>> = [];
+    for (let attempt = 0; attempt < 3 && !samples.some((s) => s.standIn); attempt++) {
+      await request.post(`${MOCK}/__mock/delay`, { data: { ms: 700, path: "posts" } });
+      await page.goto("/");
+      await evictContentCache(request);
+      await vt.reset();
+      samples = await sampleFooterThrough(page, async () => {
+        await blog().click();
+        await expect(page).toHaveURL(/\/blog\/$/);
+      });
+    }
+    // Geometry cannot witness the window any more: <main> is a full viewport tall
+    // while loading and after, which is exactly what this rule is for. The stand-in
+    // in the DOM is the witness instead.
+    expect(
+      samples.some((s) => s.standIn),
+      "no stand-in was ever rendered — the route stayed warm or the delay never took effect, so this test would pass vacuously",
+    ).toBe(true);
 
-  await page.evaluate(() => document.documentElement.removeAttribute("data-route-loading"));
-  await expect(footer).toBeVisible();
+    // The visitor-facing invariant: no part of the footer is ever on screen during
+    // the navigation, so there is nothing to see move when the content lands.
+    expect(footerInsideViewport(samples, "/blog/", 900)).toEqual([]);
+
+    // Anchored, not hidden. An earlier revision hid it while the route loaded, which
+    // flashed the page dark → white → dark on every navigation.
+    expect(samples.filter((s) => s.visibility !== "visible")).toEqual([]);
+
+    // And the content landing did not animate. React reads `default` from
+    // RouteTransition's last render, and a Suspense reveal re-renders nothing there —
+    // the boundary used to still be holding the navigation's `vt-page`, so the page
+    // cross-faded a second time and appeared to reload itself.
+    expect(
+      (await vt.read()).map((c) => c.url),
+      "one transition for the navigation, none for the content arriving",
+    ).toHaveLength(1);
+  } finally {
+    await request.post(`${MOCK}/__mock/reset`, { data: {} });
+  }
+});
+
+test("a short route keeps the footer below the fold, and reachable by scrolling", async ({
+  page,
+}) => {
+  // No loading window needed: a 404's content is simply shorter than the viewport.
+  // Without the rule the footer would sit just below the heading.
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/no-such-page-here/");
+
+  const top = await page.locator(".site-footer").evaluate((el) => el.getBoundingClientRect().top);
+  expect(top, "the footer should start below the fold").toBeGreaterThanOrEqual(900);
+
+  // Below the fold, not unreachable: it is in the accessibility tree and one scroll away.
+  await page.locator(".site-footer").scrollIntoViewIfNeeded();
+  await expect(page.getByRole("contentinfo")).toBeVisible();
+});
+
+/** Counts document.startViewTransition calls, tagged with the URL at the time. */
+async function countViewTransitions(page: Page) {
+  await page.addInitScript(() => {
+    (window as unknown as { __vt: { url: string }[] }).__vt = [];
+    const orig = document.startViewTransition?.bind(document);
+    if (orig) {
+      document.startViewTransition = ((cb: () => void) => {
+        (window as unknown as { __vt: { url: string }[] }).__vt.push({
+          url: location.pathname + location.search,
+        });
+        return orig(cb);
+      }) as typeof document.startViewTransition;
+    }
+  });
+  return {
+    reset: () => page.evaluate(() => ((window as unknown as { __vt: unknown[] }).__vt.length = 0)),
+    read: () => page.evaluate(() => (window as unknown as { __vt: { url: string }[] }).__vt),
+  };
+}
+
+test("archive filtering and search do not start a view transition", async ({ page }) => {
+  // Design D6: "URL-state updates (search, filter, page, view) ... do not trigger a
+  // transition." They did — a category chip and every keystroke of the search
+  // cross-faded the whole page instead of updating the results fragment in place.
+  // Both controls call router.replace with a query-only href (lib/archive-url.ts
+  // archiveHref), so the pathname is unchanged and RouteTransition stays quiet.
+  const vt = await countViewTransitions(page);
+  await page.goto("/blog/");
+
+  const chips = page.getByTestId("archive-filter-option");
+  expect(await chips.count(), "no category chips to filter with").toBeGreaterThan(1);
+
+  await vt.reset();
+  await chips.nth(1).click();
+  await expect(page).toHaveURL(/[?&]category=/);
+  await page.waitForTimeout(600);
+  expect(await vt.read(), "a category chip should not animate the page").toEqual([]);
+
+  await vt.reset();
+  await chips.nth(0).click();
+  await page.waitForTimeout(600);
+  expect(await vt.read(), "clearing the filter should not animate the page").toEqual([]);
+
+  await vt.reset();
+  const search = page.getByRole("searchbox").first();
+  await search.click();
+  await search.type("union", { delay: 60 });
+  await expect(page).toHaveURL(/[?&]s=union/);
+  await page.waitForTimeout(800);
+  expect(await vt.read(), "typing in the archive search should not animate the page").toEqual([]);
 });

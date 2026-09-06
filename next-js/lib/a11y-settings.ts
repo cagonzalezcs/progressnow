@@ -8,7 +8,8 @@
  *   html[data-motion="reduce|auto"] for the app's own gates.
  * Framework-free; the React provider wraps `createA11yStore`. The same
  * `apply` logic is duplicated as a string in lib/a11y-bootstrap.ts so the
- * first paint already carries the visitor's settings (no flash). */
+ * first paint already carries the visitor's settings (no flash).
+ */
 
 export type TextSize = "default" | "large" | "xl";
 

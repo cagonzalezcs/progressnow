@@ -480,9 +480,12 @@ html.a11y-contrast .headline-shadow-sm {
  * and <footer> per commit but keeps the `vt-page` class).
  *
  * <main> and <footer> are the page groups. Each fades its old snapshot out
- * over the brand blue, holds blue for a beat, then fades the new snapshot in.
+ * over the page ground, holds it for a beat, then fades the new snapshot in.
+ * The ground is `--color-background`, not the brand blue: a full-width blue
+ * wash on every navigation reads as a flash of its own, and the white ground
+ * is what both the old and the new page are already sitting on.
  * A group keeps its OLD box through the fade-out and jumps to the new one on
- * the all-blue frame (`steps(1, end)`), so a scrolled page never swoops to
+ * the all-ground frame (`steps(1, end)`), so a scrolled page never swoops to
  * the top and a footer that moves between pages never flies across the
  * screen. The sticky header has its own group that paints above the page
  * groups (a scrolled page's <main> box runs under it) and never animates: old
@@ -491,9 +494,9 @@ html.a11y-contrast .headline-shadow-sm {
  * animation) swaps instantly.
  * ------------------------------------------------------------------------- */
 :root {
-  --vt-out: 120ms; /* old page → blue */
-  --vt-hold: 30ms; /* all blue */
-  --vt-in: 200ms; /* blue → new page */
+  --vt-out: 60ms; /* old page → ground */
+  --vt-hold: 10ms; /* all ground */
+  --vt-in: 80ms; /* ground → new page */
 }
 main#main {
   view-transition-name: vt-main;
@@ -523,15 +526,18 @@ main#main {
 
 @media (prefers-reduced-motion: no-preference) {
   ::view-transition-group(.vt-page) {
-    background: var(--color-brand);
+    background: var(--color-background);
     animation-duration: calc(var(--vt-out) + var(--vt-hold));
     animation-timing-function: steps(1, end);
   }
+  /* `linear` on both halves: opacity is the only thing animating, and an eased
+     cross-fade spends longer near full opacity at each end, which reads as a
+     dip rather than a blend. Even timing keeps the perceived brightness flat. */
   ::view-transition-old(.vt-page) {
-    animation: vt-page-out var(--vt-out) ease-in both;
+    animation: vt-page-out var(--vt-out) linear both;
   }
   ::view-transition-new(.vt-page) {
-    animation: vt-page-in var(--vt-in) ease-out calc(var(--vt-out) + var(--vt-hold)) both;
+    animation: vt-page-in var(--vt-in) linear calc(var(--vt-out) + var(--vt-hold)) both;
   }
 
   /* The root (canvas, admin bar) holds nothing that moves: skip its cross-fade. */
