@@ -1,7 +1,8 @@
 import { ImageSlot } from "@/components/site/blog/ImageSlot";
 
-/* Member quote with photo; `lang` marks the quote's language for AT, the
- * optional translation follows in the page language. */
+/* Person quote (openspec gutenberg-post-blocks § person_quote). The quote
+ * carries its own `lang` so screen readers switch voice; the translation, when
+ * present, is in the page language. */
 export function BlockPersonQuote({
   photo,
   alt,
@@ -28,7 +29,7 @@ export function BlockPersonQuote({
         className="size-24 flex-none overflow-hidden rounded-full bg-white shadow-subtle"
         data-testid="block-person-quote-photo"
       >
-        <ImageSlot src={photo} alt={alt} opacity={0} loading="lazy" />
+        <ImageSlot src={photo} alt={alt} loading="lazy" sizes="96px" />
       </div>
       <div className="flex flex-[1_1_300px] flex-col gap-3">
         <blockquote

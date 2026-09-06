@@ -29,6 +29,12 @@
  * - progressnow_seo_payload( $subject = null ): array — the `seo` block
  *   { title, description, canonical, robots, hreflang } carried by every
  *   route payload.
+ * - progressnow_seo_public_url( $url ): string — the URL on the canonical
+ *   origin (CHAPTER_CANONICAL_ORIGIN constant or the
+ *   `progressnow/seo/canonical_origin` filter; default = the site's own
+ *   origin, a no-op). Applied to canonical, every hreflang href, og:url, the
+ *   JSON-LD entity URLs and core sitemap <loc>s, so the PHP theme and the
+ *   headless frontends agree on the canonical when one of them is primary.
  */
 
 add_action( 'wp_head', 'progressnow_seo_head', 5 );
@@ -39,6 +45,102 @@ remove_action( 'wp_head', 'rel_canonical' );
 // Robots go through core's wp_robots so the page gets ONE merged meta
 // (core already contributes max-image-preview:large and search noindex).
 add_filter( 'wp_robots', 'progressnow_seo_robots' );
+
+// Core sitemaps never list a non-canonical URL when another origin is canonical.
+progressnow_seo_register_sitemap_filters();
+
+/**
+ * Hook the canonical-origin rewrite into core's sitemap providers
+ * (idempotent — tests call it after WorDBless restores the hook table).
+ */
+function progressnow_seo_register_sitemap_filters() {
+	foreach ( array( 'wp_sitemaps_posts_entry', 'wp_sitemaps_taxonomies_entry', 'wp_sitemaps_users_entry' ) as $hook ) {
+		add_filter( $hook, 'progressnow_seo_sitemap_entry' );
+	}
+}
+
+/**
+ * The canonical origin (scheme + host[:port], no trailing slash): the
+ * CHAPTER_CANONICAL_ORIGIN wp-config constant, else the
+ * `progressnow/seo/canonical_origin` filter, else the site's own origin.
+ * An install that makes a headless frontend primary sets one constant.
+ *
+ * @return string
+ */
+function progressnow_seo_canonical_origin() {
+	$home    = home_url( '/' );
+	$default = progressnow_seo_origin_of( $home );
+	$origin  = defined( 'CHAPTER_CANONICAL_ORIGIN' ) && '' !== trim( (string) constant( 'CHAPTER_CANONICAL_ORIGIN' ) )
+		? (string) constant( 'CHAPTER_CANONICAL_ORIGIN' )
+		: $default;
+	/**
+	 * Filters the canonical origin.
+	 *
+	 * @param string $origin  Canonical origin (scheme + host[:port]).
+	 * @param string $default The site's own origin.
+	 */
+	$origin = (string) apply_filters( 'progressnow/seo/canonical_origin', $origin, $default );
+	$origin = progressnow_seo_origin_of( $origin );
+
+	return '' !== $origin ? $origin : $default;
+}
+
+/**
+ * scheme://host[:port] of a URL ('' when it has no host).
+ *
+ * @param string $url URL.
+ * @return string
+ */
+function progressnow_seo_origin_of( $url ) {
+	$parts = wp_parse_url( trim( (string) $url ) );
+	if ( empty( $parts['host'] ) ) {
+		return '';
+	}
+	$scheme = ! empty( $parts['scheme'] ) ? $parts['scheme'] : 'https';
+	$port   = ! empty( $parts['port'] ) ? ':' . (int) $parts['port'] : '';
+
+	return $scheme . '://' . $parts['host'] . $port;
+}
+
+/**
+ * A site URL rewritten onto the canonical origin — path, query and fragment
+ * untouched. URLs on other origins and non-absolute strings pass through.
+ * Identity when no canonical origin is configured (the default).
+ *
+ * @param string $url Absolute site URL.
+ * @return string
+ */
+function progressnow_seo_public_url( $url ) {
+	$url = (string) $url;
+	if ( '' === $url ) {
+		return $url;
+	}
+	$site   = progressnow_seo_origin_of( home_url( '/' ) );
+	$origin = progressnow_seo_canonical_origin();
+	if ( $origin === $site || '' === $site ) {
+		return $url;
+	}
+	$url_origin = progressnow_seo_origin_of( $url );
+	if ( $url_origin !== $site ) {
+		return $url;
+	}
+
+	return $origin . substr( $url, strlen( $url_origin ) );
+}
+
+/**
+ * wp_sitemaps_*_entry: `loc` on the canonical origin.
+ *
+ * @param array $entry Sitemap entry.
+ * @return array
+ */
+function progressnow_seo_sitemap_entry( $entry ) {
+	if ( is_array( $entry ) && isset( $entry['loc'] ) ) {
+		$entry['loc'] = progressnow_seo_public_url( (string) $entry['loc'] );
+	}
+
+	return $entry;
+}
 
 /**
  * noindex,follow directives for thin surfaces (overrides core's
@@ -224,7 +326,7 @@ function progressnow_seo_head() {
 		'og:type'        => 'post' === $subject['type'] ? 'article' : 'website',
 		'og:title'       => $title,
 		'og:description' => $description,
-		'og:url'         => $canonical ?: home_url( '/' ),
+		'og:url'         => $canonical ?: progressnow_seo_public_url( home_url( '/' ) ),
 		'og:image'       => $image['src'],
 	);
 	if ( ! empty( $image['width'] ) ) {
@@ -424,6 +526,16 @@ function progressnow_seo_home_url( array $subject ) {
  * @return string
  */
 function progressnow_seo_canonical( $subject = null ) {
+	return progressnow_seo_public_url( progressnow_seo_canonical_local( $subject ) );
+}
+
+/**
+ * The canonical URL on the site's own origin (see progressnow_seo_canonical()).
+ *
+ * @param array|null $subject Subject (null → main query).
+ * @return string
+ */
+function progressnow_seo_canonical_local( $subject = null ) {
 	$subject = progressnow_seo_subject( $subject );
 
 	if ( '404' === $subject['type'] ) {
@@ -526,14 +638,14 @@ function progressnow_seo_hreflang( $subject = null ) {
 		foreach ( progressnow_i18n_languages_for_post( (int) $subject['id'] ) as $language ) {
 			$alternates[] = array(
 				'lang' => $language['code'],
-				'href' => $language['url'],
+				'href' => progressnow_seo_public_url( $language['url'] ),
 			);
 		}
 	} elseif ( in_array( $subject['type'], array( 'front', 'posts_page' ), true ) && function_exists( 'pll_home_url' ) ) {
 		foreach ( (array) pll_languages_list() as $slug ) {
 			$alternates[] = array(
 				'lang' => (string) $slug,
-				'href' => (string) pll_home_url( (string) $slug ),
+				'href' => progressnow_seo_public_url( (string) pll_home_url( (string) $slug ) ),
 			);
 		}
 	}
@@ -645,14 +757,14 @@ function progressnow_seo_attachment_image( $attachment_id ) {
  */
 function progressnow_seo_json_ld( $subject = null ) {
 	$subject  = progressnow_seo_subject( $subject );
-	$org_id   = home_url( '/#organization' );
+	$org_id   = progressnow_seo_public_url( home_url( '/#organization' ) );
 	$identity = progressnow_identity();
 
 	$organization = array(
 		'@type' => 'Organization',
 		'@id'   => $org_id,
 		'name'  => $identity['name'],
-		'url'   => home_url( '/' ),
+		'url'   => progressnow_seo_public_url( home_url( '/' ) ),
 		'logo'  => $identity['logo_square']['src'],
 	);
 	$same_as      = progressnow_seo_same_as();
@@ -732,7 +844,7 @@ function progressnow_seo_article_schema( $post, $org_id, $subject = null ) {
 		'description'      => progressnow_seo_description( $subject ),
 		'datePublished'    => get_the_date( 'c', $post ),
 		'dateModified'     => get_the_modified_date( 'c', $post ),
-		'mainEntityOfPage' => get_permalink( $post ),
+		'mainEntityOfPage' => progressnow_seo_public_url( get_permalink( $post ) ),
 		'author'           => $author,
 		'publisher'        => array( '@id' => $org_id ),
 	);
@@ -769,7 +881,7 @@ function progressnow_seo_event_schema( $post, $org_id ) {
 		'@type'     => 'Event',
 		'name'      => html_entity_decode( get_the_title( $post ), ENT_QUOTES, 'UTF-8' ),
 		'startDate' => $start->format( 'c' ),
-		'url'       => get_permalink( $post ),
+		'url'       => progressnow_seo_public_url( get_permalink( $post ) ),
 		'organizer' => array( '@id' => $org_id ),
 	);
 	if ( $end ) {

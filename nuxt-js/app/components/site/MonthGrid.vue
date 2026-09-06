@@ -81,7 +81,7 @@ function fill(ev: ChapterEvent): string | undefined {
         >
           <span
             class="inline-flex size-6 items-center justify-center rounded-full text-[0.78rem] font-extrabold min-[700px]:size-7 min-[700px]:text-[0.9rem]"
-            :class="[day.isToday ? 'bg-yellow text-ink' : '', day.inMonth ? 'text-ink' : 'text-border-muted']"
+            :class="[day.isToday ? 'bg-yellow text-ink' : '', day.inMonth ? 'text-ink' : 'text-muted']"
           >
             {{ day.num }}
           </span>

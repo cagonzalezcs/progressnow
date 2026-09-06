@@ -43,7 +43,9 @@ test("calendar: month nav, view switch and category filters drive off testids", 
 }) => {
   await page.goto("/calendar/");
   await expect(page.getByTestId("event-calendar")).toHaveCount(1);
-  await expect(page.getByTestId("month-grid-day")).toHaveCount(35);
+  // A month grid is 5 or 6 whole weeks depending on how the month falls.
+  const days = await page.getByTestId("month-grid-day").count();
+  expect([35, 42]).toContain(days);
 
   const label = page.getByTestId("event-calendar-month-label");
   const before = await label.textContent();

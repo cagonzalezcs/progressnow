@@ -449,4 +449,77 @@ class TestSeo extends BaseTestCase {
 		$data = $this->json_ld( $this->head_output() );
 		$this->assertSame( array( 'Organization' ), array_column( $data['@graph'], '@type' ) );
 	}
+
+	/* ---- canonical origin (design D5: CHAPTER_CANONICAL_ORIGIN / filter) ---- */
+
+	private function set_canonical_origin( $origin ) {
+		add_filter(
+			'progressnow/seo/canonical_origin',
+			static function () use ( $origin ) {
+				return $origin;
+			}
+		);
+	}
+
+	public function test_canonical_origin_defaults_to_site_origin_and_is_a_noop() {
+		$post = $this->view_post();
+
+		$this->assertSame( 'http://example.org', progressnow_seo_canonical_origin() );
+		$this->assertSame( get_permalink( $post ), progressnow_seo_public_url( get_permalink( $post ) ) );
+		$this->assertSame( get_permalink( $post ), progressnow_seo_canonical() );
+		$this->assertSame( '', progressnow_seo_public_url( '' ) );
+		$this->assertSame( '/relative/', progressnow_seo_public_url( '/relative/' ) );
+	}
+
+	public function test_configured_canonical_origin_swaps_canonical_hreflang_and_og_url() {
+		$this->set_canonical_origin( 'https://app.example/' ); // trailing slash tolerated
+		$post = $this->view_post();
+
+		$this->assertSame( 'https://app.example', progressnow_seo_canonical_origin() );
+		$expected = 'https://app.example' . wp_parse_url( get_permalink( $post ), PHP_URL_PATH ) . '?p=' . $post->ID;
+		$this->assertSame( str_replace( 'http://example.org', 'https://app.example', get_permalink( $post ) ), progressnow_seo_canonical() );
+		$this->assertStringStartsWith( 'https://app.example/', progressnow_seo_canonical() );
+
+		$html = $this->head_output();
+		$this->assertSame( progressnow_seo_canonical(), $this->meta_content( $html, 'property', 'og:url' ) );
+		$this->assertStringContainsString( '<link rel="canonical" href="https://app.example/', $html );
+		foreach ( progressnow_seo_hreflang() as $alternate ) {
+			$this->assertStringStartsWith( 'https://app.example/', $alternate['href'] );
+		}
+
+		$graph = $this->json_ld( $html );
+		$org   = $graph['@graph'][0];
+		$this->assertSame( 'https://app.example/#organization', $org['@id'] );
+		$this->assertSame( 'https://app.example/', $org['url'] );
+		$article = $graph['@graph'][1];
+		$this->assertStringStartsWith( 'https://app.example/', $article['mainEntityOfPage'] );
+		$this->assertSame( $org['@id'], $article['publisher']['@id'] );
+	}
+
+	public function test_public_url_leaves_foreign_origins_alone() {
+		$this->set_canonical_origin( 'https://app.example' );
+
+		$this->assertSame( 'https://cdn.example/a.jpg', progressnow_seo_public_url( 'https://cdn.example/a.jpg' ) );
+		$this->assertSame( 'https://app.example/x/?a=1#f', progressnow_seo_public_url( 'http://example.org/x/?a=1#f' ) );
+	}
+
+	public function test_core_sitemap_entries_follow_the_canonical_origin() {
+		// WorDBless restores the hook table between tests; register the way the theme does at load.
+		progressnow_seo_register_sitemap_filters();
+		foreach ( array( 'wp_sitemaps_posts_entry', 'wp_sitemaps_taxonomies_entry', 'wp_sitemaps_users_entry' ) as $hook ) {
+			$this->assertNotFalse( has_filter( $hook, 'progressnow_seo_sitemap_entry' ), $hook );
+		}
+		$post = $this->make_post();
+		$this->assertSame(
+			array( 'loc' => get_permalink( $post ) ),
+			progressnow_seo_sitemap_entry( array( 'loc' => get_permalink( $post ) ) )
+		);
+
+		$this->set_canonical_origin( 'https://app.example' );
+		$entry = progressnow_seo_sitemap_entry( array( 'loc' => get_permalink( $post ) ) );
+		$this->assertStringStartsWith( 'https://app.example/', $entry['loc'] );
+		$term = progressnow_seo_sitemap_entry( array( 'loc' => home_url( '/category/labor/' ) ) );
+		$this->assertSame( 'https://app.example/category/labor/', $term['loc'] );
+		$this->assertSame( 'x', progressnow_seo_sitemap_entry( 'x' ) ); // non-array passes through
+	}
 }

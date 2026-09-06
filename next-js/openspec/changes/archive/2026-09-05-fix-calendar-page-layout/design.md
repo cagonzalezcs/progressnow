@@ -7,6 +7,7 @@ Constraints: server components own data; islands get props; URL is the state; no
 ## Goals / Non-Goals
 
 **Goals:**
+
 - `/calendar/` and `/es/calendario/` render the v4 calendar server-first: header, toolbar, filter chips, month grid (or list), subscribe strip on first paint — no skeleton for the initial month.
 - Month nav / view toggle / category filter as client state; `?view=` and `?category=` reload-stable.
 - Out-of-window months refetch via `/api/events`; `role="status"` loading, ICS-link error state with Retry.
@@ -15,6 +16,7 @@ Constraints: server components own data; islands get props; URL is the state; no
 - Component tests (+ jest-axe) from fixtures; e2e for view/nav/dialog; a11y scan covers list view + dialog-open states.
 
 **Non-Goals:**
+
 - Single event page (task 6.7), 404/error (6.8), parity screenshots (6.9).
 - Replacing `RouteFront` inline event rows with `EventCard` (optional follow-up).
 - Changing `/api/events`, schemas, categories.json, or WP theme.
@@ -25,33 +27,34 @@ Constraints: server components own data; islands get props; URL is the state; no
 
 **D1. Server-rendered initial window as props; island refetches only outside it.**
 `RouteCalendar` (server) loads `page`, `site`, `getEvents({ lang })` in parallel, resolves categories via `eventCategories(site.categories)` and passes `{ events, categories, window: { from, to } }` to `EventCalendar` (client). The island keeps `Map<"yyyy-mm", ChapterEvent[]>`-style cache seeded from props; navigating to a month whose range isn't covered calls `fetch('/api/events?lang&from&to')` with `AbortController` (latest wins).
-*Why:* parent design §Calendar + island-data-fetch "windowed fetch" intent, without a skeleton on first paint (SSR beats the Nuxt `ClientOnly` fallback). *Alternatives:* Nuxt-style mount-time fetch → empty first paint, worse LCP, crawlers see nothing. Full-range fetch on server → unbounded payload.
-*Window semantics:* the WP envelope has no explicit range field; treat the server-loaded set as covering `[today − 1 month, today + N months]` where N = a `CALENDAR_WINDOW_MONTHS` constant (default 3, in `lib/events.ts`). Any month outside → refetch that month `[first day, last day]`. Refetched months are merged into the cache, never replacing the seed.
+_Why:_ parent design §Calendar + island-data-fetch "windowed fetch" intent, without a skeleton on first paint (SSR beats the Nuxt `ClientOnly` fallback). _Alternatives:_ Nuxt-style mount-time fetch → empty first paint, worse LCP, crawlers see nothing. Full-range fetch on server → unbounded payload.
+_Window semantics:_ the WP envelope has no explicit range field; treat the server-loaded set as covering `[today − 1 month, today + N months]` where N = a `CALENDAR_WINDOW_MONTHS` constant (default 3, in `lib/events.ts`). Any month outside → refetch that month `[first day, last day]`. Refetched months are merged into the cache, never replacing the seed.
 
 **D2. URL state: server reads `searchParams`, island writes `history.replaceState`.**
-View/category changes are purely client-side, so the island writes `?view=`/`?category=` with `window.history.replaceState` (Next syncs its router from it, per `docs/01-app/01-getting-started/04-linking-and-navigating.md` § Native History API) — no RSC round-trip per click. The *initial* values come from the page's `searchParams` prop, awaited inside a Suspense fragment (`CalendarWithQuery`, the `RoutePostsIndex` pattern) and passed as props; `useSearchParams` in the island was rejected after reading `use-search-params.md` § Prerendering: it client-renders the whole subtree up to the Suspense boundary, which would defeat "no skeleton on first paint". `today` is computed in the same fragment after `await connection()` — Next 16 refuses `new Date()` during prerender otherwise (verified in dev: "unstable value `new Date()` while prerendering"). Month is *not* in the URL (matches Nuxt; see open question).
-*Alternative:* `router.replace({ scroll:false })` like `ArchiveFrame` — rejected: that pattern exists because the archive's results are server-rendered; the calendar's are not.
+View/category changes are purely client-side, so the island writes `?view=`/`?category=` with `window.history.replaceState` (Next syncs its router from it, per `docs/01-app/01-getting-started/04-linking-and-navigating.md` § Native History API) — no RSC round-trip per click. The _initial_ values come from the page's `searchParams` prop, awaited inside a Suspense fragment (`CalendarWithQuery`, the `RoutePostsIndex` pattern) and passed as props; `useSearchParams` in the island was rejected after reading `use-search-params.md` § Prerendering: it client-renders the whole subtree up to the Suspense boundary, which would defeat "no skeleton on first paint". `today` is computed in the same fragment after `await connection()` — Next 16 refuses `new Date()` during prerender otherwise (verified in dev: "unstable value `new Date()` while prerendering"). Month is _not_ in the URL (matches Nuxt; see open question).
+_Alternative:_ `router.replace({ scroll:false })` like `ArchiveFrame` — rejected: that pattern exists because the archive's results are server-rendered; the calendar's are not.
 
 **D3. Component split mirrors Nuxt, one client boundary.**
 `EventCalendar.tsx` (`"use client"`) owns state and renders `MonthGrid`, `EventListView`, `EventDetailDialog` — all plain function components without their own `"use client"` (they inherit the boundary). `EventCard.tsx` is a server-safe presentational component (anchor row) usable later by `RouteEvent`. `lib/events.ts` holds `parseISODate`, `WEEKDAYS`, `MONTH_NAMES`, `MONTH_SHORTS`, `monthKey`, `monthRange`, `CALENDAR_WINDOW_MONTHS` — no React import, unit-testable.
-*Why:* keeps the client bundle to one chunk for the route; presentational pieces stay testable with RTL without providers.
+_Why:_ keeps the client bundle to one chunk for the route; presentational pieces stay testable with RTL without providers.
 
 **D4. Categories are props, not a store.**
 `eventCategories(site.categories)` on the server (already resolves WP overrides vs registry); `categoryById(id, list)` from `lib/categories.ts` used by grid/dialog. The `/api/events` envelope's `categories` are ignored on refetch (server already resolved them).
-*Alternative:* port Nuxt's reactive `EVENT_CATEGORIES` + `setCategories` — rejected: parent design forbids global stores; `lib/categories.ts` already exists for this.
+_Alternative:_ port Nuxt's reactive `EVENT_CATEGORIES` + `setCategories` — rejected: parent design forbids global stores; `lib/categories.ts` already exists for this.
 
 **D5. Calendar subscribe strip is a new inline section, not `SubscribeStrip`.**
 `SubscribeStrip` renders one pill and returns null without `href`; the calendar strip needs two pills (Google + iCal) and always renders. Implement `CalendarSubscribe` inside `EventCalendar.tsx` file scope (server-safe markup, `id="subscribe"`, `data-tone="ink"`), rendered by `RouteCalendar` after the island so it is SSR'd outside the client boundary. ICS/Google hrefs come from `page.calendar` (already absolute to WP in the envelope; mock builds them from `origin`).
-*Alternative:* extend `SubscribeStrip` with a `secondary` action — reasonable, but touches interior routes' tests for no gain now.
+_Alternative:_ extend `SubscribeStrip` with a `secondary` action — reasonable, but touches interior routes' tests for no gain now.
 
 **D6. Grid keyboard model = roving tabindex over event chips, `role="grid"` skipped.**
 Chips are `<button>`s inside a CSS grid of `<div>`s. Arrow keys move focus among chips (row-major for ←/→, same weekday ±7 days for ↑/↓); Home/End = first/last chip of the month. Cells carry `aria-label="<Weekday> <Month> <day>, N events"` via a visually-hidden span; the grid container is a `<div role="group" aria-label="<Month YYYY>">`. Empty days are not focusable.
-*Why:* full ARIA `grid` with `gridcell` semantics on a calendar of mixed content produces axe `best-practice` noise and confuses screen readers when cells contain multiple buttons; the parent design only requires "arrow-key navigation" + labelled cells. *Alternative:* `role="grid"` — revisit if the a11y review demands it.
+_Why:_ full ARIA `grid` with `gridcell` semantics on a calendar of mixed content produces axe `best-practice` noise and confuses screen readers when cells contain multiple buttons; the parent design only requires "arrow-key navigation" + labelled cells. _Alternative:_ `role="grid"` — revisit if the a11y review demands it.
 
 **D7. Dialog = shadcn `Dialog` (Radix) controlled by `selectedId`.**
 `open={!!event}`, `onOpenChange(false) → setSelectedId(null)`, `showCloseButton={false}` with the custom 40px round `DialogClose`. Radix supplies focus trap/restore/Escape; a11y scan adds a "dialog open" state.
 
 **D8. Tests.**
+
 - `test/unit/events.spec.ts`: `parseISODate` (no UTC shift), `monthRange`, `monthKey`, window coverage.
 - `test/component/route-calendar.test.tsx`: render `CalendarPage` (exported server-safe twin like `AboutPage`) with `page-calendar.json` + `chapter-event.json` + `site.json` + `routes-manifest.json`; asserts header/crumb, toolbar names, `aria-pressed`, chips, grid chip for fixture date when the visible month is forced via a `initialMonth` prop (test seam, defaults to today), list view empty state, subscribe hrefs; `axe` on month + list + dialog-open.
 - `test/e2e/calendar.spec.ts`: `?view=list` reload-stable + `aria-pressed`; "→" advances label + `aria-live`; out-of-window month hits `/api/events` (network assertion) and shows `role=status`; chip → dialog → Escape restores focus.

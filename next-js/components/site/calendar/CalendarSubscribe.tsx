@@ -1,21 +1,25 @@
-/* Calendar subscribe strip (openspec events-presentation "Calendar subscribe
- * strip"; design D5): ink band, Bowlby title, muted lede, white "Google
- * Calendar" pill + outline "iCal / .ics" pill. Server-rendered outside the
- * island. Hrefs are used verbatim (absolute to WordPress). */
+import { SiteLink } from "@/components/site/SiteLink";
+
+/* Calendar subscribe strip (openspec progress-now-v4-events spec "Calendar
+ * subscribe strip"): ink band with Google Calendar + iCal pills. The ICS URL
+ * stays absolute to WordPress (the feed is served there); Google opens in a
+ * new tab. Server component. */
 export function CalendarSubscribe({
   title,
   lede,
-  googleLabel,
-  icsLabel,
   googleCalUrl,
   icsUrl,
+  googleLabel = "Google Calendar",
+  icsLabel = "iCal / .ics",
+  wpOrigin,
 }: {
   title: string;
   lede: string;
-  googleLabel: string;
-  icsLabel: string;
   googleCalUrl: string;
   icsUrl: string;
+  googleLabel?: string;
+  icsLabel?: string;
+  wpOrigin: string;
 }) {
   return (
     <section
@@ -48,14 +52,16 @@ export function CalendarSubscribe({
             data-testid="calendar-subscribe-google-link"
           >
             {googleLabel}
+            <span className="sr-only"> (opens in a new tab)</span>
           </a>
-          <a
+          <SiteLink
             href={icsUrl}
+            wpOrigin={wpOrigin}
             className="rounded-full border-2 border-white bg-transparent px-[22px] py-[11px] font-display text-[0.9rem] font-normal tracking-[0.04em] text-white no-underline transition-colors hover:border-brand-deep hover:bg-brand-deep md:px-8 md:py-3 md:text-base"
             data-testid="calendar-subscribe-ics-link"
           >
             {icsLabel}
-          </a>
+          </SiteLink>
         </div>
       </div>
     </section>

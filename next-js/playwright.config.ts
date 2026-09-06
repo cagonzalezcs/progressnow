@@ -36,8 +36,15 @@ export default defineConfig({
     ...devices["Desktop Chrome"],
   },
   projects: [
-    { name: "e2e", testMatch: /.*\.spec\.ts$/, testIgnore: /a11y\// },
+    { name: "e2e", testMatch: /.*\.spec\.ts$/, testIgnore: /(a11y|failure)\// },
     { name: "a11y", testMatch: /a11y\/.*\.spec\.ts$/ },
+    // Serial, mock-mutating scenarios (upstream failure, canonical origin): never overlap the
+    // other projects, nor each other — `npm run test:failure` passes --workers=1.
+    {
+      name: "failure",
+      testMatch: /failure\/.*\.spec\.ts$/,
+      dependencies: ["e2e", "a11y"],
+    },
   ],
   webServer: [
     {

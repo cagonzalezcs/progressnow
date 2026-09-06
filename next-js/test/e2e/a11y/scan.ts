@@ -25,7 +25,9 @@ export interface ScanOutcome {
   kitchenSinkNodes: number;
 }
 
-const strictBestPractice = process.env.AXE_STRICT_BEST_PRACTICE === "1";
+/* Best-practice rules are errors since the routes milestone (task 6.9);
+ * AXE_STRICT_BEST_PRACTICE=0 demotes them to warnings for local triage. */
+const strictBestPractice = process.env.AXE_STRICT_BEST_PRACTICE !== "0";
 const isError = (v: Result) => v.tags.some((t) => (ERROR_TAGS as readonly string[]).includes(t));
 
 export async function scan(page: Page, testInfo: TestInfo, name: string): Promise<ScanOutcome> {

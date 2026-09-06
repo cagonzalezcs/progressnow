@@ -54,4 +54,17 @@ describe("createProxyManifest", () => {
     const { pm } = harness({ fail: true });
     expect(await pm.exists("/about/")).toBe("unavailable");
   });
+
+  it("probe(): one fresh fetch tells whether WordPress answers right now", async () => {
+    const { pm, fetchImpl } = harness();
+    expect(await pm.exists("/about/")).toBe("known");
+    expect(await pm.probe()).toBe(true);
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+    fetchImpl.mockResolvedValue(new Response("down", { status: 503 }));
+    expect(await pm.probe()).toBe(false);
+    expect(await pm.exists("/about/")).toBe("known"); // memory still serves routing
+    expect(pm.state.lastRefreshOk).toBe(false);
+    fetchImpl.mockResolvedValue(Response.json(mock.routesManifest()));
+    expect(await pm.probe()).toBe(true);
+  });
 });

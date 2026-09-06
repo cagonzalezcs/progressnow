@@ -1,4 +1,3 @@
-import { ArrowGlyph } from "@/components/site/ArrowGlyph";
 import { CtaCard } from "@/components/site/CtaCard";
 import { LinkListCard } from "@/components/site/LinkListCard";
 import { PageHeader } from "@/components/site/PageHeader";
@@ -8,61 +7,132 @@ import { ImageSlot } from "@/components/site/blog/ImageSlot";
 import { PostBlocks } from "@/components/site/blog/PostBlocks";
 import { PostCard } from "@/components/site/blog/PostCard";
 import { ShareRow } from "@/components/site/blog/ShareRow";
-import { authorName, initials, proseAnchors } from "@/lib/post";
-import type { BlogPost, SinglePostEnvelope, SiteEnvelope } from "@/lib/schemas";
+import { bylineInitials, bylineName, postAnchors, readNextPosts } from "@/lib/post";
+import type { BlogPost, EventCategory, SinglePostData } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 
-/* Single post (Claude Design "Progress Now Blog Post v4" + Tablet/Mobile;
- * openspec progress-now-v4-blog D4). Hero via PageHeader's `post` variant
- * (breadcrumb pill, white category pill, balanced h1, initials byline); the
- * article pulls the featured image 110px (70px on phones) up over the band;
- * sticky sidebar = "On this page" (prose h2 anchors) + Get involved card,
+/* Single post (openspec progress-now-v4-blog D4, specs "Post hero" … "Read
+ * next"; twin of views/single.twig and SinglePost.vue). Hero via PageHeader's
+ * `post` variant (breadcrumb, category pill, byline with initials avatar); the
+ * article column pulls the featured image 110px up over the band; sticky
+ * sidebar = "On this page" (prose h2 anchors) + the Get involved CtaCard,
  * honoring the per-post meta-rail toggle; "Read next" cards on the alt band.
- * Twin of views/single.twig / SinglePost.vue. */
-export interface SinglePostPageProps {
-  post: SinglePostEnvelope;
-  readNext: BlogPost[];
-  site: SiteEnvelope;
-  paths: { home: string; blog: string; calendar: string };
-  wpOrigin: string;
+ * Server component: the share row, audio and video blocks are the only islands. */
+export interface SinglePostLabels {
+  crumbHome: string;
+  crumbBlog: string;
+  breadcrumbLabel: string;
+  onThisPageLabel: string;
+  shareLabel: string;
+  copyLabel: string;
+  emailLabel: string;
+  readNextLabel: string;
+  allPostsLabel: string;
+  ctaTitle: string;
+  ctaBody: string;
+  joinLabel: string;
+  postDetailsLabel: string;
 }
 
-const ALL_POSTS =
-  "items-center gap-4 text-[1.05rem] font-extrabold uppercase tracking-[0.03em] text-accent no-underline hover:underline hover:underline-offset-4";
+export const DEFAULT_POST_LABELS: SinglePostLabels = {
+  crumbHome: "Home",
+  crumbBlog: "Blog",
+  breadcrumbLabel: "Breadcrumb",
+  onThisPageLabel: "On this page",
+  shareLabel: "Share",
+  copyLabel: "Copy link",
+  emailLabel: "Email it",
+  readNextLabel: "Read next",
+  allPostsLabel: "All posts",
+  ctaTitle: "Get involved",
+  ctaBody:
+    "Meetings, actions and committees are open to everyone. Come find your place in the work.",
+  joinLabel: "Join Now",
+  postDetailsLabel: "Post details",
+};
 
-export function SinglePostPage({ post, readNext, site, paths, wpOrigin }: SinglePostPageProps) {
-  const s = site.strings as Record<string, string>;
-  const joinUrl = site.chapter.join_url;
-  const hasImage = Boolean(post.featuredImage.src);
-  const byline = authorName(post);
-  const avatar = initials(post);
-  const anchors = proseAnchors(post.blocks);
-  const rail = post.showMetaRail;
-  const cta = {
-    title: s.blog_get_involved_h || "Get involved",
-    body:
-      s.blog_get_involved_p ||
-      "Meetings, actions and committees are open to everyone. Come find your place in the work.",
-    label: s.cta_join_now || "Join Now",
+const ALL_POSTS_ARROW = (
+  <svg
+    aria-hidden="true"
+    focusable="false"
+    viewBox="0 0 40 20"
+    className="h-5 w-10 flex-none fill-accent"
+  >
+    <path d="M0 8.4h26v3.2H0z" />
+    <path d="M24 1.5 38.5 10 24 18.5Z" />
+  </svg>
+);
+
+export function SinglePost({
+  post,
+  posts = [],
+  categories,
+  bylineMode,
+  showMetaRail = false,
+  blogUrl = "/blog/",
+  homeUrl = "/",
+  calendarUrl = "/calendar/",
+  joinUrl = "",
+  labels = {},
+  wpOrigin,
+}: {
+  post: SinglePostData;
+  /** pool the Read Next query draws from (same category, latest 3) */
+  posts?: BlogPost[];
+  /** `/site.categories` (WordPress overrides); registry defaults otherwise. */
+  categories?: EventCategory[] | null;
+  /** overrides the post's own byline_mode (per-post ACF select) */
+  bylineMode?: "named" | "committee";
+  showMetaRail?: boolean;
+  blogUrl?: string;
+  homeUrl?: string;
+  calendarUrl?: string;
+  /** Get involved card (chapter join URL) — omitted when empty */
+  joinUrl?: string;
+  labels?: Partial<SinglePostLabels>;
+  wpOrigin: string;
+}) {
+  // Routes pass `undefined` for strings WordPress has not translated; keep the defaults for those.
+  const L: SinglePostLabels = {
+    ...DEFAULT_POST_LABELS,
+    ...Object.fromEntries(Object.entries(labels).filter(([, v]) => Boolean(v))),
   };
+  const mode = bylineMode ?? post.bylineMode;
+  const authorName = bylineName(post, mode);
+  const initials = bylineInitials(post, mode);
+  const hasFeaturedImage = Boolean(post.featuredImage.src);
+  const anchors = postAnchors(post.blocks);
+  const readNext = readNextPosts(post, posts);
+  const categoryUrl = `${blogUrl}?category=${post.cat}`;
+
+  const cta = joinUrl ? (
+    <CtaCard
+      title={L.ctaTitle}
+      body={L.ctaBody}
+      href={joinUrl}
+      label={L.joinLabel}
+      external
+      wpOrigin={wpOrigin}
+    />
+  ) : null;
 
   return (
-    <div data-route-kind="post" className="route-post contents" data-testid="single-post">
+    <div className="single-post contents" data-route-kind="post" data-testid="single-post">
       <PageHeader
         title={post.title}
         variant="post"
-        pullUp={hasImage}
+        pullUp={hasFeaturedImage}
+        breadcrumbLabel={L.breadcrumbLabel}
         crumbs={[
-          { label: s.blog_crumb_home || "Home", href: paths.home },
-          { label: s.blog_crumb_blog || "Blog", href: paths.blog },
+          { label: L.crumbHome, href: homeUrl },
+          { label: L.crumbBlog, href: blogUrl },
         ]}
-        breadcrumbLabel={s.blog_crumb_home ? `${s.blog_crumb_home} › ${post.title}` : undefined}
         before={
           <CategoryTag
             catId={post.cat}
-            href={`${paths.blog}?category=${post.cat}`}
+            href={categoryUrl}
             variant="white"
-            categories={site.categories}
+            categories={categories}
             wpOrigin={wpOrigin}
           />
         }
@@ -72,23 +142,23 @@ export function SinglePostPage({ post, readNext, site, paths, wpOrigin }: Single
           className="flex flex-wrap items-center gap-2.5 text-[0.9rem] font-semibold md:gap-3.5 md:text-base"
           data-testid="single-post-byline"
         >
-          {avatar ? (
+          {initials ? (
             <span
               aria-hidden="true"
               className="inline-flex size-[38px] items-center justify-center rounded-full bg-brand-light text-[0.85rem] font-extrabold text-brand-deep md:size-11 md:text-base"
               data-testid="single-post-avatar"
             >
-              {avatar}
+              {initials}
             </span>
           ) : null}
-          {byline ? (
+          {authorName ? (
             <>
-              <span data-testid="single-post-author">By {byline}</span>
+              <span data-testid="single-post-author">By {authorName}</span>
               <span aria-hidden="true">·</span>
             </>
           ) : null}
-          <span>
-            <time data-testid="single-post-date">{post.date}</time>
+          <span data-testid="single-post-date">
+            {post.date}
             <span className="md:hidden"> · {post.readMinutes} min</span>
           </span>
           <span aria-hidden="true" className="hidden md:inline">
@@ -100,6 +170,7 @@ export function SinglePostPage({ post, readNext, site, paths, wpOrigin }: Single
         </div>
       </PageHeader>
 
+      {/* Article + sidebar */}
       <section
         className="bg-white px-6 pb-12 md:pb-20"
         data-tone="white"
@@ -108,16 +179,16 @@ export function SinglePostPage({ post, readNext, site, paths, wpOrigin }: Single
         <div
           className={cn(
             "mx-auto grid max-w-[1140px] items-start gap-10 lg:gap-14",
-            rail
+            showMetaRail
               ? "lg:[grid-template-columns:minmax(300px,1fr)_280px]"
               : "lg:justify-center lg:[grid-template-columns:minmax(300px,880px)]",
           )}
         >
           <article
-            className={cn("flex min-w-0 flex-col gap-[18px] md:gap-6", !hasImage && "pt-8")}
+            className={cn("flex min-w-0 flex-col gap-[18px] md:gap-6", !hasFeaturedImage && "pt-8")}
             data-testid="single-post-article"
           >
-            {hasImage ? (
+            {hasFeaturedImage ? (
               <figure
                 className="m-0 -mt-[70px] flex flex-col md:-mt-[110px]"
                 data-testid="single-post-figure"
@@ -129,8 +200,8 @@ export function SinglePostPage({ post, readNext, site, paths, wpOrigin }: Single
                   <ImageSlot
                     src={post.featuredImage.src}
                     alt={post.featuredImage.alt}
-                    opacity={0.25}
-                    loading="eager"
+                    priority
+                    sizes="(min-width: 1140px) 880px, 100vw"
                   />
                 </div>
                 {post.featuredImage.caption || post.featuredImage.credit ? (
@@ -138,9 +209,10 @@ export function SinglePostPage({ post, readNext, site, paths, wpOrigin }: Single
                     className="mt-3 text-[0.9rem] leading-[1.5] text-muted"
                     data-testid="single-post-figcaption"
                   >
-                    {post.featuredImage.caption}{" "}
+                    {post.featuredImage.caption}
                     {post.featuredImage.credit ? (
                       <span data-testid="single-post-image-credit">
+                        {" "}
                         {post.featuredImage.credit}
                       </span>
                     ) : null}
@@ -160,56 +232,36 @@ export function SinglePostPage({ post, readNext, site, paths, wpOrigin }: Single
 
             <PostBlocks
               blocks={post.blocks}
-              categories={site.categories}
-              calendarHref={paths.calendar}
+              categories={categories}
+              calendarUrl={calendarUrl}
               wpOrigin={wpOrigin}
             />
 
             <ShareRow
               title={post.title}
-              shareLabel={s.blog_share || "Share"}
-              copyLabel={s.blog_copy_link || "Copy link"}
-              emailLabel={s.blog_email_it || "Email it"}
+              shareLabel={L.shareLabel}
+              copyLabel={L.copyLabel}
+              emailLabel={L.emailLabel}
             />
 
-            {/* Below lg the sidebar stacks under the article: the CTA card follows the share row (Mobile canvas). */}
-            {rail && joinUrl ? (
+            {/* Mobile/tablet Get involved card (the sidebar stacks under the article below lg) */}
+            {cta && showMetaRail ? (
               <div className="mt-2 lg:hidden" data-testid="single-post-cta-stacked">
-                <CtaCard
-                  title={cta.title}
-                  body={cta.body}
-                  href={joinUrl}
-                  label={cta.label}
-                  external
-                  wpOrigin={wpOrigin}
-                />
+                {cta}
               </div>
             ) : null}
           </article>
 
-          {rail ? (
+          {showMetaRail ? (
             <aside
-              aria-label={s.chrome_related || "Post details"}
-              className="hidden flex-col gap-6 lg:sticky lg:top-[108px] lg:flex lg:pt-8"
+              aria-label={L.postDetailsLabel}
               data-testid="single-post-sidebar"
+              className="hidden flex-col gap-6 lg:sticky lg:top-[calc(108px+var(--wp-admin--admin-bar--height,0px))] lg:flex lg:pt-8"
             >
               {anchors.length ? (
-                <LinkListCard
-                  heading={s.chrome_on_this_page || "On this page"}
-                  links={anchors}
-                  wpOrigin={wpOrigin}
-                />
+                <LinkListCard heading={L.onThisPageLabel} links={anchors} wpOrigin={wpOrigin} />
               ) : null}
-              {joinUrl ? (
-                <CtaCard
-                  title={cta.title}
-                  body={cta.body}
-                  href={joinUrl}
-                  label={cta.label}
-                  external
-                  wpOrigin={wpOrigin}
-                />
-              ) : null}
+              {cta}
             </aside>
           ) : null}
         </div>
@@ -219,6 +271,7 @@ export function SinglePostPage({ post, readNext, site, paths, wpOrigin }: Single
         <section
           className="bg-alt px-6 pb-14 pt-11 md:pb-24 md:pt-16"
           data-tone="alt"
+          data-read-next=""
           data-testid="single-post-read-next"
         >
           <div className="mx-auto flex max-w-[1140px] flex-col gap-[18px] md:gap-7">
@@ -227,21 +280,20 @@ export function SinglePostPage({ post, readNext, site, paths, wpOrigin }: Single
                 className="m-0 font-display text-[1.35rem] font-normal leading-[1.2] md:text-[clamp(1.6rem,2.8vw,2.2rem)] md:leading-[1.1]"
                 data-testid="single-post-read-next-heading"
               >
-                {s.blog_read_next || "Read next"}
+                {L.readNextLabel}
               </h2>
               <SiteLink
-                href={paths.blog}
+                href={blogUrl}
                 wpOrigin={wpOrigin}
-                className={cn("hidden md:flex", ALL_POSTS)}
+                className="hidden items-center gap-4 text-[1.05rem] font-extrabold uppercase tracking-[0.03em] text-accent no-underline hover:underline hover:underline-offset-4 md:flex"
                 data-testid="single-post-all-posts-link"
               >
-                {s.home_blog_all || "All posts"}
-                <ArrowGlyph />
+                {L.allPostsLabel}
+                {ALL_POSTS_ARROW}
               </SiteLink>
             </div>
             <div
               className="flex flex-col gap-3 md:grid md:gap-6 md:[grid-template-columns:repeat(auto-fit,minmax(260px,1fr))]"
-              data-read-next=""
               data-testid="single-post-read-next-list"
             >
               {readNext.map((p) => (
@@ -249,19 +301,27 @@ export function SinglePostPage({ post, readNext, site, paths, wpOrigin }: Single
                   key={p.id}
                   post={p}
                   variant="compact"
-                  categories={site.categories}
+                  categories={categories}
                   wpOrigin={wpOrigin}
                 />
               ))}
             </div>
             <SiteLink
-              href={paths.blog}
+              href={blogUrl}
               wpOrigin={wpOrigin}
-              className={cn("flex justify-center md:hidden", ALL_POSTS, "gap-3.5 text-[0.95rem]")}
+              className="flex items-center justify-center gap-3.5 text-[0.95rem] font-extrabold uppercase tracking-[0.03em] text-accent no-underline hover:underline hover:underline-offset-4 md:hidden"
               data-testid="single-post-all-posts-link-compact"
             >
-              {s.home_blog_all || "All posts"}
-              <ArrowGlyph className="h-[17px] w-[34px] flex-none fill-accent" />
+              {L.allPostsLabel}
+              <svg
+                aria-hidden="true"
+                focusable="false"
+                viewBox="0 0 40 20"
+                className="h-[17px] w-[34px] flex-none fill-accent"
+              >
+                <path d="M0 8.4h26v3.2H0z" />
+                <path d="M24 1.5 38.5 10 24 18.5Z" />
+              </svg>
             </SiteLink>
           </div>
         </section>

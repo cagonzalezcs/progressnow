@@ -57,7 +57,8 @@ test("an unknown path is a 404 rendered from site strings and costs zero WordPre
   page,
   request,
 }) => {
-  await request.post(`${MOCK}/__mock/reset`, { data: {} });
+  // No /__mock/reset here: it would undo the receiver e2e's title overlay mid-test
+  // (fullyParallel); the request-log filter below isolates this test on its own.
   const response = await page.goto("/does-not-exist/");
   expect(response?.status()).toBe(404);
   await expect(page.locator("[data-route-kind]:visible")).toHaveAttribute(

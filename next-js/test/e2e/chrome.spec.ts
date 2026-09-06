@@ -111,3 +111,26 @@ test("client navigation moves focus to main and cross-fades unless motion is red
   await expect(page).toHaveURL(/\/calendar\/$/);
   await expect(page.locator("main#main")).toBeFocused();
 });
+
+test("the footer is held back while a route's content is loading", async ({ page }) => {
+  // components/nav/RoutePending.tsx raises this flag for as long as a Suspense
+  // fallback stands in for route content, so the footer never paints under an
+  // empty <main> and then jumps down when the content lands. Driving the
+  // attribute directly keeps the assertion on what ships: the rule in
+  // app/route-loading.css, in the production bundle.
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  const footer = page.getByRole("contentinfo");
+  await expect(footer).toBeVisible();
+
+  await page.evaluate(() => document.documentElement.setAttribute("data-route-loading", ""));
+  // `visibility: hidden`: unpainted, and with it out of the accessibility tree and
+  // the tab order — so the role locator stops matching it altogether.
+  expect(await page.locator(".site-footer").evaluate((el) => getComputedStyle(el).visibility)).toBe(
+    "hidden",
+  );
+  await expect(footer).toHaveCount(0);
+
+  await page.evaluate(() => document.documentElement.removeAttribute("data-route-loading"));
+  await expect(footer).toBeVisible();
+});

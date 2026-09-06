@@ -1,56 +1,64 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { SiteLink } from "@/components/site/SiteLink";
 
-/* Audio card with a brand play control and progress rule. Audio-only content
- * needs the transcript link (WCAG 1.2.1), not a caption track. */
-function fmt(sec: number) {
+function fmt(sec: number): string {
   const m = Math.floor(sec / 60);
   const s = Math.floor(sec % 60);
-  return `${m}:${s.toString().padStart(2, "0")}`;
+  return `${m}:${String(s).padStart(2, "0")}`;
 }
 
+/* Audio block (openspec gutenberg-post-blocks § audio). Custom play/pause over a
+ * hidden <audio>; audio-only content needs a transcript (the link below), not a
+ * caption track — WCAG 1.2.1. Without a file (fixtures) the player shows the
+ * prototype's static state. */
 export function BlockAudio({
   file,
   title,
   duration,
   transcriptUrl,
+  wpOrigin,
 }: {
   file: string | null;
   title: string;
   duration?: string;
   transcriptUrl: string;
+  wpOrigin: string;
 }) {
-  const audio = useRef<HTMLAudioElement | null>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
-  const [current, setCurrent] = useState(0);
-  const [total, setTotal] = useState(0);
-  const pct = total > 0 ? Math.min(100, (current / total) * 100) : 0;
+  const [currentSec, setCurrentSec] = useState(0);
+  const [totalSec, setTotalSec] = useState(0);
 
   function toggle() {
-    const el = audio.current;
+    const el = audioRef.current;
     if (!el) return;
-    if (el.paused) void el.play().catch(() => {});
+    if (el.paused) void el.play()?.catch(() => {});
     else el.pause();
   }
 
+  const progressPct = file ? (totalSec ? (currentSec / totalSec) * 100 : 0) : 30;
+  const currentLabel = file ? fmt(currentSec) : "0:58";
+  const totalLabel = file && totalSec ? fmt(totalSec) : (duration ?? "–:––");
+
   return (
     <div
+      className="block-audio flex w-full flex-col gap-3.5 rounded-[16px] bg-white px-5 py-[18px] shadow-media md:rounded-[20px] md:px-[26px] md:py-[22px]"
       data-testid="block-audio"
       data-playing={playing}
-      className="block-audio flex w-full flex-col gap-3.5 rounded-[16px] bg-white px-5 py-[18px] shadow-media md:rounded-[20px] md:px-[26px] md:py-[22px]"
     >
       {file ? (
-        // eslint-disable-next-line jsx-a11y/media-has-caption
+        // eslint-disable-next-line jsx-a11y/media-has-caption -- audio-only: transcript link below (WCAG 1.2.1)
         <audio
-          ref={audio}
+          ref={audioRef}
           src={file}
           preload="metadata"
           onPlay={() => setPlaying(true)}
           onPause={() => setPlaying(false)}
           onEnded={() => setPlaying(false)}
-          onTimeUpdate={() => setCurrent(audio.current?.currentTime ?? 0)}
-          onLoadedMetadata={() => setTotal(audio.current?.duration ?? 0)}
+          onTimeUpdate={() => setCurrentSec(audioRef.current?.currentTime ?? 0)}
+          onLoadedMetadata={() => setTotalSec(audioRef.current?.duration ?? 0)}
           data-testid="block-audio-element"
         />
       ) : null}
@@ -58,12 +66,13 @@ export function BlockAudio({
         <button
           type="button"
           aria-label={`${playing ? "Pause" : "Play"} audio: ${title}`}
+          aria-pressed={playing}
           disabled={!file}
-          onClick={toggle}
+          className="size-14 flex-none cursor-pointer rounded-full border-none bg-brand text-[1.1rem] text-white shadow-[0_4px_14px_rgba(27,27,34,0.25)] transition-colors duration-100 hover:bg-brand-deep disabled:cursor-default disabled:opacity-70"
           data-testid="block-audio-toggle"
-          className="size-14 flex-none cursor-pointer rounded-full border-none bg-brand text-[1.1rem] text-white shadow-[0_4px_14px_rgba(27,27,34,0.25)] transition-colors duration-100 hover:bg-brand-deep disabled:cursor-default disabled:opacity-60"
+          onClick={toggle}
         >
-          {playing ? "⏸" : "▶"}
+          <span aria-hidden="true">{playing ? "⏸" : "▶"}</span>
         </button>
         <div className="flex flex-[1_1_260px] flex-col gap-2.5">
           <div className="text-[1.05rem] font-bold" data-testid="block-audio-title">
@@ -76,25 +85,24 @@ export function BlockAudio({
           >
             <div
               className="absolute inset-y-0 left-0 rounded-full bg-brand"
-              style={{ width: `${pct}%` }}
+              style={{ width: `${progressPct}%` }}
               data-testid="block-audio-progress-fill"
             />
           </div>
           <div className="flex justify-between font-mono text-[0.8rem] text-muted">
-            <span data-testid="block-audio-current-time">{fmt(current)}</span>
-            <span data-testid="block-audio-duration">
-              {total > 0 ? fmt(total) : duration || "—"}
-            </span>
+            <span data-testid="block-audio-current-time">{currentLabel}</span>
+            <span data-testid="block-audio-duration">{totalLabel}</span>
           </div>
         </div>
       </div>
-      <a
+      <SiteLink
         href={transcriptUrl}
+        wpOrigin={wpOrigin}
         className="self-start text-[0.9rem] font-bold text-accent no-underline hover:underline hover:underline-offset-4"
         data-testid="block-audio-transcript"
       >
         Read transcript
-      </a>
+      </SiteLink>
     </div>
   );
 }

@@ -1,12 +1,17 @@
-/* Downloadable document row: PDF badge, title/description, outline pill. */
+import { SiteLink } from "@/components/site/SiteLink";
+
+/* Same anatomy as the Interior template's document row (views/page.twig).
+ * Upload URLs stay on the WordPress origin (SiteLink → "wordpress" kind). */
 export function BlockDocument({
   url,
   title,
   description,
+  wpOrigin,
 }: {
   url: string;
   title: string;
   description?: string;
+  wpOrigin: string;
 }) {
   return (
     <div
@@ -32,13 +37,15 @@ export function BlockDocument({
           ) : null}
         </div>
       </div>
-      <a
+      <SiteLink
         href={url}
+        wpOrigin={wpOrigin}
+        aria-label={`Download ${title}`}
         className="whitespace-nowrap rounded-full border-2 border-accent px-5 py-2 text-[0.9rem] font-bold text-accent no-underline transition-colors hover:bg-accent hover:text-white"
         data-testid="block-document-download"
       >
-        Download<span className="sr-only">: {title}</span>
-      </a>
+        Download
+      </SiteLink>
     </div>
   );
 }

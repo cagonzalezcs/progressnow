@@ -1,38 +1,37 @@
-import { MONTH_NAMES, MONTH_SHORTS, parseISODate, WEEKDAYS_LONG } from "@/lib/events";
+import { SiteLink } from "@/components/site/SiteLink";
+import { dateTile, eventWhen } from "@/lib/calendar";
 import { cn } from "@/lib/utils";
 
-/* Event row-link card (openspec events-presentation "Event list rows"; twin
- * of EventCard.vue): brand date tile, 700 title, muted "<when> · <where>",
- * visual outline "View event" pill at md+; mobile = 60px tile + the when line
- * only. The whole row is the link. Server-safe (no hooks). */
-export interface EventCardProps {
-  event: { title: string; date: string; time: string; location: string; url?: string };
-  /** href when the event has no permalink (calendar page) */
-  fallbackUrl?: string;
-  viewLabel?: string;
-  /** 1px subtle shadow (more-events band) instead of the card shadow */
-  subtle?: boolean;
-}
-
+/* Event row-link card (openspec progress-now-v4-events D3, spec "Event list
+ * rows"): the one row used by the calendar list view and the single event's
+ * "More upcoming events" band. Brand date tile, 700 title, muted "<when> ·
+ * <where>", and a visual outline "View event" pill at md+; mobile = 60px tile
+ * + the when line only. The whole row is the link. */
 export function EventCard({
   event,
   fallbackUrl = "/calendar/",
   viewLabel = "View event",
   subtle = false,
-}: EventCardProps) {
-  const date = parseISODate(event.date);
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = MONTH_SHORTS[date.getMonth()]!.toUpperCase();
-  const base = `${WEEKDAYS_LONG[date.getDay()]}, ${MONTH_NAMES[date.getMonth()]} ${date.getDate()}`;
-  const when = event.time ? `${base} · ${event.time}` : base;
+  wpOrigin,
+}: {
+  event: { title: string; date: string; time: string; location: string; url?: string };
+  /** fallback href when the event has no permalink (calendar page) */
+  fallbackUrl?: string;
+  viewLabel?: string;
+  /** 1px subtle shadow (more-events band) instead of the card shadow */
+  subtle?: boolean;
+  wpOrigin: string;
+}) {
+  const tile = dateTile(event.date);
   return (
-    <a
+    <SiteLink
       href={event.url || fallbackUrl}
+      wpOrigin={wpOrigin}
       aria-label={`${viewLabel}: ${event.title}`}
       data-testid="event-card"
       data-event-date={event.date}
       className={cn(
-        "event-card group grid grid-cols-[60px_1fr] items-center gap-4 rounded-[14px] bg-white p-4 text-ink no-underline transition-shadow hover:shadow-card md:[grid-template-columns:76px_1fr_auto] md:gap-6 md:rounded-[16px] md:px-[22px] md:py-[18px]",
+        "event-card group grid grid-cols-[60px_1fr] items-center gap-4 rounded-[14px] bg-white p-4 text-ink no-underline transition-shadow hover:shadow-card md:gap-6 md:rounded-[16px] md:px-[22px] md:py-[18px] md:[grid-template-columns:76px_1fr_auto]",
         subtle ? "shadow-subtle" : "shadow-card hover:shadow-card-hover",
       )}
     >
@@ -45,13 +44,13 @@ export function EventCard({
           className="text-[1.2rem] font-extrabold leading-[1.1] md:text-[1.4rem]"
           data-testid="event-card-day"
         >
-          {day}
+          {tile.day}
         </span>
         <span
           className="text-[0.68rem] font-bold tracking-[0.1em] md:text-[0.75rem]"
           data-testid="event-card-month"
         >
-          {month}
+          {tile.month}
         </span>
       </span>
       <span className="flex min-w-0 flex-col gap-[3px] md:gap-1">
@@ -65,7 +64,7 @@ export function EventCard({
           className="text-[0.88rem] font-medium text-muted md:text-base"
           data-testid="event-card-meta"
         >
-          {when}
+          {eventWhen(event)}
           {event.location ? (
             <span className="hidden md:inline" data-testid="event-card-location">
               {" "}
@@ -81,6 +80,6 @@ export function EventCard({
       >
         {viewLabel}
       </span>
-    </a>
+    </SiteLink>
   );
 }

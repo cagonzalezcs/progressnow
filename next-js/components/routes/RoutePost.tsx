@@ -1,44 +1,74 @@
 import { notFound } from "next/navigation";
-import { interiorPaths } from "@/components/routes/RoutePage";
 import type { RouteProps } from "@/components/routes/types";
-import { SinglePostPage } from "@/components/site/blog/SinglePost";
-import { getPost, getPosts, getRoutes, getSite } from "@/lib/data";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { SinglePost, type SinglePostLabels } from "@/components/site/blog/SinglePost";
+import { getPost, getRoutes, getSite } from "@/lib/data";
 import { getEnv } from "@/lib/env";
-import { pickReadNext } from "@/lib/post";
-import { payloadSlug, postsIndexRoute } from "@/lib/routes";
-import type { RoutesManifest } from "@/lib/schemas";
+import { articleNode, canonicalOrigin } from "@/lib/json-ld";
+import { frontRoute, payloadSlug } from "@/lib/routes";
+import type { RoutesManifest, SiteEnvelope } from "@/lib/schemas";
 
-/* Single post — Claude Design "Progress Now Blog Post v4" (openspec
- * progress-now-v4-blog D4; twin of views/single.twig). The envelope carries
- * its own `readNext`; when WordPress sends none, the latest posts fill it. */
-export function postPaths(manifest: RoutesManifest, lang: string) {
-  const find = (kind: string) =>
-    manifest.routes.find((r) => r.kind === kind && r.lang === lang)?.path;
-  return {
-    home: interiorPaths(manifest, lang).home,
-    blog: postsIndexRoute(manifest, lang)?.path ?? "/blog/",
-    calendar: find("calendar") ?? "/calendar/",
-  };
-}
-
+/* Single post — views/single.twig / RoutePost.vue. SinglePost renders the v4
+ * hero through PageHeader's `post` variant; `readNext` is the pool it narrows
+ * to same-category latest 3. Sidebar copy comes from the site strings. */
 export async function RoutePost({ resolved }: RouteProps) {
-  const slug = resolved.route ? payloadSlug(resolved.route) : "";
   const [post, site, manifest] = await Promise.all([
-    slug ? getPost(slug, resolved.lang) : null,
+    resolved.route ? getPost(payloadSlug(resolved.route), resolved.lang) : null,
     getSite(resolved.lang),
     getRoutes(),
   ]);
   if (!post) notFound();
-  const readNext = post.readNext.length
-    ? post.readNext.slice(0, 3)
-    : pickReadNext((await getPosts({ lang: resolved.lang })).posts, { slug, cat: post.cat });
+  const paths = postPaths(manifest, resolved.lang);
+  const env = getEnv();
+  const origins = {
+    canonicalOrigin: canonicalOrigin(post.seo, env.NEXT_PUBLIC_SITE_ORIGIN),
+    siteOrigin: env.NEXT_PUBLIC_SITE_ORIGIN,
+    wpOrigin: env.WP_ORIGIN,
+  };
   return (
-    <SinglePostPage
-      post={post}
-      readNext={readNext}
-      site={site}
-      paths={postPaths(manifest, resolved.lang)}
-      wpOrigin={getEnv().WP_ORIGIN}
-    />
+    <>
+      <JsonLd id="ld-article" nodes={[articleNode(post, origins)]} />
+      <SinglePost
+        post={post}
+        posts={post.readNext}
+        categories={site.categories}
+        showMetaRail={post.showMetaRail}
+        blogUrl={paths.blog}
+        homeUrl={paths.home}
+        calendarUrl={paths.calendar}
+        joinUrl={site.chapter.join_url || ""}
+        labels={postLabels(site)}
+        wpOrigin={env.WP_ORIGIN}
+      />
+    </>
   );
+}
+
+export function postPaths(manifest: RoutesManifest, lang: string) {
+  const find = (kind: string) =>
+    manifest.routes.find((r) => r.kind === kind && r.lang === lang)?.path;
+  return {
+    home: frontRoute(manifest, lang)?.path ?? "/",
+    blog: find("posts_index") ?? "/blog/",
+    calendar: find("calendar") ?? "/calendar/",
+  };
+}
+
+export function postLabels(site: SiteEnvelope): Partial<SinglePostLabels> {
+  const s = site.strings as Record<string, string>;
+  const str = (key: string) => s[key] || undefined;
+  return {
+    joinLabel: site.header.joinLabel || str("cta_join_now"),
+    ctaTitle: str("blog_get_involved_h"),
+    ctaBody: str("blog_get_involved_p"),
+    crumbHome: str("blog_crumb_home"),
+    crumbBlog: str("blog_crumb_blog"),
+    breadcrumbLabel: str("blog_crumb_label"),
+    onThisPageLabel: str("chrome_on_this_page"),
+    shareLabel: str("blog_share"),
+    copyLabel: str("blog_copy_link"),
+    emailLabel: str("blog_email_it"),
+    readNextLabel: str("blog_read_next"),
+    allPostsLabel: str("home_blog_all"),
+  };
 }
