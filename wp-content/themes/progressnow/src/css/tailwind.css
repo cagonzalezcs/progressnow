@@ -494,9 +494,9 @@ html.a11y-contrast .headline-shadow-sm {
  * animation) swaps instantly.
  * ------------------------------------------------------------------------- */
 :root {
-  --vt-out: 120ms; /* old page → ground */
-  --vt-hold: 30ms; /* all ground */
-  --vt-in: 200ms; /* blue → new page */
+  --vt-out: 100ms; /* old page → ground */
+  --vt-hold: 20ms; /* all ground */
+  --vt-in: 130ms; /* ground → new page */
 }
 main#main {
   view-transition-name: vt-main;
@@ -530,11 +530,14 @@ main#main {
     animation-duration: calc(var(--vt-out) + var(--vt-hold));
     animation-timing-function: steps(1, end);
   }
+  /* `linear` on both halves: opacity is the only thing animating, and an eased
+     cross-fade spends longer near full opacity at each end, which reads as a
+     dip rather than a blend. Even timing keeps the perceived brightness flat. */
   ::view-transition-old(.vt-page) {
-    animation: vt-page-out var(--vt-out) ease-in both;
+    animation: vt-page-out var(--vt-out) linear both;
   }
   ::view-transition-new(.vt-page) {
-    animation: vt-page-in var(--vt-in) ease-out calc(var(--vt-out) + var(--vt-hold)) both;
+    animation: vt-page-in var(--vt-in) linear calc(var(--vt-out) + var(--vt-hold)) both;
   }
 
   /* The root (canvas, admin bar) holds nothing that moves: skip its cross-fade. */
