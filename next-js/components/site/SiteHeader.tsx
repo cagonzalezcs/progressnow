@@ -3,7 +3,7 @@
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 import { useA11y } from "@/components/a11y/A11yProvider";
 import { A11yWidget } from "@/components/site/A11yWidget";
 import { LanguageToggle } from "@/components/site/LanguageToggle";
@@ -14,6 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useMobileNav } from "@/hooks/use-mobile-nav";
 import type { TextSize } from "@/lib/a11y-settings";
 import { resolveHref } from "@/lib/links";
 import type { LanguageLink } from "@/lib/contracts";
@@ -26,7 +27,9 @@ import { cn } from "@/lib/utils";
  * panel with the nav, Join, EN/ES and the A / A+ / A++ row. Port of the Vue
  * SiteHeader: same class recipes, same behaviors — Escape closes the panel and
  * returns focus to the toggle, the page behind is scroll-locked, the panel
- * closes on navigation, aria-current marks the current section. */
+ * closes on navigation, aria-current marks the current section. The panel's
+ * overlay mechanics (immediate close on tap, scroll lock, focus containment,
+ * measured top edge, breakpoint bail-out) live in useMobileNav. */
 export interface SiteHeaderProps {
   header: SiteEnvelope["header"];
   languages: LanguageLink[];
@@ -83,6 +86,7 @@ function NavA({
   href: Href;
   className?: string;
   children: ReactNode;
+  onClick?: () => void;
   "aria-current"?: "page" | undefined;
   "aria-label"?: string;
 }) {
@@ -192,14 +196,16 @@ function JoinPill({
   href,
   className,
   label,
+  onClick,
 }: {
   url: string;
   href: Href;
   className: string;
   label: string;
+  onClick?: () => void;
 }) {
   return (
-    <NavA url={url} href={href} className={cn(PILL, className)}>
+    <NavA url={url} href={href} className={cn(PILL, className)} onClick={onClick}>
       {label}
     </NavA>
   );
@@ -208,12 +214,8 @@ function JoinPill({
 export function SiteHeader({ header, languages, wpOrigin, strings }: SiteHeaderProps) {
   const pathname = usePathname() ?? "/";
   const panelId = useId();
-  const toggleRef = useRef<HTMLButtonElement>(null);
-  // The panel is open only for the path it was opened on: a navigation closes it without an effect.
-  const [openFor, setOpenFor] = useState<string | null>(null);
-  const open = openFor === pathname;
-  const setOpen = (next: boolean) => setOpenFor(next ? pathname : null);
-  const { settings, setTextSize } = useA11y();
+  const { open, barRef, panelRef, toggleRef, toggle, close } = useMobileNav(pathname);
+  const { settings, setTextSize, reduceMotion } = useA11y();
 
   const aboutItems = header.aboutItems ?? DEFAULT_ABOUT;
   const navItems = header.navItems ?? DEFAULT_NAV;
@@ -227,27 +229,19 @@ export function SiteHeader({ header, languages, wpOrigin, strings }: SiteHeaderP
   ];
   const t = { menu: "Menu", textSize: "Text size", language: "Language", ...strings };
 
-  // Escape anywhere closes it and hands focus back to the toggle; the page behind stays put.
-  useEffect(() => {
-    document.documentElement.classList.toggle("overflow-hidden", open);
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key !== "Escape") return;
-      setOpenFor(null);
-      toggleRef.current?.focus();
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [open]);
-
   return (
     <header
       className="site-header sticky top-0 z-100 bg-brand font-sans shadow-header"
       data-tone="blue"
     >
       {/* ============ MOBILE (< md) ============ */}
-      <div className="md:hidden">
-        <div className="flex min-h-[60px] items-center justify-between gap-3 px-4 py-2">
+      {/* Taps land on the `active:` recipes below, not on the OS tap flash the panel
+          inherits from here (the property inherits, so one declaration covers the tier). */}
+      <div className="md:hidden" style={{ WebkitTapHighlightColor: "transparent" }}>
+        <div
+          ref={barRef}
+          className="flex min-h-[60px] items-center justify-between gap-3 px-4 py-2"
+        >
           <HomeLink
             header={header}
             href={href}
@@ -259,17 +253,18 @@ export function SiteHeader({ header, languages, wpOrigin, strings }: SiteHeaderP
             <JoinPill
               url={header.joinUrl}
               href={href}
-              className="h-11 px-3.5 text-[0.82rem]"
+              className="h-11 touch-manipulation px-3.5 text-[0.82rem] active:bg-brand-deep active:text-white"
               label={joinShort}
+              onClick={close}
             />
             <button
               ref={toggleRef}
               type="button"
-              className="inline-flex size-11 cursor-pointer items-center justify-center rounded-[12px] border-2 border-white/60 bg-transparent text-white hover:bg-ink/22"
+              className="inline-flex size-11 touch-manipulation cursor-pointer items-center justify-center rounded-[12px] border-2 border-white/60 bg-transparent text-white transition-colors duration-100 hover:bg-ink/22 active:bg-ink/30"
               aria-expanded={open}
               aria-controls={panelId}
               aria-label={t.menu}
-              onClick={() => setOpen(!open)}
+              onClick={toggle}
             >
               {open ? (
                 <X className="size-6" aria-hidden="true" />
@@ -282,8 +277,15 @@ export function SiteHeader({ header, languages, wpOrigin, strings }: SiteHeaderP
 
         <div
           id={panelId}
+          ref={panelRef}
           hidden={!open}
-          className="fixed inset-x-0 bottom-0 top-[60px] z-90 flex flex-col overflow-auto border-t border-white/25 bg-brand"
+          /* `--pn-bar-h` is measured by useMobileNav; 60px is the bar's height at the
+             default text size, which is what the first paint gets. */
+          style={{ top: "var(--pn-bar-h, 60px)" }}
+          className={cn(
+            "fixed inset-x-0 bottom-0 z-90 flex flex-col overflow-y-auto overscroll-contain border-t border-white/25 bg-brand",
+            !reduceMotion && "animate-in fade-in-0 slide-in-from-top-2 duration-150 ease-out",
+          )}
           data-tone="blue"
         >
           <nav aria-label="Main" className="relative flex flex-1 flex-col gap-1 px-4 py-6">
@@ -292,8 +294,9 @@ export function SiteHeader({ header, languages, wpOrigin, strings }: SiteHeaderP
                 href={href}
                 key={item.label}
                 url={item.href}
+                onClick={close}
                 className={cn(
-                  "relative rounded-[12px] px-3 py-4 font-display text-[1.6rem] font-normal uppercase text-white no-underline hover:bg-ink/22",
+                  "relative touch-manipulation rounded-[12px] px-3 py-4 font-display text-[1.6rem] font-normal uppercase text-white no-underline transition-colors duration-100 hover:bg-ink/22 active:bg-ink/30",
                   isCurrent(item.href) && "bg-ink/22",
                 )}
                 aria-current={isCurrent(item.href) ? "page" : undefined}
@@ -304,12 +307,19 @@ export function SiteHeader({ header, languages, wpOrigin, strings }: SiteHeaderP
             <NavA
               url={header.joinUrl}
               href={href}
-              className="relative mx-3 mt-6 rounded-full bg-white px-3 py-[15px] text-center font-display text-base font-normal uppercase tracking-[0.04em] text-brand no-underline transition-colors hover:bg-brand-deep hover:text-white"
+              onClick={close}
+              className="relative mx-3 mt-6 touch-manipulation rounded-full bg-white px-3 py-[15px] text-center font-display text-base font-normal uppercase tracking-[0.04em] text-brand no-underline transition-colors duration-100 hover:bg-brand-deep hover:text-white active:bg-brand-deep active:text-white"
             >
               {header.joinLabel}
             </NavA>
           </nav>
-          <div className="mt-auto flex items-center justify-between gap-3 border-t border-white/25 px-6 pb-7 pt-[18px]">
+          {/* The home indicator overlaps the last 34px of the viewport on modern iPhones;
+              without the inset its swipe area sits on top of the text-size buttons. Where
+              env() is unknown the declaration drops and `pb-7` stands as before. */}
+          <div
+            className="mt-auto flex items-center justify-between gap-3 border-t border-white/25 px-6 pb-7 pt-[18px]"
+            style={{ paddingBottom: "calc(1.75rem + env(safe-area-inset-bottom))" }}
+          >
             <LanguageToggle
               languages={languages}
               size="mobile"
@@ -322,7 +332,7 @@ export function SiteHeader({ header, languages, wpOrigin, strings }: SiteHeaderP
                   key={s.value}
                   type="button"
                   className={cn(
-                    "size-11 cursor-pointer rounded-[10px] border-2 text-[0.9rem] font-bold",
+                    "size-11 touch-manipulation cursor-pointer rounded-[10px] border-2 text-[0.9rem] font-bold transition-colors duration-100",
                     settings.textSize === s.value
                       ? "border-white bg-white text-brand"
                       : "border-white/50 bg-transparent text-white",
