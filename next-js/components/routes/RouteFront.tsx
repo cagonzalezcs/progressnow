@@ -31,6 +31,11 @@ export async function RouteFront({ resolved, searchParams }: RouteProps) {
   const [front, site] = await Promise.all([getFrontPage(resolved.lang), getSite(resolved.lang)]);
   return (
     <FrontPage front={front} site={site} wpOrigin={getEnv().WP_ORIGIN}>
+      {/* No RoutePending here (openspec route-loading § A boundary opts in when a client
+          navigation would move the footer). The results do move it — measured at ~104px,
+          landing in their own flush with the envelope held 900ms — but the search UI
+          writes `?s=` on /blog/, never on /, so this fragment is only ever reached by a
+          direct load, where the flag would arrive after first paint. */}
       <Suspense fallback={null}>
         <SearchFragment lang={resolved.lang} searchParams={searchParams} />
       </Suspense>

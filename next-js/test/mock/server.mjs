@@ -12,6 +12,9 @@
  *   POST /__mock/posts/{slug}           { title } overlay for the webhook e2e
  *   POST /__mock/canonical-origin       { origin } → seo.canonical/hreflang origin
  *   POST /__mock/fail                   { failing: boolean } → 503 for every envelope
+ *   POST /__mock/delay                  { ms, path? } → hold envelopes whose path starts
+ *                                       with `path` (default: all) that long, so a route's
+ *                                       loading window can be observed
  *   POST /__mock/reset                  clear overlays and logs
  *
  * MOCK_PORT (default 8787). MOCK_ORIGIN defaults to the listen origin so the
@@ -91,6 +94,13 @@ const server = createServer(async (req, res) => {
         mock.setFailing(Boolean(body.failing));
         return json(res, 200, { ok: true });
       }
+      if (op === "delay") {
+        if (!mock.setDelay(body.ms, body.path ?? ""))
+          return json(res, 400, {
+            error: "ms must be a non-negative number and path a string",
+          });
+        return json(res, 200, { ok: true, ms: mock.delayMs, path: mock.delayPath });
+      }
       if (op === "reset") {
         mock.reset();
         buildStatus.length = 0;
@@ -151,6 +161,10 @@ const server = createServer(async (req, res) => {
         message: "Simulated upstream failure",
         data: { status: 503 },
       });
+
+    // Applied after the failure check so /__mock/fail stays instant, and only to
+    // envelopes — the static assets above are served by the app's proxy in production.
+    if (mock.isDelayed(path)) await new Promise((r) => setTimeout(r, mock.delayMs));
 
     const query = Object.fromEntries(url.searchParams.entries());
     const body = mock.dispatch(path, query);

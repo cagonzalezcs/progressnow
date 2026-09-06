@@ -1,5 +1,6 @@
 /* ---------------------------------------------------------------------------
- * Route-loading footer hold — next-js only.
+ * Route-loading footer hold — next-js only
+ * (openspec route-loading § The footer is held back for that window).
  *
  * Not in app/globals.css: that file is a byte-identical copy of the theme's
  * src/css/tailwind.css (test/unit/shared-source-drift.test.ts fails on any

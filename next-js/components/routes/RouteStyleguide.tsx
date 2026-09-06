@@ -58,6 +58,10 @@ export function RouteStyleguide({ lang }: { lang: string }) {
       </h2>
       <SiteComponentSections />
 
+      {/* No RoutePending here (openspec route-loading § A boundary opts in when a client
+          navigation would move the footer): this one-line stand-in is far shorter than the
+          sink it replaces, but /styleguide/ is linked from nowhere in the site and is
+          reached by direct URL only — the flag would arrive after first paint. */}
       <Suspense
         fallback={
           <p

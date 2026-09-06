@@ -2,7 +2,9 @@
 
 import { useEffect, useLayoutEffect, type ReactNode } from "react";
 
-/* Route-loading flag (design D6; openspec next-headless-site § Client navigation).
+/* Route-loading flag (openspec route-loading § A route's loading window is flagged
+ * on <html>; the transition it sits inside is next-headless-site § Client
+ * navigation / design D6).
  *
  * A client navigation commits as soon as the catch-all page's shell resolves —
  * with this component, the page's Suspense fallback, standing in for <main>'s

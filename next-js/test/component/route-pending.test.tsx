@@ -36,6 +36,24 @@ describe("RoutePending", () => {
     expect(flag()).toBe(true);
   });
 
+  it("stands in with the aria-busy region for a boundary whose fallback was null", () => {
+    // `fallback={null}` boundaries pass nothing; the flag still needs a host to live on,
+    // and an empty region is the honest stand-in for content that has not arrived.
+    const { container } = render(<RoutePending>{null}</RoutePending>);
+    expect(container.querySelector("[aria-busy='true']")).not.toBeNull();
+    expect(flag()).toBe(true);
+  });
+
+  it("survives one fallback replacing another in a single commit", () => {
+    // React runs the outgoing cleanup and the incoming effect in the same commit;
+    // the counter is what keeps the swap from ending with the flag cleared.
+    const { rerender } = render(<RoutePending key="route" />);
+    expect(flag()).toBe(true);
+
+    rerender(<RoutePending key="fragment" />);
+    expect(flag()).toBe(true);
+  });
+
   it("keeps the flag until the last overlapping fallback has gone", () => {
     // A route shell resolving into a fragment that is itself still pending:
     // the two fallbacks overlap, and the first to leave must not clear the flag.

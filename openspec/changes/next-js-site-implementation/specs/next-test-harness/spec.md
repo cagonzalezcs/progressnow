@@ -31,9 +31,15 @@ Unit tests SHALL assert byte identity (after the documented normalization) betwe
 ### Requirement: Fixture-backed mock API
 A standalone mock server (`test/mock/server.mjs`, no production code) SHALL serve `GET /wp-json/progressnow/v1/*` from the theme fixtures with the same per-route overlays as the Nuxt `shared/mock-api.ts` (`MOCK_ORIGIN`, `MOCK_CONTENT_VERSION`, both languages), and `npm run dev:mock` SHALL start it together with the dev server.
 
+The mock SHALL expose a `/__mock/` control surface for steering e2e scenarios, cleared by `POST /__mock/reset`: post-title and canonical-origin overlays, `POST /__mock/fail` (503 for every envelope), the request log, the recorded build-status callbacks, and `POST /__mock/delay { ms, path? }`, which holds envelopes whose path starts with `path` (default: all) for `ms` — the only way to open a route's loading window on demand (`next-js/openspec/specs/route-loading`). Because the mock is shared by specs running in parallel, a delay SHALL be scoped to the envelope the spec under test needs slowed, so it cannot disturb a spec that is timing another route.
+
 #### Scenario: Whole site from fixtures
 - **WHEN** the app runs against the mock
 - **THEN** every manifest route in both languages renders without a WordPress instance
+
+#### Scenario: Scoped delay
+- **WHEN** a spec sets a delay on one envelope path and another spec requests a different envelope
+- **THEN** only the matching envelope is held, and `POST /__mock/reset` releases it
 
 #### Scenario: Not in the bundle
 - **WHEN** the production build is inspected

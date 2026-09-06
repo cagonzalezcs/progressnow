@@ -76,6 +76,8 @@ Server components render all content and chrome. Client components ("islands", `
 
 **Navigation and view transitions (decided).** Route changes cross-fade using the View Transitions API through Next's view-transition support (`experimental.viewTransition`, React `<ViewTransition>` around the route slot). The transition is skipped when `prefers-reduced-motion: reduce` is set or the widget's reduce-motion setting is on, and degrades to an instant swap where `document.startViewTransition` is missing — progressive enhancement, never a dependency. URL-state updates (search, filter, page, view) are `router.replace` with `scroll: false` and do not trigger a transition.
 
+The window after the commit — the fallback standing in for `<main>`, and the footer held back through it — is specified separately in `next-js/openspec/specs/route-loading`.
+
 *Alternative:* client-fetched search like the islands — rejected: the user asked for SSR search; URL-driven server rendering also gives shareable URLs, back/forward, and no browser→WP path. Shipping without cross-fade in v1 — rejected by the user; the reduced-motion and unsupported-browser paths keep it safe.
 
 ### D7. Design system: shared by drift test, components re-implemented

@@ -47,11 +47,19 @@ This rule SHALL live in a Next-only stylesheet. It SHALL NOT be added to `app/gl
 - **WHEN** `test/unit/shared-source-drift.test.ts` runs
 - **THEN** `app/globals.css` still matches the theme's `src/css/tailwind.css` byte for byte after URL normalization
 
-### Requirement: A boundary opts in when its stand-in is short
+### Requirement: A boundary opts in when a client navigation would move the footer
 
-A Suspense boundary SHALL use `RoutePending` when the stand-in it shows is shorter than the content it replaces, so that content landing would move the footer. `RoutePending` SHALL render the boundary's own skeleton when given one as children, and an empty `aria-busy="true"` region when the boundary has none of its own.
+A Suspense boundary SHALL use `RoutePending` when **both** hold: the boundary is reached by a client navigation, and the stand-in it shows is shorter than the content it replaces. `RoutePending` SHALL render the boundary's own skeleton when given one as children, and an empty `aria-busy="true"` region when the boundary has none of its own.
 
-The whole-route boundary in `app/[[...slug]]/page.tsx` SHALL opt in: its stand-in is empty. The blog archive fragment in `components/routes/RoutePostsIndex.tsx` SHALL opt in: its `h-40` skeleton stands in for roughly 450px of results. A boundary whose skeleton already holds the content's space SHALL NOT opt in, so the footer is not hidden for a window in which it would not have moved.
+Both conditions are load-bearing. A short stand-in is what makes the footer move. A client navigation is what makes the flag able to prevent it: `RoutePending` writes the flag from a layout effect, so on a URL reached only by direct load the fallback is server-streamed and painted before hydration mounts anything, and opting in would replace a jump with a hide-then-show rather than prevent it.
+
+The whole-route boundary in `app/[[...slug]]/page.tsx` SHALL opt in: every in-site link goes through it and its stand-in is empty. The blog archive fragment in `components/routes/RoutePostsIndex.tsx` SHALL opt in: `/blog/` is in the main navigation and its `h-40` skeleton stands in for roughly 450px of results.
+
+A boundary that fails either condition SHALL NOT opt in, and SHALL carry a comment recording which condition it fails, so the next reader does not re-measure it:
+
+- `components/routes/RouteCalendar.tsx` — reached by client navigation, but `CalendarSkeleton` holds the grid's space and the boundary gates only `searchParams`; the events envelope is awaited above it.
+- `components/routes/RouteFront.tsx` — the `?s=` results move the footer, but the site's search UI writes `?s=` on `/blog/`, never on `/`, so this fragment is only ever reached by direct load.
+- `components/routes/RouteStyleguide.tsx` — the kitchen-sink stand-in is far shorter than its content, but `/styleguide/` is linked from nowhere in the site and is reached by direct URL only.
 
 #### Scenario: Whole-route boundary
 
@@ -67,6 +75,20 @@ The whole-route boundary in `app/[[...slug]]/page.tsx` SHALL opt in: its stand-i
 
 - **WHEN** a boundary's skeleton is sized like the content it replaces, as `CalendarSkeleton` is
 - **THEN** the boundary does not use `RoutePending` and the footer stays visible through that fragment's load
+
+#### Scenario: Boundary reached only by direct load
+
+- **WHEN** a boundary's URL is not reachable by a client navigation from anywhere in the site, as `/?s=` and `/styleguide/` are not
+- **THEN** the boundary does not use `RoutePending`, and its comment records that the flag would arrive after first paint
+
+### Requirement: The flag covers client navigation, not first paint
+
+This capability SHALL be understood to cover the window opened by a client navigation only. On a direct load the shell — header, empty `<main>`, footer — is streamed and painted before hydration, so the footer paints at the top of the document and moves down when `<main>` fills, and no client-side flag can precede that paint. Holding the footer through first paint would require a server-rendered mechanism whose failure mode is a footer that never appears without JavaScript; that trade-off SHALL NOT be decided inside this capability.
+
+#### Scenario: Direct load is out of scope
+
+- **WHEN** a route is loaded directly rather than navigated to
+- **THEN** the footer's first-paint position is not governed by this capability, and `data-route-loading` is expected to be absent until hydration
 
 ### Requirement: In-page URL updates do not raise the flag
 
