@@ -125,14 +125,18 @@ type FooterSample = {
   path: string;
 };
 
-/* Frames where the footer sat entirely above the fold — the position it would jump
- * from. The anchor does not stop the footer moving; it stops it being *seen* moving,
- * by keeping it at or below the viewport's bottom edge while <main> is short. (Valid
- * only at scroll top, which is where a route change leaves the visitor.) */
-function footerAboveTheFold(samples: FooterSample[], path: string, viewportHeight: number) {
+/* Frames where any part of the footer was inside the viewport. The TOP edge is the
+ * invariant that matters: an earlier revision anchored the footer's BOTTOM edge to
+ * the viewport's, which passed its own test while 352px of footer rose into view
+ * during the load and slid back out when the content landed. (Valid only at scroll
+ * top, which is where a route change leaves the visitor.) */
+function footerInsideViewport(samples: FooterSample[], path: string, viewportHeight: number) {
   return samples
-    .filter((s) => s.path === path && s.bottom < viewportHeight)
-    .map((s) => `t=${s.t}ms bottom=${s.bottom} (viewport ${viewportHeight})`);
+    .filter((s) => s.path === path && s.top < viewportHeight)
+    .map(
+      (s) =>
+        `t=${s.t}ms top=${s.top} (viewport ${viewportHeight}, ${viewportHeight - s.top}px showing)`,
+    );
 }
 
 /* Every animation frame of the navigation: where the footer is, whether it is
@@ -154,7 +158,9 @@ async function sampleFooterThrough(page: Page, navigate: () => Promise<unknown>,
           mainHeight: Math.round(
             document.getElementById("main")?.getBoundingClientRect().height ?? 0,
           ),
-          standIn: Boolean(document.querySelector("main#main [aria-busy='true']")),
+          standIn: Boolean(
+            document.querySelector("main#main [aria-busy='true'], main#main .animate-pulse"),
+          ),
           path: location.pathname,
         });
       }
@@ -215,19 +221,17 @@ test("an empty <main> still fills the viewport, so the footer starts where it st
         await expect(page).toHaveURL(/\/blog\/$/);
       });
     }
-    // A window opened iff <main> was shorter at some point than the height it settles
-    // at. A DOM fact, and mechanism-agnostic: the archive's skeleton carries no
-    // aria-busy of its own, so `standIn` alone would miss this boundary.
-    const onBlog = samples.filter((s) => s.path === "/blog/");
-    const settledMain = Math.max(...onBlog.map((s) => s.mainHeight));
+    // Geometry cannot witness the window any more: <main> is a full viewport tall
+    // while loading and after, which is exactly what this rule is for. The stand-in
+    // in the DOM is the witness instead.
     expect(
-      Math.min(...onBlog.map((s) => s.mainHeight)),
-      "<main> never grew — the route stayed warm or the delay never took effect, so this test would pass vacuously",
-    ).toBeLessThan(settledMain);
+      samples.some((s) => s.standIn),
+      "no stand-in was ever rendered — the route stayed warm or the delay never took effect, so this test would pass vacuously",
+    ).toBe(true);
 
-    // The visitor-facing invariant: the footer is never sitting up under the header,
-    // which is the position it would visibly jump from.
-    expect(footerAboveTheFold(samples, "/blog/", 900)).toEqual([]);
+    // The visitor-facing invariant: no part of the footer is ever on screen during
+    // the navigation, so there is nothing to see move when the content lands.
+    expect(footerInsideViewport(samples, "/blog/", 900)).toEqual([]);
 
     // Anchored, not hidden. An earlier revision hid it while the route loaded, which
     // flashed the page dark → white → dark on every navigation.
@@ -237,17 +241,20 @@ test("an empty <main> still fills the viewport, so the footer starts where it st
   }
 });
 
-test("a short route does not pull the footer up under the header", async ({ page }) => {
+test("a short route keeps the footer below the fold, and reachable by scrolling", async ({
+  page,
+}) => {
   // No loading window needed: a 404's content is simply shorter than the viewport.
-  // Without the anchor the footer would sit just below the heading.
+  // Without the rule the footer would sit just below the heading.
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/no-such-page-here/");
-  const footer = page.getByRole("contentinfo");
-  await expect(footer).toBeVisible();
-  const bottom = await page
-    .locator(".site-footer")
-    .evaluate((el) => el.getBoundingClientRect().bottom);
-  expect(bottom).toBeGreaterThanOrEqual(900);
+
+  const top = await page.locator(".site-footer").evaluate((el) => el.getBoundingClientRect().top);
+  expect(top, "the footer should start below the fold").toBeGreaterThanOrEqual(900);
+
+  // Below the fold, not unreachable: it is in the accessibility tree and one scroll away.
+  await page.locator(".site-footer").scrollIntoViewIfNeeded();
+  await expect(page.getByRole("contentinfo")).toBeVisible();
 });
 
 test("POST /__mock/delay holds envelopes and /__mock/reset releases them", async ({ request }) => {

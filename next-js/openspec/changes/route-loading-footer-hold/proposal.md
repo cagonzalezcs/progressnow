@@ -8,10 +8,14 @@ The measurement that settles it, front → `/blog/` with the `posts` envelope he
 
 ## What Changes
 
-- **Anchor the footer instead of hiding it.** `<body>` becomes a flex column of at least `100dvh` with `.site-main` taking the slack, so the footer's bottom edge is never above the viewport's. It starts where it will stay; content landing only pushes it further down, out of sight. Measured: footer bottom at the viewport edge at t=121ms and still anchored at t=797ms, with nothing hidden at any point.
+- **Keep the footer below the fold instead of hiding it.** `.site-main` carries `min-height: 100dvh`, so `<main>` alone is at least a viewport tall and the footer begins past the bottom edge in every state. Measured on `/blog/`: footer top at 976px while loading and 976px after the content lands — unmoved, and never on screen.
+
+  A first attempt at this anchored the footer's _bottom_ edge instead, with a sticky-footer flex column. That reserves the footer's height inside the viewport: 352px of it showed during the load and slid back out to 32px when the content arrived. The bottom edge never rose above the fold, so the test written around that invariant passed while the visible defect remained — the reason the spec now names the **top** edge.
+
 - **Remove the hold entirely** — `components/nav/RoutePending.tsx`, the `data-route-loading` flag, the `visibility: hidden` rule, and the per-boundary opt-in rule that went with them. Nothing is hidden, so there is no reveal to gate behind reduce-motion and no flash to reason about.
 - **Fold in the two gaps the flag could not reach.** Because the anchor is CSS with no JavaScript dependency, it also covers the first paint of a direct load (the streamed shell painted the footer under an empty `<main>` on every route) and `/calendar/`'s post-commit growth (the island rendering more than the server sent, moving the footer ~790px). Both were previously written up as out of scope; the separate `first-paint-footer-hold` change they were deferred to is withdrawn.
-- **Keep the test harness the hold introduced.** `POST /__mock/delay { ms, path? }` and the signed-rebuild eviction are what make a loading window reproducible in the e2e suite; the assertions move from "the footer is hidden" to "the footer is painted, and never above the fold".
+- **Wash the route transition through the page ground, not the brand blue.** A full-width blue wash on every navigation reads as a flash of its own. This rule is in the shared stylesheet, so the change is made in the theme's `src/css/tailwind.css` and re-copied to `app/globals.css`; the theme's cross-document transitions get the same treatment.
+- **Keep the test harness the hold introduced.** `POST /__mock/delay { ms, path? }` and the signed-rebuild eviction are what make a loading window reproducible in the e2e suite. The assertions move to "the footer's top edge is never inside the viewport", and the witness moves from page geometry to the stand-in's presence in the DOM — `<main>` is now a full viewport tall in both states, which is the point of the rule and leaves nothing for a geometric witness to detect.
 
 ## Capabilities
 
@@ -25,10 +29,11 @@ None in this root. `openspec/specs/` here holds only `calendar-route`, whose req
 
 ## Impact
 
-- `app/sticky-footer.css` (renamed from `app/route-loading.css`) — now one layout rule rather than a hold; imported once from `app/layout.tsx`.
+- `app/footer-anchor.css` (renamed from `app/route-loading.css`) — now one layout rule rather than a hold; imported once from `app/layout.tsx`.
+- `app/globals.css` **and** `wp-content/themes/progressnow/src/css/tailwind.css` — the `vt-page` group's background moves from `--color-brand` to `--color-background`, edited in the theme and re-copied so `test/unit/shared-source-drift.test.ts` stays green.
 - `components/nav/RoutePending.tsx`, `test/component/route-pending.test.tsx` — deleted.
 - `app/[[...slug]]/page.tsx`, `components/routes/RoutePostsIndex.tsx`, `components/routes/RouteCalendar.tsx` — back to plain Suspense fallbacks; `components/routes/RouteFront.tsx` and `components/routes/RouteStyleguide.tsx` lose the comments explaining why they were not wrapped.
 - `lib/a11y-settings.ts` — `data-route-loading` removed from the `<html>` state attributes it documents.
 - `test/mock/server.mjs`, `test/mock/api.mjs`, `test/unit/mock-controls.spec.ts` — the `/__mock/delay` control, kept.
 - `test/e2e/chrome.spec.ts` — the anchor asserted through a real navigation, plus a short-route case (the 404) that needs no loading window at all. `test/e2e/receiver.spec.ts` selects its build-status callback by `buildId`, since the footer test is a second source of rebuilds.
-- No API, dependency, or schema changes. `app/globals.css` stays byte-identical to the theme's `src/css/tailwind.css` (`test/unit/shared-source-drift.test.ts`); the anchor lives in its own Next-only sheet because the WordPress theme is a multi-page app whose footer never outruns its content.
+- No API, dependency, or schema changes. The footer rule lives in its own Next-only sheet because the WordPress theme is a multi-page app whose footer never outruns its content; the transition ground is shared, so it goes through the theme.
