@@ -141,7 +141,10 @@ function footerInsideViewport(samples: FooterSample[], path: string, viewportHei
 
 /* Every animation frame of the navigation: where the footer is, whether it is
  * painted, how tall <main> is, and whether a stand-in still occupies it.
- * `standIn` (any aria-busy region) is the witness that a loading window opened. */
+ * `standIn` is the witness that a loading window opened, keyed on the automation
+ * testids rather than on markup shape — the stand-ins differ (an empty aria-busy
+ * region for the whole route, a sized skeleton for a fragment) and only the
+ * testids are stable across all of them. */
 async function sampleFooterThrough(page: Page, navigate: () => Promise<unknown>, ms = 2500) {
   await page.evaluate((limit) => {
     (window as unknown as { __footer: unknown[] }).__footer = [];
@@ -159,7 +162,9 @@ async function sampleFooterThrough(page: Page, navigate: () => Promise<unknown>,
             document.getElementById("main")?.getBoundingClientRect().height ?? 0,
           ),
           standIn: Boolean(
-            document.querySelector("main#main [aria-busy='true'], main#main .animate-pulse"),
+            document.querySelector(
+              "main#main [data-testid='route-pending'], main#main [data-testid='archive-fallback'], main#main [data-testid='route-calendar-fallback']",
+            ),
           ),
           path: location.pathname,
         });

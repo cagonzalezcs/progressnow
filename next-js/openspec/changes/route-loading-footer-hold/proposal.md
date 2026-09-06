@@ -31,9 +31,9 @@ None in this root. `openspec/specs/` here holds only `calendar-route`, whose req
 
 - `app/footer-anchor.css` (renamed from `app/route-loading.css`) — now one layout rule rather than a hold; imported once from `app/layout.tsx`.
 - `app/globals.css` **and** `wp-content/themes/progressnow/src/css/tailwind.css` — the `vt-page` group's background moves from `--color-brand` to `--color-background`, edited in the theme and re-copied so `test/unit/shared-source-drift.test.ts` stays green.
-- `components/nav/RoutePending.tsx`, `test/component/route-pending.test.tsx` — deleted.
+- `components/nav/RoutePending.tsx`, `test/component/route-pending.test.tsx` — deleted. Its `data-testid="route-pending"` moves onto the plain stand-in that replaces it, so the automation surface added in #5 stays complete.
 - `app/[[...slug]]/page.tsx`, `components/routes/RoutePostsIndex.tsx`, `components/routes/RouteCalendar.tsx` — back to plain Suspense fallbacks; `components/routes/RouteFront.tsx` and `components/routes/RouteStyleguide.tsx` lose the comments explaining why they were not wrapped.
 - `lib/a11y-settings.ts` — `data-route-loading` removed from the `<html>` state attributes it documents.
 - `test/mock/server.mjs`, `test/mock/api.mjs`, `test/unit/mock-controls.spec.ts` — the `/__mock/delay` control, kept.
-- `test/e2e/chrome.spec.ts` — the anchor asserted through a real navigation, plus a short-route case (the 404) that needs no loading window at all. `test/e2e/receiver.spec.ts` selects its build-status callback by `buildId`, since the footer test is a second source of rebuilds.
+- `test/e2e/chrome.spec.ts` — the anchor asserted through a real navigation, plus a short-route case (the 404) that needs no loading window at all. The stand-in witness keys on the `data-testid` automation surface (`route-pending`, `archive-fallback`, `route-calendar-fallback`) rather than on markup shape, since the stand-ins differ per boundary. `test/e2e/receiver.spec.ts` selects its build-status callback by `buildId`, since the footer test is a second source of rebuilds.
 - No API, dependency, or schema changes. The footer rule lives in its own Next-only sheet because the WordPress theme is a multi-page app whose footer never outruns its content; the transition ground is shared, so it goes through the theme.

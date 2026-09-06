@@ -57,7 +57,7 @@ The `vt-page` transition groups SHALL fade through `--color-background`, the gro
 
 The fixture-backed mock SHALL expose `POST /__mock/delay { ms, path? }`, which holds envelopes whose path starts with `path` (default: all) for `ms`, cleared by `POST /__mock/reset`. An e2e test SHALL use it, together with a signed rebuild that evicts the content tags, to open a real loading window and assert the invariant through an actual navigation — a warm route's payload arrives whole, fallback and all, so a cold cache is required. Because the mock is shared by specs running in parallel, the delay SHALL be scoped to the envelope the spec under test needs slowed.
 
-The witness that a window opened SHALL be the stand-in's presence in the DOM, not page geometry: `<main>` is a full viewport tall while loading and after, which is the point of the rule and leaves nothing for a geometric witness to detect.
+The witness that a window opened SHALL be the stand-in's presence in the DOM, not page geometry: `<main>` is a full viewport tall while loading and after, which is the point of the rule and leaves nothing for a geometric witness to detect. It SHALL key on the `data-testid` automation surface — `route-pending` for the whole-route boundary, `archive-fallback` and `route-calendar-fallback` for the fragments — because the stand-ins differ in shape and only the testids are stable across them.
 
 #### Scenario: Delayed navigation
 
