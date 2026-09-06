@@ -1,7 +1,14 @@
-# Vercel CLI uploads from the repo root (project Root Directory = next-js).
-# Only the app plus the theme fixtures/static it references are needed.
+# Vercel uploads from the repo root; each project picks its own Root Directory
+# (next-js/ and nuxt-js/). This allowlist is shared by both, so it has to admit
+# every app plus the theme fixtures/static they read across the tree:
+#   next-js  -> wp-content/themes/progressnow/{tests,static}
+#   nuxt-js  -> the same fixtures (shared/mock-api.ts) and static (mock assets)
+# Anything not re-included below never reaches the builder, which shows up as a
+# missing Root Directory rather than a build error — keep this in sync when a
+# new app directory lands.
 /*
 !/next-js
+!/nuxt-js
 !/wp-content
 /wp-content/*
 !/wp-content/themes
@@ -14,3 +21,7 @@
 /next-js/.next
 /next-js/playwright-report
 /next-js/test-results
+/nuxt-js/node_modules
+/nuxt-js/.nuxt
+/nuxt-js/.output
+/nuxt-js/dist
