@@ -1,0 +1,5 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "if [ -n \"$NUXT_PUBLIC_WP_API_BASE\" ]; then npm run generate; else npm run generate:mock; fi",
+  "installCommand": "npm ci"
+}
