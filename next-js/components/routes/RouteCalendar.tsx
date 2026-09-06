@@ -36,7 +36,11 @@ export async function RouteCalendar({ resolved, searchParams }: RouteProps) {
   const icsUrl = page.calendar?.icsUrl ?? "#";
 
   return (
-    <div data-route-kind="calendar" className="route-calendar contents">
+    <div
+      data-route-kind="calendar"
+      className="route-calendar contents"
+      data-testid="route-calendar"
+    >
       <PageHeader
         title={page.title || str("cal_title", "Event calendar")}
         lede={lede}
@@ -132,8 +136,16 @@ export function calendarLabels(site: SiteEnvelope): Partial<CalendarLabels> {
 
 function CalendarSkeleton() {
   return (
-    <section className="bg-white px-6 py-10 md:py-14" data-tone="white" aria-busy="true">
-      <div className="mx-auto min-h-[520px] max-w-[1200px] animate-pulse rounded-[20px] bg-alt" />
+    <section
+      className="bg-white px-6 py-10 md:py-14"
+      data-tone="white"
+      aria-busy="true"
+      data-testid="route-calendar-fallback"
+    >
+      <div
+        className="mx-auto min-h-[520px] max-w-[1200px] animate-pulse rounded-[20px] bg-alt"
+        data-testid="calendar-skeleton"
+      />
     </section>
   );
 }

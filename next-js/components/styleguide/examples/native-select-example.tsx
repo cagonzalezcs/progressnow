@@ -8,7 +8,7 @@ import {
 
 export default function NativeSelectExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="native-select-example">
       <NativeSelectBasic />
       <NativeSelectWithGroups />
       <NativeSelectSizes />

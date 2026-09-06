@@ -109,7 +109,7 @@ export function SingleEvent({
   });
 
   return (
-    <div className="single-event contents" data-route-kind="event">
+    <div className="single-event contents" data-route-kind="event" data-testid="single-event">
       <PageHeader
         title={event.title}
         lede={eventWhenWhere(event)}
@@ -123,11 +123,18 @@ export function SingleEvent({
             <span
               aria-hidden="true"
               className="flex flex-col rounded-[12px] bg-white px-3.5 py-2.5 text-center text-brand md:rounded-[14px] md:px-[18px] md:py-3"
+              data-testid="single-event-date-tile"
             >
-              <span className="font-display text-[1.4rem] leading-[1.05] md:text-[1.7rem]">
+              <span
+                className="font-display text-[1.4rem] leading-[1.05] md:text-[1.7rem]"
+                data-testid="single-event-day"
+              >
                 {tile.day}
               </span>
-              <span className="text-[0.72rem] font-extrabold tracking-[0.1em] md:text-[0.8rem]">
+              <span
+                className="text-[0.72rem] font-extrabold tracking-[0.1em] md:text-[0.8rem]"
+                data-testid="single-event-month"
+              >
                 {tile.month}
               </span>
             </span>
@@ -135,6 +142,8 @@ export function SingleEvent({
               href={`${calendarUrl}?category=${event.cat}`}
               wpOrigin={wpOrigin}
               className="rounded-full bg-ink/[.22] px-3.5 py-[5px] text-[0.72rem] font-extrabold uppercase tracking-[0.06em] text-white no-underline hover:underline hover:underline-offset-4 md:px-4 md:py-1.5 md:text-[0.8rem]"
+              data-testid="single-event-category-pill"
+              data-category={event.cat}
             >
               {category.label}
             </SiteLink>
@@ -143,15 +152,26 @@ export function SingleEvent({
         wpOrigin={wpOrigin}
       >
         {event.rsvpUrl || addToCalendar ? (
-          <div className="flex flex-wrap gap-2.5 md:gap-3.5">
+          <div className="flex flex-wrap gap-2.5 md:gap-3.5" data-testid="single-event-actions">
             {event.rsvpUrl ? (
-              <a href={event.rsvpUrl} target="_blank" rel="noopener" className={WHITE_PILL}>
+              <a
+                href={event.rsvpUrl}
+                target="_blank"
+                rel="noopener"
+                className={WHITE_PILL}
+                data-testid="single-event-rsvp-link"
+              >
                 {L.rsvpLabel}
                 <span className="sr-only"> (opens in a new tab)</span>
               </a>
             ) : null}
             {addToCalendar ? (
-              <SiteLink href={addToCalendar} wpOrigin={wpOrigin} className={OUTLINE_PILL}>
+              <SiteLink
+                href={addToCalendar}
+                wpOrigin={wpOrigin}
+                className={OUTLINE_PILL}
+                data-testid="single-event-add-to-calendar"
+              >
                 {L.addToCalendarLabel}
               </SiteLink>
             ) : null}
@@ -160,16 +180,26 @@ export function SingleEvent({
       </PageHeader>
 
       {/* Content + sidebar */}
-      <section className="bg-white px-6 pb-14 pt-10 md:pb-24 md:pt-16" data-tone="white">
+      <section
+        className="bg-white px-6 pb-14 pt-10 md:pb-24 md:pt-16"
+        data-tone="white"
+        data-testid="single-event-body"
+      >
         <div className="mx-auto grid max-w-[1140px] items-start gap-10 lg:gap-14 lg:[grid-template-columns:minmax(300px,1fr)_310px]">
-          <article className="flex min-w-0 flex-col gap-[18px] md:gap-6">
+          <article
+            className="flex min-w-0 flex-col gap-[18px] md:gap-6"
+            data-testid="single-event-article"
+          >
             {hasBody ? (
-              <h2 className="m-0 font-display text-[1.35rem] font-normal leading-[1.2] md:text-[clamp(1.6rem,2.6vw,2.2rem)] md:leading-[1.1]">
+              <h2
+                className="m-0 font-display text-[1.35rem] font-normal leading-[1.2] md:text-[clamp(1.6rem,2.6vw,2.2rem)] md:leading-[1.1]"
+                data-testid="single-event-about-heading"
+              >
                 {L.aboutLabel}
               </h2>
             ) : null}
             {hasImage ? (
-              <figure className="m-0 flex flex-col">
+              <figure className="m-0 flex flex-col" data-testid="single-event-figure">
                 <div className="aspect-video overflow-hidden rounded-[16px] bg-white md:rounded-[20px]">
                   <ImageSlot
                     src={event.featuredImage.src}
@@ -179,7 +209,10 @@ export function SingleEvent({
                   />
                 </div>
                 {event.featuredImage.caption || event.featuredImage.credit ? (
-                  <figcaption className="mt-3 text-[0.9rem] leading-[1.5] text-muted">
+                  <figcaption
+                    className="mt-3 text-[0.9rem] leading-[1.5] text-muted"
+                    data-testid="single-event-figcaption"
+                  >
                     {[event.featuredImage.caption, event.featuredImage.credit]
                       .filter(Boolean)
                       .join(" ")}
@@ -188,7 +221,10 @@ export function SingleEvent({
               </figure>
             ) : null}
             {event.summary ? (
-              <p className="m-0 text-[1.08rem] font-semibold leading-[1.6] text-ink md:text-[1.22rem] md:leading-[1.65]">
+              <p
+                className="m-0 text-[1.08rem] font-semibold leading-[1.6] text-ink md:text-[1.22rem] md:leading-[1.65]"
+                data-testid="single-event-summary"
+              >
                 {event.summary}
               </p>
             ) : null}
@@ -197,6 +233,7 @@ export function SingleEvent({
 
           <aside
             aria-label={L.sidebarLabel}
+            data-testid="single-event-sidebar"
             className="flex flex-col gap-6 lg:sticky lg:top-[calc(108px+var(--wp-admin--admin-bar--height,0px))] lg:max-h-[calc(100vh-124px)] lg:overflow-auto"
           >
             <LinkListCard
@@ -219,16 +256,25 @@ export function SingleEvent({
             {eventHasContact(event) ? (
               <DashedNote heading={L.contactLabel}>
                 {event.contact.name ? (
-                  <p className="font-bold text-ink">{event.contact.name}</p>
+                  <p className="font-bold text-ink" data-testid="single-event-contact-name">
+                    {event.contact.name}
+                  </p>
                 ) : null}
                 {event.contact.email ? (
                   <p>
-                    <a href={`mailto:${event.contact.email}`}>{event.contact.email}</a>
+                    <a
+                      href={`mailto:${event.contact.email}`}
+                      data-testid="single-event-contact-email"
+                    >
+                      {event.contact.email}
+                    </a>
                   </p>
                 ) : null}
                 {event.contact.phone ? (
                   <p>
-                    <a href={telHref(event.contact.phone)}>{event.contact.phone}</a>
+                    <a href={telHref(event.contact.phone)} data-testid="single-event-contact-phone">
+                      {event.contact.phone}
+                    </a>
                   </p>
                 ) : null}
               </DashedNote>
@@ -242,22 +288,27 @@ export function SingleEvent({
           className="bg-alt px-6 pb-14 pt-11 md:pb-24 md:pt-16"
           data-tone="alt"
           data-more-events=""
+          data-testid="single-event-more"
         >
           <div className="mx-auto flex max-w-[1140px] flex-col gap-[18px] md:gap-7">
             <div className="flex flex-wrap items-baseline justify-between gap-4">
-              <h2 className="m-0 font-display text-[1.35rem] font-normal leading-[1.2] md:text-[clamp(1.6rem,2.8vw,2.2rem)] md:leading-[1.1]">
+              <h2
+                className="m-0 font-display text-[1.35rem] font-normal leading-[1.2] md:text-[clamp(1.6rem,2.8vw,2.2rem)] md:leading-[1.1]"
+                data-testid="single-event-more-heading"
+              >
                 {L.moreLabel}
               </h2>
               <SiteLink
                 href={calendarUrl}
                 wpOrigin={wpOrigin}
                 className="hidden items-center gap-4 text-[1.05rem] font-extrabold uppercase tracking-[0.03em] text-accent no-underline hover:underline hover:underline-offset-4 md:flex"
+                data-testid="single-event-full-calendar-link"
               >
                 {L.fullCalendarLabel}
                 {ARROW("h-5 w-10 flex-none fill-accent")}
               </SiteLink>
             </div>
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3" data-testid="single-event-more-list">
               {moreEvents.map((ev) => (
                 <EventCard
                   key={ev.id}
@@ -273,6 +324,7 @@ export function SingleEvent({
               href={calendarUrl}
               wpOrigin={wpOrigin}
               className="flex items-center justify-center gap-3.5 text-[0.95rem] font-extrabold uppercase tracking-[0.03em] text-accent no-underline hover:underline hover:underline-offset-4 md:hidden"
+              data-testid="single-event-full-calendar-link-compact"
             >
               {L.fullCalendarLabel}
               {ARROW("h-[17px] w-[34px] flex-none fill-accent")}

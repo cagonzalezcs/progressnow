@@ -30,7 +30,7 @@ import { ChartLineIcon, ChartBarIcon, ChartPieIcon } from "lucide-react";
 
 export default function SelectExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="select-example">
       <SelectBasic />
       <SelectWithIcons />
       <SelectWithGroups />

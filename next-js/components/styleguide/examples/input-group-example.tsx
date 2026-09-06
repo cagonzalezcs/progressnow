@@ -65,7 +65,7 @@ export default function InputGroupExample() {
   const [country, setCountry] = useState("+1");
 
   return (
-    <ExampleWrapper className="min-w-0">
+    <ExampleWrapper data-testid="input-group-example" className="min-w-0">
       <InputGroupBasic />
       <InputGroupWithAddons />
       <InputGroupWithButtons />

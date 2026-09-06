@@ -51,7 +51,7 @@ import { InfoIcon } from "lucide-react";
 
 export default function DialogExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="dialog-example">
       <DialogWithForm />
       <DialogScrollableContent />
       <DialogWithStickyFooter />

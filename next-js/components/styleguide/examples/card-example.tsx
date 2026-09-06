@@ -50,7 +50,7 @@ const spacingOptions = [
 
 export default function CardExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="card-example">
       <CardDefault />
       <CardSmall />
       <CardContentEdgeToEdge />

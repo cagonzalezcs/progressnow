@@ -32,6 +32,8 @@ export function ErrorBand({
       className="not-found relative flex min-h-[70vh] items-center overflow-hidden bg-brand px-6 pb-24 pt-20 font-sans text-white md:px-10 md:pb-[110px] md:pt-[100px] xl:px-6 xl:pb-[120px] xl:pt-[110px]"
       data-tone="blue"
       data-route-kind={kind}
+      data-testid="error-band"
+      data-error-kind={kind}
     >
       <StarGlyph
         kind="star"
@@ -53,16 +55,28 @@ export function ErrorBand({
         <div
           aria-hidden="true"
           className="headline-shadow-sm font-display text-[5.5rem] leading-none md:text-[7.5rem] xl:text-[clamp(5rem,14vw,10rem)]"
+          data-testid="error-band-numeral"
         >
           {numeral}
         </div>
-        <h1 className="m-0 max-w-[20ch] font-display text-[1.25rem] font-normal uppercase leading-[1.25] md:max-w-none md:text-[1.6rem] md:leading-[1.2] xl:text-[clamp(1.4rem,2.8vw,2rem)]">
+        <h1
+          className="m-0 max-w-[20ch] font-display text-[1.25rem] font-normal uppercase leading-[1.25] md:max-w-none md:text-[1.6rem] md:leading-[1.2] xl:text-[clamp(1.4rem,2.8vw,2rem)]"
+          data-testid="error-band-title"
+        >
           {title}
         </h1>
-        <p className="m-0 max-w-[34ch] text-[1.02rem] font-semibold leading-[1.5] md:max-w-[42ch] md:text-[1.12rem] xl:max-w-[44ch] xl:text-[1.2rem]">
+        <p
+          className="m-0 max-w-[34ch] text-[1.02rem] font-semibold leading-[1.5] md:max-w-[42ch] md:text-[1.12rem] xl:max-w-[44ch] xl:text-[1.2rem]"
+          data-testid="error-band-lede"
+        >
           {lede}
         </p>
-        <div className="flex flex-wrap justify-center gap-3 md:gap-3.5">{actions}</div>
+        <div
+          className="flex flex-wrap justify-center gap-3 md:gap-3.5"
+          data-testid="error-band-actions"
+        >
+          {actions}
+        </div>
       </div>
     </section>
   );

@@ -16,7 +16,7 @@ import { ArrowRightIcon } from "lucide-react";
 
 export default function SpinnerExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="spinner-example">
       <SpinnerBasic />
       <SpinnerInButtons />
       <SpinnerInBadges />

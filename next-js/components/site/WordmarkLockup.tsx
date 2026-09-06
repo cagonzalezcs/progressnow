@@ -26,13 +26,18 @@ export function WordmarkLockup({
   size?: keyof typeof DIAMOND;
 }) {
   return (
-    <span className={cn("inline-flex min-w-0 items-center", GAP[size])}>
+    <span
+      className={cn("inline-flex min-w-0 items-center", GAP[size])}
+      data-testid="wordmark-lockup"
+      data-lockup-size={size}
+    >
       <span
         aria-hidden="true"
         className={cn("block flex-none rotate-45 bg-yellow", DIAMOND[size])}
       />
       <span
         className={cn("font-display font-normal uppercase leading-[1.05] text-white", NAME[size])}
+        data-testid="wordmark-lockup-name"
       >
         {name}
       </span>

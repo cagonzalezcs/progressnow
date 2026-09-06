@@ -54,6 +54,7 @@ export async function RoutePostsIndex({ resolved, searchParams }: RouteProps) {
     <div
       data-route-kind={isSearchPath ? "search" : "posts_index"}
       className="route-posts-index contents"
+      data-testid="route-posts-index"
     >
       <PageHeader
         title={title}
@@ -67,7 +68,11 @@ export async function RoutePostsIndex({ resolved, searchParams }: RouteProps) {
       <Suspense
         fallback={
           <RoutePending>
-            <div aria-hidden="true" className="h-40 animate-pulse bg-alt" />
+            <div
+              aria-hidden="true"
+              className="h-40 animate-pulse bg-alt"
+              data-testid="archive-fallback"
+            />
           </RoutePending>
         }
       >
@@ -154,13 +159,23 @@ function Browse({
   const grid = posts.posts.filter((p) => p.id !== featured?.id);
   if (posts.posts.length === 0) {
     return (
-      <section className="bg-white px-6 pb-14 pt-6 md:pb-[72px] md:pt-8" data-tone="white">
+      <section
+        className="bg-white px-6 pb-14 pt-6 md:pb-[72px] md:pt-8"
+        data-tone="white"
+        data-testid="archive-browse-empty-section"
+      >
         <div className="mx-auto max-w-[1200px]">
-          <div className={STRIPE} data-empty="browse">
-            <div className="text-[1.05rem] font-extrabold md:text-[1.2rem] md:font-bold">
+          <div className={STRIPE} data-empty="browse" data-testid="archive-browse-empty">
+            <div
+              className="text-[1.05rem] font-extrabold md:text-[1.2rem] md:font-bold"
+              data-testid="archive-browse-empty-title"
+            >
               {s.blog_empty_h || "No posts yet"}
             </div>
-            <p className="m-0 max-w-[42ch] text-base leading-[1.45] md:text-[1.1rem]">
+            <p
+              className="m-0 max-w-[42ch] text-base leading-[1.45] md:text-[1.1rem]"
+              data-testid="archive-browse-empty-body"
+            >
               {s.blog_empty_p ||
                 "The chapter blog is warming up. Check back soon — or subscribe below and we’ll send the first post straight to you."}
             </p>
@@ -171,7 +186,11 @@ function Browse({
   }
   return (
     <>
-      <section className="scroll-mt-20 bg-white px-6 pt-6 md:pt-8" data-tone="white">
+      <section
+        className="scroll-mt-20 bg-white px-6 pt-6 md:pt-8"
+        data-tone="white"
+        data-testid="archive-featured-section"
+      >
         <div className="mx-auto max-w-[1200px]">
           {featured ? (
             <FeaturedPostCard
@@ -183,12 +202,17 @@ function Browse({
           ) : null}
         </div>
       </section>
-      <section className="bg-white px-6 pb-14 pt-6 md:pb-[72px] md:pt-10" data-tone="white">
+      <section
+        className="bg-white px-6 pb-14 pt-6 md:pb-[72px] md:pt-10"
+        data-tone="white"
+        data-testid="archive-browse-section"
+      >
         <div className="mx-auto flex max-w-[1200px] flex-col">
           <div
             className="flex flex-col gap-3 md:grid md:gap-7 md:[grid-template-columns:repeat(auto-fill,minmax(300px,1fr))]"
             data-archive="browse"
             data-page={page}
+            data-testid="archive-browse-grid"
           >
             {grid.map((post) => (
               <PostCard
@@ -230,6 +254,7 @@ function Filtered({
     <section
       className="scroll-mt-20 bg-white px-6 pb-14 pt-6 md:pb-[72px] md:pt-8"
       data-tone="white"
+      data-testid="archive-filtered-section"
     >
       <div className="mx-auto flex max-w-[1200px] flex-col gap-3.5 md:gap-[18px]">
         <div className="flex flex-wrap items-baseline justify-between gap-3 border-b-[3px] border-brand pb-2.5 md:gap-4 md:pb-3">
@@ -237,6 +262,7 @@ function Filtered({
             role="status"
             className="font-display text-[1.05rem] md:text-[1.3rem]"
             data-results-status=""
+            data-testid="archive-results-status"
           >
             {line}
           </div>
@@ -248,6 +274,7 @@ function Filtered({
             data-category={state.category || "all"}
             data-search={state.s}
             data-page={state.page}
+            data-testid="archive-filtered-grid"
           >
             {posts.posts.map((post) => (
               <PostCard
@@ -261,11 +288,17 @@ function Filtered({
             ))}
           </div>
         ) : (
-          <div className={STRIPE} data-empty="filtered">
-            <div className="text-[1.05rem] font-extrabold md:text-[1.2rem] md:font-bold">
+          <div className={STRIPE} data-empty="filtered" data-testid="archive-filtered-empty">
+            <div
+              className="text-[1.05rem] font-extrabold md:text-[1.2rem] md:font-bold"
+              data-testid="archive-filtered-empty-title"
+            >
               No posts match
             </div>
-            <p className="m-0 max-w-[42ch] text-base leading-[1.45] md:text-[1.1rem]">
+            <p
+              className="m-0 max-w-[42ch] text-base leading-[1.45] md:text-[1.1rem]"
+              data-testid="archive-filtered-empty-body"
+            >
               Try a different search term or clear the filters.
             </p>
           </div>

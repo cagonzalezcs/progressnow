@@ -34,18 +34,22 @@ export function ErrorSurface({
         actions={
           <>
             {/* Plain anchor on purpose: a full reload when the router may itself be in the failed state. */}
-            <a href={homeHref} className={ERROR_PILL_WHITE}>
+            <a href={homeHref} className={ERROR_PILL_WHITE} data-testid="error-surface-home">
               Back home
             </a>
             <button
               type="button"
               className={`cursor-pointer ${ERROR_PILL_OUTLINE}`}
+              data-testid="error-surface-retry"
               onClick={() => (reset ? reset() : location.reload())}
             >
               Try again
             </button>
             {digest ? (
-              <p className="m-0 basis-full pt-2 text-[0.85rem] font-semibold text-brand-light">
+              <p
+                className="m-0 basis-full pt-2 text-[0.85rem] font-semibold text-brand-light"
+                data-testid="error-surface-digest"
+              >
                 Reference: <span className="font-mono">{digest}</span>
               </p>
             ) : null}

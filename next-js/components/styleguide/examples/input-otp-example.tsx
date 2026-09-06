@@ -24,7 +24,7 @@ import { RefreshCwIcon } from "lucide-react";
 
 export default function InputOTPExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="input-otp-example">
       <InputOTPForm />
       <InputOTPSimple />
       <InputOTPPattern />

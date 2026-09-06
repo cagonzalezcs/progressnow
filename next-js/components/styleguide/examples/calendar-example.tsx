@@ -16,7 +16,7 @@ import { CalendarIcon, Clock2Icon, ChevronDownIcon } from "lucide-react";
 
 export default function CalendarExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="calendar-example">
       <CalendarSingle />
       <CalendarMultiple />
       <CalendarWeekNumbers />

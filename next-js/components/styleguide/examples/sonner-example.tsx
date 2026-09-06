@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 
 export default function SonnerExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="sonner-example">
       <SonnerBasic />
       <SonnerWithDescription />
     </ExampleWrapper>

@@ -7,7 +7,7 @@ function Breadcrumb({ className, ...props }: React.ComponentProps<"nav">) {
   return (
     <nav
       aria-label="breadcrumb"
-      data-slot="breadcrumb"
+      data-slot="breadcrumb" data-testid="breadcrumb"
       className={cn(className)}
       {...props}
     />
@@ -17,7 +17,7 @@ function Breadcrumb({ className, ...props }: React.ComponentProps<"nav">) {
 function BreadcrumbList({ className, ...props }: React.ComponentProps<"ol">) {
   return (
     <ol
-      data-slot="breadcrumb-list"
+      data-slot="breadcrumb-list" data-testid="breadcrumb-list"
       className={cn(
         "flex flex-wrap items-center gap-1.5 text-sm wrap-break-word text-muted-foreground",
         className
@@ -30,7 +30,7 @@ function BreadcrumbList({ className, ...props }: React.ComponentProps<"ol">) {
 function BreadcrumbItem({ className, ...props }: React.ComponentProps<"li">) {
   return (
     <li
-      data-slot="breadcrumb-item"
+      data-slot="breadcrumb-item" data-testid="breadcrumb-item"
       className={cn("inline-flex items-center gap-1", className)}
       {...props}
     />
@@ -48,7 +48,7 @@ function BreadcrumbLink({
 
   return (
     <Comp
-      data-slot="breadcrumb-link"
+      data-slot="breadcrumb-link" data-testid="breadcrumb-link"
       className={cn("transition-colors hover:text-foreground", className)}
       {...props}
     />
@@ -58,7 +58,7 @@ function BreadcrumbLink({
 function BreadcrumbPage({ className, ...props }: React.ComponentProps<"span">) {
   return (
     <span
-      data-slot="breadcrumb-page"
+      data-slot="breadcrumb-page" data-testid="breadcrumb-page"
       role="link"
       aria-disabled="true"
       aria-current="page"
@@ -75,7 +75,7 @@ function BreadcrumbSeparator({
 }: React.ComponentProps<"li">) {
   return (
     <li
-      data-slot="breadcrumb-separator"
+      data-slot="breadcrumb-separator" data-testid="breadcrumb-separator"
       role="presentation"
       aria-hidden="true"
       className={cn("[&>svg]:size-3.5", className)}
@@ -94,7 +94,7 @@ function BreadcrumbEllipsis({
 }: React.ComponentProps<"span">) {
   return (
     <span
-      data-slot="breadcrumb-ellipsis"
+      data-slot="breadcrumb-ellipsis" data-testid="breadcrumb-ellipsis"
       role="presentation"
       aria-hidden="true"
       className={cn(

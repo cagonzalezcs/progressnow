@@ -15,8 +15,8 @@ export default function GlobalError({
 }) {
   return (
     <html lang="en">
-      <body>
-        <main id="main" tabIndex={-1} className="site-main">
+      <body data-testid="site-body">
+        <main id="main" tabIndex={-1} className="site-main" data-testid="site-main">
           <ErrorSurface digest={error.digest} reset={reset} />
         </main>
       </body>

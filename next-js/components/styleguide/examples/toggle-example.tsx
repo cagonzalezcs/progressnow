@@ -5,7 +5,7 @@ import { BoldIcon, ItalicIcon, UnderlineIcon, BookmarkIcon } from "lucide-react"
 
 export default function ToggleExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="toggle-example">
       <ToggleBasic />
       <ToggleOutline />
       <ToggleSizes />

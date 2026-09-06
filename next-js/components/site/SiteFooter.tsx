@@ -78,7 +78,11 @@ export function SiteFooter({
   const a11yHref = footer.contactEmail ? `mailto:${footer.contactEmail}` : "";
 
   return (
-    <footer className="site-footer bg-ink font-sans text-white" data-tone="ink">
+    <footer
+      className="site-footer bg-ink font-sans text-white"
+      data-tone="ink"
+      data-testid="site-footer"
+    >
       <div className="mx-auto grid max-w-[1320px] grid-cols-1 items-start gap-8 px-6 pb-9 pt-10 md:grid-cols-2 md:gap-9 md:pb-10 md:pt-12 lg:gap-11 lg:pb-11 lg:pt-[52px] lg:[grid-template-columns:minmax(220px,1.1fr)_repeat(3,minmax(170px,auto))]">
         <div className="flex flex-col gap-4 md:col-span-2 lg:col-span-1">
           {showLockup ? (
@@ -89,15 +93,19 @@ export function SiteFooter({
               src={footer.logoUrl}
               alt={footer.orgName}
               className="block h-12 w-auto max-w-[240px]"
+              data-testid="site-footer-logo"
             />
           )}
           {footer.tagline ? (
-            <p className="m-0 max-w-[30ch] text-base leading-[1.55] text-muted-on-ink">
+            <p
+              className="m-0 max-w-[30ch] text-base leading-[1.55] text-muted-on-ink"
+              data-testid="site-footer-tagline"
+            >
               {footer.tagline}
             </p>
           ) : null}
           {socials.length ? (
-            <div className="flex items-center gap-[18px]">
+            <div className="flex items-center gap-[18px]" data-testid="site-footer-socials">
               {socials.map((s) => (
                 <a
                   key={s.url}
@@ -105,6 +113,8 @@ export function SiteFooter({
                   target="_blank"
                   rel="noopener"
                   aria-label={s.name}
+                  data-testid="site-footer-social-link"
+                  data-social={s.name.toLowerCase()}
                   className="flex min-h-11 min-w-11 items-center justify-center text-white transition-colors hover:text-brand-light"
                 >
                   {s.icon ? (
@@ -128,8 +138,16 @@ export function SiteFooter({
         </div>
 
         {columns.map((col) => (
-          <nav key={col.title} aria-label={col.title} className="flex flex-col gap-[9px]">
-            <div className="mb-1 text-[1.15rem] font-bold">{col.title}</div>
+          <nav
+            key={col.title}
+            aria-label={col.title}
+            className="flex flex-col gap-[9px]"
+            data-testid="site-footer-column"
+            data-column={col.title}
+          >
+            <div className="mb-1 text-[1.15rem] font-bold" data-testid="site-footer-column-title">
+              {col.title}
+            </div>
             {col.links.map((link) => (
               <SiteLink
                 key={link.label}
@@ -137,6 +155,8 @@ export function SiteFooter({
                 wpOrigin={wpOrigin}
                 target={link.external ? "_blank" : undefined}
                 className="text-[1.06rem] font-medium text-white no-underline hover:text-brand-light hover:underline hover:underline-offset-[3px]"
+                data-testid="site-footer-link"
+                data-nav-label={link.label}
               >
                 {link.label}
               </SiteLink>
@@ -145,13 +165,21 @@ export function SiteFooter({
         ))}
       </div>
 
-      <div data-tone="blue" className="bg-brand px-6 py-3.5 text-white">
+      <div
+        data-tone="blue"
+        className="bg-brand px-6 py-3.5 text-white"
+        data-testid="site-footer-bar"
+      >
         <div className="mx-auto flex max-w-[1320px] flex-col gap-1.5 text-[0.92rem] md:flex-row md:flex-wrap md:justify-between md:gap-4 md:text-[1.02rem]">
-          <span>{footer.orgName}</span>
+          <span data-testid="site-footer-org-name">{footer.orgName}</span>
           <span>
             {footer.a11yLead}{" "}
             {a11yHref ? (
-              <a href={a11yHref} className="font-bold text-white hover:text-brand-light">
+              <a
+                href={a11yHref}
+                className="font-bold text-white hover:text-brand-light"
+                data-testid="site-footer-a11y-link"
+              >
                 {footer.a11yLinkLabel}
               </a>
             ) : (

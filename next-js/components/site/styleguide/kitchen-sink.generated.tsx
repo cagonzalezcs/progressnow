@@ -65,8 +65,12 @@ export function KitchenSink() {
     <TooltipProvider>
       {/* data-shadcn-scope: app/styleguide/styleguide.css restores shadcn's muted/accent semantics here;
           data-kitchen-sink: the axe gate tracks these vendored examples as a ratcheting baseline. */}
-      <div data-shadcn-scope data-kitchen-sink>
-        <h2 className="mb-10 mt-20 font-display text-3xl font-normal uppercase text-ink">
+      <div data-shadcn-scope data-kitchen-sink data-testid="kitchen-sink">
+        <h2
+          className="mb-10 mt-20 font-display text-3xl font-normal uppercase text-ink"
+          data-testid="kitchen-sink-group-heading"
+          data-group="Form controls"
+        >
           Form controls
         </h2>
         <Section id="button" title="Button">
@@ -126,7 +130,11 @@ export function KitchenSink() {
         <Section id="calendar" title="Calendar">
           <CalendarExample />
         </Section>
-        <h2 className="mb-10 mt-20 font-display text-3xl font-normal uppercase text-ink">
+        <h2
+          className="mb-10 mt-20 font-display text-3xl font-normal uppercase text-ink"
+          data-testid="kitchen-sink-group-heading"
+          data-group="Layout & feedback"
+        >
           Layout & feedback
         </h2>
         <Section id="card" title="Card">
@@ -177,7 +185,11 @@ export function KitchenSink() {
         <Section id="sonner" title="Sonner">
           <SonnerExample />
         </Section>
-        <h2 className="mb-10 mt-20 font-display text-3xl font-normal uppercase text-ink">
+        <h2
+          className="mb-10 mt-20 font-display text-3xl font-normal uppercase text-ink"
+          data-testid="kitchen-sink-group-heading"
+          data-group="Overlays & navigation"
+        >
           Overlays & navigation
         </h2>
         <Section id="accordion" title="Accordion">
@@ -228,7 +240,11 @@ export function KitchenSink() {
         <Section id="command" title="Command">
           <CommandExample />
         </Section>
-        <h2 className="mb-10 mt-20 font-display text-3xl font-normal uppercase text-ink">
+        <h2
+          className="mb-10 mt-20 font-display text-3xl font-normal uppercase text-ink"
+          data-testid="kitchen-sink-group-heading"
+          data-group="Data & complex"
+        >
           Data & complex
         </h2>
         <Section id="table" title="Table">

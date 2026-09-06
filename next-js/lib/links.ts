@@ -40,3 +40,14 @@ export function resolveHref(raw: string, wpOrigin: string): ResolvedHref {
   }
   return { kind: "internal", href: `${url.pathname}${url.search}${url.hash}` };
 }
+
+/* Calendar events carry absolute WordPress permalinks (`url`) and the calendar
+ * is a client island that must never learn the WordPress origin
+ * (next-headless-site § No browser-to-WordPress traffic), so its links cannot
+ * go through SiteLink. Re-home them at the data boundary instead — see
+ * lib/data/index.ts getEvents(). */
+export function rehomeEventLinks<T extends { url?: string }>(events: T[], wpOrigin: string): T[] {
+  return events.map((event) =>
+    event.url ? { ...event, url: resolveHref(event.url, wpOrigin).href } : event,
+  );
+}

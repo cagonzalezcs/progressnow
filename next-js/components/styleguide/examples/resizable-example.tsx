@@ -8,7 +8,7 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/componen
 
 export default function ResizableExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="resizable-example">
       <ResizableHorizontal />
       <ResizableVertical />
       <ResizableWithHandle />

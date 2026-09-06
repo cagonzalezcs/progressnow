@@ -13,7 +13,7 @@ import { ChevronRightIcon, FolderIcon, FileIcon, MinimizeIcon, MaximizeIcon } fr
 
 export default function CollapsibleExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="collapsible-example">
       <CollapsibleFileTree />
       <CollapsibleSettings />
     </ExampleWrapper>

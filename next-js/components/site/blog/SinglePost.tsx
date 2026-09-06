@@ -117,7 +117,7 @@ export function SinglePost({
   ) : null;
 
   return (
-    <div className="single-post contents" data-route-kind="post">
+    <div className="single-post contents" data-route-kind="post" data-testid="single-post">
       <PageHeader
         title={post.title}
         variant="post"
@@ -138,34 +138,44 @@ export function SinglePost({
         }
         wpOrigin={wpOrigin}
       >
-        <div className="flex flex-wrap items-center gap-2.5 text-[0.9rem] font-semibold md:gap-3.5 md:text-base">
+        <div
+          className="flex flex-wrap items-center gap-2.5 text-[0.9rem] font-semibold md:gap-3.5 md:text-base"
+          data-testid="single-post-byline"
+        >
           {initials ? (
             <span
               aria-hidden="true"
               className="inline-flex size-[38px] items-center justify-center rounded-full bg-brand-light text-[0.85rem] font-extrabold text-brand-deep md:size-11 md:text-base"
+              data-testid="single-post-avatar"
             >
               {initials}
             </span>
           ) : null}
           {authorName ? (
             <>
-              <span>By {authorName}</span>
+              <span data-testid="single-post-author">By {authorName}</span>
               <span aria-hidden="true">·</span>
             </>
           ) : null}
-          <span>
+          <span data-testid="single-post-date">
             {post.date}
             <span className="md:hidden"> · {post.readMinutes} min</span>
           </span>
           <span aria-hidden="true" className="hidden md:inline">
             ·
           </span>
-          <span className="hidden md:inline">{post.readMinutes} min read</span>
+          <span className="hidden md:inline" data-testid="single-post-read-time">
+            {post.readMinutes} min read
+          </span>
         </div>
       </PageHeader>
 
       {/* Article + sidebar */}
-      <section className="bg-white px-6 pb-12 md:pb-20" data-tone="white">
+      <section
+        className="bg-white px-6 pb-12 md:pb-20"
+        data-tone="white"
+        data-testid="single-post-body"
+      >
         <div
           className={cn(
             "mx-auto grid max-w-[1140px] items-start gap-10 lg:gap-14",
@@ -176,9 +186,13 @@ export function SinglePost({
         >
           <article
             className={cn("flex min-w-0 flex-col gap-[18px] md:gap-6", !hasFeaturedImage && "pt-8")}
+            data-testid="single-post-article"
           >
             {hasFeaturedImage ? (
-              <figure className="m-0 -mt-[70px] flex flex-col md:-mt-[110px]">
+              <figure
+                className="m-0 -mt-[70px] flex flex-col md:-mt-[110px]"
+                data-testid="single-post-figure"
+              >
                 <div
                   className="aspect-video overflow-hidden rounded-[16px] bg-white shadow-photo md:rounded-[24px]"
                   data-post-hero=""
@@ -191,16 +205,27 @@ export function SinglePost({
                   />
                 </div>
                 {post.featuredImage.caption || post.featuredImage.credit ? (
-                  <figcaption className="mt-3 text-[0.9rem] leading-[1.5] text-muted">
+                  <figcaption
+                    className="mt-3 text-[0.9rem] leading-[1.5] text-muted"
+                    data-testid="single-post-figcaption"
+                  >
                     {post.featuredImage.caption}
-                    {post.featuredImage.credit ? <span> {post.featuredImage.credit}</span> : null}
+                    {post.featuredImage.credit ? (
+                      <span data-testid="single-post-image-credit">
+                        {" "}
+                        {post.featuredImage.credit}
+                      </span>
+                    ) : null}
                   </figcaption>
                 ) : null}
               </figure>
             ) : null}
 
             {post.dek ? (
-              <p className="m-0 mt-1.5 text-[1.08rem] font-semibold leading-[1.6] text-ink md:mt-2 md:text-[1.22rem] md:leading-[1.65]">
+              <p
+                className="m-0 mt-1.5 text-[1.08rem] font-semibold leading-[1.6] text-ink md:mt-2 md:text-[1.22rem] md:leading-[1.65]"
+                data-testid="single-post-dek"
+              >
                 {post.dek}
               </p>
             ) : null}
@@ -220,12 +245,17 @@ export function SinglePost({
             />
 
             {/* Mobile/tablet Get involved card (the sidebar stacks under the article below lg) */}
-            {cta && showMetaRail ? <div className="mt-2 lg:hidden">{cta}</div> : null}
+            {cta && showMetaRail ? (
+              <div className="mt-2 lg:hidden" data-testid="single-post-cta-stacked">
+                {cta}
+              </div>
+            ) : null}
           </article>
 
           {showMetaRail ? (
             <aside
               aria-label={L.postDetailsLabel}
+              data-testid="single-post-sidebar"
               className="hidden flex-col gap-6 lg:sticky lg:top-[calc(108px+var(--wp-admin--admin-bar--height,0px))] lg:flex lg:pt-8"
             >
               {anchors.length ? (
@@ -242,22 +272,30 @@ export function SinglePost({
           className="bg-alt px-6 pb-14 pt-11 md:pb-24 md:pt-16"
           data-tone="alt"
           data-read-next=""
+          data-testid="single-post-read-next"
         >
           <div className="mx-auto flex max-w-[1140px] flex-col gap-[18px] md:gap-7">
             <div className="flex flex-wrap items-baseline justify-between gap-4">
-              <h2 className="m-0 font-display text-[1.35rem] font-normal leading-[1.2] md:text-[clamp(1.6rem,2.8vw,2.2rem)] md:leading-[1.1]">
+              <h2
+                className="m-0 font-display text-[1.35rem] font-normal leading-[1.2] md:text-[clamp(1.6rem,2.8vw,2.2rem)] md:leading-[1.1]"
+                data-testid="single-post-read-next-heading"
+              >
                 {L.readNextLabel}
               </h2>
               <SiteLink
                 href={blogUrl}
                 wpOrigin={wpOrigin}
                 className="hidden items-center gap-4 text-[1.05rem] font-extrabold uppercase tracking-[0.03em] text-accent no-underline hover:underline hover:underline-offset-4 md:flex"
+                data-testid="single-post-all-posts-link"
               >
                 {L.allPostsLabel}
                 {ALL_POSTS_ARROW}
               </SiteLink>
             </div>
-            <div className="flex flex-col gap-3 md:grid md:gap-6 md:[grid-template-columns:repeat(auto-fit,minmax(260px,1fr))]">
+            <div
+              className="flex flex-col gap-3 md:grid md:gap-6 md:[grid-template-columns:repeat(auto-fit,minmax(260px,1fr))]"
+              data-testid="single-post-read-next-list"
+            >
               {readNext.map((p) => (
                 <PostCard
                   key={p.id}
@@ -272,6 +310,7 @@ export function SinglePost({
               href={blogUrl}
               wpOrigin={wpOrigin}
               className="flex items-center justify-center gap-3.5 text-[0.95rem] font-extrabold uppercase tracking-[0.03em] text-accent no-underline hover:underline hover:underline-offset-4 md:hidden"
+              data-testid="single-post-all-posts-link-compact"
             >
               {L.allPostsLabel}
               <svg

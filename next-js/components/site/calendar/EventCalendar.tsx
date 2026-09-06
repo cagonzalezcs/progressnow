@@ -216,9 +216,13 @@ export function EventCalendar({
   };
 
   return (
-    <div className="event-calendar" data-calendar="">
+    <div className="event-calendar" data-calendar="" data-testid="event-calendar" data-view={view}>
       {/* Toolbar: month nav + Month/List segmented control */}
-      <section className="bg-white px-6 pt-7 md:pt-10" data-tone="white">
+      <section
+        className="bg-white px-6 pt-7 md:pt-10"
+        data-tone="white"
+        data-testid="event-calendar-toolbar"
+      >
         <div className="mx-auto flex max-w-[1200px] flex-col gap-5">
           <div className="flex flex-col gap-4 md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-5">
             <div className="flex items-center justify-between gap-2.5 md:justify-start md:gap-3.5">
@@ -226,6 +230,7 @@ export function EventCalendar({
                 type="button"
                 aria-label={L.prevLabel}
                 className={NAV_BTN}
+                data-testid="event-calendar-prev-month"
                 onClick={() => changeMonth(-1)}
               >
                 <span aria-hidden="true">←</span>
@@ -233,6 +238,8 @@ export function EventCalendar({
               <h2
                 id={headingId}
                 aria-live="polite"
+                data-testid="event-calendar-month-label"
+                data-month={key}
                 className="m-0 text-center font-display text-[1.25rem] font-normal md:min-w-[280px] md:text-[clamp(1.3rem,2.4vw,1.8rem)]"
               >
                 {monthLabel(ym)}
@@ -241,6 +248,7 @@ export function EventCalendar({
                 type="button"
                 aria-label={L.nextLabel}
                 className={NAV_BTN}
+                data-testid="event-calendar-next-month"
                 onClick={() => changeMonth(1)}
               >
                 <span aria-hidden="true">→</span>
@@ -250,6 +258,7 @@ export function EventCalendar({
               role="group"
               aria-label={L.viewGroupLabel}
               className="flex items-center gap-0.5 self-center rounded-full bg-alt p-1 md:self-auto"
+              data-testid="event-calendar-view-switch"
             >
               {(["month", "list"] as const).map((v) => (
                 <button
@@ -262,6 +271,8 @@ export function EventCalendar({
                       ? "bg-brand text-white"
                       : "bg-transparent text-ink hover:bg-control-faint",
                   )}
+                  data-testid="event-calendar-view-option"
+                  data-view={v}
                   onClick={() => setView(v)}
                 >
                   {v === "month" ? L.monthLabelText : L.listLabelText}
@@ -275,6 +286,7 @@ export function EventCalendar({
             role="group"
             aria-label={L.filterLabel}
             className="flex flex-wrap items-center gap-2"
+            data-testid="event-calendar-filters"
           >
             <span className="mr-1.5 font-display text-[0.82rem] font-bold uppercase tracking-[0.06em] text-muted">
               {L.filterLabel}
@@ -290,6 +302,8 @@ export function EventCalendar({
                     ? "border-ink bg-ink text-white"
                     : "border-control bg-white text-ink hover:border-ink",
                 )}
+                data-testid="event-calendar-filter-option"
+                data-category={cat.id}
                 onClick={() => setCategory(cat.id)}
               >
                 {showCategoryColors && cat.color ? (
@@ -311,10 +325,12 @@ export function EventCalendar({
           className="bg-white px-4 pb-8 pt-5 min-[700px]:px-6 md:pb-14 md:pt-7"
           data-tone="white"
           aria-busy="true"
+          data-testid="event-calendar-loading-section"
         >
           <div
             aria-hidden="true"
             className="mx-auto max-w-[1200px] overflow-hidden rounded-[20px] shadow-gallery"
+            data-testid="calendar-skeleton"
           >
             <div className="h-11 animate-pulse bg-brand/30" />
             <div className="grid grid-cols-7 gap-px bg-line pt-px">
@@ -326,6 +342,7 @@ export function EventCalendar({
           <p
             role="status"
             className="mx-auto mt-3.5 max-w-[1200px] text-[0.9rem] font-medium text-muted"
+            data-testid="event-calendar-loading"
           >
             {L.loading}
           </p>
@@ -337,15 +354,23 @@ export function EventCalendar({
               role="alert"
               className="flex flex-col items-center gap-1 rounded-[16px] border-2 border-dashed border-border-muted px-6 py-11 text-center md:rounded-[20px] md:px-8 md:py-16"
               data-calendar-error=""
+              data-testid="event-calendar-error"
             >
-              <div className="text-[1.05rem] font-extrabold md:text-[1.25rem] md:font-bold">
+              <div
+                className="text-[1.05rem] font-extrabold md:text-[1.25rem] md:font-bold"
+                data-testid="event-calendar-error-title"
+              >
                 {L.errorTitle}
               </div>
-              <p className="m-0 max-w-[44ch] text-base font-medium leading-[1.45] md:text-[1.2rem]">
+              <p
+                className="m-0 max-w-[44ch] text-base font-medium leading-[1.45] md:text-[1.2rem]"
+                data-testid="event-calendar-error-body"
+              >
                 {L.errorBody}{" "}
                 <a
                   href={icsUrl}
                   className="font-bold text-accent underline underline-offset-4 hover:text-brand-deep"
+                  data-testid="event-calendar-error-ics-link"
                 >
                   {L.icsLabel}
                 </a>{" "}
@@ -354,6 +379,7 @@ export function EventCalendar({
               <button
                 type="button"
                 className="mt-4 cursor-pointer rounded-full border-2 border-accent bg-transparent px-6 py-2.5 text-[0.92rem] font-bold text-accent transition-colors hover:bg-accent hover:text-white"
+                data-testid="event-calendar-retry"
                 onClick={retry}
               >
                 {L.retry}
@@ -365,6 +391,7 @@ export function EventCalendar({
         <section
           className="bg-white px-4 pb-8 pt-5 min-[700px]:px-6 md:pb-14 md:pt-7"
           data-tone="white"
+          data-testid="event-calendar-month-section"
         >
           <div className="mx-auto max-w-[1200px]">
             <MonthGrid
@@ -380,7 +407,11 @@ export function EventCalendar({
           </div>
         </section>
       ) : (
-        <section className="bg-white px-6 pb-10 pt-5 md:pb-14 md:pt-7" data-tone="white">
+        <section
+          className="bg-white px-6 pb-10 pt-5 md:pb-14 md:pt-7"
+          data-tone="white"
+          data-testid="event-calendar-list-section"
+        >
           <div className="mx-auto max-w-[900px]">
             <EventListView
               events={monthEvents}

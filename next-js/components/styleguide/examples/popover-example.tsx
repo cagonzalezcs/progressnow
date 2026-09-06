@@ -21,7 +21,7 @@ import {
 
 export default function PopoverExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="popover-example">
       <PopoverBasic />
       <PopoverWithForm />
       <PopoverAlignments />

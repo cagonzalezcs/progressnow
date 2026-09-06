@@ -9,6 +9,7 @@ export interface SubscribeStripProps {
   label: string;
   id?: string;
   className?: string;
+  testId?: string;
 }
 
 export function SubscribeStrip({
@@ -18,6 +19,7 @@ export function SubscribeStrip({
   label,
   id,
   className,
+  testId = "subscribe-strip",
 }: SubscribeStripProps) {
   if (!href) return null;
   return (
@@ -27,12 +29,21 @@ export function SubscribeStrip({
         .filter(Boolean)
         .join(" ")}
       data-tone="ink"
+      data-testid={testId}
     >
       <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-6 lg:gap-8">
         <div className="flex max-w-[52ch] flex-col gap-2">
-          <h2 className="m-0 font-display text-[1.2rem] font-normal lg:text-[1.4rem]">{title}</h2>
+          <h2
+            className="m-0 font-display text-[1.2rem] font-normal lg:text-[1.4rem]"
+            data-testid="subscribe-strip-title"
+          >
+            {title}
+          </h2>
           {lede ? (
-            <p className="m-0 text-base leading-[1.55] text-muted-on-ink lg:text-[1.05rem]">
+            <p
+              className="m-0 text-base leading-[1.55] text-muted-on-ink lg:text-[1.05rem]"
+              data-testid="subscribe-strip-lede"
+            >
               {lede}
             </p>
           ) : null}
@@ -42,6 +53,7 @@ export function SubscribeStrip({
           target="_blank"
           rel="noopener"
           className="rounded-full bg-white px-8 py-3.5 font-display text-[0.95rem] font-normal tracking-[0.04em] text-ink no-underline transition-colors hover:bg-brand-deep hover:text-white lg:px-[34px] lg:text-base"
+          data-testid="subscribe-strip-link"
         >
           {label}
         </a>

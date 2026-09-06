@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 export default function TextareaExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="textarea-example">
       <TextareaBasic />
       <TextareaInvalid />
       <TextareaWithLabel />

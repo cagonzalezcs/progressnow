@@ -30,7 +30,10 @@ export function ImageSlot({
 }) {
   if (src) {
     return (
-      <span className={cn("image-slot duotone relative block size-full", className)}>
+      <span
+        className={cn("image-slot duotone relative block size-full", className)}
+        data-testid="image-slot"
+      >
         <Image
           src={src}
           alt={alt}
@@ -40,6 +43,7 @@ export function ImageSlot({
           priority={priority}
           unoptimized={/\.svg(\?|#|$)/i.test(src)}
           className="object-cover"
+          data-testid="image-slot-img"
         />
       </span>
     );
@@ -51,8 +55,13 @@ export function ImageSlot({
         "image-slot flex size-full items-center justify-center bg-[repeating-linear-gradient(45deg,var(--color-alt)_0_14px,var(--color-control-faint)_14px_28px)]",
         className,
       )}
+      data-testid="image-slot-placeholder"
     >
-      {label ? <span className="font-mono text-[0.78rem] text-muted">{label}</span> : null}
+      {label ? (
+        <span className="font-mono text-[0.78rem] text-muted" data-testid="image-slot-label">
+          {label}
+        </span>
+      ) : null}
     </div>
   );
 }

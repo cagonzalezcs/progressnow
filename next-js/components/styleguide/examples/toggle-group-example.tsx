@@ -28,7 +28,7 @@ import {
 
 export default function ToggleGroupExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="toggle-group-example">
       <ToggleGroupBasic />
       <ToggleGroupOutline />
       <ToggleGroupOutlineWithIcons />

@@ -25,7 +25,7 @@ import { CircleAlertIcon, FolderIcon } from "lucide-react";
 
 export default function AlertExample() {
   return (
-    <ExampleWrapper className="lg:grid-cols-1">
+    <ExampleWrapper data-testid="alert-example" className="lg:grid-cols-1">
       <AlertExample1 />
       <AlertExample2 />
       <AlertExample3 />

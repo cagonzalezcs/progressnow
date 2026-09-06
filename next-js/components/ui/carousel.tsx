@@ -123,7 +123,7 @@ function Carousel({
         className={cn("relative", className)}
         role="region"
         aria-roledescription="carousel"
-        data-slot="carousel"
+        data-slot="carousel" data-testid="carousel"
         {...props}
       >
         {children}
@@ -139,7 +139,7 @@ function CarouselContent({ className, ...props }: React.ComponentProps<"div">) {
     <div
       ref={carouselRef}
       className="overflow-hidden"
-      data-slot="carousel-content"
+      data-slot="carousel-content" data-testid="carousel-content"
     >
       <div
         className={cn(
@@ -160,7 +160,7 @@ function CarouselItem({ className, ...props }: React.ComponentProps<"div">) {
     <div
       role="group"
       aria-roledescription="slide"
-      data-slot="carousel-item"
+      data-slot="carousel-item" data-testid="carousel-item"
       className={cn(
         "min-w-0 shrink-0 grow-0 basis-full",
         orientation === "horizontal" ? "pl-4" : "pt-4",
@@ -181,7 +181,7 @@ function CarouselPrevious({
 
   return (
     <Button
-      data-slot="carousel-previous"
+      data-slot="carousel-previous" data-testid="carousel-previous"
       variant={variant}
       size={size}
       className={cn(
@@ -211,7 +211,7 @@ function CarouselNext({
 
   return (
     <Button
-      data-slot="carousel-next"
+      data-slot="carousel-next" data-testid="carousel-next"
       variant={variant}
       size={size}
       className={cn(

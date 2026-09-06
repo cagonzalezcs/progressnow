@@ -5,7 +5,13 @@ export function ArrowGlyph({
   className?: string;
 }) {
   return (
-    <svg aria-hidden="true" focusable="false" viewBox="0 0 40 20" className={className}>
+    <svg
+      aria-hidden="true"
+      focusable="false"
+      viewBox="0 0 40 20"
+      className={className}
+      data-testid="arrow-glyph"
+    >
       <path d="M0 8.4h26v3.2H0z" />
       <path d="M24 1.5 38.5 10 24 18.5Z" />
     </svg>

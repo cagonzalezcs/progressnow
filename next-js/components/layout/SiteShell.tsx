@@ -24,7 +24,7 @@ export function SiteShell({
 }) {
   const strings = site.strings as Record<string, string>;
   return (
-    <div className="site-app contents">
+    <div className="site-app contents" data-testid="site-shell">
       <SkipLink label={strings.skip_link ?? "Skip to main content"} />
       <div className="contents">
         <SiteHeader header={site.header} languages={languages} wpOrigin={wpOrigin} />
@@ -34,7 +34,7 @@ export function SiteShell({
           <main> and <footer> are the transition boundary's host children: React names both while a
           route commit runs (see RouteTransition); the header stays outside and holds still. */}
       <RouteTransition>
-        <main id="main" tabIndex={-1} className="site-main">
+        <main id="main" tabIndex={-1} className="site-main" data-testid="site-main">
           {children}
         </main>
         <SiteFooter footer={site.footer} wpOrigin={wpOrigin} />

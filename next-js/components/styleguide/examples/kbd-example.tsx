@@ -7,7 +7,7 @@ import { CircleDashedIcon, ArrowLeftIcon, ArrowRightIcon, SaveIcon } from "lucid
 
 export default function KbdExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="kbd-example">
       <KbdBasic />
       <KbdModifierKeys />
       <KbdGroupExample />

@@ -75,7 +75,7 @@ const invoices = [
 
 export default function TableExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="table-example">
       <TableBasic />
       <TableWithFooter />
       <TableSimple />

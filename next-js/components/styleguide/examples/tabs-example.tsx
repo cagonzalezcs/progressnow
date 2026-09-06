@@ -20,7 +20,7 @@ import {
 
 export default function TabsExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="tabs-example">
       <TabsBasic />
       <TabsLine />
       <TabsVariantsComparison />

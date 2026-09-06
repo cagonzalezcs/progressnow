@@ -5,7 +5,7 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 export default function AspectRatioExample() {
   return (
-    <ExampleWrapper className="max-w-4xl 2xl:max-w-4xl">
+    <ExampleWrapper data-testid="aspect-ratio-example" className="max-w-4xl 2xl:max-w-4xl">
       <AspectRatio16x9 />
       <AspectRatio21x9 />
       <AspectRatio1x1 />

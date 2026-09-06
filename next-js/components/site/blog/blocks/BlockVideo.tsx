@@ -35,7 +35,11 @@ export function BlockVideo({
   const title = caption ? `Video: ${caption}` : "Video";
 
   return (
-    <figure className="block-video m-0 flex w-full flex-col">
+    <figure
+      className="block-video m-0 flex w-full flex-col"
+      data-testid="block-video"
+      data-playing={playing}
+    >
       {playing && embedUrl ? (
         <iframe
           src={embedUrl}
@@ -43,6 +47,7 @@ export function BlockVideo({
           className="aspect-video w-full rounded-[20px] shadow-media"
           allow="autoplay; fullscreen; picture-in-picture"
           allowFullScreen
+          data-testid="block-video-iframe"
           ref={(el) => el?.focus()}
         />
       ) : (
@@ -52,6 +57,7 @@ export function BlockVideo({
             !poster &&
               "bg-[repeating-linear-gradient(45deg,var(--color-alt)_0_14px,var(--color-control-faint)_14px_28px)]",
           )}
+          data-testid="block-video-poster"
         >
           {poster ? (
             <Image
@@ -60,6 +66,7 @@ export function BlockVideo({
               fill
               sizes="(min-width: 1140px) 880px, 100vw"
               className="object-cover"
+              data-testid="block-video-poster-image"
             />
           ) : null}
           <button
@@ -67,6 +74,7 @@ export function BlockVideo({
             aria-label={embedUrl ? `Play ${title}` : `${title} (unavailable)`}
             disabled={!embedUrl}
             className="relative flex size-[84px] cursor-pointer items-center justify-center rounded-full border-none bg-brand text-[1.8rem] text-white shadow-[0_8px_24px_rgba(27,27,34,0.3)] transition-transform duration-100 hover:scale-105 hover:bg-brand-deep disabled:cursor-default disabled:opacity-70"
+            data-testid="block-video-play"
             onClick={() => setPlaying(true)}
           >
             <span aria-hidden="true">▶</span>
@@ -74,19 +82,24 @@ export function BlockVideo({
           <span
             aria-hidden="true"
             className="absolute bottom-3.5 right-3.5 rounded-[6px] bg-white px-2 py-1 text-[0.75rem] font-bold tracking-[0.06em] text-ink"
+            data-testid="block-video-cc-badge"
           >
             CC
           </span>
         </div>
       )}
       {caption || transcriptUrl ? (
-        <figcaption className="flex flex-wrap justify-between gap-4 pt-3 text-[0.9rem] leading-[1.5] text-muted">
-          <span>{caption}</span>
+        <figcaption
+          className="flex flex-wrap justify-between gap-4 pt-3 text-[0.9rem] leading-[1.5] text-muted"
+          data-testid="block-video-caption"
+        >
+          <span data-testid="block-video-caption-text">{caption}</span>
           {transcriptUrl ? (
             <SiteLink
               href={transcriptUrl}
               wpOrigin={wpOrigin}
               className="font-bold text-accent no-underline hover:underline hover:underline-offset-4"
+              data-testid="block-video-transcript"
             >
               Read transcript
             </SiteLink>

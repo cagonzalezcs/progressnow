@@ -172,7 +172,7 @@ export default function SidebarExample() {
   const [selectedVersion, setSelectedVersion] = React.useState(data.versions[0]);
 
   return (
-    <SidebarProvider>
+    <SidebarProvider data-testid="sidebar-example">
       <Sidebar>
         <SidebarHeader>
           <SidebarMenu>

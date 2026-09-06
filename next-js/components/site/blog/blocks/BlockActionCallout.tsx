@@ -19,14 +19,21 @@ export function BlockActionCallout({
     <aside
       className="block-action-callout flex w-full flex-col gap-4 rounded-[16px] bg-ink px-6 py-7 text-white md:gap-[18px] md:rounded-[20px] md:px-10 md:py-9"
       data-tone="ink"
+      data-testid="block-action-callout"
     >
-      <div className="max-w-[24ch] font-display text-[1.25rem] font-normal leading-[1.2] md:text-[clamp(1.4rem,2.4vw,1.9rem)]">
+      <div
+        className="max-w-[24ch] font-display text-[1.25rem] font-normal leading-[1.2] md:text-[clamp(1.4rem,2.4vw,1.9rem)]"
+        data-testid="block-action-callout-heading"
+      >
         {heading}
       </div>
-      <p className="m-0 max-w-[56ch] text-base leading-[1.6] text-muted-on-ink md:text-[1.05rem]">
+      <p
+        className="m-0 max-w-[56ch] text-base leading-[1.6] text-muted-on-ink md:text-[1.05rem]"
+        data-testid="block-action-callout-body"
+      >
         {body}
       </p>
-      <div className="flex flex-wrap gap-3.5">
+      <div className="flex flex-wrap gap-3.5" data-testid="block-action-callout-buttons">
         {buttons.map((btn) => (
           <SiteLink
             key={btn.label + btn.url}
@@ -38,6 +45,8 @@ export function BlockActionCallout({
                 ? "bg-white text-ink hover:bg-brand-deep hover:text-white"
                 : "border-2 border-ink-hairline bg-transparent text-white hover:border-white",
             )}
+            data-testid="block-action-callout-button"
+            data-button-style={btn.style}
           >
             {btn.label}
           </SiteLink>

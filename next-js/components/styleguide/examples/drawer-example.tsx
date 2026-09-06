@@ -15,7 +15,7 @@ import {
 
 export default function DrawerExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="drawer-example">
       <DrawerScrollableContent />
       <DrawerWithSides />
     </ExampleWrapper>

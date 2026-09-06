@@ -60,14 +60,23 @@ export function PageHeader({
     : "headline-shadow uppercase text-[1.9rem] leading-[1.12] md:text-[2.3rem] md:leading-[1.1] xl:text-[clamp(2.2rem,4.2vw,3.4rem)] xl:leading-[1.08]";
 
   return (
-    <section className={cn("page-header bg-brand px-6 text-white", bandClass)} data-tone="blue">
+    <section
+      className={cn("page-header bg-brand px-6 text-white", bandClass)}
+      data-tone="blue"
+      data-testid="page-header"
+      data-variant={variant}
+    >
       <div
         className={cn(
           "mx-auto flex flex-col items-start gap-3.5 md:gap-4 xl:gap-[18px]",
           columnClass,
         )}
       >
-        <nav aria-label={breadcrumbLabel} className="hidden md:block">
+        <nav
+          aria-label={breadcrumbLabel}
+          className="hidden md:block"
+          data-testid="page-header-breadcrumb"
+        >
           <ol className="m-0 flex list-none flex-wrap items-center gap-2 rounded-full bg-white px-4 py-1.5 text-[0.85rem] font-bold">
             {crumbs.map((crumb) => (
               <li key={crumb.label} className="flex items-center gap-2">
@@ -76,26 +85,42 @@ export function PageHeader({
                     href={crumb.href}
                     wpOrigin={wpOrigin}
                     className="text-brand no-underline hover:underline hover:underline-offset-4"
+                    data-testid="page-header-crumb-link"
+                    data-crumb-label={crumb.label}
                   >
                     {crumb.label}
                   </SiteLink>
                 ) : (
-                  <span className="text-ink">{crumb.label}</span>
+                  <span
+                    className="text-ink"
+                    data-testid="page-header-crumb"
+                    data-crumb-label={crumb.label}
+                  >
+                    {crumb.label}
+                  </span>
                 )}
                 <span aria-hidden="true" className="text-muted">
                   /
                 </span>
               </li>
             ))}
-            <li aria-current="page" className="text-ink">
+            <li aria-current="page" className="text-ink" data-testid="page-header-crumb-current">
               {title}
             </li>
           </ol>
         </nav>
         {before}
-        <Title className={cn("m-0 font-display font-normal", titleClass)}>{title}</Title>
+        <Title
+          className={cn("m-0 font-display font-normal", titleClass)}
+          data-testid="page-header-title"
+        >
+          {title}
+        </Title>
         {lede ? (
-          <p className="m-0 max-w-[56ch] text-[1.05rem] font-semibold leading-[1.5] md:text-[1.12rem] xl:text-[1.25rem]">
+          <p
+            className="m-0 max-w-[56ch] text-[1.05rem] font-semibold leading-[1.5] md:text-[1.12rem] xl:text-[1.25rem]"
+            data-testid="page-header-lede"
+          >
             {lede}
           </p>
         ) : null}

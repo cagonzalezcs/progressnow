@@ -8,7 +8,7 @@ import { InfoIcon, SaveIcon } from "lucide-react";
 
 export default function TooltipExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="tooltip-example">
       <TooltipBasic />
       <TooltipSides />
       <TooltipWithIcon />

@@ -19,12 +19,16 @@ export function RouteStyleguide({ lang }: { lang: string }) {
       data-route-kind="styleguide"
       lang={lang}
       className="styleguide mx-auto max-w-[1100px] px-6 py-16 font-sans text-foreground"
+      data-testid="route-styleguide"
     >
-      <header className="mb-12">
+      <header className="mb-12" data-testid="route-styleguide-header">
         <p className="text-sm font-extrabold uppercase tracking-[0.18em] text-accent">
           Progress Now Design System · v4
         </p>
-        <h1 className="font-display text-5xl font-normal uppercase leading-[1.08] text-ink">
+        <h1
+          className="font-display text-5xl font-normal uppercase leading-[1.08] text-ink"
+          data-testid="route-styleguide-title"
+        >
           Styleguide
         </h1>
         <p className="mt-4 max-w-[62ch] text-lg leading-relaxed text-text-body">
@@ -46,14 +50,21 @@ export function RouteStyleguide({ lang }: { lang: string }) {
 
       <BrandSections />
 
-      <h2 className="mb-10 mt-20 font-display text-3xl font-normal uppercase text-ink">
+      <h2
+        className="mb-10 mt-20 font-display text-3xl font-normal uppercase text-ink"
+        data-testid="route-styleguide-site-heading"
+      >
         Site components
       </h2>
       <SiteComponentSections />
 
       <Suspense
         fallback={
-          <p role="status" className="my-16 text-center text-muted">
+          <p
+            role="status"
+            className="my-16 text-center text-muted"
+            data-testid="kitchen-sink-loading"
+          >
             Loading the kitchen sink…
           </p>
         }

@@ -79,7 +79,11 @@ export function InteriorPage({
       site={site}
       wpOrigin={wpOrigin}
       article={
-        <article id={`post-${page.id}`} className={cn("post-type-page", ARTICLE)}>
+        <article
+          id={`post-${page.id}`}
+          className={cn("post-type-page", ARTICLE)}
+          data-testid="interior-page-article"
+        >
           {page.content ? (
             <Html html={page.content} className="prose-chapter" />
           ) : (
@@ -115,8 +119,15 @@ export function InteriorPage({
             </>
           )}
           {page.grievance.show ? (
-            <aside id="grievance" className={cn("callout-card mt-1.5 scroll-mt-[110px]", CALLOUT)}>
-              <div className="font-display text-base font-normal text-brand md:text-[1.05rem]">
+            <aside
+              id="grievance"
+              className={cn("callout-card mt-1.5 scroll-mt-[110px]", CALLOUT)}
+              data-testid="interior-page-grievance"
+            >
+              <div
+                className="font-display text-base font-normal text-brand md:text-[1.05rem]"
+                data-testid="interior-page-grievance-heading"
+              >
                 {s.page_grievance_h ?? "Need to report something?"}
               </div>
               {page.grievance.body ? (
@@ -134,6 +145,7 @@ export function InteriorPage({
                       <a
                         href={`mailto:${chapter.contact_email}`}
                         className="notranslate font-bold text-accent underline underline-offset-[3px] hover:text-brand-deep"
+                        data-testid="interior-page-grievance-email"
                       >
                         {chapter.contact_email}
                       </a>{" "}

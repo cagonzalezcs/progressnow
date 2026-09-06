@@ -49,7 +49,7 @@ import { GlobeIcon, ChevronDownIcon } from "lucide-react";
 
 export default function ComboboxExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="combobox-example">
       <ComboboxBasic />
       <ComboboxDisabled />
       <ComboboxInvalid />

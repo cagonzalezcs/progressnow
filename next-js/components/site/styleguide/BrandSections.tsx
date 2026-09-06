@@ -166,9 +166,17 @@ export function BrandSections() {
   return (
     <>
       <Section id="colors" title="Palette">
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        <div
+          className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4"
+          data-testid="brand-palette"
+        >
           {PALETTE.map((c) => (
-            <div key={c.name} className="overflow-hidden rounded-[14px] border border-line">
+            <div
+              key={c.name}
+              className="overflow-hidden rounded-[14px] border border-line"
+              data-testid="brand-palette-swatch"
+              data-swatch={c.name}
+            >
               <div
                 className={cn(
                   c.className,
@@ -179,20 +187,34 @@ export function BrandSections() {
                 {c.hex}
               </div>
               <div className="bg-white px-2 py-1.5">
-                <p className="text-xs font-bold">{c.name}</p>
-                <p className="text-[0.7rem] leading-snug text-muted">{c.role}</p>
+                <p className="text-xs font-bold" data-testid="brand-palette-swatch-name">
+                  {c.name}
+                </p>
+                <p
+                  className="text-[0.7rem] leading-snug text-muted"
+                  data-testid="brand-palette-swatch-role"
+                >
+                  {c.role}
+                </p>
               </div>
             </div>
           ))}
         </div>
-        <h3 className={H3}>Event categories</h3>
-        <div className="flex flex-wrap gap-3">
+        <h3 className={H3} data-testid="brand-categories-heading">
+          Event categories
+        </h3>
+        <div className="flex flex-wrap gap-3" data-testid="brand-categories">
           {CATEGORY_COLORS.map((c) => (
             <div
               key={c.name}
               className="flex items-center gap-2 rounded-[8px] border border-control bg-white px-3 py-1.5"
+              data-testid="brand-category-swatch"
+              data-category={c.name}
             >
-              <span className={cn(c.className, "inline-block size-3 rounded-sm")} />
+              <span
+                className={cn(c.className, "inline-block size-3 rounded-sm")}
+                data-testid="brand-category-dot"
+              />
               <span className="text-xs font-bold uppercase">{c.name}</span>
             </div>
           ))}
@@ -200,7 +222,7 @@ export function BrandSections() {
       </Section>
 
       <Section id="type" title="Type">
-        <div className="space-y-6">
+        <div className="space-y-6" data-testid="brand-type-specimens">
           <div data-tone="blue" className="rounded-[18px] bg-brand px-6 py-8 text-white">
             <p className="hero-headline">A better tomorrow is possible!</p>
             <p className="mt-2 text-center text-xs font-extrabold uppercase tracking-[0.12em] text-white">
@@ -241,6 +263,7 @@ export function BrandSections() {
         <div
           className="flex flex-wrap items-center gap-8 rounded-[18px] bg-brand px-6 py-6"
           data-tone="blue"
+          data-testid="brand-wordmarks"
         >
           <WordmarkLockup name="Progress Now" size="header" />
           <WordmarkLockup name="Progress Now" size="tablet" />
@@ -252,24 +275,29 @@ export function BrandSections() {
         <div
           className="flex flex-wrap items-center gap-4 rounded-[18px] bg-brand p-6"
           data-tone="blue"
+          data-testid="brand-pills"
+          data-band="blue"
         >
-          <a href="#sg-pills" className={PILL_BLUE}>
+          <a href="#sg-pills" className={PILL_BLUE} data-testid="brand-pill">
             Join Now
           </a>
           <a
             href="#sg-pills"
+            data-testid="brand-pill"
             className="box-border inline-flex h-11 items-center rounded-full bg-white px-4 font-display text-[0.82rem] font-normal text-brand no-underline transition-colors hover:bg-brand-deep hover:text-white"
           >
             Join
           </a>
           <a
             href="#sg-pills"
+            data-testid="brand-pill"
             className="inline-flex items-center rounded-full bg-white px-11 py-4 font-display text-[1.15rem] font-normal tracking-[0.04em] text-brand no-underline transition-colors hover:bg-brand-deep hover:text-white"
           >
             JOIN NOW
           </a>
           <a
             href="#sg-pills"
+            data-testid="brand-pill"
             className="inline-flex items-center gap-[22px] rounded-[16px] border-2 border-dashed border-brand-light px-7 py-[18px] text-[1.25rem] font-bold leading-[1.35] text-white no-underline hover:bg-[rgba(169,199,255,0.14)]"
           >
             Dashed CTA link
@@ -278,21 +306,26 @@ export function BrandSections() {
         <div
           className="mt-4 flex flex-wrap items-center gap-4 rounded-[18px] bg-alt p-6"
           data-tone="alt"
+          data-testid="brand-pills"
+          data-band="alt"
         >
           <a
             href="#sg-pills"
+            data-testid="brand-pill"
             className="inline-flex items-center rounded-full bg-accent px-7 py-3 font-display text-[0.95rem] font-normal tracking-[0.04em] text-white no-underline transition-colors hover:bg-brand-deep"
           >
             Accent fill
           </a>
           <a
             href="#sg-pills"
+            data-testid="brand-pill"
             className="inline-flex items-center rounded-full border-2 border-brand bg-transparent px-7 py-[10px] font-display text-[0.95rem] font-normal text-brand no-underline transition-colors hover:bg-brand hover:text-white"
           >
             Outline
           </a>
           <a
             href="#sg-pills"
+            data-testid="brand-pill"
             className="inline-flex items-center gap-4 text-[1.05rem] font-extrabold uppercase tracking-[0.03em] text-accent no-underline hover:underline hover:underline-offset-4"
           >
             Arrow link <ArrowGlyph />
@@ -301,21 +334,26 @@ export function BrandSections() {
         <div
           className="mt-4 flex flex-wrap items-center gap-4 rounded-[18px] bg-ink p-6"
           data-tone="ink"
+          data-testid="brand-pills"
+          data-band="ink"
         >
           <a
             href="#sg-pills"
+            data-testid="brand-pill"
             className="inline-flex items-center rounded-full bg-white px-[22px] py-2.5 text-[0.95rem] font-bold text-ink no-underline transition-colors hover:bg-brand-deep hover:text-white"
           >
             White on ink
           </a>
           <a
             href="#sg-pills"
+            data-testid="brand-pill"
             className="inline-flex items-center rounded-full border-2 border-muted px-[21px] py-[9px] text-[0.95rem] font-bold text-white no-underline transition-colors hover:border-white"
           >
             Outline on ink
           </a>
           <a
             href="#sg-pills"
+            data-testid="brand-pill"
             className="text-[0.95rem] font-bold text-white underline underline-offset-4 hover:text-brand-light"
           >
             Ink link →
@@ -324,8 +362,11 @@ export function BrandSections() {
       </Section>
 
       <Section id="chips" title="Chips">
-        <div className="flex flex-wrap items-center gap-3">
-          <span className="rounded-[8px] bg-brand px-2.5 py-1 text-[0.72rem] font-bold leading-[1.25] text-white">
+        <div className="flex flex-wrap items-center gap-3" data-testid="brand-chips">
+          <span
+            className="rounded-[8px] bg-brand px-2.5 py-1 text-[0.72rem] font-bold leading-[1.25] text-white"
+            data-testid="brand-chip"
+          >
             Category
           </span>
           <span className="rounded-full bg-brand px-3 py-1 text-[0.75rem] font-bold uppercase tracking-[0.06em] text-white">
@@ -348,8 +389,12 @@ export function BrandSections() {
       </Section>
 
       <Section id="cards" title="Cards">
-        <div className="grid gap-6 md:grid-cols-3">
-          <div className="flex flex-col gap-3 rounded-[18px] bg-white p-6 shadow-card">
+        <div className="grid gap-6 md:grid-cols-3" data-testid="brand-cards">
+          <div
+            className="flex flex-col gap-3 rounded-[18px] bg-white p-6 shadow-card"
+            data-testid="brand-card"
+            data-card="white"
+          >
             <p className="text-[0.85rem] font-extrabold uppercase tracking-[0.08em] text-accent">
               Eyebrow
             </p>
@@ -361,6 +406,8 @@ export function BrandSections() {
           <div
             className="flex flex-col gap-3 rounded-[18px] bg-cta-card p-6 text-white"
             data-tone="ink"
+            data-testid="brand-card"
+            data-card="ink"
           >
             <p className="font-display text-[1.7rem] text-brand-light">01</p>
             <p className="text-[1.18rem] font-extrabold">Ink card</p>
@@ -371,6 +418,8 @@ export function BrandSections() {
           <div
             className="flex flex-col gap-3 rounded-[16px] border-2 border-dashed border-border-muted bg-alt p-6"
             data-tone="alt"
+            data-testid="brand-card"
+            data-card="dashed"
           >
             <p className="text-[1.05rem] font-extrabold text-ink">Dashed note</p>
             <p className="text-[0.98rem] leading-[1.6] text-text-body">
@@ -391,8 +440,15 @@ export function BrandSections() {
           </>
         }
       >
-        <div className="overflow-hidden rounded-[18px] border border-line">
-          <div data-tone="blue" className="bg-brand px-6 py-8 text-white">
+        <div
+          className="overflow-hidden rounded-[18px] border border-line"
+          data-testid="brand-tone-bands"
+        >
+          <div
+            data-tone="blue"
+            className="bg-brand px-6 py-8 text-white"
+            data-testid="brand-tone-band"
+          >
             <p className="font-display uppercase">data-tone=&quot;blue&quot;</p>
             <p className="text-sm text-white">High contrast → #0F2E9C; focus ring white</p>
           </div>
@@ -425,17 +481,23 @@ export function BrandSections() {
           </>
         }
       >
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4" data-testid="brand-photo-slots">
           {PHOTO_SLOTS.map((slot) => (
-            <figure key={slot.name} className="m-0">
+            <figure
+              key={slot.name}
+              className="m-0"
+              data-testid="brand-photo-slot"
+              data-slot={slot.name}
+            >
               <DuotoneImage
                 src={slot.src}
                 alt=""
                 opacity={slot.opacity}
                 className="rounded-[14px]"
                 imgClass="block aspect-[4/3] w-full object-cover"
+                testId="brand-photo-slot-image"
               />
-              <figcaption className="mt-2 text-xs font-bold">
+              <figcaption className="mt-2 text-xs font-bold" data-testid="brand-photo-slot-caption">
                 {slot.name}{" "}
                 <span className="font-mono font-normal text-muted">· {slot.opacity}</span>
               </figcaption>
@@ -445,10 +507,12 @@ export function BrandSections() {
       </Section>
 
       <Section id="radius" title="Radius scale">
-        <div className="flex flex-wrap gap-4">
+        <div className="flex flex-wrap gap-4" data-testid="brand-radii">
           {RADII.map((r) => (
             <div
               key={r.name}
+              data-testid="brand-radius"
+              data-radius={r.name}
               className={cn(
                 r.className,
                 "flex h-16 min-w-32 flex-col items-center justify-center border-2 border-brand bg-alt px-4 text-center",
@@ -459,10 +523,17 @@ export function BrandSections() {
             </div>
           ))}
         </div>
-        <h3 className={H3}>Shadows</h3>
-        <div className="flex flex-wrap gap-8">
+        <h3 className={H3} data-testid="brand-shadows-heading">
+          Shadows
+        </h3>
+        <div className="flex flex-wrap gap-8" data-testid="brand-shadows">
           {SHADOWS.map((s) => (
-            <div key={s} className={cn(s, "rounded-[14px] bg-white px-6 py-4 text-sm font-bold")}>
+            <div
+              key={s}
+              className={cn(s, "rounded-[14px] bg-white px-6 py-4 text-sm font-bold")}
+              data-testid="brand-shadow"
+              data-shadow={s}
+            >
               {s}
             </div>
           ))}

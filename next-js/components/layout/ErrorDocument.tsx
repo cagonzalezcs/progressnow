@@ -8,7 +8,7 @@ import { ErrorSurface } from "@/components/site/ErrorSurface";
 export function ErrorDocument({ lang = "en", digest }: { lang?: string; digest?: string }) {
   return (
     <RootDocument lang={lang}>
-      <main id="main" tabIndex={-1} className="site-main">
+      <main id="main" tabIndex={-1} className="site-main" data-testid="site-main">
         <ErrorSurface digest={digest} />
       </main>
     </RootDocument>

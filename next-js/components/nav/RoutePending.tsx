@@ -36,5 +36,5 @@ export function RoutePending({ children }: { children?: ReactNode }) {
   }, []);
   // A route fragment passes its own skeleton; the whole-route boundary has none
   // to show, so aria-busy names the empty region for assistive tech.
-  return children ?? <div aria-busy="true" />;
+  return children ?? <div aria-busy="true" data-testid="route-pending" />;
 }

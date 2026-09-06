@@ -17,6 +17,8 @@ export interface DuotoneImageProps {
   /** Classes for the inner <img> (object-fit, sizing). */
   imgClass?: string;
   className?: string;
+  /** Playwright hook on the wrapper; the inner <img> gets `<testId>-img`. */
+  testId?: string;
 }
 
 export function DuotoneImage({
@@ -31,10 +33,12 @@ export function DuotoneImage({
   opacity = 0.3,
   imgClass = "block h-auto w-full",
   className,
+  testId = "duotone-image",
 }: DuotoneImageProps) {
   return (
     <span
       className={["duotone", className].filter(Boolean).join(" ")}
+      data-testid={testId}
       style={{ ["--duotone-opacity" as string]: String(opacity) } as React.CSSProperties}
     >
       {/* WordPress-sized srcset; see design D4 */}
@@ -49,6 +53,7 @@ export function DuotoneImage({
         loading={loading}
         fetchPriority={fetchPriority}
         className={imgClass}
+        data-testid={`${testId}-img`}
       />
     </span>
   );

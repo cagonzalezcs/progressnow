@@ -11,7 +11,10 @@ import { ArrowUpRightIcon } from "lucide-react";
 
 export default function AccordionExample() {
   return (
-    <ExampleWrapper className="w-full max-w-4xl lg:grid-cols-1 2xl:max-w-4xl 2xl:grid-cols-1">
+    <ExampleWrapper
+      data-testid="accordion-example"
+      className="w-full max-w-4xl lg:grid-cols-1 2xl:max-w-4xl 2xl:grid-cols-1"
+    >
       <AccordionBasic />
       <AccordionMultiple />
       <AccordionWithBorders />

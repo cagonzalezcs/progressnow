@@ -5,7 +5,7 @@ import { BadgeCheck, ArrowRightIcon, ArrowUpRightIcon } from "lucide-react";
 
 export default function BadgeExample() {
   return (
-    <ExampleWrapper className="lg:grid-cols-1">
+    <ExampleWrapper data-testid="badge-example" className="lg:grid-cols-1">
       <BadgeVariants />
       <BadgeWithIconLeft />
       <BadgeWithIconRight />

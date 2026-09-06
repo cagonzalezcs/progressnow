@@ -28,7 +28,7 @@ import { InboxIcon, FileSearchIcon, FileIcon } from "lucide-react";
 
 export default function ItemExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="item-example">
       <DefaultVariantItems />
       <OutlineVariantItems />
       <MutedVariantItems />

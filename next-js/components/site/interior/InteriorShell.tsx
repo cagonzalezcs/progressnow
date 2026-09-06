@@ -38,7 +38,7 @@ export function InteriorShell({
 }: InteriorShellProps) {
   const s = site.strings as Record<string, string>;
   return (
-    <div data-route-kind={kind} className="route-interior contents">
+    <div data-route-kind={kind} className="route-interior contents" data-testid="interior-shell">
       <PageHeader
         title={title}
         lede={lede}
@@ -47,22 +47,34 @@ export function InteriorShell({
         breadcrumbLabel={s.blog_crumb_home ? `${s.blog_crumb_home} › ${title}` : undefined}
       />
       {band}
-      <section className={SECTION} data-tone="white">
+      <section className={SECTION} data-tone="white" data-testid="interior-shell-body">
         <div className={GRID}>
           {nav.length ? (
             <nav
               aria-label={s.chrome_on_this_page ?? "On this page"}
               className="flex flex-wrap gap-2 md:hidden"
+              data-testid="interior-shell-nav"
             >
               {nav.map((item) => (
-                <SiteLink key={item.href} href={item.href} wpOrigin={wpOrigin} className={CHIP}>
+                <SiteLink
+                  key={item.href}
+                  href={item.href}
+                  wpOrigin={wpOrigin}
+                  className={CHIP}
+                  data-testid="interior-shell-nav-chip"
+                  data-nav-label={item.label}
+                >
                   {item.label}
                 </SiteLink>
               ))}
             </nav>
           ) : null}
           {article}
-          <aside aria-label={s.chrome_related ?? "Related"} className={SIDEBAR}>
+          <aside
+            aria-label={s.chrome_related ?? "Related"}
+            className={SIDEBAR}
+            data-testid="interior-shell-sidebar"
+          >
             {sidebar}
           </aside>
         </div>
@@ -75,6 +87,7 @@ export function InteriorShell({
           "One email when something new lands — meetings, actions, and posts. No spam, ever."
         }
         label={s.interior_subscribe_cta ?? "Subscribe"}
+        testId="interior-subscribe-strip"
       />
     </div>
   );
@@ -89,7 +102,7 @@ export function ContactNote({ site }: { site: SiteEnvelope }) {
     <DashedNote id="contact" heading={s.interior_contact ?? "Contact"}>
       <p>
         {s.interior_contact_p ?? "Questions, ideas, or press —"}{" "}
-        <a className="notranslate" href={`mailto:${email}`}>
+        <a className="notranslate" href={`mailto:${email}`} data-testid="interior-contact-email">
           {email}
         </a>
       </p>
@@ -109,5 +122,12 @@ export function Html({
   as?: "div" | "span" | "p";
   id?: string;
 }) {
-  return <Tag id={id} className={className} dangerouslySetInnerHTML={{ __html: html }} />;
+  return (
+    <Tag
+      id={id}
+      className={className}
+      data-testid="interior-html"
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
+  );
 }

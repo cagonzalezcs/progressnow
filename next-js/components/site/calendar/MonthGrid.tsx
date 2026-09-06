@@ -120,17 +120,29 @@ export function MonthGrid({
     showCategoryColors ? (categoryById(ev.cat, palette).color ?? undefined) : undefined;
 
   return (
-    <div className="month-grid" data-calendar-view="month" data-month={key}>
+    <div
+      className="month-grid"
+      data-calendar-view="month"
+      data-month={key}
+      data-testid="month-grid"
+    >
       <div
         role="grid"
         aria-labelledby={labelledBy}
+        data-testid="month-grid-card"
         className="overflow-hidden rounded-[16px] bg-line shadow-gallery min-[700px]:rounded-[20px]"
       >
-        <div role="row" className="grid grid-cols-7 gap-px bg-brand">
+        <div
+          role="row"
+          className="grid grid-cols-7 gap-px bg-brand"
+          data-testid="month-grid-weekdays"
+        >
           {WEEKDAYS.map((wd, i) => (
             <div
               key={wd}
               role="columnheader"
+              data-testid="month-grid-weekday"
+              data-weekday={wd}
               className="bg-brand px-0.5 py-[9px] text-center text-[0.7rem] font-extrabold uppercase tracking-[0.06em] text-white min-[700px]:px-1 min-[700px]:py-3 min-[700px]:text-[0.85rem] min-[700px]:tracking-[0.08em]"
             >
               <span aria-hidden="true" className="min-[700px]:hidden">
@@ -144,7 +156,13 @@ export function MonthGrid({
           ))}
         </div>
         {Array.from({ length: cells.length / 7 }, (_, r) => (
-          <div key={r} role="row" className="grid grid-cols-7 gap-px bg-line">
+          <div
+            key={r}
+            role="row"
+            className="grid grid-cols-7 gap-px bg-line"
+            data-testid="month-grid-week"
+            data-week-index={r}
+          >
             {cells.slice(r * 7, r * 7 + 7).map((day, c) => {
               const index = r * 7 + c;
               const count = day.events.length;
@@ -159,6 +177,10 @@ export function MonthGrid({
                   aria-label={`${day.label}${count ? `, ${count} event${count === 1 ? "" : "s"}` : ""}${day.isToday ? ", today" : ""}`}
                   aria-current={day.isToday ? "date" : undefined}
                   data-date={day.key}
+                  data-testid="month-grid-day"
+                  data-in-month={day.inMonth}
+                  data-today={day.isToday}
+                  data-event-count={count}
                   onFocus={() => setActive(index)}
                   onKeyDown={onCellKey}
                   className={cn(
@@ -173,6 +195,7 @@ export function MonthGrid({
                       day.isToday && "bg-yellow text-ink",
                       day.inMonth ? "text-ink" : "text-muted", // 7.5:1 on alt; border-muted fails 4.5:1
                     )}
+                    data-testid="month-grid-day-number"
                   >
                     {day.num}
                   </span>
@@ -180,6 +203,7 @@ export function MonthGrid({
                     <span
                       aria-hidden="true"
                       className="flex flex-wrap gap-[3px] min-[700px]:hidden"
+                      data-testid="month-grid-day-dots"
                     >
                       {day.events.map((ev) => {
                         const color = fill(ev);
@@ -188,13 +212,18 @@ export function MonthGrid({
                             key={ev.id}
                             className="block size-[7px] rounded-full bg-brand"
                             style={color ? { backgroundColor: color } : undefined}
+                            data-testid="month-grid-day-dot"
+                            data-event-id={ev.id}
                           />
                         );
                       })}
                     </span>
                   ) : null}
                   {count ? (
-                    <div className="hidden w-full flex-col gap-1 min-[700px]:flex">
+                    <div
+                      className="hidden w-full flex-col gap-1 min-[700px]:flex"
+                      data-testid="month-grid-day-chips"
+                    >
                       {day.events.map((ev, i) => {
                         const color = fill(ev);
                         return (
@@ -207,6 +236,9 @@ export function MonthGrid({
                               else chipRefs.current.delete(ev.id);
                             }}
                             aria-label={`${ev.title} — ${ev.time}`}
+                            data-testid="month-grid-event-chip"
+                            data-event-id={ev.id}
+                            data-event-date={day.key}
                             style={color ? { backgroundColor: color } : undefined}
                             className="block w-full cursor-pointer truncate rounded-[8px] border-none bg-brand px-2 py-[5px] text-left text-[0.72rem] font-bold leading-[1.25] text-white transition-[filter,background-color] hover:brightness-[.85]"
                             onClick={() => onSelect(ev.id)}
@@ -224,10 +256,16 @@ export function MonthGrid({
           </div>
         ))}
       </div>
-      <p className="m-0 mt-3 px-1 text-[0.85rem] font-semibold text-muted min-[700px]:hidden">
+      <p
+        className="m-0 mt-3 px-1 text-[0.85rem] font-semibold text-muted min-[700px]:hidden"
+        data-testid="month-grid-hint-compact"
+      >
         ● = event day — switch to List for details.
       </p>
-      <p className="m-0 mt-3.5 hidden text-[0.9rem] font-medium text-muted min-[700px]:block">
+      <p
+        className="m-0 mt-3.5 hidden text-[0.9rem] font-medium text-muted min-[700px]:block"
+        data-testid="month-grid-hint"
+      >
         Select an event for details, location, and how to RSVP. Arrow keys move between days.
       </p>
     </div>

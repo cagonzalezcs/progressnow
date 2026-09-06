@@ -25,7 +25,7 @@ import { BluetoothIcon, Trash2Icon } from "lucide-react";
 
 export default function AlertDialogExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="alert-dialog-example">
       <AlertDialogBasic />
       <AlertDialogSmall />
       <AlertDialogWithMedia />

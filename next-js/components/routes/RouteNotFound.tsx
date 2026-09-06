@@ -29,10 +29,20 @@ export async function RouteNotFound({ lang }: { lang: string }) {
         }
         actions={
           <>
-            <SiteLink href={home} wpOrigin={wpOrigin} className={ERROR_PILL_WHITE}>
+            <SiteLink
+              href={home}
+              wpOrigin={wpOrigin}
+              className={ERROR_PILL_WHITE}
+              data-testid="not-found-home-link"
+            >
               {s.nf_home || "Back home"}
             </SiteLink>
-            <SiteLink href={calendar} wpOrigin={wpOrigin} className={ERROR_PILL_OUTLINE}>
+            <SiteLink
+              href={calendar}
+              wpOrigin={wpOrigin}
+              className={ERROR_PILL_OUTLINE}
+              data-testid="not-found-calendar-link"
+            >
               {s.nf_calendar || "See the calendar"}
             </SiteLink>
           </>

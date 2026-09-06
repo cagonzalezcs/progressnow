@@ -11,7 +11,7 @@ function Menubar({
 }: React.ComponentProps<typeof MenubarPrimitive.Root>) {
   return (
     <MenubarPrimitive.Root
-      data-slot="menubar"
+      data-slot="menubar" data-testid="menubar"
       className={cn(
         "flex h-8 items-center gap-0.5 rounded-lg border p-[3px]",
         className
@@ -24,26 +24,26 @@ function Menubar({
 function MenubarMenu({
   ...props
 }: React.ComponentProps<typeof MenubarPrimitive.Menu>) {
-  return <MenubarPrimitive.Menu data-slot="menubar-menu" {...props} />
+  return <MenubarPrimitive.Menu data-slot="menubar-menu" data-testid="menubar-menu" {...props} />
 }
 
 function MenubarGroup({
   ...props
 }: React.ComponentProps<typeof MenubarPrimitive.Group>) {
-  return <MenubarPrimitive.Group data-slot="menubar-group" {...props} />
+  return <MenubarPrimitive.Group data-slot="menubar-group" data-testid="menubar-group" {...props} />
 }
 
 function MenubarPortal({
   ...props
 }: React.ComponentProps<typeof MenubarPrimitive.Portal>) {
-  return <MenubarPrimitive.Portal data-slot="menubar-portal" {...props} />
+  return <MenubarPrimitive.Portal data-slot="menubar-portal" data-testid="menubar-portal" {...props} />
 }
 
 function MenubarRadioGroup({
   ...props
 }: React.ComponentProps<typeof MenubarPrimitive.RadioGroup>) {
   return (
-    <MenubarPrimitive.RadioGroup data-slot="menubar-radio-group" {...props} />
+    <MenubarPrimitive.RadioGroup data-slot="menubar-radio-group" data-testid="menubar-radio-group" {...props} />
   )
 }
 
@@ -53,7 +53,7 @@ function MenubarTrigger({
 }: React.ComponentProps<typeof MenubarPrimitive.Trigger>) {
   return (
     <MenubarPrimitive.Trigger
-      data-slot="menubar-trigger"
+      data-slot="menubar-trigger" data-testid="menubar-trigger"
       className={cn(
         "flex items-center rounded-sm px-1.5 py-[2px] text-sm font-medium outline-hidden select-none hover:bg-muted aria-expanded:bg-muted",
         className
@@ -73,7 +73,7 @@ function MenubarContent({
   return (
     <MenubarPortal>
       <MenubarPrimitive.Content
-        data-slot="menubar-content"
+        data-slot="menubar-content" data-testid="menubar-content"
         align={align}
         alignOffset={alignOffset}
         sideOffset={sideOffset}
@@ -95,7 +95,7 @@ function MenubarItem({
 }) {
   return (
     <MenubarPrimitive.Item
-      data-slot="menubar-item"
+      data-slot="menubar-item" data-testid="menubar-item"
       data-inset={inset}
       data-variant={variant}
       className={cn(
@@ -118,7 +118,7 @@ function MenubarCheckboxItem({
 }) {
   return (
     <MenubarPrimitive.CheckboxItem
-      data-slot="menubar-checkbox-item"
+      data-slot="menubar-checkbox-item" data-testid="menubar-checkbox-item"
       data-inset={inset}
       className={cn(
         "relative flex cursor-default items-center gap-1.5 rounded-md py-1 pr-1.5 pl-7 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground data-inset:pl-7 data-disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0",
@@ -148,7 +148,7 @@ function MenubarRadioItem({
 }) {
   return (
     <MenubarPrimitive.RadioItem
-      data-slot="menubar-radio-item"
+      data-slot="menubar-radio-item" data-testid="menubar-radio-item"
       data-inset={inset}
       className={cn(
         "relative flex cursor-default items-center gap-1.5 rounded-md py-1 pr-1.5 pl-7 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground data-inset:pl-7 data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -176,7 +176,7 @@ function MenubarLabel({
 }) {
   return (
     <MenubarPrimitive.Label
-      data-slot="menubar-label"
+      data-slot="menubar-label" data-testid="menubar-label"
       data-inset={inset}
       className={cn(
         "px-1.5 py-1 text-sm font-medium data-inset:pl-7",
@@ -193,7 +193,7 @@ function MenubarSeparator({
 }: React.ComponentProps<typeof MenubarPrimitive.Separator>) {
   return (
     <MenubarPrimitive.Separator
-      data-slot="menubar-separator"
+      data-slot="menubar-separator" data-testid="menubar-separator"
       className={cn("-mx-1 my-1 h-px bg-border", className)}
       {...props}
     />
@@ -206,7 +206,7 @@ function MenubarShortcut({
 }: React.ComponentProps<"span">) {
   return (
     <span
-      data-slot="menubar-shortcut"
+      data-slot="menubar-shortcut" data-testid="menubar-shortcut"
       className={cn(
         "ml-auto text-xs tracking-widest text-muted-foreground group-focus/menubar-item:text-accent-foreground",
         className
@@ -219,7 +219,7 @@ function MenubarShortcut({
 function MenubarSub({
   ...props
 }: React.ComponentProps<typeof MenubarPrimitive.Sub>) {
-  return <MenubarPrimitive.Sub data-slot="menubar-sub" {...props} />
+  return <MenubarPrimitive.Sub data-slot="menubar-sub" data-testid="menubar-sub" {...props} />
 }
 
 function MenubarSubTrigger({
@@ -232,7 +232,7 @@ function MenubarSubTrigger({
 }) {
   return (
     <MenubarPrimitive.SubTrigger
-      data-slot="menubar-sub-trigger"
+      data-slot="menubar-sub-trigger" data-testid="menubar-sub-trigger"
       data-inset={inset}
       className={cn(
         "flex cursor-default items-center gap-1.5 rounded-md px-1.5 py-1 text-sm outline-none select-none focus:bg-accent focus:text-accent-foreground data-inset:pl-7 data-open:bg-accent data-open:text-accent-foreground [&_svg:not([class*='size-'])]:size-4",
@@ -252,7 +252,7 @@ function MenubarSubContent({
 }: React.ComponentProps<typeof MenubarPrimitive.SubContent>) {
   return (
     <MenubarPrimitive.SubContent
-      data-slot="menubar-sub-content"
+      data-slot="menubar-sub-content" data-testid="menubar-sub-content"
       className={cn("z-50 min-w-32 origin-(--radix-menubar-content-transform-origin) overflow-hidden rounded-lg bg-popover p-1 text-popover-foreground shadow-lg ring-1 ring-foreground/10 duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95", className )}
       {...props}
     />

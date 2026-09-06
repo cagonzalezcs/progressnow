@@ -57,7 +57,7 @@ const areaChartConfig = {
 
 export default function ChartExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="chart-example">
       <ChartAreaExample />
       <ChartBarExample />
       <ChartLineExample />

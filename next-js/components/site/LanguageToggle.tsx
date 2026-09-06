@@ -26,6 +26,8 @@ export function LanguageToggle({
     <div
       role="group"
       aria-label={label}
+      data-testid="language-toggle"
+      data-toggle-size={size}
       className={cn(
         "notranslate box-border flex items-center gap-0.5 overflow-hidden rounded-full bg-white px-1",
         HEIGHT[size],
@@ -38,6 +40,8 @@ export function LanguageToggle({
             key={l.code}
             href={href.href}
             data-native-nav=""
+            data-testid="language-toggle-option"
+            data-lang={l.code}
             lang={l.code}
             title={l.name}
             aria-current={l.active ? "true" : undefined}

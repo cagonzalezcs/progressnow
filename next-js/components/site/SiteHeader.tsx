@@ -85,6 +85,8 @@ function NavA({
   children: ReactNode;
   "aria-current"?: "page" | undefined;
   "aria-label"?: string;
+  "data-testid"?: string;
+  "data-nav-label"?: string;
 }) {
   const r = href(url);
   return r.kind === "internal" ? (
@@ -117,7 +119,12 @@ function Logo({
     <WordmarkLockup name={header.orgName} size={size} />
   ) : (
     // eslint-disable-next-line @next/next/no-img-element -- Chapter Settings upload, sized by the theme
-    <img src={header.logoUrl} alt={header.orgName} className={imgClass} />
+    <img
+      src={header.logoUrl}
+      alt={header.orgName}
+      className={imgClass}
+      data-testid="site-header-logo"
+    />
   );
 }
 
@@ -127,12 +134,14 @@ function HomeLink({
   size,
   imgClass,
   className,
+  testId,
 }: {
   header: SiteHeaderProps["header"];
   href: Href;
   size: "header" | "tablet" | "mobile";
   imgClass: string;
   className: string;
+  testId: string;
 }) {
   return (
     <NavA
@@ -140,6 +149,7 @@ function HomeLink({
       href={href}
       aria-label={`${header.orgName} home`}
       className={className}
+      data-testid={testId}
     >
       <Logo header={header} size={size} imgClass={imgClass} />
     </NavA>
@@ -152,24 +162,28 @@ function AboutMenu({
   href,
   triggerClass,
   current,
+  testIdPrefix,
 }: {
   label: string;
   items: { label: string; href: string }[];
   href: Href;
   triggerClass: string;
   current: boolean;
+  testIdPrefix: string;
 }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
         className={cn("cursor-pointer border-0 bg-transparent", triggerClass, current && CURRENT)}
         aria-current={current ? "page" : undefined}
+        data-testid={`${testIdPrefix}-about-trigger`}
       >
         {label}&nbsp;▾
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="start"
         className="z-[200] min-w-[256px] rounded-[14px] border-0 bg-white p-2 font-sans shadow-popover"
+        data-testid={`${testIdPrefix}-about-menu`}
       >
         {items.map((item) => (
           <DropdownMenuItem key={item.label} asChild className={ABOUT_ITEM}>
@@ -177,6 +191,8 @@ function AboutMenu({
               url={item.href}
               href={href}
               className="block cursor-pointer text-ink no-underline hover:bg-brand-deep hover:text-white focus:text-white"
+              data-testid={`${testIdPrefix}-about-item`}
+              data-nav-label={item.label}
             >
               {item.label}
             </NavA>
@@ -192,14 +208,16 @@ function JoinPill({
   href,
   className,
   label,
+  testId,
 }: {
   url: string;
   href: Href;
   className: string;
   label: string;
+  testId: string;
 }) {
   return (
-    <NavA url={url} href={href} className={cn(PILL, className)}>
+    <NavA url={url} href={href} className={cn(PILL, className)} data-testid={testId}>
       {label}
     </NavA>
   );
@@ -244,9 +262,10 @@ export function SiteHeader({ header, languages, wpOrigin, strings }: SiteHeaderP
     <header
       className="site-header sticky top-0 z-100 bg-brand font-sans shadow-header"
       data-tone="blue"
+      data-testid="site-header"
     >
       {/* ============ MOBILE (< md) ============ */}
-      <div className="md:hidden">
+      <div className="md:hidden" data-testid="site-header-mobile">
         <div className="flex min-h-[60px] items-center justify-between gap-3 px-4 py-2">
           <HomeLink
             header={header}
@@ -254,6 +273,7 @@ export function SiteHeader({ header, languages, wpOrigin, strings }: SiteHeaderP
             size="mobile"
             imgClass="block h-9 w-auto max-w-[200px]"
             className="flex min-h-11 min-w-0 flex-1 items-center no-underline"
+            testId="site-header-mobile-home-link"
           />
           <div className="flex flex-none items-center gap-2">
             <JoinPill
@@ -261,6 +281,7 @@ export function SiteHeader({ header, languages, wpOrigin, strings }: SiteHeaderP
               href={href}
               className="h-11 px-3.5 text-[0.82rem]"
               label={joinShort}
+              testId="site-header-mobile-join"
             />
             <button
               ref={toggleRef}
@@ -270,6 +291,7 @@ export function SiteHeader({ header, languages, wpOrigin, strings }: SiteHeaderP
               aria-controls={panelId}
               aria-label={t.menu}
               onClick={() => setOpen(!open)}
+              data-testid="site-header-menu-toggle"
             >
               {open ? (
                 <X className="size-6" aria-hidden="true" />
@@ -285,8 +307,13 @@ export function SiteHeader({ header, languages, wpOrigin, strings }: SiteHeaderP
           hidden={!open}
           className="fixed inset-x-0 bottom-0 top-[60px] z-90 flex flex-col overflow-auto border-t border-white/25 bg-brand"
           data-tone="blue"
+          data-testid="site-header-mobile-panel"
         >
-          <nav aria-label="Main" className="relative flex flex-1 flex-col gap-1 px-4 py-6">
+          <nav
+            aria-label="Main"
+            className="relative flex flex-1 flex-col gap-1 px-4 py-6"
+            data-testid="site-header-mobile-nav"
+          >
             {flatNav.map((item) => (
               <NavA
                 href={href}
@@ -297,6 +324,8 @@ export function SiteHeader({ header, languages, wpOrigin, strings }: SiteHeaderP
                   isCurrent(item.href) && "bg-ink/22",
                 )}
                 aria-current={isCurrent(item.href) ? "page" : undefined}
+                data-testid="site-header-mobile-nav-link"
+                data-nav-label={item.label}
               >
                 {item.label}
               </NavA>
@@ -305,6 +334,7 @@ export function SiteHeader({ header, languages, wpOrigin, strings }: SiteHeaderP
               url={header.joinUrl}
               href={href}
               className="relative mx-3 mt-6 rounded-full bg-white px-3 py-[15px] text-center font-display text-base font-normal uppercase tracking-[0.04em] text-brand no-underline transition-colors hover:bg-brand-deep hover:text-white"
+              data-testid="site-header-mobile-join-full"
             >
               {header.joinLabel}
             </NavA>
@@ -316,7 +346,12 @@ export function SiteHeader({ header, languages, wpOrigin, strings }: SiteHeaderP
               wpOrigin={wpOrigin}
               label={t.language}
             />
-            <div role="group" aria-label={t.textSize} className="flex items-center gap-2">
+            <div
+              role="group"
+              aria-label={t.textSize}
+              className="flex items-center gap-2"
+              data-testid="site-header-text-size"
+            >
               {TEXT_SIZES.map((s) => (
                 <button
                   key={s.value}
@@ -329,6 +364,8 @@ export function SiteHeader({ header, languages, wpOrigin, strings }: SiteHeaderP
                   )}
                   aria-pressed={settings.textSize === s.value}
                   onClick={() => setTextSize(s.value)}
+                  data-testid="site-header-text-size-option"
+                  data-text-size-value={s.value}
                 >
                   {s.label}
                 </button>
@@ -339,7 +376,7 @@ export function SiteHeader({ header, languages, wpOrigin, strings }: SiteHeaderP
       </div>
 
       {/* ============ TABLET (md → xl) ============ */}
-      <div className="hidden md:block xl:hidden">
+      <div className="hidden md:block xl:hidden" data-testid="site-header-tablet">
         <div className="flex items-center justify-between gap-4 px-6 pb-2 pt-3">
           <HomeLink
             header={header}
@@ -347,6 +384,7 @@ export function SiteHeader({ header, languages, wpOrigin, strings }: SiteHeaderP
             size="tablet"
             imgClass="block h-10 w-auto max-w-[240px]"
             className="flex min-h-11 min-w-0 flex-1 items-center no-underline"
+            testId="site-header-tablet-home-link"
           />
           <div className="flex flex-none items-center gap-2.5">
             <LanguageToggle
@@ -361,16 +399,22 @@ export function SiteHeader({ header, languages, wpOrigin, strings }: SiteHeaderP
               href={href}
               className="h-11 px-5 text-[0.9rem]"
               label={header.joinLabel}
+              testId="site-header-tablet-join"
             />
           </div>
         </div>
-        <nav aria-label="Main" className="flex flex-wrap items-center gap-1.5 px-4 pb-2">
+        <nav
+          aria-label="Main"
+          className="flex flex-wrap items-center gap-1.5 px-4 pb-2"
+          data-testid="site-header-tablet-nav"
+        >
           <AboutMenu
             label={header.aboutLabel}
             items={aboutItems}
             href={href}
             triggerClass={NAV_LINK_TABLET}
             current={isAboutCurrent}
+            testIdPrefix="site-header-tablet"
           />
           {navItems.map((item) => (
             <NavA
@@ -379,6 +423,8 @@ export function SiteHeader({ header, languages, wpOrigin, strings }: SiteHeaderP
               href={href}
               className={cn(NAV_LINK_TABLET, isCurrent(item.href) && CURRENT)}
               aria-current={isCurrent(item.href) ? "page" : undefined}
+              data-testid="site-header-tablet-nav-link"
+              data-nav-label={item.label}
             >
               {item.label}
             </NavA>
@@ -387,21 +433,30 @@ export function SiteHeader({ header, languages, wpOrigin, strings }: SiteHeaderP
       </div>
 
       {/* ============ DESKTOP (xl+) ============ */}
-      <div className="site-header-desktop mx-auto hidden min-h-[76px] max-w-[82.5rem] flex-wrap items-center justify-between gap-6 px-6 py-[14px] xl:flex">
+      <div
+        className="site-header-desktop mx-auto hidden min-h-[76px] max-w-[82.5rem] flex-wrap items-center justify-between gap-6 px-6 py-[14px] xl:flex"
+        data-testid="site-header-desktop"
+      >
         <HomeLink
           header={header}
           href={href}
           size="header"
           imgClass="block h-12 w-auto max-w-[240px]"
           className="flex min-h-11 flex-none items-center no-underline"
+          testId="site-header-desktop-home-link"
         />
-        <nav aria-label="Main" className="flex flex-wrap items-center gap-[18px]">
+        <nav
+          aria-label="Main"
+          className="flex flex-wrap items-center gap-[18px]"
+          data-testid="site-header-desktop-nav"
+        >
           <AboutMenu
             label={header.aboutLabel}
             items={aboutItems}
             href={href}
             triggerClass={NAV_LINK}
             current={isAboutCurrent}
+            testIdPrefix="site-header-desktop"
           />
           {navItems.map((item) => (
             <NavA
@@ -410,6 +465,8 @@ export function SiteHeader({ header, languages, wpOrigin, strings }: SiteHeaderP
               href={href}
               className={cn(NAV_LINK, isCurrent(item.href) && CURRENT)}
               aria-current={isCurrent(item.href) ? "page" : undefined}
+              data-testid="site-header-desktop-nav-link"
+              data-nav-label={item.label}
             >
               {item.label}
             </NavA>
@@ -423,6 +480,7 @@ export function SiteHeader({ header, languages, wpOrigin, strings }: SiteHeaderP
             href={href}
             className="h-[42px] px-[22px] text-[0.95rem]"
             label={header.joinLabel}
+            testId="site-header-desktop-join"
           />
         </div>
       </div>
