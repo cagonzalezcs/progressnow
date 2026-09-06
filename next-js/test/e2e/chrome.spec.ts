@@ -282,20 +282,35 @@ async function countViewTransitions(page: Page) {
   };
 }
 
-test("a URL-state update does not start a view transition", async ({ page }) => {
+test("archive filtering and search do not start a view transition", async ({ page }) => {
   // Design D6: "URL-state updates (search, filter, page, view) ... do not trigger a
-  // transition." They did — every keystroke of the blog search cross-faded the whole
-  // page instead of updating the results fragment in place.
+  // transition." They did — a category chip and every keystroke of the search
+  // cross-faded the whole page instead of updating the results fragment in place.
+  // Both controls call router.replace with a query-only href (lib/archive-url.ts
+  // archiveHref), so the pathname is unchanged and RouteTransition stays quiet.
   const vt = await countViewTransitions(page);
   await page.goto("/blog/");
-  await vt.reset();
 
+  const chips = page.getByTestId("archive-filter-option");
+  expect(await chips.count(), "no category chips to filter with").toBeGreaterThan(1);
+
+  await vt.reset();
+  await chips.nth(1).click();
+  await expect(page).toHaveURL(/[?&]category=/);
+  await page.waitForTimeout(600);
+  expect(await vt.read(), "a category chip should not animate the page").toEqual([]);
+
+  await vt.reset();
+  await chips.nth(0).click();
+  await page.waitForTimeout(600);
+  expect(await vt.read(), "clearing the filter should not animate the page").toEqual([]);
+
+  await vt.reset();
   const search = page.getByRole("searchbox").first();
   await search.click();
   await search.type("union", { delay: 60 });
   await expect(page).toHaveURL(/[?&]s=union/);
   await page.waitForTimeout(800);
-
   expect(await vt.read(), "typing in the archive search should not animate the page").toEqual([]);
 });
 
