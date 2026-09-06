@@ -9,12 +9,7 @@
  * Framework-free; the React provider wraps `createA11yStore`. The same
  * `apply` logic is duplicated as a string in lib/a11y-bootstrap.ts so the
  * first paint already carries the visitor's settings (no flash).
- *
- * These are not the only state attributes on <html>. The full set:
- *   data-text-size, data-motion, .a11y-contrast   this module
- *   data-route-loading                            components/nav/RoutePending.tsx
- *     — raised while a Suspense fallback stands in for route content; the
- *       motion kill above also turns its footer reveal into an instant one. */
+ */
 
 export type TextSize = "default" | "large" | "xl";
 

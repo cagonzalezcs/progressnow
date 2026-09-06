@@ -1,32 +1,34 @@
 ## Why
 
-A client navigation commits as soon as the catch-all page's shell resolves, with `app/[[...slug]]/page.tsx`'s Suspense fallback standing in for `<main>`. `<main>` is a 0px box until the route payload lands, so the footer — the boundary's other host child — paints directly under the header and then drops to the bottom of the finished page. Measured front → `/blog/` against a slow API: footer top 76px at t=1353ms, 898px at t=1746ms.
+A client navigation commits as soon as the catch-all page's shell resolves, with `app/[[...slug]]/page.tsx`'s Suspense fallback standing in for `<main>`. `<main>` is a 0px box until the route payload lands, so the footer paints directly under the header and then drops to the bottom of the finished page. Measured front → `/blog/` against a slow API: footer top 76px at t=1353ms, 898px at t=1746ms.
 
-The hold shipped in `b22918d` (`RoutePending` + `<html data-route-loading>` + `app/route-loading.css`), but it exists only as code comments. Which Suspense boundaries participate, what the flag must guarantee, and how it interacts with the view transition and reduce-motion are decisions a future route or fragment will have to re-derive — and the e2e test currently drives the attribute by hand rather than through a real loading window, so nothing guards the wiring.
+`b22918d` fixed that by hiding the footer for the window — `<html data-route-loading>` plus `visibility: hidden`. It removed the jump and introduced a worse problem, reported from the Vercel preview and reproduced locally: the footer is a dark band against a white page ground, so every navigation flashed **dark → white → dark**. On the preview, whose backend is remote, those windows are longer than local and the flashes correspondingly more visible. Repeated full-width luminance changes are a photosensitivity hazard (WCAG 2.3.1) and a vestibular one; the hold traded a jump for something less acceptable.
+
+The measurement that settles it, front → `/blog/` with the `posts` envelope held 700ms, viewport 1280×900: with the hold, ~400px of the viewport is white for the whole window; with the hold disabled, the same region is the footer's own dark band.
 
 ## What Changes
 
-- Record the shipped contract as a spec: the flag's lifecycle (raised while a fallback stands in for route content, ref-counted, lowered when the last one goes), the footer's visual and accessibility state during the window, and the reveal.
-- Pin **which boundaries participate**. Today `RoutePending` wraps the whole-route boundary and the blog archive fragment (its `h-40` skeleton stands in for ~450px of results); `RouteCalendar` and `RouteFront`'s search fragment do not. Make that a stated rule — a boundary opts in when its stand-in is shorter than the content it replaces — rather than an accident of which jump was measured.
-- Pin the two behaviors that fall out of existing machinery and must not regress: an in-page URL update (`?s=`, `?category=`, `?view=`) never raises the flag, because React does not re-show a mounted boundary's fallback during a transition; and reduce motion needs no gate of its own, because `MOTION_KILL_CSS` already forces `transition: none !important`.
-- Close the test gap: `test/e2e/chrome.spec.ts` asserts the CSS rule by setting `data-route-loading` itself. Add a deterministic loading window — a `POST /__mock/delay { ms }` control on the fixture mock, alongside `/__mock/fail` — so an e2e test can assert the invariant that matters: the footer is never painted while a stand-in occupies `<main>`.
-- Document `data-route-loading` next to the other `<html>` state attributes (`data-text-size`, `data-motion`, `.a11y-contrast`) so the set is discoverable from one place.
+- **Anchor the footer instead of hiding it.** `<body>` becomes a flex column of at least `100dvh` with `.site-main` taking the slack, so the footer's bottom edge is never above the viewport's. It starts where it will stay; content landing only pushes it further down, out of sight. Measured: footer bottom at the viewport edge at t=121ms and still anchored at t=797ms, with nothing hidden at any point.
+- **Remove the hold entirely** — `components/nav/RoutePending.tsx`, the `data-route-loading` flag, the `visibility: hidden` rule, and the per-boundary opt-in rule that went with them. Nothing is hidden, so there is no reveal to gate behind reduce-motion and no flash to reason about.
+- **Fold in the two gaps the flag could not reach.** Because the anchor is CSS with no JavaScript dependency, it also covers the first paint of a direct load (the streamed shell painted the footer under an empty `<main>` on every route) and `/calendar/`'s post-commit growth (the island rendering more than the server sent, moving the footer ~790px). Both were previously written up as out of scope; the separate `first-paint-footer-hold` change they were deferred to is withdrawn.
+- **Keep the test harness the hold introduced.** `POST /__mock/delay { ms, path? }` and the signed-rebuild eviction are what make a loading window reproducible in the e2e suite; the assertions move from "the footer is hidden" to "the footer is painted, and never above the fold".
 
 ## Capabilities
 
 ### New Capabilities
 
-- `route-loading`: the loading window of a client navigation in the Next.js app — the `data-route-loading` flag's lifecycle and ref-counting, which Suspense boundaries raise it, the footer's held state (unpainted, out of the accessibility tree and tab order, layout space kept) and its reveal, the interaction with the `vt-page` view transition and with reduce motion, and what an in-page URL update must _not_ do.
+- `footer-anchor`: the footer's position relative to the viewport — anchored below it whenever `<main>` is short, by layout rather than by hiding; the explicit prohibition on hiding it to stop it moving; and the mock delay plus cache eviction that let an e2e test open a real loading window and assert the anchor through a navigation.
 
 ### Modified Capabilities
 
-None in this root. `openspec/specs/` here holds only `calendar-route`, whose requirements are unaffected. The root project's `openspec/changes/next-js-site-implementation/specs/next-headless-site` § Client navigation and design D6 describe the transition this window sits inside; they gain a pointer, not a requirement change (see Impact).
+None in this root. `openspec/specs/` here holds only `calendar-route`, whose requirements are unaffected. The root project's `openspec/changes/next-js-site-implementation/specs/next-headless-site` § Client navigation and design D6 describe the transition this sits inside; they gain a pointer, not a requirement change.
 
 ## Impact
 
-- `components/nav/RoutePending.tsx`, `app/route-loading.css`, `app/layout.tsx`, `app/[[...slug]]/page.tsx`, `components/routes/RoutePostsIndex.tsx` — shipped in `b22918d`; this change verifies them against the written contract and adjusts only where the spec says something the code does not do.
-- `components/routes/RouteCalendar.tsx`, `components/routes/RouteFront.tsx` — audited against the opt-in rule; wrapped only if their stand-ins are short. `RouteCalendar`'s `CalendarSkeleton` measured no jump (footer top 1340px, unchanged after the fragment landed).
-- `test/mock/server.mjs` — new `POST /__mock/delay { ms }` control, cleared by `/__mock/reset`. Extends the documented control surface in the header comment (parent spec `next-test-harness` § Fixture-backed mock API).
-- `test/e2e/chrome.spec.ts` — the hand-driven assertion is replaced by (or joined with) one that navigates through a real delayed window.
-- `lib/a11y-settings.ts` doc comment — `data-route-loading` added to the list of `<html>` state attributes.
-- No API, dependency, schema, or `globals.css` changes. `app/globals.css` stays byte-identical to the theme's `src/css/tailwind.css` (`test/unit/shared-source-drift.test.ts`); the route-loading rule stays in its own Next-only sheet because the WordPress theme is a multi-page app whose footer never outruns its content.
+- `app/sticky-footer.css` (renamed from `app/route-loading.css`) — now one layout rule rather than a hold; imported once from `app/layout.tsx`.
+- `components/nav/RoutePending.tsx`, `test/component/route-pending.test.tsx` — deleted.
+- `app/[[...slug]]/page.tsx`, `components/routes/RoutePostsIndex.tsx`, `components/routes/RouteCalendar.tsx` — back to plain Suspense fallbacks; `components/routes/RouteFront.tsx` and `components/routes/RouteStyleguide.tsx` lose the comments explaining why they were not wrapped.
+- `lib/a11y-settings.ts` — `data-route-loading` removed from the `<html>` state attributes it documents.
+- `test/mock/server.mjs`, `test/mock/api.mjs`, `test/unit/mock-controls.spec.ts` — the `/__mock/delay` control, kept.
+- `test/e2e/chrome.spec.ts` — the anchor asserted through a real navigation, plus a short-route case (the 404) that needs no loading window at all. `test/e2e/receiver.spec.ts` selects its build-status callback by `buildId`, since the footer test is a second source of rebuilds.
+- No API, dependency, or schema changes. `app/globals.css` stays byte-identical to the theme's `src/css/tailwind.css` (`test/unit/shared-source-drift.test.ts`); the anchor lives in its own Next-only sheet because the WordPress theme is a multi-page app whose footer never outruns its content.

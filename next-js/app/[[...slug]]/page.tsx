@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { permanentRedirect } from "next/navigation";
 import { after } from "next/server";
 import { Suspense } from "react";
-import { RoutePending } from "@/components/nav/RoutePending";
 import { RouteAbout } from "@/components/routes/RouteAbout";
 import { RouteCalendar } from "@/components/routes/RouteCalendar";
 import { RouteEvent } from "@/components/routes/RouteEvent";
@@ -123,9 +122,7 @@ export default async function Page({ params, searchParams }: PageProps<"/[[...sl
   if (resolved.kind === "styleguide") permanentRedirect("/styleguide/");
   const Component = ROUTES[resolved.kind as keyof typeof ROUTES];
   return (
-    // RoutePending also flags <html data-route-loading> so the footer stays
-    // unpainted until <main> has content under it (app/route-loading.css).
-    <Suspense fallback={<RoutePending />}>
+    <Suspense fallback={<div aria-busy="true" data-testid="route-pending" />}>
       <Component resolved={resolved} searchParams={searchParams} />
     </Suspense>
   );

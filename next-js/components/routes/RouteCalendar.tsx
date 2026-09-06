@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { RoutePending } from "@/components/nav/RoutePending";
 import { interiorPaths } from "@/components/routes/RoutePage";
 import type { RouteProps } from "@/components/routes/types";
 import { PageHeader } from "@/components/site/PageHeader";
@@ -50,18 +49,7 @@ export async function RouteCalendar({ resolved, searchParams }: RouteProps) {
         wide
         wpOrigin={wpOrigin}
       />
-      {/* RoutePending holds the footer back (openspec route-loading § A boundary opts in
-          when a client navigation would move the footer): CalendarBody awaits the events
-          envelope, and CalendarSkeleton is shorter than the grid it stands in for.
-          Measured front -> /calendar/ with that envelope held 900ms: the footer sat at
-          1178px behind the skeleton and settled at 1336px. */}
-      <Suspense
-        fallback={
-          <RoutePending>
-            <CalendarSkeleton />
-          </RoutePending>
-        }
-      >
+      <Suspense fallback={<CalendarSkeleton />}>
         <CalendarBody
           searchParams={searchParams}
           lang={resolved.lang}

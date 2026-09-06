@@ -1,43 +1,35 @@
-## 1. Verify what shipped against the written contract
+## 1. Replace the hold with the anchor
 
-- [x] 1.1 Read `components/nav/RoutePending.tsx` against spec § "A route's loading window is flagged on `<html>`": single writer, layout effect on mount and cleanup on unmount, module-level counter, `useEffect` fallback when `window` is undefined. Fix any divergence; the spec is the contract, `b22918d` is the draft.
-- [x] 1.2 Read `app/route-loading.css` against spec § "The footer is held back for that window": `visibility: hidden` plus `opacity: 0` with `transition: none` while flagged, 200ms opacity fade on the base rule, no reduced-motion gate of its own.
-- [x] 1.3 Confirm `app/route-loading.css` is imported once, from `app/layout.tsx`, after `./globals.css`, and that `npm test` still passes `test/unit/shared-source-drift.test.ts`.
+- [x] 1.1 Add `app/sticky-footer.css` (renamed from `app/route-loading.css`): `<body>` a flex column of `100dvh` with a `100vh` fallback, `.site-main` taking the slack. Document why it is Next-only and why hiding was wrong.
+- [x] 1.2 Update the single import in `app/layout.tsx`.
+- [x] 1.3 Delete `components/nav/RoutePending.tsx` and `test/component/route-pending.test.tsx`.
+- [x] 1.4 Restore plain Suspense fallbacks in `app/[[...slug]]/page.tsx`, `components/routes/RoutePostsIndex.tsx` and `components/routes/RouteCalendar.tsx`; drop the "why not wrapped" comments from `RouteFront` and `RouteStyleguide`.
+- [x] 1.5 Remove `data-route-loading` from the `<html>` state attributes documented in `lib/a11y-settings.ts`.
 
-## 2. Settle which boundaries opt in
+## 2. Prove it, on the cases the flag could not reach
 
-- [x] 2.1 Audit `components/routes/RouteCalendar.tsx`. Re-measured after rebasing onto main, which moved `getEvents` inside the boundary (`CalendarBody`): the footer sits at 1178px behind `CalendarSkeleton` and settles at 1336px, so it opts in. Measurement recorded in a code comment.
-- [x] 2.2 Audit `components/routes/RouteFront.tsx`'s `SearchFragment` (`fallback={null}`) on `/?s=…`. Measured: the results section is ~104px and lands in its own flush, moving the footer — but `?s=` on `/` is only ever a direct load (the search UI writes it on `/blog/`), so the flag arrives after first paint. Leave unwrapped per spec § "A boundary opts in when a client navigation would move the footer"; record the measurement and the reason in a comment.
-- [x] 2.3 Sweep every other `<Suspense>` in `components/routes/**` and `app/**` and apply the two-condition rule; in each unwrapped case record which condition it fails. Known: `RouteStyleguide`'s kitchen-sink boundary has a one-line stand-in for a very tall section, but `/styleguide/` is linked from nowhere and is direct-load only.
+- [x] 2.1 Client navigation, cold route, `posts` held 700ms: footer bottom on the viewport edge at t=121ms and still anchored at t=797ms, nothing hidden.
+- [x] 2.2 Direct load of `/blog/`, cold, sampled from the first frame: 178 frames, footer above the fold in none.
+- [x] 2.3 Short route (`/no-such-page/`): footer at the bottom of the viewport, not under the header.
+- [x] 2.4 Desktop 1280×900 and mobile 375×812 screenshots at 400ms into a held navigation: viewport filled to the bottom edge by the footer, no white band.
+- [x] 2.5 `/calendar/`'s post-commit island growth: `<main>` still grows, but the footer only moves further down and out of view.
 
-## 3. Deterministic loading window in the mock
+## 3. Test harness
 
-- [x] 3.1 Add `POST /__mock/delay { ms }` to `test/mock/server.mjs` next to `/__mock/fail`: validate `ms` as a non-negative number, store it in the mock's state, and delay every `progressnow/v1` envelope response by it.
-- [x] 3.2 Clear the delay in `POST /__mock/reset` alongside the other overlays.
-- [x] 3.3 Document the new control in the server's header comment block, in the same shape as the surrounding entries.
-- [x] 3.4 Add a unit or e2e-level check that `/__mock/delay` then `/__mock/reset` restores undelayed responses, so the knob cannot silently stop working and make the navigation test vacuous.
+- [x] 3.1 Keep `POST /__mock/delay { ms, path? }` and its path scoping — an unscoped delay broke both calendar specs under `fullyParallel`.
+- [x] 3.2 Keep the signed-rebuild eviction; a warm route's payload arrives whole, so a cold cache is required to open a window at all.
+- [x] 3.3 Keep `receiver.spec.ts` selecting its build-status callback by `buildId`, since the footer test is a second source of rebuilds.
+- [x] 3.4 Rewrite the e2e assertions: witness on `<main>` growing (the archive skeleton carries no `aria-busy`), invariant on the footer's bottom edge never rising above the viewport's, plus `visibility: visible` in every frame — the assertion that would have caught the flash.
 
-## 4. Tests
+## 4. Documentation
 
-- [x] 4.1 Extend `test/component/route-pending.test.tsx` to cover the spec's scenarios not yet asserted: the `aria-busy` stand-in vs. a supplied skeleton, and the overlapping-fallback ordering.
-- [x] 4.2 Add the navigation e2e to `test/e2e/chrome.spec.ts`: set a mock delay, sample the footer's rect, computed `visibility`, and whether a stand-in occupies `<main>` on every animation frame across a front → `/blog/` navigation; assert at least one sampled frame has a stand-in, and that the footer's `visibility` is `hidden` in every such frame. Reset the delay in a fixture teardown.
-- [x] 4.3 Add the in-page-update guard: type a query on an already-loaded `/blog/` and assert `data-route-loading` is never set and the `contentinfo` landmark never disappears.
-- [x] 4.4 Keep the existing hand-driven CSS assertion as the stylesheet's own test, retitled so the pair reads as "the rule ships" and "the wiring works".
-- [x] 4.5 Add a reduced-motion pass: with `reduceMotion` set, navigate through a delayed window and assert the footer was held and then revealed with no transition.
+- [x] 4.1 Rewrite proposal, design and spec for the anchor; rename the capability from `route-loading` to `footer-anchor`.
+- [x] 4.2 Withdraw `first-paint-footer-hold`: the anchor is CSS, so first paint needs no separate mechanism and no no-JavaScript trade-off.
+- [x] 4.3 Keep the pointers from the root project's `next-headless-site` § Client navigation and design D6, and the `/__mock/delay` line in `next-test-harness`.
 
-## 5. Documentation
+## 5. Gates
 
-- [x] 5.1 List `data-route-loading` in the `<html>` state attributes documented in `lib/a11y-settings.ts`, with a pointer to `components/nav/RoutePending.tsx`.
-- [x] 5.2 Add a pointer from the root project's `openspec/changes/next-js-site-implementation/specs/next-headless-site` § Client navigation (and design D6's navigation paragraph) to this capability, so the transition and the window after it are findable from each other.
-- [x] 5.3 Note the new `/__mock/delay` control in `next-test-harness` § Fixture-backed mock API.
-
-## 6. Gates
-
-- [x] 6.1 `npm run lint`, `npm run typecheck`, `npm test` clean.
-- [x] 6.2 `npm run test:e2e` clean.
-- [x] 6.3 `npm run test:a11y` — no _new_ violations. Five pre-existing failures on `/calendar/` (adjacent-month day numbers at 2.15:1 contrast) and one pre-existing `test/component/route-event.test.tsx` failure are tracked separately; confirm the count and the routes are unchanged by this work.
-- [ ] 6.4 `openspec validate route-loading-footer-hold`, then sync the spec and archive.
-
-## 7. Follow-on
-
-- [x] 7.1 Propose a separate change for the first-paint jump: on every direct load the streamed shell paints the footer under an empty `<main>` and it drops when the content arrives (~75ms locally with the envelope held 900ms; proportionally longer on a slow connection). Out of this capability per spec § "The flag covers client navigation, not first paint" — it needs a server-rendered mechanism and a decision on the no-JavaScript failure mode.
+- [x] 5.1 `npm run lint`, `npm run typecheck`, `npm test`.
+- [x] 5.2 `npm run test:e2e`.
+- [x] 5.3 `npm run test:a11y`.
+- [ ] 5.4 Confirm on the Vercel preview that the reported flashes are gone, then `openspec validate`, sync the spec and archive.

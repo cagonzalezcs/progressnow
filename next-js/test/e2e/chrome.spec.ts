@@ -115,55 +115,29 @@ test("client navigation moves focus to main and cross-fades unless motion is red
   await expect(page).toHaveURL(/\/calendar\/$/);
   await expect(page.locator("main#main")).toBeFocused();
 });
-
-test("data-route-loading hides the footer: the rule ships in the production bundle", async ({
-  page,
-}) => {
-  // Half of the pair. This one drives the attribute by hand, so it only proves
-  // app/route-loading.css shipped and does what it claims; the navigation test
-  // below is what proves components/nav/RoutePending.tsx is wired to raise it.
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto("/");
-  const footer = page.getByRole("contentinfo");
-  await expect(footer).toBeVisible();
-
-  await page.evaluate(() => document.documentElement.setAttribute("data-route-loading", ""));
-  // `visibility: hidden`: unpainted, and with it out of the accessibility tree and
-  // the tab order — so the role locator stops matching it altogether.
-  expect(await page.locator(".site-footer").evaluate((el) => getComputedStyle(el).visibility)).toBe(
-    "hidden",
-  );
-  await expect(footer).toHaveCount(0);
-
-  await page.evaluate(() => document.documentElement.removeAttribute("data-route-loading"));
-  await expect(footer).toBeVisible();
-});
-
 type FooterSample = {
   t: number;
   top: number;
+  bottom: number;
   visibility: string;
   mainHeight: number;
   standIn: boolean;
-  flagged: boolean;
   path: string;
 };
 
-/** Painted frames whose footer position is not the one the route settles on. */
-function footerPaintedWhereItDoesNotStay(samples: FooterSample[], path: string) {
-  const painted = samples.filter((s) => s.path === path && s.visibility === "visible");
-  const settled = painted.at(-1)?.top;
-  return painted
-    .filter((s) => s.top !== settled)
-    .map((s) => `t=${s.t}ms top=${s.top} (settles at ${settled})`);
+/* Frames where the footer sat entirely above the fold — the position it would jump
+ * from. The anchor does not stop the footer moving; it stops it being *seen* moving,
+ * by keeping it at or below the viewport's bottom edge while <main> is short. (Valid
+ * only at scroll top, which is where a route change leaves the visitor.) */
+function footerAboveTheFold(samples: FooterSample[], path: string, viewportHeight: number) {
+  return samples
+    .filter((s) => s.path === path && s.bottom < viewportHeight)
+    .map((s) => `t=${s.t}ms bottom=${s.bottom} (viewport ${viewportHeight})`);
 }
 
 /* Every animation frame of the navigation: where the footer is, whether it is
- * painted, whether the hold is flagged, and how tall <main> is. `standIn` (any
- * aria-busy region) is diagnostic only: RouteCalendar's fragment carries it while
- * deliberately not opting in, and the blog archive's skeleton is aria-hidden and
- * carries none — so it is neither a reliable witness nor a reason to require the
- * footer be hidden. */
+ * painted, how tall <main> is, and whether a stand-in still occupies it.
+ * `standIn` (any aria-busy region) is the witness that a loading window opened. */
 async function sampleFooterThrough(page: Page, navigate: () => Promise<unknown>, ms = 2500) {
   await page.evaluate((limit) => {
     (window as unknown as { __footer: unknown[] }).__footer = [];
@@ -171,15 +145,16 @@ async function sampleFooterThrough(page: Page, navigate: () => Promise<unknown>,
     const tick = () => {
       const f = document.querySelector(".site-footer");
       if (f) {
+        const box = f.getBoundingClientRect();
         (window as unknown as { __footer: unknown[] }).__footer.push({
           t: Math.round(performance.now() - t0),
-          top: Math.round(f.getBoundingClientRect().top),
+          top: Math.round(box.top),
+          bottom: Math.round(box.bottom),
           visibility: getComputedStyle(f).visibility,
           mainHeight: Math.round(
             document.getElementById("main")?.getBoundingClientRect().height ?? 0,
           ),
           standIn: Boolean(document.querySelector("main#main [aria-busy='true']")),
-          flagged: document.documentElement.hasAttribute("data-route-loading"),
           path: location.pathname,
         });
       }
@@ -189,14 +164,7 @@ async function sampleFooterThrough(page: Page, navigate: () => Promise<unknown>,
   }, ms);
   await navigate();
   await page.waitForTimeout(ms + 300);
-  return page.evaluate(
-    () =>
-      (
-        window as unknown as {
-          __footer: FooterSample[];
-        }
-      ).__footer,
-  );
+  return page.evaluate(() => (window as unknown as { __footer: FooterSample[] }).__footer);
 }
 
 /* A signed rebuild evicts the `content`, `routes` and `site` tags — the only supported
@@ -206,7 +174,7 @@ async function sampleFooterThrough(page: Page, navigate: () => Promise<unknown>,
 async function evictContentCache(request: APIRequestContext) {
   const body = JSON.stringify({
     event: "rebuild",
-    requestId: "e2e-footer-hold",
+    requestId: "e2e-sticky-footer",
     contentVersion: 0,
     reason: "test_cache_evict",
     siteUrl: MOCK,
@@ -224,19 +192,21 @@ async function evictContentCache(request: APIRequestContext) {
   expect(res.status(), "the rebuild receiver refused the eviction webhook").toBe(202);
 }
 
-test("the footer is never painted while a stand-in occupies <main>", async ({ page, request }) => {
-  // The wiring, through a real navigation. Opening a loading window needs two things:
-  // a cold server cache (a warm route's payload arrives whole, fallback and all —
-  // delaying the RSC request does not split it) and a slow envelope once it is cold.
-  // So: evict, hold the `posts` envelope, then navigate. The delay is scoped to that
-  // one path because the mock is shared with specs that time the calendar.
+test("an empty <main> still fills the viewport, so the footer starts where it stays", async ({
+  page,
+  request,
+}) => {
+  // The whole mechanism, through a real navigation. Opening a loading window needs a
+  // cold server cache (a warm route's payload arrives whole, fallback and all) and a
+  // slow envelope once it is cold. The delay is scoped to `posts` because the mock is
+  // shared with specs that time the calendar.
   await page.setViewportSize({ width: 1440, height: 900 });
   const blog = () =>
     page.getByRole("navigation", { name: "Main" }).last().getByRole("link", { name: "Blog" });
 
   try {
     let samples: Awaited<ReturnType<typeof sampleFooterThrough>> = [];
-    for (let attempt = 0; attempt < 3 && !samples.some((s) => s.flagged); attempt++) {
+    for (let attempt = 0; attempt < 3 && !samples.some((s) => s.standIn); attempt++) {
       await request.post(`${MOCK}/__mock/delay`, { data: { ms: 700, path: "posts" } });
       await page.goto("/");
       await evictContentCache(request);
@@ -245,92 +215,44 @@ test("the footer is never painted while a stand-in occupies <main>", async ({ pa
         await expect(page).toHaveURL(/\/blog\/$/);
       });
     }
+    // A window opened iff <main> was shorter at some point than the height it settles
+    // at. A DOM fact, and mechanism-agnostic: the archive's skeleton carries no
+    // aria-busy of its own, so `standIn` alone would miss this boundary.
+    const onBlog = samples.filter((s) => s.path === "/blog/");
+    const settledMain = Math.max(...onBlog.map((s) => s.mainHeight));
     expect(
-      samples.some((s) => s.flagged),
-      "no loading window opened — the route stayed warm or the delay never took effect, so this test would pass vacuously",
-    ).toBe(true);
+      Math.min(...onBlog.map((s) => s.mainHeight)),
+      "<main> never grew — the route stayed warm or the delay never took effect, so this test would pass vacuously",
+    ).toBeLessThan(settledMain);
 
-    // The visitor-facing invariant: no painted frame shows the footer at a position
-    // it will not keep. Independent of how the hold is implemented — and it fails if
-    // the flag is raised too late as surely as if it is never raised at all.
-    expect(footerPaintedWhereItDoesNotStay(samples, "/blog/")).toEqual([]);
+    // The visitor-facing invariant: the footer is never sitting up under the header,
+    // which is the position it would visibly jump from.
+    expect(footerAboveTheFold(samples, "/blog/", 900)).toEqual([]);
 
-    // And <main> really was short while the flag was up — the footer had somewhere
-    // to jump to, and did not.
-    const held = samples.filter((s) => s.flagged);
-    expect(Math.min(...held.map((s) => s.mainHeight))).toBeLessThan(
-      Math.max(...samples.map((s) => s.mainHeight)),
-    );
+    // Anchored, not hidden. An earlier revision hid it while the route loaded, which
+    // flashed the page dark → white → dark on every navigation.
+    expect(samples.filter((s) => s.visibility !== "visible")).toEqual([]);
   } finally {
     await request.post(`${MOCK}/__mock/reset`, { data: {} });
   }
 });
 
-test("an in-page URL update never hides the footer", async ({ page }) => {
-  // React does not re-show a mounted boundary's fallback during a transition, so
-  // typing a query must leave the flag — and the contentinfo landmark — alone.
+test("a short route does not pull the footer up under the header", async ({ page }) => {
+  // No loading window needed: a 404's content is simply shorter than the viewport.
+  // Without the anchor the footer would sit just below the heading.
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto("/blog/");
-  await expect(page.getByRole("contentinfo")).toBeVisible();
-
-  const search = page.getByRole("searchbox").first();
-  const samples = await sampleFooterThrough(
-    page,
-    async () => {
-      await search.click();
-      await search.type("union", { delay: 60 });
-      await expect(page).toHaveURL(/[?&]s=union/);
-    },
-    2000,
-  );
-
-  expect(samples.filter((s) => s.flagged)).toEqual([]);
-  expect(samples.filter((s) => s.visibility !== "visible")).toEqual([]);
-});
-
-test("reduced motion holds the footer too, and reveals it without a fade", async ({
-  page,
-  request,
-}) => {
-  await page.addInitScript(() =>
-    localStorage.setItem("chapter-a11y", JSON.stringify({ reduceMotion: true })),
-  );
-  await page.setViewportSize({ width: 1440, height: 900 });
-
-  try {
-    await request.post(`${MOCK}/__mock/delay`, { data: { ms: 700, path: "posts" } });
-    await page.goto("/");
-    expect(await page.evaluate(() => document.documentElement.dataset.motion)).toBe("reduce");
-    await evictContentCache(request);
-
-    const samples = await sampleFooterThrough(page, async () => {
-      await page
-        .getByRole("navigation", { name: "Main" })
-        .last()
-        .getByRole("link", { name: "Blog" })
-        .click();
-      await expect(page).toHaveURL(/\/blog\/$/);
-    });
-
-    // Held as usual — visibility is not motion.
-    expect(
-      samples.some((s) => s.flagged),
-      "no loading window opened, so the hold was never exercised",
-    ).toBe(true);
-    expect(footerPaintedWhereItDoesNotStay(samples, "/blog/")).toEqual([]);
-    // Revealed with no fade: MOTION_KILL_CSS neutralizes the transition, so the footer
-    // settles at full opacity rather than easing there.
-    expect(await page.locator(".site-footer").evaluate((el) => getComputedStyle(el).opacity)).toBe(
-      "1",
-    );
-  } finally {
-    await request.post(`${MOCK}/__mock/reset`, { data: {} });
-  }
+  await page.goto("/no-such-page-here/");
+  const footer = page.getByRole("contentinfo");
+  await expect(footer).toBeVisible();
+  const bottom = await page
+    .locator(".site-footer")
+    .evaluate((el) => el.getBoundingClientRect().bottom);
+  expect(bottom).toBeGreaterThanOrEqual(900);
 });
 
 test("POST /__mock/delay holds envelopes and /__mock/reset releases them", async ({ request }) => {
-  // The knob the footer-hold navigation test depends on (openspec next-test-harness
-  // § Fixture-backed mock API). Validation of the value itself is unit-tested.
+  // The knob the navigation test depends on (openspec next-test-harness § Fixture-backed
+  // mock API). Validation of the value itself is unit-tested.
   try {
     await request.post(`${MOCK}/__mock/delay`, { data: { ms: 600, path: "posts" } });
 

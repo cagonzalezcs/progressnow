@@ -110,7 +110,7 @@ Upstream or contract failures SHALL render a designed error surface (status 500,
 ### Requirement: Client navigation
 Internal navigation SHALL be client-side with prefetch on viewport/hover, scroll to top or to the `#hash` target, and a cross-fade between routes implemented with the View Transitions API through Next's view-transition support; the cross-fade SHALL be disabled when `prefers-reduced-motion: reduce` or the a11y widget's reduce-motion setting is active, and SHALL degrade to an instant swap on browsers without the API. URL-state interactions (search, filter, page, calendar view) SHALL NOT scroll the page.
 
-The route commits as soon as the page shell resolves, so the cross-fade is followed by a window in which a Suspense fallback stands in for the content. What the chrome does during that window — the footer held unpainted until there is content above it — is `next-js/openspec/specs/route-loading`.
+The route commits as soon as the page shell resolves, so the cross-fade is followed by a window in which a Suspense fallback stands in for the content. What the chrome does during that window — the footer anchored below the viewport rather than sitting under the header — is `next-js/openspec/specs/footer-anchor`.
 
 #### Scenario: Cross-fade
 - **WHEN** a visitor without a reduced-motion preference navigates from the front page to a post
