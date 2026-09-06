@@ -53,11 +53,10 @@ A Suspense boundary SHALL use `RoutePending` when **both** hold: the boundary is
 
 Both conditions are load-bearing. A short stand-in is what makes the footer move. A client navigation is what makes the flag able to prevent it: `RoutePending` writes the flag from a layout effect, so on a URL reached only by direct load the fallback is server-streamed and painted before hydration mounts anything, and opting in would replace a jump with a hide-then-show rather than prevent it.
 
-The whole-route boundary in `app/[[...slug]]/page.tsx` SHALL opt in: every in-site link goes through it and its stand-in is empty. The blog archive fragment in `components/routes/RoutePostsIndex.tsx` SHALL opt in: `/blog/` is in the main navigation and its `h-40` skeleton stands in for roughly 450px of results.
+The whole-route boundary in `app/[[...slug]]/page.tsx` SHALL opt in: every in-site link goes through it and its stand-in is empty. The blog archive fragment in `components/routes/RoutePostsIndex.tsx` SHALL opt in: `/blog/` is in the main navigation and its `h-40` skeleton stands in for roughly 450px of results. The calendar fragment in `components/routes/RouteCalendar.tsx` SHALL opt in: `CalendarBody` awaits the events envelope inside the boundary, and `CalendarSkeleton` is shorter than the grid it stands in for.
 
 A boundary that fails either condition SHALL NOT opt in, and SHALL carry a comment recording which condition it fails, so the next reader does not re-measure it:
 
-- `components/routes/RouteCalendar.tsx` — reached by client navigation, but `CalendarSkeleton` holds the grid's space and the boundary gates only `searchParams`; the events envelope is awaited above it.
 - `components/routes/RouteFront.tsx` — the `?s=` results move the footer, but the site's search UI writes `?s=` on `/blog/`, never on `/`, so this fragment is only ever reached by direct load.
 - `components/routes/RouteStyleguide.tsx` — the kitchen-sink stand-in is far shorter than its content, but `/styleguide/` is linked from nowhere in the site and is reached by direct URL only.
 
@@ -73,7 +72,7 @@ A boundary that fails either condition SHALL NOT opt in, and SHALL carry a comme
 
 #### Scenario: Skeleton that already holds its space
 
-- **WHEN** a boundary's skeleton is sized like the content it replaces, as `CalendarSkeleton` is
+- **WHEN** a boundary's skeleton is sized like the content it replaces
 - **THEN** the boundary does not use `RoutePending` and the footer stays visible through that fragment's load
 
 #### Scenario: Boundary reached only by direct load
@@ -81,14 +80,24 @@ A boundary that fails either condition SHALL NOT opt in, and SHALL carry a comme
 - **WHEN** a boundary's URL is not reachable by a client navigation from anywhere in the site, as `/?s=` and `/styleguide/` are not
 - **THEN** the boundary does not use `RoutePending`, and its comment records that the flag would arrive after first paint
 
-### Requirement: The flag covers client navigation, not first paint
+### Requirement: The flag covers the Suspense window, and only that
 
-This capability SHALL be understood to cover the window opened by a client navigation only. On a direct load the shell — header, empty `<main>`, footer — is streamed and painted before hydration, so the footer paints at the top of the document and moves down when `<main>` fills, and no client-side flag can precede that paint. Holding the footer through first paint would require a server-rendered mechanism whose failure mode is a footer that never appears without JavaScript; that trade-off SHALL NOT be decided inside this capability.
+This capability SHALL be understood to cover the window a Suspense fallback holds open during a client navigation — from the commit that shows the fallback to the commit that replaces it. Two neighbouring jumps sit outside it and SHALL NOT be claimed as covered:
+
+- **First paint on a direct load.** The shell — header, empty `<main>`, footer — is streamed and painted before hydration, so the footer paints at the top of the document and moves down when `<main>` fills. No client-side flag can precede that paint. Holding it would require a server-rendered mechanism whose failure mode is a footer that never appears without JavaScript; that trade-off SHALL NOT be decided inside this capability.
+- **A client render after the content commits.** Where a route's island renders more than the server sent it, `<main>` grows once the fallback is already gone and the flag already down. `/calendar/` does this: measured on a warm client navigation with no artificial delay, `<main>` is 470px at t=120ms and 1260px at t=491ms, moving the footer ~790px with no Suspense boundary involved.
+
+Both belong with the skeleton-sizing work this change lists as a non-goal, and are proposed separately.
 
 #### Scenario: Direct load is out of scope
 
 - **WHEN** a route is loaded directly rather than navigated to
 - **THEN** the footer's first-paint position is not governed by this capability, and `data-route-loading` is expected to be absent until hydration
+
+#### Scenario: Post-commit growth is out of scope
+
+- **WHEN** `<main>` grows after the route's content has committed, because an island renders more than the server sent
+- **THEN** the footer moves with it; the flag is already down and this capability does not govern that move
 
 ### Requirement: In-page URL updates do not raise the flag
 

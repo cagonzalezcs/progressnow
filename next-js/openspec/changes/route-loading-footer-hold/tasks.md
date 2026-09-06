@@ -6,7 +6,7 @@
 
 ## 2. Settle which boundaries opt in
 
-- [x] 2.1 Audit `components/routes/RouteCalendar.tsx`: measure the footer's top before and after the calendar fragment lands (probe below), confirm `CalendarSkeleton` holds its space, and leave it unwrapped. Record the measurement in a code comment so the next reader does not re-litigate it.
+- [x] 2.1 Audit `components/routes/RouteCalendar.tsx`. Re-measured after rebasing onto main, which moved `getEvents` inside the boundary (`CalendarBody`): the footer sits at 1178px behind `CalendarSkeleton` and settles at 1336px, so it opts in. Measurement recorded in a code comment.
 - [x] 2.2 Audit `components/routes/RouteFront.tsx`'s `SearchFragment` (`fallback={null}`) on `/?s=…`. Measured: the results section is ~104px and lands in its own flush, moving the footer — but `?s=` on `/` is only ever a direct load (the search UI writes it on `/blog/`), so the flag arrives after first paint. Leave unwrapped per spec § "A boundary opts in when a client navigation would move the footer"; record the measurement and the reason in a comment.
 - [x] 2.3 Sweep every other `<Suspense>` in `components/routes/**` and `app/**` and apply the two-condition rule; in each unwrapped case record which condition it fails. Known: `RouteStyleguide`'s kitchen-sink boundary has a one-line stand-in for a very tall section, but `/styleguide/` is linked from nowhere and is direct-load only.
 
