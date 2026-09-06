@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { act, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -96,6 +96,91 @@ describe("SiteHeader", () => {
     expect(panel).not.toBeVisible();
     expect(toggle).toHaveFocus();
     expect(document.documentElement.classList.contains("overflow-hidden")).toBe(false);
+  });
+
+  it("mobile panel: a tap on a link closes it without waiting for the route to commit", async () => {
+    const user = userEvent.setup();
+    render(
+      <A11yProvider>
+        <SiteHeader header={site.header} languages={languages} wpOrigin={WP} />
+      </A11yProvider>,
+    );
+    const toggle = screen.getByRole("button", { name: "Menu" });
+    const panel = document.getElementById(toggle.getAttribute("aria-controls")!)!;
+    await user.click(toggle);
+    expect(panel).toBeVisible();
+
+    // The link for the page we are already on: the pathname never changes, so nothing
+    // else would ever close the panel — and on a slower route it must not wait either.
+    // (No router context here, so the anchor would fall through to a jsdom document load.)
+    const swallow = (e: MouseEvent) => e.preventDefault();
+    document.addEventListener("click", swallow);
+    await user.click(within(panel).getByRole("link", { name: "Blog" }));
+    document.removeEventListener("click", swallow);
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(panel).not.toBeVisible();
+    expect(document.documentElement.classList.contains("overflow-hidden")).toBe(false);
+  });
+
+  it("mobile panel: Tab stays inside the panel and its toggle", async () => {
+    const user = userEvent.setup();
+    render(
+      <A11yProvider>
+        <SiteHeader header={site.header} languages={languages} wpOrigin={WP} />
+      </A11yProvider>,
+    );
+    const toggle = screen.getByRole("button", { name: "Menu" });
+    await user.click(toggle);
+    const panel = document.getElementById(toggle.getAttribute("aria-controls")!)!;
+    const stops = panel.querySelectorAll<HTMLElement>("a[href], button");
+    const last = stops[stops.length - 1]!;
+
+    last.focus();
+    await user.tab();
+    expect(toggle).toHaveFocus(); // not the page behind, which the panel covers
+    await user.tab({ shift: true });
+    expect(last).toHaveFocus();
+  });
+
+  it("mobile panel: leaving the mobile tier closes it so the page cannot stay frozen", async () => {
+    const user = userEvent.setup();
+    const real = window.matchMedia;
+    const listeners = new Set<(e: MediaQueryListEvent) => void>();
+    window.matchMedia = ((query: string) =>
+      ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addEventListener: (_: string, l: (e: MediaQueryListEvent) => void) =>
+          query.startsWith("(min-width") && listeners.add(l),
+        removeEventListener: (_: string, l: (e: MediaQueryListEvent) => void) =>
+          listeners.delete(l),
+        addListener: () => {},
+        removeListener: () => {},
+        dispatchEvent: () => false,
+      }) as unknown as MediaQueryList) as typeof window.matchMedia;
+    try {
+      render(
+        <A11yProvider>
+          <SiteHeader header={site.header} languages={languages} wpOrigin={WP} />
+        </A11yProvider>,
+      );
+      const toggle = screen.getByRole("button", { name: "Menu" });
+      const panel = document.getElementById(toggle.getAttribute("aria-controls")!)!;
+      await user.click(toggle);
+      expect(document.documentElement.classList.contains("overflow-hidden")).toBe(true);
+
+      // The panel is display:none from `md` up; a rotation into the tablet tier must
+      // release the lock rather than leave the page frozen behind hidden chrome.
+      act(() => {
+        for (const l of listeners) l({ matches: true } as MediaQueryListEvent);
+      });
+      expect(toggle).toHaveAttribute("aria-expanded", "false");
+      expect(panel).not.toBeVisible();
+      expect(document.documentElement.classList.contains("overflow-hidden")).toBe(false);
+    } finally {
+      window.matchMedia = real;
+    }
   });
 
   it("About ▾ dropdown opens from the keyboard and lists the About items", async () => {
