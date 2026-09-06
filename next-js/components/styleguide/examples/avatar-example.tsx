@@ -20,7 +20,7 @@ import { PlusIcon, CheckIcon } from "lucide-react";
 
 export default function AvatarExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="avatar-example">
       <AvatarSizes />
       <AvatarWithBadge />
       <AvatarWithBadgeIcon />

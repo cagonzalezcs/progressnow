@@ -28,7 +28,7 @@ function Slider({
 
   return (
     <SliderPrimitive.Root
-      data-slot="slider"
+      data-slot="slider" data-testid="slider"
       defaultValue={defaultValue}
       value={value}
       min={min}
@@ -40,17 +40,17 @@ function Slider({
       {...props}
     >
       <SliderPrimitive.Track
-        data-slot="slider-track"
+        data-slot="slider-track" data-testid="slider-track"
         className="relative grow overflow-hidden rounded-full bg-muted data-horizontal:h-1 data-horizontal:w-full data-vertical:h-full data-vertical:w-1"
       >
         <SliderPrimitive.Range
-          data-slot="slider-range"
+          data-slot="slider-range" data-testid="slider-range"
           className="absolute bg-primary select-none data-horizontal:h-full data-vertical:w-full"
         />
       </SliderPrimitive.Track>
       {Array.from({ length: _values.length }, (_, index) => (
         <SliderPrimitive.Thumb
-          data-slot="slider-thumb"
+          data-slot="slider-thumb" data-testid="slider-thumb"
           key={index}
           aria-label={thumbLabels?.[index] ?? (_values.length > 1 ? `Value ${index + 1}` : "Value")}
           className="relative block size-3 shrink-0 rounded-full border border-ring bg-white ring-ring/50 transition-[color,box-shadow] select-none after:absolute after:-inset-2 hover:ring-3 focus-visible:ring-3 focus-visible:outline-hidden active:ring-3 disabled:pointer-events-none disabled:opacity-50"

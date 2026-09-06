@@ -14,6 +14,8 @@ export function StarGlyph({
       <svg
         aria-hidden="true"
         focusable="false"
+        data-testid="star-glyph"
+        data-glyph-kind={kind}
         viewBox="0 0 41.72 45.56"
         className={cn(className, "h-auto")}
       >
@@ -29,6 +31,8 @@ export function StarGlyph({
       <svg
         aria-hidden="true"
         focusable="false"
+        data-testid="star-glyph"
+        data-glyph-kind={kind}
         viewBox="0 0 57.51 74.26"
         className={cn(className, "h-auto")}
       >
@@ -43,6 +47,8 @@ export function StarGlyph({
     <svg
       aria-hidden="true"
       focusable="false"
+      data-testid="star-glyph"
+      data-glyph-kind={kind}
       viewBox="0 0 61.68 70.82"
       className={cn(className, "h-auto")}
     >

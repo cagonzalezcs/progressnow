@@ -10,7 +10,7 @@ import {
 
 export default function CarouselExample() {
   return (
-    <ExampleWrapper className="lg:grid-cols-1">
+    <ExampleWrapper data-testid="carousel-example" className="lg:grid-cols-1">
       <CarouselBasic />
       <CarouselMultiple />
       <CarouselWithGap />

@@ -20,7 +20,7 @@ import {
 
 export default function PaginationExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="pagination-example">
       <PaginationBasic />
       <PaginationSimple />
       <PaginationIconsOnly />

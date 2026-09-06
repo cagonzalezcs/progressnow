@@ -25,6 +25,7 @@ export function ImageSlot({
         loading={loading}
         className="image-slot size-full"
         imgClass="block size-full object-cover"
+        testId="image-slot"
       />
     );
   }
@@ -32,8 +33,13 @@ export function ImageSlot({
     <div
       aria-hidden="true"
       className="image-slot flex size-full items-center justify-center bg-[repeating-linear-gradient(45deg,var(--color-alt)_0_14px,var(--color-control-faint)_14px_28px)]"
+      data-testid="image-slot-placeholder"
     >
-      {label ? <span className="font-mono text-[0.78rem] text-muted">{label}</span> : null}
+      {label ? (
+        <span className="font-mono text-[0.78rem] text-muted" data-testid="image-slot-label">
+          {label}
+        </span>
+      ) : null}
     </div>
   );
 }

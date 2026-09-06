@@ -73,6 +73,8 @@ export function A11yWidget({ size = "desktop", labels }: A11yWidgetProps) {
         )}
         aria-label={t.trigger}
         title={t.trigger}
+        data-testid="a11y-widget-trigger"
+        data-widget-size={size}
       >
         Aa
       </PopoverTrigger>
@@ -81,6 +83,7 @@ export function A11yWidget({ size = "desktop", labels }: A11yWidgetProps) {
         align="end"
         aria-labelledby="a11y-widget-heading"
         className="z-[200] w-[280px] rounded-[14px] border-0 bg-white p-[18px] font-sans text-ink shadow-popover"
+        data-testid="a11y-widget-panel"
       >
         <div className="flex flex-col gap-4">
           <div id="a11y-widget-heading" className="text-base font-bold">
@@ -91,7 +94,12 @@ export function A11yWidget({ size = "desktop", labels }: A11yWidgetProps) {
             <div id="a11y-text-size-label" className="text-[0.9rem] font-bold">
               {t.textSize}
             </div>
-            <div className="flex gap-1.5" role="group" aria-labelledby="a11y-text-size-label">
+            <div
+              className="flex gap-1.5"
+              role="group"
+              aria-labelledby="a11y-text-size-label"
+              data-testid="a11y-widget-text-size"
+            >
               {SIZES.map((s) => (
                 <button
                   key={s.value}
@@ -104,6 +112,8 @@ export function A11yWidget({ size = "desktop", labels }: A11yWidgetProps) {
                   )}
                   aria-pressed={settings.textSize === s.value}
                   onClick={() => setTextSize(s.value)}
+                  data-testid="a11y-widget-text-size-option"
+                  data-text-size-value={s.value}
                 >
                   {s.label}
                 </button>
@@ -116,6 +126,7 @@ export function A11yWidget({ size = "desktop", labels }: A11yWidgetProps) {
             className={ROW}
             aria-pressed={settings.highContrast}
             onClick={toggleHighContrast}
+            data-testid="a11y-widget-high-contrast"
           >
             <span>{t.highContrast}</span>
             <span className={pillClass(settings.highContrast)}>
@@ -128,6 +139,7 @@ export function A11yWidget({ size = "desktop", labels }: A11yWidgetProps) {
             className={ROW}
             aria-pressed={settings.reduceMotion}
             onClick={toggleReduceMotion}
+            data-testid="a11y-widget-reduce-motion"
           >
             <span>{t.reduceMotion}</span>
             <span className={pillClass(settings.reduceMotion)}>
@@ -135,7 +147,7 @@ export function A11yWidget({ size = "desktop", labels }: A11yWidgetProps) {
             </span>
           </button>
 
-          <p role="status" className="sr-only">
+          <p role="status" className="sr-only" data-testid="a11y-widget-status">
             {status}
           </p>
         </div>

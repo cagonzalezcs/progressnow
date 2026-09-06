@@ -62,10 +62,14 @@ export function FrontPage({
   ).split("%s");
 
   return (
-    <div data-route-kind="front" className="route-front contents">
+    <div data-route-kind="front" className="route-front contents" data-testid="route-front">
       {children}
       {/* ============ HERO ============ */}
-      <section className="home-hero overflow-hidden bg-brand font-sans text-white" data-tone="blue">
+      <section
+        className="home-hero overflow-hidden bg-brand font-sans text-white"
+        data-tone="blue"
+        data-testid="home-hero"
+      >
         <div className="mx-auto flex w-full max-w-[1300px] flex-col min-[700px]:flex-row">
           <div className="relative h-[240px] min-w-0 min-[700px]:order-1 min-[700px]:h-auto min-[700px]:min-h-[480px] min-[700px]:w-1/2 min-[700px]:flex-none">
             <DuotoneImage
@@ -77,6 +81,7 @@ export function FrontPage({
               fetchPriority="high"
               className="absolute inset-0 h-full w-full"
               imgClass="block h-full w-full object-cover"
+              testId="home-hero-photo"
             />
           </div>
           <div className="relative flex min-w-0 flex-col items-center justify-center px-6 pb-12 pt-14 text-center min-[700px]:w-1/2 min-[700px]:flex-none min-[700px]:justify-end min-[700px]:px-8 min-[700px]:pb-[84px] min-[700px]:pt-[88px] lg:pl-12 lg:pr-16">
@@ -93,14 +98,20 @@ export function FrontPage({
                 kind="star"
                 className="absolute -bottom-4 -right-6 hidden w-[50px] text-brand-light min-[700px]:block lg:-right-12"
               />
-              <h1 className="hero-headline">{identity.hero_headline}</h1>
-              <p className="m-0 max-w-[32ch] text-[1.1rem] font-semibold leading-[1.45] [text-wrap:balance] min-[700px]:max-w-[34ch] min-[700px]:text-[1.35rem] min-[700px]:leading-[1.4]">
+              <h1 className="hero-headline" data-testid="home-hero-headline">
+                {identity.hero_headline}
+              </h1>
+              <p
+                className="m-0 max-w-[32ch] text-[1.1rem] font-semibold leading-[1.45] [text-wrap:balance] min-[700px]:max-w-[34ch] min-[700px]:text-[1.35rem] min-[700px]:leading-[1.4]"
+                data-testid="home-hero-subhead"
+              >
                 {hero.subhead}
               </p>
               <SiteLink
                 href={hero.cta_primary_url}
                 wpOrigin={wpOrigin}
                 className="rounded-full bg-white px-10 py-[15px] font-display text-base font-normal uppercase tracking-[0.04em] text-brand no-underline transition-[transform,background-color,color] hover:-translate-y-px hover:bg-brand-deep hover:text-white min-[700px]:px-11 min-[700px]:py-4 min-[700px]:text-[1.15rem]"
+                data-testid="home-hero-cta-primary"
               >
                 {hero.cta_primary_label}
               </SiteLink>
@@ -108,6 +119,7 @@ export function FrontPage({
                 href={hero.cta_secondary_url}
                 wpOrigin={wpOrigin}
                 className="flex items-center gap-4 rounded-[14px] border-2 border-dashed border-brand-light px-[18px] py-3.5 text-left text-white no-underline transition-colors hover:border-transparent hover:bg-brand-deep min-[700px]:gap-[22px] min-[700px]:rounded-[16px] min-[700px]:px-7 min-[700px]:py-[18px]"
+                data-testid="home-hero-cta-secondary"
               >
                 <span className="max-w-[22ch] text-base font-bold leading-[1.35] min-[700px]:text-[1.25rem]">
                   {hero.cta_secondary_label}
@@ -124,6 +136,7 @@ export function FrontPage({
         id="about"
         className="who-we-are bg-white px-6 pb-12 pt-14 font-sans text-ink md:pb-[76px] md:pt-[84px]"
         data-tone="white"
+        data-testid="home-who-we-are"
       >
         <div className="mx-auto flex max-w-[1240px] flex-col gap-5 md:grid md:items-center md:gap-14 md:[grid-template-columns:minmax(320px,1.15fr)_minmax(300px,1fr)]">
           <div className="relative order-3 md:order-first">
@@ -136,6 +149,7 @@ export function FrontPage({
               loading="lazy"
               className="rounded-[18px] md:rounded-[24px]"
               imgClass="block h-auto w-full"
+              testId="home-who-image"
             />
             <StarGlyph
               kind="star"
@@ -143,23 +157,42 @@ export function FrontPage({
             />
           </div>
           <div className="contents md:flex md:flex-col md:items-end md:gap-[22px] md:text-right">
-            <div className="order-1 text-[0.9rem] font-extrabold uppercase tracking-[0.06em] text-accent md:text-base md:tracking-[0.04em]">
+            <div
+              className="order-1 text-[0.9rem] font-extrabold uppercase tracking-[0.06em] text-accent md:text-base md:tracking-[0.04em]"
+              data-testid="home-who-eyebrow"
+            >
               {who.eyebrow}
             </div>
             {/* kses'd editor markup (notranslate spans) */}
-            <h2 className={cn("order-2", H2)} dangerouslySetInnerHTML={{ __html: who.heading }} />
-            <p className="order-4 m-0 text-[1.05rem] font-semibold leading-[1.5] md:text-[1.22rem] md:font-bold md:leading-[1.45]">
+            <h2
+              className={cn("order-2", H2)}
+              data-testid="home-who-heading"
+              dangerouslySetInnerHTML={{ __html: who.heading }}
+            />
+            <p
+              className="order-4 m-0 text-[1.05rem] font-semibold leading-[1.5] md:text-[1.22rem] md:font-bold md:leading-[1.45]"
+              data-testid="home-who-p1"
+            >
               {who.p1}
             </p>
-            <p className="order-4 m-0 text-[1.05rem] font-semibold leading-[1.5] md:text-[1.22rem] md:font-bold md:leading-[1.45]">
+            <p
+              className="order-4 m-0 text-[1.05rem] font-semibold leading-[1.5] md:text-[1.22rem] md:font-bold md:leading-[1.45]"
+              data-testid="home-who-p2"
+            >
               {who.p2}
             </p>
             {/* kses'd editor markup (line breaks) */}
             <p
               className="order-4 m-0 text-[1.05rem] font-semibold leading-[1.5] md:text-[1.22rem] md:font-bold md:leading-[1.45]"
+              data-testid="home-who-p3"
               dangerouslySetInnerHTML={{ __html: who.p3 }}
             />
-            <SiteLink href={who.link_url} wpOrigin={wpOrigin} className={cn("order-5", ARROW_LINK)}>
+            <SiteLink
+              href={who.link_url}
+              wpOrigin={wpOrigin}
+              className={cn("order-5", ARROW_LINK)}
+              data-testid="home-who-link"
+            >
               {who.link_label}
               <ArrowGlyph className={ARROW_SVG} />
             </SiteLink>
@@ -172,9 +205,12 @@ export function FrontPage({
         id="events"
         className="upcoming-events bg-alt px-6 pb-14 pt-12 font-sans text-ink md:pb-24 md:pt-[76px]"
         data-tone="alt"
+        data-testid="home-events"
       >
         <div className="mx-auto flex max-w-[1240px] flex-col gap-[22px] md:grid md:items-center md:gap-10 md:[grid-template-columns:1fr_auto]">
-          <h2 className={H2}>{t("home_events_head", "Upcoming events")}</h2>
+          <h2 className={H2} data-testid="home-events-heading">
+            {t("home_events_head", "Upcoming events")}
+          </h2>
           <SiteLink
             href={calendarUrl}
             wpOrigin={wpOrigin}
@@ -183,21 +219,29 @@ export function FrontPage({
               ARROW_LINK,
               "md:order-none md:col-start-2 md:row-start-1 md:justify-start",
             )}
+            data-testid="home-events-calendar-link"
           >
             {t("home_events_all", "Full calendar")}
             <ArrowGlyph className={ARROW_SVG} />
           </SiteLink>
           {events.length === 0 ? (
-            <div className="flex flex-col items-center gap-1 rounded-[20px] border-2 border-dashed border-border-muted px-8 py-16 text-center md:col-span-2 md:row-start-2">
-              <div className="text-[1.25rem] font-bold">
+            <div
+              className="flex flex-col items-center gap-1 rounded-[20px] border-2 border-dashed border-border-muted px-8 py-16 text-center md:col-span-2 md:row-start-2"
+              data-testid="home-events-empty"
+            >
+              <div className="text-[1.25rem] font-bold" data-testid="home-events-empty-title">
                 {t("home_events_empty_h", "No events on the books yet")}
               </div>
-              <p className="m-0 max-w-[42ch] text-[1.25rem] font-medium leading-[1.45]">
+              <p
+                className="m-0 max-w-[42ch] text-[1.25rem] font-medium leading-[1.45]"
+                data-testid="home-events-empty-body"
+              >
                 {emptyBefore}
                 <SiteLink
                   href={calendarUrl}
                   wpOrigin={wpOrigin}
                   className="font-bold text-accent underline underline-offset-4 hover:text-brand-deep"
+                  data-testid="home-events-empty-link"
                 >
                   {t("home_events_empty_link", "calendar")}
                 </SiteLink>
@@ -205,31 +249,47 @@ export function FrontPage({
               </p>
             </div>
           ) : (
-            <div className="flex flex-col gap-3 md:col-span-2 md:row-start-2">
+            <div
+              className="flex flex-col gap-3 md:col-span-2 md:row-start-2"
+              data-testid="home-events-list"
+            >
               {events.map((ev) => (
                 <SiteLink
                   key={`${ev.title}-${ev.when}`}
                   href={ev.url || calendarUrl}
                   wpOrigin={wpOrigin}
                   aria-label={`${t("home_view_event", "View event")}: ${ev.title}`}
+                  data-testid="home-event-row"
                   className="group grid grid-cols-[60px_1fr] items-center gap-4 rounded-[14px] bg-white p-4 text-ink no-underline shadow-subtle transition-shadow hover:shadow-card md:[grid-template-columns:76px_1fr_auto] md:gap-6 md:rounded-[16px] md:px-[22px] md:py-[18px]"
                 >
                   <span
                     aria-hidden="true"
                     className="flex flex-col rounded-[10px] bg-brand px-0.5 py-2 text-center text-white md:rounded-[12px] md:px-1 md:py-2.5"
                   >
-                    <span className="text-[1.2rem] font-extrabold leading-[1.1] md:text-[1.4rem]">
+                    <span
+                      className="text-[1.2rem] font-extrabold leading-[1.1] md:text-[1.4rem]"
+                      data-testid="home-event-row-day"
+                    >
                       {ev.day}
                     </span>
-                    <span className="text-[0.68rem] font-bold tracking-[0.1em] md:text-[0.75rem]">
+                    <span
+                      className="text-[0.68rem] font-bold tracking-[0.1em] md:text-[0.75rem]"
+                      data-testid="home-event-row-month"
+                    >
                       {ev.month}
                     </span>
                   </span>
                   <span className="flex flex-col gap-[3px] md:gap-1">
-                    <span className="text-[1.02rem] font-bold leading-[1.3] md:text-[1.18rem]">
+                    <span
+                      className="text-[1.02rem] font-bold leading-[1.3] md:text-[1.18rem]"
+                      data-testid="home-event-row-title"
+                    >
                       {ev.title}
                     </span>
-                    <span className="text-[0.88rem] font-medium text-muted md:text-base">
+                    <span
+                      className="text-[0.88rem] font-medium text-muted md:text-base"
+                      data-testid="home-event-row-meta"
+                    >
                       {ev.when}
                       <span className="hidden md:inline"> · {ev.where}</span>
                     </span>
@@ -252,15 +312,19 @@ export function FrontPage({
         id="blog"
         className="from-the-blog bg-white px-6 py-14 font-sans text-ink md:pb-24 md:pt-[88px]"
         data-tone="white"
+        data-testid="home-blog"
       >
         <div className="mx-auto flex max-w-[1240px] flex-col gap-[22px] md:gap-11">
-          <h2 className={H2}>{t("home_blog_head", "From the blog")}</h2>
+          <h2 className={H2} data-testid="home-blog-heading">
+            {t("home_blog_head", "From the blog")}
+          </h2>
           {blog.featured ? (
             <div className="grid grid-cols-1 items-stretch gap-4 md:grid-cols-2 md:gap-8 lg:[grid-template-columns:minmax(300px,1.15fr)_minmax(280px,1fr)]">
               <SiteLink
                 href={blog.featured.url}
                 wpOrigin={wpOrigin}
                 className={cn("flex flex-col", CARD, "md:col-span-2 lg:col-span-1")}
+                data-testid="home-blog-featured"
               >
                 <span
                   className={cn(
@@ -276,20 +340,33 @@ export function FrontPage({
                       loading="lazy"
                       className="absolute inset-0 h-full w-full"
                       imgClass="block h-full w-full object-cover"
+                      testId="home-blog-featured-image"
                     />
                   ) : null}
-                  <span className="absolute left-3 top-3 rounded-full bg-brand px-3 py-1 text-[0.72rem] font-bold uppercase tracking-[0.06em] text-white md:left-3.5 md:top-3.5 md:px-3.5 md:py-[5px] md:text-[0.75rem]">
+                  <span
+                    className="absolute left-3 top-3 rounded-full bg-brand px-3 py-1 text-[0.72rem] font-bold uppercase tracking-[0.06em] text-white md:left-3.5 md:top-3.5 md:px-3.5 md:py-[5px] md:text-[0.75rem]"
+                    data-testid="home-blog-featured-category"
+                  >
                     {blog.featured.cat_label}
                   </span>
                 </span>
                 <span className="flex flex-col gap-2 px-5 pb-[22px] pt-[18px] md:gap-2.5 md:px-7 md:pb-[30px] md:pt-[26px]">
-                  <span className="text-[0.82rem] font-semibold text-muted md:text-[0.85rem]">
+                  <span
+                    className="text-[0.82rem] font-semibold text-muted md:text-[0.85rem]"
+                    data-testid="home-blog-featured-meta"
+                  >
                     {blog.featured.date} · {blog.featured.read}
                   </span>
-                  <span className="text-[1.1rem] font-extrabold leading-[1.3] [text-wrap:balance] md:text-[clamp(1.2rem,2.2vw,1.45rem)] md:leading-[1.25]">
+                  <span
+                    className="text-[1.1rem] font-extrabold leading-[1.3] [text-wrap:balance] md:text-[clamp(1.2rem,2.2vw,1.45rem)] md:leading-[1.25]"
+                    data-testid="home-blog-featured-title"
+                  >
                     {blog.featured.title}
                   </span>
-                  <span className="hidden text-base leading-[1.55] text-muted md:block">
+                  <span
+                    className="hidden text-base leading-[1.55] text-muted md:block"
+                    data-testid="home-blog-featured-excerpt"
+                  >
                     {blog.featured.excerpt}
                   </span>
                   <span className="mt-1 hidden items-center gap-3 text-[0.95rem] font-extrabold uppercase tracking-[0.03em] text-accent md:flex">
@@ -298,7 +375,10 @@ export function FrontPage({
                   </span>
                 </span>
               </SiteLink>
-              <div className="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-2 md:gap-5 lg:col-span-1 lg:grid-cols-1">
+              <div
+                className="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-2 md:gap-5 lg:col-span-1 lg:grid-cols-1"
+                data-testid="home-blog-rows"
+              >
                 {blog.rows.map((row, i) => (
                   <SiteLink
                     key={row.url + row.title}
@@ -309,6 +389,8 @@ export function FrontPage({
                       CARD,
                       "md:[grid-template-columns:130px_1fr]",
                     )}
+                    data-testid="home-blog-row"
+                    data-row-index={i}
                   >
                     {row.image ? (
                       <DuotoneImage
@@ -318,6 +400,7 @@ export function FrontPage({
                         loading="lazy"
                         className="min-h-[96px] md:min-h-[130px]"
                         imgClass="block h-full w-full object-cover"
+                        testId="home-blog-row-image"
                       />
                     ) : (
                       <span
@@ -331,13 +414,20 @@ export function FrontPage({
                           i % 2 === 0 ? "border-brand text-brand" : "border-accent text-accent",
                           "hidden self-start rounded-full border-2 px-3 py-[3px] text-[0.72rem] font-bold uppercase tracking-[0.06em] md:inline-block",
                         )}
+                        data-testid="home-blog-row-category"
                       >
                         {row.cat_label}
                       </span>
-                      <span className="text-[0.98rem] font-bold leading-[1.35] md:text-[1.1rem]">
+                      <span
+                        className="text-[0.98rem] font-bold leading-[1.35] md:text-[1.1rem]"
+                        data-testid="home-blog-row-title"
+                      >
                         {row.title}
                       </span>
-                      <span className="text-[0.82rem] font-semibold text-muted md:text-[0.85rem]">
+                      <span
+                        className="text-[0.82rem] font-semibold text-muted md:text-[0.85rem]"
+                        data-testid="home-blog-row-date"
+                      >
                         {row.date}
                       </span>
                     </span>
@@ -346,11 +436,17 @@ export function FrontPage({
               </div>
             </div>
           ) : (
-            <div className="flex flex-col items-center gap-1 rounded-[24px] border-2 border-dashed border-border-muted px-6 py-16 text-center">
-              <span className="text-[1.25rem] font-bold">
+            <div
+              className="flex flex-col items-center gap-1 rounded-[24px] border-2 border-dashed border-border-muted px-6 py-16 text-center"
+              data-testid="home-blog-empty"
+            >
+              <span className="text-[1.25rem] font-bold" data-testid="home-blog-empty-title">
                 {t("home_blog_empty_h", "Posts coming soon")}
               </span>
-              <span className="max-w-[42ch] text-[1.25rem] font-medium leading-[1.45]">
+              <span
+                className="max-w-[42ch] text-[1.25rem] font-medium leading-[1.45]"
+                data-testid="home-blog-empty-body"
+              >
                 {t(
                   "home_blog_empty_p",
                   "The chapter is writing its first dispatches — check back shortly.",
@@ -366,13 +462,17 @@ export function FrontPage({
         className="closing-cta bg-brand pt-10 font-sans min-[700px]:pt-[72px]"
         data-tone="blue"
         aria-label={t("cta_join", "Join us")}
+        data-testid="home-cta"
       >
         <div
           aria-hidden="true"
           className="cta-flames h-[110px] min-[700px]:h-[clamp(120px,17vw,240px)]"
         />
         <div className="relative -mt-0.5 bg-brand-light px-5 pb-10 pt-2 min-[700px]:px-6 min-[700px]:pb-14 min-[700px]:pt-4">
-          <div className="relative mx-auto hidden max-w-[1100px] min-[700px]:block">
+          <div
+            className="relative mx-auto hidden max-w-[1100px] min-[700px]:block"
+            data-testid="home-cta-panel"
+          >
             {/* eslint-disable-next-line @next/next/no-img-element -- decorative brand panel sized by the theme */}
             <img
               src={identity.cta_panel.src}
@@ -381,21 +481,29 @@ export function FrontPage({
               width={identity.cta_panel.width}
               height={identity.cta_panel.height}
               className="block h-auto w-full"
+              data-testid="home-cta-panel-image"
             />
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-[clamp(12px,3vw,40px)] pl-[44%] pr-[5%] text-center">
-              <p className="m-0 font-brush text-[clamp(1.8rem,5.4vw,4.8rem)] font-normal uppercase leading-[1.1] text-white [text-wrap:balance]">
+              <p
+                className="m-0 font-brush text-[clamp(1.8rem,5.4vw,4.8rem)] font-normal uppercase leading-[1.1] text-white [text-wrap:balance]"
+                data-testid="home-cta-line"
+              >
                 {cta.line}
               </p>
               <SiteLink
                 href={chapter.join_url}
                 wpOrigin={wpOrigin}
                 className={cn(PILL, "px-[2.6em] py-[0.8em] text-[clamp(0.8rem,1.3vw,1.1rem)]")}
+                data-testid="home-cta-join"
               >
                 {t("cta_join_now", "Join Now")}
               </SiteLink>
             </div>
           </div>
-          <div className="relative flex flex-col items-center gap-[22px] overflow-hidden rounded-[22px] bg-cta-card px-6 pb-9 pt-8 text-center min-[700px]:hidden">
+          <div
+            className="relative flex flex-col items-center gap-[22px] overflow-hidden rounded-[22px] bg-cta-card px-6 pb-9 pt-8 text-center min-[700px]:hidden"
+            data-testid="home-cta-card-compact"
+          >
             <span
               aria-hidden="true"
               className="absolute inset-2 rounded-[16px] border-[3px] border-dashed border-yellow opacity-85"
@@ -405,6 +513,7 @@ export function FrontPage({
               focusable="false"
               viewBox="-210 -200 420 395"
               className="relative h-auto w-[120px]"
+              data-testid="home-cta-star"
             >
               <path
                 d="M0 -196 L57.6 -60 L204 -51 L88 39 L127 188 L0 105 L-127 188 L-88 39 L-204 -51 L-57.6 -60 Z"
@@ -418,13 +527,17 @@ export function FrontPage({
                 fill="#FFFFFF"
               />
             </svg>
-            <p className="relative m-0 font-brush text-[2.1rem] font-normal uppercase leading-[1.1] text-white [text-wrap:balance]">
+            <p
+              className="relative m-0 font-brush text-[2.1rem] font-normal uppercase leading-[1.1] text-white [text-wrap:balance]"
+              data-testid="home-cta-line-compact"
+            >
               {cta.line}
             </p>
             <SiteLink
               href={chapter.join_url}
               wpOrigin={wpOrigin}
               className={cn("relative", PILL, "px-9 py-[13px] text-[0.95rem]")}
+              data-testid="home-cta-join-compact"
             >
               {t("cta_join_now", "Join Now")}
             </SiteLink>
@@ -454,13 +567,16 @@ async function SearchFragment({
       aria-label="Search results"
       data-route-kind="search"
       className="mx-auto max-w-[1240px] px-6 py-10"
+      data-testid="home-search-results"
     >
-      <p role="status">
+      <p role="status" data-testid="home-search-status">
         {results.total} result(s) for “{s}”
       </p>
-      <ul>
+      <ul data-testid="home-search-list">
         {results.posts.map((p) => (
-          <li key={p.slug}>{p.title}</li>
+          <li key={p.slug} data-testid="home-search-item" data-post-slug={p.slug}>
+            {p.title}
+          </li>
         ))}
       </ul>
     </section>

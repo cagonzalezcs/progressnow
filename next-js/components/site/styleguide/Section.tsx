@@ -21,11 +21,18 @@ export function Section({ id, title, note, className, children }: SectionProps) 
     <section
       id={`sg-${id}`}
       data-styleguide-section={id}
+      data-testid="styleguide-section"
       className={cn("mb-16 scroll-mt-24", className)}
     >
-      <h2 className={H2}>{title}</h2>
+      <h2 className={H2} data-testid="styleguide-section-title">
+        {title}
+      </h2>
       {children}
-      {note ? <p className="mt-3 max-w-[70ch] text-sm text-muted">{note}</p> : null}
+      {note ? (
+        <p className="mt-3 max-w-[70ch] text-sm text-muted" data-testid="styleguide-section-note">
+          {note}
+        </p>
+      ) : null}
     </section>
   );
 }

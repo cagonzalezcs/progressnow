@@ -12,7 +12,7 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/h
 
 export default function HoverCardExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="hover-card-example">
       <HoverCardSides />
       <HoverCardInDialog />
     </ExampleWrapper>

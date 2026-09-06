@@ -49,7 +49,7 @@ import {
 
 export default function ButtonGroupExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="button-group-example">
       <ButtonGroupBasic />
       <ButtonGroupWithInput />
       <ButtonGroupWithText />

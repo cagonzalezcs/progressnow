@@ -53,7 +53,7 @@ import {
 
 export default function MenubarExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="menubar-example">
       <MenubarBasic />
       <MenubarWithSubmenu />
       <MenubarWithCheckboxes />

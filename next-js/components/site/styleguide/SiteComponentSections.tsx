@@ -43,7 +43,10 @@ export function SiteComponentSections() {
         title="Page header"
         note="variant=page (interior) and variant=post (single-post hero, pullUp for the overlapping featured image)."
       >
-        <div className="flex flex-col gap-6 overflow-hidden rounded-[18px]">
+        <div
+          className="flex flex-col gap-6 overflow-hidden rounded-[18px]"
+          data-testid="sg-page-header-demo"
+        >
           <PageHeader
             titleAs="h3"
             title="About the Chapter"
@@ -79,6 +82,7 @@ export function SiteComponentSections() {
         <div
           className="flex flex-wrap items-center gap-6 rounded-[18px] bg-brand p-6"
           data-tone="blue"
+          data-testid="sg-a11y-widget-demo"
         >
           <A11yWidget size="desktop" />
           <A11yWidget size="tablet" />
@@ -86,7 +90,11 @@ export function SiteComponentSections() {
       </Section>
 
       <Section id="sidebar-cards" title="Sidebar cards">
-        <div className="grid gap-6 rounded-[18px] bg-alt p-6 md:grid-cols-3" data-tone="alt">
+        <div
+          className="grid gap-6 rounded-[18px] bg-alt p-6 md:grid-cols-3"
+          data-tone="alt"
+          data-testid="sg-sidebar-cards-demo"
+        >
           <LinkListCard heading="On this page" links={SAMPLE_LINKS} wpOrigin={SAMPLE_WP_ORIGIN} />
           <LinkListCard heading="Details" rows={SAMPLE_ROWS} wpOrigin={SAMPLE_WP_ORIGIN} />
           <div className="flex flex-col gap-6">
@@ -109,7 +117,10 @@ export function SiteComponentSections() {
         title="Category tag"
         note="solid · white · text, sm / md; every category reads brand blue on v4."
       >
-        <div className="flex flex-wrap items-center gap-4 rounded-[18px] bg-white p-6 shadow-card">
+        <div
+          className="flex flex-wrap items-center gap-4 rounded-[18px] bg-white p-6 shadow-card"
+          data-testid="sg-category-tag-demo"
+        >
           <CategoryTag catId="labor" />
           <CategoryTag catId="mutual" size="sm" />
           <CategoryTag
@@ -118,7 +129,11 @@ export function SiteComponentSections() {
             href={`${SAMPLE_WP_ORIGIN}/category/electoral/`}
             wpOrigin={SAMPLE_WP_ORIGIN}
           />
-          <span className="rounded-[12px] bg-brand p-3" data-tone="blue">
+          <span
+            className="rounded-[12px] bg-brand p-3"
+            data-tone="blue"
+            data-testid="sg-category-tag-on-blue"
+          >
             <CategoryTag catId="social" variant="white" />
           </span>
         </div>
@@ -129,14 +144,20 @@ export function SiteComponentSections() {
         title="Image slot"
         note="A real image renders full-color; a null src draws the striped placeholder (decorative)."
       >
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          <div className="aspect-[4/3] overflow-hidden rounded-[14px]">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4" data-testid="sg-image-slot-demo">
+          <div
+            className="aspect-[4/3] overflow-hidden rounded-[14px]"
+            data-testid="sg-image-slot-real"
+          >
             <ImageSlot
               src="/wp-content/themes/progressnow/static/images/brand/who-photo.jpg"
               alt="Members at a community fridge"
             />
           </div>
-          <div className="aspect-[4/3] overflow-hidden rounded-[14px]">
+          <div
+            className="aspect-[4/3] overflow-hidden rounded-[14px]"
+            data-testid="sg-image-slot-empty"
+          >
             <ImageSlot src={null} label="photo" />
           </div>
         </div>
@@ -147,13 +168,13 @@ export function SiteComponentSections() {
         title="Event blocks"
         note="event_body flexible content: prose, agenda, good to know, accessibility note, map."
       >
-        <div className="flex max-w-[760px] flex-col gap-6">
+        <div className="flex max-w-[760px] flex-col gap-6" data-testid="sg-event-blocks-demo">
           <EventBlocks blocks={SAMPLE_EVENT_BLOCKS} />
         </div>
       </Section>
 
       <Section id="pull-quote" title="Pull quote">
-        <div className="max-w-[760px]">
+        <div className="max-w-[760px]" data-testid="sg-pull-quote-demo">
           <BlockPullQuote
             quote="When we fight, we win — and we only fight together."
             attribution="A steward at the plant"
@@ -166,7 +187,7 @@ export function SiteComponentSections() {
         title="FAQ accordion"
         note="Radix disclosure: one open, arrow keys move between questions, aria-expanded on every trigger."
       >
-        <div className="max-w-[760px]">
+        <div className="max-w-[760px]" data-testid="sg-faq-demo">
           <FaqAccordion items={SAMPLE_FAQ} />
         </div>
       </Section>
@@ -176,12 +197,13 @@ export function SiteComponentSections() {
         title="Subscribe strip"
         note="Renders nothing without a newsletter URL in Chapter Settings."
       >
-        <div className="overflow-hidden rounded-[18px]">
+        <div className="overflow-hidden rounded-[18px]" data-testid="sg-subscribe-demo">
           <SubscribeStrip
             href="https://example.org/newsletter"
             title="Stay in the loop"
             lede="One email a month. No spam, no lists sold — ever."
             label="Subscribe"
+            testId="sg-subscribe-strip"
           />
         </div>
       </Section>
@@ -191,11 +213,14 @@ export function SiteComponentSections() {
         title="Glyphs"
         note="Inline SVG so fill: currentColor takes the placement's text color."
       >
-        <div className="flex flex-wrap items-center gap-8 rounded-[18px] bg-brand-light p-6 text-brand">
+        <div
+          className="flex flex-wrap items-center gap-8 rounded-[18px] bg-brand-light p-6 text-brand"
+          data-testid="sg-glyphs-demo"
+        >
           <StarGlyph />
           <StarGlyph kind="star-notch" className="w-[44px]" />
           <StarGlyph kind="sparkle" className="w-[40px]" />
-          <span className="text-yellow">
+          <span className="text-yellow" data-testid="sg-glyph-yellow">
             <StarGlyph className="w-[36px]" />
           </span>
         </div>

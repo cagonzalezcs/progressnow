@@ -9,7 +9,7 @@ function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
     <nav
       role="navigation"
       aria-label="pagination"
-      data-slot="pagination"
+      data-slot="pagination" data-testid="pagination"
       className={cn("mx-auto flex w-full justify-center", className)}
       {...props}
     />
@@ -22,7 +22,7 @@ function PaginationContent({
 }: React.ComponentProps<"ul">) {
   return (
     <ul
-      data-slot="pagination-content"
+      data-slot="pagination-content" data-testid="pagination-content"
       className={cn("flex items-center gap-0.5", className)}
       {...props}
     />
@@ -30,7 +30,7 @@ function PaginationContent({
 }
 
 function PaginationItem({ ...props }: React.ComponentProps<"li">) {
-  return <li data-slot="pagination-item" {...props} />
+  return <li data-slot="pagination-item" data-testid="pagination-item" {...props} />
 }
 
 type PaginationLinkProps = {
@@ -53,7 +53,7 @@ function PaginationLink({
     >
       <a
         aria-current={isActive ? "page" : undefined}
-        data-slot="pagination-link"
+        data-slot="pagination-link" data-testid="pagination-link"
         data-active={isActive}
         {...props}
       />
@@ -104,7 +104,7 @@ function PaginationEllipsis({
   return (
     <span
       aria-hidden
-      data-slot="pagination-ellipsis"
+      data-slot="pagination-ellipsis" data-testid="pagination-ellipsis"
       className={cn(
         "flex size-8 items-center justify-center [&_svg:not([class*='size-'])]:size-4",
         className

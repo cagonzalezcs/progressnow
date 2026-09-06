@@ -84,26 +84,37 @@ export function GetInvolvedPage({
       wpOrigin={wpOrigin}
       nav={gi.nav}
       article={
-        <article className={ARTICLE}>
+        <article className={ARTICLE} data-testid="get-involved-article">
           {gi.join.visible ? (
             <>
-              <h2 id="join" className={H2}>
+              <h2 id="join" className={H2} data-testid="get-involved-join-heading">
                 {gi.join.heading}
               </h2>
-              <ol className="m-0 flex list-none flex-col gap-3.5 p-0">
+              <ol
+                className="m-0 flex list-none flex-col gap-3.5 p-0"
+                data-testid="get-involved-steps"
+              >
                 {gi.join.steps.map((step, i) => (
                   <li
                     key={step.title}
                     className="grid grid-cols-[48px_1fr] gap-4 rounded-[16px] bg-white p-5 shadow-card md:grid-cols-[56px_1fr] md:gap-5 md:rounded-[18px] md:p-6 xl:rounded-[20px]"
+                    data-testid="get-involved-step"
+                    data-step-index={i}
                   >
                     <div
                       aria-hidden="true"
                       className="flex size-12 items-center justify-center rounded-[12px] bg-brand font-display text-[1.4rem] font-normal text-white md:size-14 md:text-[1.6rem]"
+                      data-testid="get-involved-step-number"
                     >
                       {i + 1}
                     </div>
                     <div className="flex flex-col gap-2">
-                      <div className="text-[1.05rem] font-bold md:text-[1.1rem]">{step.title}</div>
+                      <div
+                        className="text-[1.05rem] font-bold md:text-[1.1rem]"
+                        data-testid="get-involved-step-title"
+                      >
+                        {step.title}
+                      </div>
                       <Html html={step.body} className={PROSE_SM} />
                       {step.link_label && step.href ? (
                         <SiteLink
@@ -111,6 +122,7 @@ export function GetInvolvedPage({
                           wpOrigin={wpOrigin}
                           target={step.external ? "_blank" : undefined}
                           className={LINK_ACCENT}
+                          data-testid="get-involved-step-link"
                         >
                           {step.link_label}
                         </SiteLink>
@@ -124,15 +136,28 @@ export function GetInvolvedPage({
 
           {gi.committees.visible ? (
             <>
-              <h2 id="committees" className={cn(H2, H2_LATER)}>
+              <h2
+                id="committees"
+                className={cn(H2, H2_LATER)}
+                data-testid="get-involved-committees-heading"
+              >
                 {gi.committees.heading}
               </h2>
               <Html html={gi.committees.intro} className={PROSE} />
-              <div className={CARD_GRID}>
+              <div className={CARD_GRID} data-testid="get-involved-committees">
                 {chapter.committees.map((committee) => (
-                  <div key={committee.name} className={CARD}>
-                    <div className={CARD_TITLE}>{committee.name}</div>
-                    <p className={CARD_DESC}>{committee.desc}</p>
+                  <div
+                    key={committee.name}
+                    className={CARD}
+                    data-testid="get-involved-committee"
+                    data-committee={committee.name}
+                  >
+                    <div className={CARD_TITLE} data-testid="get-involved-committee-name">
+                      {committee.name}
+                    </div>
+                    <p className={CARD_DESC} data-testid="get-involved-committee-desc">
+                      {committee.desc}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -141,10 +166,14 @@ export function GetInvolvedPage({
 
           {gi.channels.visible ? (
             <>
-              <h2 id="channels" className={cn(H2, H2_LATER)}>
+              <h2
+                id="channels"
+                className={cn(H2, H2_LATER)}
+                data-testid="get-involved-channels-heading"
+              >
                 {gi.channels.heading}
               </h2>
-              <div className="flex flex-col gap-2.5">
+              <div className="flex flex-col gap-2.5" data-testid="get-involved-channels">
                 {gi.channels.items.map((channel) => (
                   <div
                     key={channel.label}
@@ -152,6 +181,7 @@ export function GetInvolvedPage({
                       "flex flex-col items-start gap-3 md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-5",
                       ROW,
                     )}
+                    data-testid="get-involved-channel"
                   >
                     <div className="flex flex-col gap-[3px]">
                       <Html
@@ -160,7 +190,10 @@ export function GetInvolvedPage({
                         className="text-[1.02rem] font-bold md:text-[1.05rem]"
                       />
                       {channel.desc ? (
-                        <span className="text-[0.9rem] leading-[1.5] text-muted">
+                        <span
+                          className="text-[0.9rem] leading-[1.5] text-muted"
+                          data-testid="get-involved-channel-desc"
+                        >
                           {channel.desc}
                         </span>
                       ) : null}
@@ -171,11 +204,15 @@ export function GetInvolvedPage({
                         wpOrigin={wpOrigin}
                         target={channel.external ? "_blank" : undefined}
                         className={cn("whitespace-nowrap", PILL_OUTLINE)}
+                        data-testid="get-involved-channel-link"
                       >
                         {channel.link_label}
                       </SiteLink>
                     ) : channel.badge ? (
-                      <span className="rounded-full border border-dashed border-border-muted px-4 py-2 text-[0.8rem] font-bold text-muted">
+                      <span
+                        className="rounded-full border border-dashed border-border-muted px-4 py-2 text-[0.8rem] font-bold text-muted"
+                        data-testid="get-involved-channel-badge"
+                      >
                         {channel.badge}
                       </span>
                     ) : null}
@@ -187,7 +224,7 @@ export function GetInvolvedPage({
 
           {gi.faq.visible ? (
             <>
-              <h2 id="faq" className={cn(H2, H2_LATER)}>
+              <h2 id="faq" className={cn(H2, H2_LATER)} data-testid="get-involved-faq-heading">
                 {gi.faq.heading}
               </h2>
               <FaqAccordion items={gi.faq.items} />

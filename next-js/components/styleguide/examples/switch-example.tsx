@@ -11,7 +11,7 @@ import { Switch } from "@/components/ui/switch";
 
 export default function SwitchExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="switch-example">
       <SwitchBasic />
       <SwitchWithDescription />
       <SwitchWithLabel />

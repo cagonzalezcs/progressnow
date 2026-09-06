@@ -38,7 +38,12 @@ export async function RouteCalendar({ resolved, searchParams }: RouteProps) {
     >
       <Suspense
         fallback={
-          <section className="bg-white px-6 py-10 md:py-14" data-tone="white" aria-busy="true">
+          <section
+            className="bg-white px-6 py-10 md:py-14"
+            data-tone="white"
+            aria-busy="true"
+            data-testid="route-calendar-fallback"
+          >
             <CalendarSkeleton />
           </section>
         }
@@ -154,7 +159,11 @@ export function CalendarPage({
     page.lede ||
     `Meetings, actions, trainings, and socials across ${site.chapter.region_label || "our community"}. Everything is open to the public unless noted — bring a friend.`;
   return (
-    <div data-route-kind="calendar" className="route-calendar contents">
+    <div
+      data-route-kind="calendar"
+      className="route-calendar contents"
+      data-testid="route-calendar"
+    >
       <PageHeader
         title={page.title || t("cal_title", "Event calendar")}
         lede={lede}

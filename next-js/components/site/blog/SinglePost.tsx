@@ -47,7 +47,7 @@ export function SinglePostPage({ post, readNext, site, paths, wpOrigin }: Single
   };
 
   return (
-    <div data-route-kind="post" className="route-post contents">
+    <div data-route-kind="post" className="route-post contents" data-testid="single-post">
       <PageHeader
         title={post.title}
         variant="post"
@@ -68,33 +68,43 @@ export function SinglePostPage({ post, readNext, site, paths, wpOrigin }: Single
         }
         wpOrigin={wpOrigin}
       >
-        <div className="flex flex-wrap items-center gap-2.5 text-[0.9rem] font-semibold md:gap-3.5 md:text-base">
+        <div
+          className="flex flex-wrap items-center gap-2.5 text-[0.9rem] font-semibold md:gap-3.5 md:text-base"
+          data-testid="single-post-byline"
+        >
           {avatar ? (
             <span
               aria-hidden="true"
               className="inline-flex size-[38px] items-center justify-center rounded-full bg-brand-light text-[0.85rem] font-extrabold text-brand-deep md:size-11 md:text-base"
+              data-testid="single-post-avatar"
             >
               {avatar}
             </span>
           ) : null}
           {byline ? (
             <>
-              <span>By {byline}</span>
+              <span data-testid="single-post-author">By {byline}</span>
               <span aria-hidden="true">·</span>
             </>
           ) : null}
           <span>
-            <time>{post.date}</time>
+            <time data-testid="single-post-date">{post.date}</time>
             <span className="md:hidden"> · {post.readMinutes} min</span>
           </span>
           <span aria-hidden="true" className="hidden md:inline">
             ·
           </span>
-          <span className="hidden md:inline">{post.readMinutes} min read</span>
+          <span className="hidden md:inline" data-testid="single-post-read-time">
+            {post.readMinutes} min read
+          </span>
         </div>
       </PageHeader>
 
-      <section className="bg-white px-6 pb-12 md:pb-20" data-tone="white">
+      <section
+        className="bg-white px-6 pb-12 md:pb-20"
+        data-tone="white"
+        data-testid="single-post-body"
+      >
         <div
           className={cn(
             "mx-auto grid max-w-[1140px] items-start gap-10 lg:gap-14",
@@ -103,9 +113,15 @@ export function SinglePostPage({ post, readNext, site, paths, wpOrigin }: Single
               : "lg:justify-center lg:[grid-template-columns:minmax(300px,880px)]",
           )}
         >
-          <article className={cn("flex min-w-0 flex-col gap-[18px] md:gap-6", !hasImage && "pt-8")}>
+          <article
+            className={cn("flex min-w-0 flex-col gap-[18px] md:gap-6", !hasImage && "pt-8")}
+            data-testid="single-post-article"
+          >
             {hasImage ? (
-              <figure className="m-0 -mt-[70px] flex flex-col md:-mt-[110px]">
+              <figure
+                className="m-0 -mt-[70px] flex flex-col md:-mt-[110px]"
+                data-testid="single-post-figure"
+              >
                 <div
                   className="aspect-video overflow-hidden rounded-[16px] bg-white shadow-photo md:rounded-[24px]"
                   data-post-hero=""
@@ -118,16 +134,26 @@ export function SinglePostPage({ post, readNext, site, paths, wpOrigin }: Single
                   />
                 </div>
                 {post.featuredImage.caption || post.featuredImage.credit ? (
-                  <figcaption className="mt-3 text-[0.9rem] leading-[1.5] text-muted">
+                  <figcaption
+                    className="mt-3 text-[0.9rem] leading-[1.5] text-muted"
+                    data-testid="single-post-figcaption"
+                  >
                     {post.featuredImage.caption}{" "}
-                    {post.featuredImage.credit ? <span>{post.featuredImage.credit}</span> : null}
+                    {post.featuredImage.credit ? (
+                      <span data-testid="single-post-image-credit">
+                        {post.featuredImage.credit}
+                      </span>
+                    ) : null}
                   </figcaption>
                 ) : null}
               </figure>
             ) : null}
 
             {post.dek ? (
-              <p className="m-0 mt-1.5 text-[1.08rem] font-semibold leading-[1.6] text-ink md:mt-2 md:text-[1.22rem] md:leading-[1.65]">
+              <p
+                className="m-0 mt-1.5 text-[1.08rem] font-semibold leading-[1.6] text-ink md:mt-2 md:text-[1.22rem] md:leading-[1.65]"
+                data-testid="single-post-dek"
+              >
                 {post.dek}
               </p>
             ) : null}
@@ -148,7 +174,7 @@ export function SinglePostPage({ post, readNext, site, paths, wpOrigin }: Single
 
             {/* Below lg the sidebar stacks under the article: the CTA card follows the share row (Mobile canvas). */}
             {rail && joinUrl ? (
-              <div className="mt-2 lg:hidden">
+              <div className="mt-2 lg:hidden" data-testid="single-post-cta-stacked">
                 <CtaCard
                   title={cta.title}
                   body={cta.body}
@@ -165,6 +191,7 @@ export function SinglePostPage({ post, readNext, site, paths, wpOrigin }: Single
             <aside
               aria-label={s.chrome_related || "Post details"}
               className="hidden flex-col gap-6 lg:sticky lg:top-[108px] lg:flex lg:pt-8"
+              data-testid="single-post-sidebar"
             >
               {anchors.length ? (
                 <LinkListCard
@@ -189,16 +216,24 @@ export function SinglePostPage({ post, readNext, site, paths, wpOrigin }: Single
       </section>
 
       {readNext.length > 0 ? (
-        <section className="bg-alt px-6 pb-14 pt-11 md:pb-24 md:pt-16" data-tone="alt">
+        <section
+          className="bg-alt px-6 pb-14 pt-11 md:pb-24 md:pt-16"
+          data-tone="alt"
+          data-testid="single-post-read-next"
+        >
           <div className="mx-auto flex max-w-[1140px] flex-col gap-[18px] md:gap-7">
             <div className="flex flex-wrap items-baseline justify-between gap-4">
-              <h2 className="m-0 font-display text-[1.35rem] font-normal leading-[1.2] md:text-[clamp(1.6rem,2.8vw,2.2rem)] md:leading-[1.1]">
+              <h2
+                className="m-0 font-display text-[1.35rem] font-normal leading-[1.2] md:text-[clamp(1.6rem,2.8vw,2.2rem)] md:leading-[1.1]"
+                data-testid="single-post-read-next-heading"
+              >
                 {s.blog_read_next || "Read next"}
               </h2>
               <SiteLink
                 href={paths.blog}
                 wpOrigin={wpOrigin}
                 className={cn("hidden md:flex", ALL_POSTS)}
+                data-testid="single-post-all-posts-link"
               >
                 {s.home_blog_all || "All posts"}
                 <ArrowGlyph />
@@ -207,6 +242,7 @@ export function SinglePostPage({ post, readNext, site, paths, wpOrigin }: Single
             <div
               className="flex flex-col gap-3 md:grid md:gap-6 md:[grid-template-columns:repeat(auto-fit,minmax(260px,1fr))]"
               data-read-next=""
+              data-testid="single-post-read-next-list"
             >
               {readNext.map((p) => (
                 <PostCard
@@ -222,6 +258,7 @@ export function SinglePostPage({ post, readNext, site, paths, wpOrigin }: Single
               href={paths.blog}
               wpOrigin={wpOrigin}
               className={cn("flex justify-center md:hidden", ALL_POSTS, "gap-3.5 text-[0.95rem]")}
+              data-testid="single-post-all-posts-link-compact"
             >
               {s.home_blog_all || "All posts"}
               <ArrowGlyph className="h-[17px] w-[34px] flex-none fill-accent" />

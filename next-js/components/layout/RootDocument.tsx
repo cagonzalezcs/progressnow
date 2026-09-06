@@ -32,7 +32,7 @@ export function RootDocument({
       <head>
         <script nonce={nonce} dangerouslySetInnerHTML={{ __html: A11Y_BOOTSTRAP_SCRIPT }} />
       </head>
-      <body>
+      <body data-testid="site-body">
         <A11yProvider>{children}</A11yProvider>
       </body>
     </html>

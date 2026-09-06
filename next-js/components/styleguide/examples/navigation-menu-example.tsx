@@ -54,7 +54,7 @@ const components: { title: string; href: string; description: string }[] = [
 
 export default function NavigationMenuExample() {
   return (
-    <ExampleWrapper className="lg:grid-cols-1">
+    <ExampleWrapper data-testid="navigation-menu-example" className="lg:grid-cols-1">
       <NavigationMenuWithViewport />
       <NavigationMenuWithoutViewport />
     </ExampleWrapper>

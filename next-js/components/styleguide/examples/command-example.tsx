@@ -45,7 +45,7 @@ import {
 
 export default function CommandExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="command-example">
       <CommandInline />
       <CommandBasic />
       <CommandWithShortcuts />

@@ -11,7 +11,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export default function RadioGroupExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="radio-group-example">
       <RadioGroupBasic />
       <RadioGroupWithDescriptions />
       <RadioGroupWithFieldSet />

@@ -46,10 +46,20 @@ export function CategoryTag({
   );
   if (href) {
     return (
-      <SiteLink href={href} wpOrigin={wpOrigin} className={className}>
+      <SiteLink
+        href={href}
+        wpOrigin={wpOrigin}
+        className={className}
+        data-testid="category-tag"
+        data-category={catId}
+      >
         {category.label}
       </SiteLink>
     );
   }
-  return <span className={className}>{category.label}</span>;
+  return (
+    <span className={className} data-testid="category-tag" data-category={catId}>
+      {category.label}
+    </span>
+  );
 }

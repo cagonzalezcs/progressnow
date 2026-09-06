@@ -22,6 +22,7 @@ export function EmailSubscribeStrip({
       title={title}
       lede={lede}
       label={label}
+      testId="email-subscribe-strip"
     />
   );
 }

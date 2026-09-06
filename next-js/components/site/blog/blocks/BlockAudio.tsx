@@ -35,7 +35,11 @@ export function BlockAudio({
   }
 
   return (
-    <div className="block-audio flex w-full flex-col gap-3.5 rounded-[16px] bg-white px-5 py-[18px] shadow-media md:rounded-[20px] md:px-[26px] md:py-[22px]">
+    <div
+      data-testid="block-audio"
+      data-playing={playing}
+      className="block-audio flex w-full flex-col gap-3.5 rounded-[16px] bg-white px-5 py-[18px] shadow-media md:rounded-[20px] md:px-[26px] md:py-[22px]"
+    >
       {file ? (
         // eslint-disable-next-line jsx-a11y/media-has-caption
         <audio
@@ -47,6 +51,7 @@ export function BlockAudio({
           onEnded={() => setPlaying(false)}
           onTimeUpdate={() => setCurrent(audio.current?.currentTime ?? 0)}
           onLoadedMetadata={() => setTotal(audio.current?.duration ?? 0)}
+          data-testid="block-audio-element"
         />
       ) : null}
       <div className="flex flex-wrap items-center gap-[18px]">
@@ -55,30 +60,38 @@ export function BlockAudio({
           aria-label={`${playing ? "Pause" : "Play"} audio: ${title}`}
           disabled={!file}
           onClick={toggle}
+          data-testid="block-audio-toggle"
           className="size-14 flex-none cursor-pointer rounded-full border-none bg-brand text-[1.1rem] text-white shadow-[0_4px_14px_rgba(27,27,34,0.25)] transition-colors duration-100 hover:bg-brand-deep disabled:cursor-default disabled:opacity-60"
         >
           {playing ? "⏸" : "▶"}
         </button>
         <div className="flex flex-[1_1_260px] flex-col gap-2.5">
-          <div className="text-[1.05rem] font-bold">{title}</div>
+          <div className="text-[1.05rem] font-bold" data-testid="block-audio-title">
+            {title}
+          </div>
           <div
             aria-hidden="true"
             className="relative h-2.5 overflow-hidden rounded-full bg-control-faint"
+            data-testid="block-audio-progress"
           >
             <div
               className="absolute inset-y-0 left-0 rounded-full bg-brand"
               style={{ width: `${pct}%` }}
+              data-testid="block-audio-progress-fill"
             />
           </div>
           <div className="flex justify-between font-mono text-[0.8rem] text-muted">
-            <span>{fmt(current)}</span>
-            <span>{total > 0 ? fmt(total) : duration || "—"}</span>
+            <span data-testid="block-audio-current-time">{fmt(current)}</span>
+            <span data-testid="block-audio-duration">
+              {total > 0 ? fmt(total) : duration || "—"}
+            </span>
           </div>
         </div>
       </div>
       <a
         href={transcriptUrl}
         className="self-start text-[0.9rem] font-bold text-accent no-underline hover:underline hover:underline-offset-4"
+        data-testid="block-audio-transcript"
       >
         Read transcript
       </a>

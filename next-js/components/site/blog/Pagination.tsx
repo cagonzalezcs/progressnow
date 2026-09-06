@@ -36,22 +36,39 @@ export function Pagination({
       <nav
         aria-label={label}
         className="flex flex-wrap items-center justify-center gap-2 pt-7 md:gap-2.5 md:pt-12"
+        data-testid="pagination"
+        data-current-page={current}
+        data-total-pages={total}
       >
         {current > 1 ? (
-          <Link href={href(current - 1)} className={cn(NAV_BTN, "border-control")} scroll>
+          <Link
+            href={href(current - 1)}
+            className={cn(NAV_BTN, "border-control")}
+            scroll
+            data-testid="pagination-prev"
+          >
             <span aria-hidden="true">←</span>
             <span className="hidden md:inline">&nbsp;{t.prev}</span>
             <span className="sr-only">Previous page</span>
           </Link>
         ) : (
-          <span aria-disabled="true" className={NAV_BTN_DISABLED}>
+          <span
+            aria-disabled="true"
+            className={NAV_BTN_DISABLED}
+            data-testid="pagination-prev-disabled"
+          >
             <span aria-hidden="true">←</span>
             <span className="hidden md:inline">&nbsp;{t.prev}</span>
           </span>
         )}
         {pageItems(total, current).map((item, i) =>
           item === "…" ? (
-            <span key={`gap-${i}`} aria-hidden="true" className="px-1 font-extrabold text-muted">
+            <span
+              key={`gap-${i}`}
+              aria-hidden="true"
+              className="px-1 font-extrabold text-muted"
+              data-testid="pagination-gap"
+            >
               …
             </span>
           ) : (
@@ -60,6 +77,8 @@ export function Pagination({
               href={href(item)}
               aria-label={`${t.page} ${item}`}
               aria-current={item === current ? "page" : undefined}
+              data-testid="pagination-page"
+              data-page-number={item}
               className={cn(
                 PAGE_BTN,
                 item === current
@@ -72,19 +91,30 @@ export function Pagination({
           ),
         )}
         {current < total ? (
-          <Link href={href(current + 1)} className={cn(NAV_BTN, "border-control")}>
+          <Link
+            href={href(current + 1)}
+            className={cn(NAV_BTN, "border-control")}
+            data-testid="pagination-next"
+          >
             <span className="hidden md:inline">{t.next}&nbsp;</span>
             <span aria-hidden="true">→</span>
             <span className="sr-only">Next page</span>
           </Link>
         ) : (
-          <span aria-disabled="true" className={NAV_BTN_DISABLED}>
+          <span
+            aria-disabled="true"
+            className={NAV_BTN_DISABLED}
+            data-testid="pagination-next-disabled"
+          >
             <span className="hidden md:inline">{t.next}&nbsp;</span>
             <span aria-hidden="true">→</span>
           </span>
         )}
       </nav>
-      <div className="pt-1.5 text-center text-[0.9rem] font-bold text-muted md:pt-3.5 md:text-[0.95rem]">
+      <div
+        className="pt-1.5 text-center text-[0.9rem] font-bold text-muted md:pt-3.5 md:text-[0.95rem]"
+        data-testid="pagination-status"
+      >
         {t.pageOf.replace("%1", String(current)).replace("%2", String(total))}
       </div>
     </>

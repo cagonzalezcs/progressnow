@@ -62,7 +62,7 @@ import {
 
 export default function DropdownMenuExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="dropdown-menu-example">
       <DropdownMenuBasic />
       <DropdownMenuComplex />
       <DropdownMenuWithIcons />

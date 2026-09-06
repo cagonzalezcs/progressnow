@@ -23,7 +23,7 @@ import {
 
 export default function CheckboxExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="checkbox-example">
       <CheckboxBasic />
       <CheckboxWithDescription />
       <CheckboxInvalid />

@@ -30,14 +30,31 @@ export function ShareRow({
   }
 
   return (
-    <div className="mt-1.5 flex flex-wrap items-center gap-2.5 border-t border-line pt-5 md:mt-2 md:gap-3.5 md:pt-6">
-      <span className="text-[0.85rem] font-extrabold uppercase tracking-[0.06em] text-muted md:text-[0.9rem]">
+    <div
+      className="mt-1.5 flex flex-wrap items-center gap-2.5 border-t border-line pt-5 md:mt-2 md:gap-3.5 md:pt-6"
+      data-testid="share-row"
+    >
+      <span
+        className="text-[0.85rem] font-extrabold uppercase tracking-[0.06em] text-muted md:text-[0.9rem]"
+        data-testid="share-row-label"
+      >
         {shareLabel}
       </span>
-      <button type="button" className={PILL} onClick={copyLink} aria-live="polite">
+      <button
+        type="button"
+        className={PILL}
+        onClick={copyLink}
+        aria-live="polite"
+        data-testid="share-row-copy"
+        data-copied={copied}
+      >
         {copied ? "Copied ✓" : copyLabel}
       </button>
-      <a href={`mailto:?subject=${encodeURIComponent(title)}`} className={PILL}>
+      <a
+        href={`mailto:?subject=${encodeURIComponent(title)}`}
+        className={PILL}
+        data-testid="share-row-email"
+      >
         {emailLabel}
       </a>
     </div>

@@ -14,7 +14,7 @@ import {
 
 export default function InputExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="input-example">
       <InputBasic />
       <InputInvalid />
       <InputWithLabel />

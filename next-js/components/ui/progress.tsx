@@ -11,7 +11,7 @@ function Progress({
 }: React.ComponentProps<typeof ProgressPrimitive.Root>) {
   return (
     <ProgressPrimitive.Root
-      data-slot="progress"
+      data-slot="progress" data-testid="progress"
       // a11y: a progressbar needs a name (axe aria-progressbar-name); callers should pass their own.
       aria-label={props["aria-label"] ?? (props["aria-labelledby"] ? undefined : "Progress")}
       className={cn(
@@ -21,7 +21,7 @@ function Progress({
       {...props}
     >
       <ProgressPrimitive.Indicator
-        data-slot="progress-indicator"
+        data-slot="progress-indicator" data-testid="progress-indicator"
         className="size-full flex-1 bg-primary transition-all"
         style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
       />

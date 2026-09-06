@@ -43,7 +43,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 export default function FieldExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="field-example">
       <InputFields />
       <TextareaFields />
       <SelectFields />

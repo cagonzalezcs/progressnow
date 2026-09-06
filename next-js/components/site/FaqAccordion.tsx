@@ -12,15 +12,25 @@ import {
  * row styling — the same contract as the reka-ui Vue twin. */
 export function FaqAccordion({ items }: { items: { question: string; answer: string }[] }) {
   return (
-    <Accordion className="faq-accordion flex flex-col gap-2.5 lg:gap-3" type="single" collapsible>
+    <Accordion
+      className="faq-accordion flex flex-col gap-2.5 lg:gap-3"
+      type="single"
+      collapsible
+      data-testid="faq-accordion"
+    >
       {items.map((item, index) => (
         <AccordionItem
           key={item.question}
           value={`faq-${index}`}
           className="overflow-hidden rounded-[12px] border border-line bg-white lg:rounded-[14px]"
+          data-testid="faq-accordion-item"
+          data-question={item.question}
         >
-          <AccordionTrigger className="items-center gap-4 rounded-none bg-transparent px-4 py-3.5 text-[0.98rem] font-bold text-ink hover:bg-alt hover:no-underline lg:px-5 lg:py-4 lg:text-[1.05rem] [&>svg]:hidden">
-            <span>{item.question}</span>
+          <AccordionTrigger
+            className="items-center gap-4 rounded-none bg-transparent px-4 py-3.5 text-[0.98rem] font-bold text-ink hover:bg-alt hover:no-underline lg:px-5 lg:py-4 lg:text-[1.05rem] [&>svg]:hidden"
+            data-testid="faq-accordion-trigger"
+          >
+            <span data-testid="faq-accordion-question">{item.question}</span>
             <svg
               className="pointer-events-none !block size-4 shrink-0 text-accent"
               aria-hidden="true"
@@ -34,8 +44,14 @@ export function FaqAccordion({ items }: { items: { question: string; answer: str
               <path className="[[data-state=open]_&]:hidden" d="M8 2v12" />
             </svg>
           </AccordionTrigger>
-          <AccordionContent className="px-4 pb-4 lg:px-5 lg:pb-[18px]">
-            <p className="m-0 text-[0.95rem] leading-[1.6] text-text-body lg:text-[1.02rem]">
+          <AccordionContent
+            className="px-4 pb-4 lg:px-5 lg:pb-[18px]"
+            data-testid="faq-accordion-content"
+          >
+            <p
+              className="m-0 text-[0.95rem] leading-[1.6] text-text-body lg:text-[1.02rem]"
+              data-testid="faq-accordion-answer"
+            >
               {item.answer}
             </p>
           </AccordionContent>

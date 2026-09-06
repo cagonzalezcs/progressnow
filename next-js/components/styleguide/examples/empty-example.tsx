@@ -14,7 +14,7 @@ import { ArrowUpRightIcon, CircleDashedIcon, FolderIcon, PlusIcon } from "lucide
 
 export default function EmptyExample() {
   return (
-    <ExampleWrapper className="grid-cols-1!">
+    <ExampleWrapper data-testid="empty-example" className="grid-cols-1!">
       <EmptyBasic />
       <EmptyWithMutedBackground />
       <EmptyWithBorder />

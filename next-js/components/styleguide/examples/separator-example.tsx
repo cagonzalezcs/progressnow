@@ -3,7 +3,7 @@ import { Separator } from "@/components/ui/separator";
 
 export default function SeparatorExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="separator-example">
       <SeparatorHorizontal />
       <SeparatorVertical />
       <SeparatorVerticalMenu />

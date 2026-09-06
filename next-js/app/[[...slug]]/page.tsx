@@ -51,7 +51,7 @@ export default async function Page({ params, searchParams }: PageProps<"/[[...sl
   if (resolved.kind === "styleguide") permanentRedirect("/styleguide/");
   const Component = ROUTES[resolved.kind as keyof typeof ROUTES];
   return (
-    <Suspense fallback={<div aria-busy="true" />}>
+    <Suspense fallback={<div aria-busy="true" data-testid="route-fallback" />}>
       <Component resolved={resolved} searchParams={searchParams} />
     </Suspense>
   );

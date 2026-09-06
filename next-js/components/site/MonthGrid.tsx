@@ -140,17 +140,20 @@ export function MonthGrid({
 
   let chipIndex = -1;
   return (
-    <div className="month-grid">
+    <div className="month-grid" data-testid="month-grid">
       <div
         ref={root}
         role="group"
         aria-label={`${MONTH_NAMES[month]} ${year}`}
         className="overflow-hidden rounded-[16px] bg-line shadow-gallery min-[700px]:rounded-[20px]"
+        data-testid="month-grid-card"
       >
-        <div className="grid grid-cols-7 gap-px bg-brand">
+        <div className="grid grid-cols-7 gap-px bg-brand" data-testid="month-grid-weekdays">
           {WEEKDAYS.map((wd) => (
             <div
               key={wd}
+              data-testid="month-grid-weekday"
+              data-weekday={wd}
               className="bg-brand px-0.5 py-[9px] text-center text-[0.7rem] font-extrabold uppercase tracking-[0.06em] text-white min-[700px]:px-1 min-[700px]:py-3 min-[700px]:text-[0.85rem] min-[700px]:tracking-[0.08em]"
             >
               <span className="min-[700px]:hidden" aria-hidden="true">
@@ -160,11 +163,14 @@ export function MonthGrid({
             </div>
           ))}
         </div>
-        <div className="grid grid-cols-7 gap-px bg-line">
+        <div className="grid grid-cols-7 gap-px bg-line" data-testid="month-grid-days">
           {cells.map((day) => (
             <div
               key={day.key}
               data-date={day.key}
+              data-testid="month-grid-day"
+              data-in-month={day.inMonth}
+              data-today={day.isToday}
               className={cn(
                 "flex min-h-11 min-w-0 flex-col items-start gap-1 px-1 py-1.5 min-[700px]:min-h-[96px] min-[700px]:gap-1.5 min-[700px]:px-2.5 min-[700px]:pb-3 min-[700px]:pt-2.5",
                 day.inMonth ? "bg-white" : "bg-alt",
@@ -177,21 +183,32 @@ export function MonthGrid({
                   day.inMonth ? "text-ink" : "text-border-muted",
                 )}
               >
-                <span aria-hidden="true">{day.num}</span>
+                <span aria-hidden="true" data-testid="month-grid-day-number">
+                  {day.num}
+                </span>
                 <span className="sr-only">{day.label}</span>
               </span>
               {day.events.length ? (
-                <span aria-hidden="true" className="flex flex-wrap gap-[3px] min-[700px]:hidden">
+                <span
+                  aria-hidden="true"
+                  className="flex flex-wrap gap-[3px] min-[700px]:hidden"
+                  data-testid="month-grid-day-dots"
+                >
                   {day.events.map((ev) => (
                     <span
                       key={ev.id}
                       className="block size-[7px] rounded-full bg-brand"
+                      data-testid="month-grid-day-dot"
+                      data-event-id={ev.id}
                       style={fill(ev) ? { backgroundColor: fill(ev) } : undefined}
                     />
                   ))}
                 </span>
               ) : null}
-              <div className="hidden w-full flex-col gap-1 min-[700px]:flex">
+              <div
+                className="hidden w-full flex-col gap-1 min-[700px]:flex"
+                data-testid="month-grid-day-chips"
+              >
                 {day.events.map((ev) => {
                   const index = ++chipIndex;
                   return (
@@ -199,6 +216,9 @@ export function MonthGrid({
                       key={ev.id}
                       type="button"
                       data-chip-index={index}
+                      data-testid="month-grid-event-chip"
+                      data-event-id={ev.id}
+                      data-event-date={day.key}
                       tabIndex={index === active ? 0 : -1}
                       title={`${ev.title} — ${ev.time}`}
                       style={fill(ev) ? { backgroundColor: fill(ev) } : undefined}
@@ -216,10 +236,16 @@ export function MonthGrid({
           ))}
         </div>
       </div>
-      <p className="m-0 mt-3 px-1 text-[0.85rem] font-semibold text-muted min-[700px]:hidden">
+      <p
+        className="m-0 mt-3 px-1 text-[0.85rem] font-semibold text-muted min-[700px]:hidden"
+        data-testid="month-grid-hint-compact"
+      >
         ● = event day — switch to List for details.
       </p>
-      <p className="m-0 mt-3.5 hidden text-[0.9rem] font-medium text-muted min-[700px]:block">
+      <p
+        className="m-0 mt-3.5 hidden text-[0.9rem] font-medium text-muted min-[700px]:block"
+        data-testid="month-grid-hint"
+      >
         Select an event for details, location, and how to RSVP.
       </p>
     </div>

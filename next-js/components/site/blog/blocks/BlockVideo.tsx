@@ -27,12 +27,17 @@ export function BlockVideo({
   const [playing, setPlaying] = useState(false);
   const src = embedUrl(url);
   return (
-    <figure className="block-video m-0 flex w-full flex-col">
+    <figure
+      className="block-video m-0 flex w-full flex-col"
+      data-testid="block-video"
+      data-playing={playing}
+    >
       {playing && src ? (
         <iframe
           src={src}
           title={caption || "Video"}
           className="aspect-video w-full rounded-[20px] shadow-media"
+          data-testid="block-video-iframe"
           allow="autoplay; fullscreen; picture-in-picture"
           allowFullScreen
         />
@@ -43,16 +48,23 @@ export function BlockVideo({
             !poster &&
               "bg-[repeating-linear-gradient(45deg,var(--color-alt)_0_14px,var(--color-control-faint)_14px_28px)]",
           )}
+          data-testid="block-video-poster"
         >
           {poster ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={poster} alt="" className="absolute inset-0 size-full object-cover" />
+            <img
+              src={poster}
+              alt=""
+              className="absolute inset-0 size-full object-cover"
+              data-testid="block-video-poster-image"
+            />
           ) : null}
           {src ? (
             <button
               type="button"
               aria-label="Play video"
               onClick={() => setPlaying(true)}
+              data-testid="block-video-play"
               className="relative flex size-[84px] cursor-pointer items-center justify-center rounded-full border-none bg-brand text-[1.8rem] text-white shadow-[0_8px_24px_rgba(27,27,34,0.3)] transition-transform duration-100 hover:scale-105 hover:bg-brand-deep"
             >
               ▶
@@ -61,22 +73,30 @@ export function BlockVideo({
             <a
               href={url}
               className="relative rounded-full bg-brand px-6 py-3 font-display text-[0.9rem] text-white no-underline hover:bg-brand-deep"
+              data-testid="block-video-fallback-link"
             >
               Watch video
             </a>
           )}
-          <span className="absolute bottom-3.5 right-3.5 rounded-[6px] bg-white px-2 py-1 text-[0.75rem] font-bold tracking-[0.06em] text-ink">
+          <span
+            className="absolute bottom-3.5 right-3.5 rounded-[6px] bg-white px-2 py-1 text-[0.75rem] font-bold tracking-[0.06em] text-ink"
+            data-testid="block-video-cc-badge"
+          >
             CC
           </span>
         </div>
       )}
       {caption || transcriptUrl ? (
-        <figcaption className="flex flex-wrap justify-between gap-4 pt-3 text-[0.9rem] leading-[1.5] text-muted">
-          <span>{caption}</span>
+        <figcaption
+          className="flex flex-wrap justify-between gap-4 pt-3 text-[0.9rem] leading-[1.5] text-muted"
+          data-testid="block-video-caption"
+        >
+          <span data-testid="block-video-caption-text">{caption}</span>
           {transcriptUrl ? (
             <a
               href={transcriptUrl}
               className="font-bold text-accent no-underline hover:underline hover:underline-offset-4"
+              data-testid="block-video-transcript"
             >
               Read transcript
             </a>

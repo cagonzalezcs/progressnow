@@ -4,6 +4,7 @@ export function BlockProse({ html }: { html: string }) {
   return (
     <div
       className="block-prose prose-chapter prose-post w-full"
+      data-testid="block-prose"
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );

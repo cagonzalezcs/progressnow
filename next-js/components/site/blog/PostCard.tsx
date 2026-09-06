@@ -29,6 +29,9 @@ export function PostCard({
       href={post.url}
       wpOrigin={wpOrigin}
       data-blog-link=""
+      data-testid="post-card"
+      data-variant={variant}
+      data-post-slug={post.url}
       className={cn(
         "post-card grid overflow-hidden rounded-[16px] bg-white text-ink no-underline shadow-card transition-[box-shadow,transform] duration-150 [grid-template-columns:96px_1fr] hover:-translate-y-0.5 hover:shadow-card-hover-lg md:flex md:flex-1 md:flex-col",
         isGrid ? "md:rounded-[24px]" : "md:rounded-[20px]",
@@ -38,6 +41,7 @@ export function PostCard({
         className="relative block min-h-[96px] overflow-hidden md:aspect-video md:min-h-0"
         aria-hidden="true"
         data-post-image=""
+        data-testid="post-card-image"
       >
         <span className="absolute inset-0">
           <ImageSlot
@@ -48,7 +52,7 @@ export function PostCard({
           />
         </span>
         {isGrid ? (
-          <span className="absolute left-3 top-3 hidden md:block">
+          <span className="absolute left-3 top-3 hidden md:block" data-testid="post-card-badge">
             <CategoryTag catId={post.cat} variant="white" size="sm" categories={categories} />
           </span>
         ) : null}
@@ -59,7 +63,10 @@ export function PostCard({
           isGrid ? "md:px-6 md:pb-[26px] md:pt-[22px]" : "md:px-[22px] md:pb-6 md:pt-5",
         )}
       >
-        <span className={isGrid ? "md:hidden" : "md:text-[0.78rem]"}>
+        <span
+          className={isGrid ? "md:hidden" : "md:text-[0.78rem]"}
+          data-testid="post-card-category"
+        >
           <CategoryTag catId={post.cat} variant="text" size="sm" categories={categories} />
         </span>
         <span
@@ -67,6 +74,7 @@ export function PostCard({
             "text-[0.95rem] font-bold leading-[1.3] md:font-extrabold",
             isGrid ? "md:text-[1.12rem]" : "md:text-[1.05rem]",
           )}
+          data-testid="post-card-title"
         >
           {post.title}
         </span>
@@ -75,12 +83,16 @@ export function PostCard({
             "text-[0.8rem] font-semibold text-muted md:text-[0.85rem]",
             isGrid && "md:order-first",
           )}
+          data-testid="post-card-meta"
         >
           <span className="md:hidden">{readTime ? meta : post.date}</span>
           <span className="hidden md:inline">{meta}</span>
         </span>
         {isGrid && post.excerpt ? (
-          <span className="hidden text-[0.98rem] leading-[1.55] text-muted md:block">
+          <span
+            className="hidden text-[0.98rem] leading-[1.55] text-muted md:block"
+            data-testid="post-card-excerpt"
+          >
             {post.excerpt}
           </span>
         ) : null}

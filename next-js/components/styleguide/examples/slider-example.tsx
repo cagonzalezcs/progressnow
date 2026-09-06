@@ -8,7 +8,7 @@ import { Slider } from "@/components/ui/slider";
 
 export default function SliderExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="slider-example">
       <SliderBasic />
       <SliderRange />
       <SliderMultiple />

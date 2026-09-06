@@ -40,7 +40,7 @@ import {
 
 export default function ContextMenuExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="context-menu-example">
       <ContextMenuBasic />
       <ContextMenuWithSides />
       <ContextMenuWithIcons />

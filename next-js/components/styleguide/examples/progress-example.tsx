@@ -18,7 +18,7 @@ import { FileIcon } from "lucide-react";
 
 export default function ProgressExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="progress-example">
       <ProgressValues />
       <ProgressWithLabel />
       <ProgressControlled />

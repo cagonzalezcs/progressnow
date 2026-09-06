@@ -4,7 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function SkeletonExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="skeleton-example">
       <SkeletonAvatar />
       <SkeletonCard />
       <SkeletonText />

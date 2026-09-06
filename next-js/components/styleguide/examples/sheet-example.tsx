@@ -15,7 +15,7 @@ import {
 
 export default function SheetExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="sheet-example">
       <SheetWithForm />
       <SheetNoCloseButton />
       <SheetWithSides />

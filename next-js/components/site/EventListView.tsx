@@ -19,19 +19,26 @@ export function EventListView({
   viewLabel?: string;
 }) {
   return (
-    <div className="event-list-view flex flex-col gap-3">
+    <div className="event-list-view flex flex-col gap-3" data-testid="event-list-view">
       {events.map((ev) => (
         <EventCard key={ev.id} event={ev} fallbackUrl={fallbackUrl} viewLabel={viewLabel} />
       ))}
       {events.length === 0 ? (
         <div
           data-empty="month"
+          data-testid="event-list-empty"
           className="flex flex-col items-center gap-1 rounded-[16px] border-2 border-dashed border-border-muted px-6 py-11 text-center md:rounded-[20px] md:px-8 md:py-16"
         >
-          <div className="text-[1.05rem] font-extrabold md:text-[1.25rem] md:font-bold">
+          <div
+            className="text-[1.05rem] font-extrabold md:text-[1.25rem] md:font-bold"
+            data-testid="event-list-empty-title"
+          >
             {emptyTitle}
           </div>
-          <p className="m-0 max-w-[44ch] text-base font-medium leading-[1.45] md:text-[1.2rem]">
+          <p
+            className="m-0 max-w-[44ch] text-base font-medium leading-[1.45] md:text-[1.2rem]"
+            data-testid="event-list-empty-body"
+          >
             {emptyBody}
           </p>
         </div>

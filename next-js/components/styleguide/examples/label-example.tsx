@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 export default function LabelExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="label-example">
       <LabelWithCheckbox />
       <LabelWithInput />
       <LabelDisabled />

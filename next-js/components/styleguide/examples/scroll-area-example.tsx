@@ -24,7 +24,7 @@ const works = [
 
 export default function ScrollAreaExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="scroll-area-example">
       <ScrollAreaVertical />
       <ScrollAreaHorizontal />
     </ExampleWrapper>

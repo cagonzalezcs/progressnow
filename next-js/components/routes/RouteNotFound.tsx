@@ -9,10 +9,16 @@ export async function RouteNotFound({ lang }: { lang: string }) {
   const site = await getSite(lang);
   const s = site.strings as Record<string, string>;
   return (
-    <div data-route-kind="not_found" className="mx-auto max-w-[1200px] px-4 py-10">
+    <div
+      data-route-kind="not_found"
+      className="mx-auto max-w-[1200px] px-4 py-10"
+      data-testid="route-not-found"
+    >
       <meta name="robots" content="noindex,follow" />
-      <h1 className="font-display text-3xl text-ink">{s.nf_title ?? "Page not found"}</h1>
-      <p>{s.nf_lede ?? ""}</p>
+      <h1 className="font-display text-3xl text-ink" data-testid="route-not-found-title">
+        {s.nf_title ?? "Page not found"}
+      </h1>
+      <p data-testid="route-not-found-lede">{s.nf_lede ?? ""}</p>
     </div>
   );
 }

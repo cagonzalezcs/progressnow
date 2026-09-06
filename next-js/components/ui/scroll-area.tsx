@@ -11,12 +11,12 @@ function ScrollArea({
 }: React.ComponentProps<typeof ScrollAreaPrimitive.Root>) {
   return (
     <ScrollAreaPrimitive.Root
-      data-slot="scroll-area"
+      data-slot="scroll-area" data-testid="scroll-area"
       className={cn("relative", className)}
       {...props}
     >
       <ScrollAreaPrimitive.Viewport
-        data-slot="scroll-area-viewport"
+        data-slot="scroll-area-viewport" data-testid="scroll-area-viewport"
         // a11y: keyboard users must be able to scroll the region (axe scrollable-region-focusable).
         tabIndex={0}
         className="size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1"
@@ -36,7 +36,7 @@ function ScrollBar({
 }: React.ComponentProps<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>) {
   return (
     <ScrollAreaPrimitive.ScrollAreaScrollbar
-      data-slot="scroll-area-scrollbar"
+      data-slot="scroll-area-scrollbar" data-testid="scroll-area-scrollbar"
       data-orientation={orientation}
       orientation={orientation}
       className={cn(
@@ -46,7 +46,7 @@ function ScrollBar({
       {...props}
     >
       <ScrollAreaPrimitive.ScrollAreaThumb
-        data-slot="scroll-area-thumb"
+        data-slot="scroll-area-thumb" data-testid="scroll-area-thumb"
         className="relative flex-1 rounded-full bg-border"
       />
     </ScrollAreaPrimitive.ScrollAreaScrollbar>

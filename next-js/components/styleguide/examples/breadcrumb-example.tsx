@@ -20,7 +20,7 @@ import {
 
 export default function BreadcrumbExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper data-testid="breadcrumb-example">
       <BreadcrumbBasic />
       <BreadcrumbWithDropdown />
       <BreadcrumbWithLink />

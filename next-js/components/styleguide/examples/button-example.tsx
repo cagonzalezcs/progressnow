@@ -4,7 +4,7 @@ import { ArrowRightIcon, ArrowLeftCircleIcon } from "lucide-react";
 
 export default function ButtonExample() {
   return (
-    <ExampleWrapper className="lg:grid-cols-1 2xl:grid-cols-1">
+    <ExampleWrapper data-testid="button-example" className="lg:grid-cols-1 2xl:grid-cols-1">
       <ButtonVariantsAndSizes />
       <ButtonIconRight />
       <ButtonIconLeft />
