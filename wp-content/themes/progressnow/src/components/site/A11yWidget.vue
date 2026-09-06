@@ -56,10 +56,11 @@ function pillClass(on: boolean): string {
     </PopoverTrigger>
     <PopoverContent
       align="end"
+      aria-labelledby="a11y-widget-heading"
       class="z-[200] w-[280px] rounded-[14px] border-0 bg-white p-[18px] font-sans text-ink shadow-popover"
     >
       <div class="flex flex-col gap-4">
-        <div class="text-base font-bold">Accessibility</div>
+        <div id="a11y-widget-heading" class="text-base font-bold">Accessibility</div>
 
         <div class="flex flex-col gap-2">
           <div class="text-[0.9rem] font-bold">Text size</div>
