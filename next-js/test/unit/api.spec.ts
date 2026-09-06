@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { ApiError, createApi } from "@/lib/api";
+import { createLogger } from "@/lib/log";
 import { createMock } from "../mock/api.mjs";
 
 /* Server-side progressnow/v1 client (openspec next-headless-site § Single data
@@ -91,5 +92,85 @@ describe("createApi", () => {
     const api = createApi({ apiBase: BASE, fetchImpl, mode: "production" });
     await expect(api.routes()).rejects.toMatchObject({ name: "ApiError", status: 0 });
     expect(() => new ApiError("x", 503, "y")).not.toThrow();
+  });
+});
+
+describe("upstream failure logging", () => {
+  const capture = () => {
+    const lines: string[] = [];
+    const log = createLogger({ sink: (line) => lines.push(line), now: () => new Date(0) });
+    return { lines, log };
+  };
+
+  it("emits one structured line for a 5xx and none for a 404 (a content decision)", async () => {
+    const { lines, log } = capture();
+    const fetchImpl = vi.fn(async (input: string | URL | Request) =>
+      String(input).includes("/posts/")
+        ? new Response(JSON.stringify({ code: "progressnow_not_found" }), { status: 404 })
+        : new Response(JSON.stringify({ code: "progressnow_mock_failing", message: "Simulated" }), {
+            status: 503,
+          }),
+    );
+    const api = createApi({ apiBase: BASE, fetchImpl, log });
+    await expect(api.site("en")).rejects.toMatchObject({
+      status: 503,
+      code: "progressnow_mock_failing",
+    });
+    await expect(api.post("gone", "en")).rejects.toMatchObject({ status: 404 });
+    expect(lines).toHaveLength(1);
+    expect(JSON.parse(lines[0]!)).toEqual({
+      level: "error",
+      time: "1970-01-01T00:00:00.000Z",
+      event: "upstream_failure",
+      path: "/site",
+      status: 503,
+      code: "progressnow_mock_failing",
+      message: "Simulated",
+    });
+  });
+
+  it("marks upstream health: failure on 5xx/network, success on any 2xx", async () => {
+    const marks: string[] = [];
+    const health = { markFailure: () => marks.push("fail"), markSuccess: () => marks.push("ok") };
+    const { log } = capture();
+    let failing = true;
+    const api = createApi({
+      apiBase: BASE,
+      fetchImpl: vi.fn(async () =>
+        failing
+          ? new Response("down", { status: 503 })
+          : Response.json(mock.dispatch("routes", {})),
+      ),
+      log,
+      health,
+    });
+    await expect(api.routes()).rejects.toMatchObject({ status: 503 });
+    failing = false;
+    await api.routes();
+    expect(marks).toEqual(["fail", "ok"]);
+  });
+
+  it("network errors and contract failures are logged too", async () => {
+    const { lines, log } = capture();
+    const api = createApi({
+      apiBase: BASE,
+      fetchImpl: vi.fn(async () => {
+        throw new TypeError("fetch failed");
+      }),
+      log,
+    });
+    await expect(api.routes()).rejects.toMatchObject({ status: 0 });
+    const bad = createApi({
+      apiBase: BASE,
+      fetchImpl: vi.fn(async () => Response.json({ nope: true })),
+      mode: "production",
+      onContractError: () => {},
+      log,
+    });
+    await expect(bad.routes()).rejects.toMatchObject({ code: "progressnow_contract" });
+    expect(lines.map((l) => JSON.parse(l).event)).toEqual([
+      "upstream_failure",
+      "upstream_contract",
+    ]);
   });
 });

@@ -24,7 +24,9 @@
     "test:e2e": "playwright test --project=e2e",
     "test:a11y": "playwright test --project=a11y",
     "start:standalone": "node scripts/start-standalone.mjs",
-    "build:mock": "node scripts/build-with-mock.mjs"
+    "build:mock": "node scripts/build-with-mock.mjs",
+    "test:failure": "playwright test --project=failure --workers=1",
+    "parity": "node scripts/parity-screenshots.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",

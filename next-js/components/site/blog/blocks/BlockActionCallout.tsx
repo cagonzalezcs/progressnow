@@ -1,7 +1,9 @@
 import { SiteLink } from "@/components/site/SiteLink";
 import { cn } from "@/lib/utils";
 
-/* Ink action callout: Bowlby heading, muted-on-ink body, pill buttons. */
+/* Ink action callout (openspec gutenberg-post-blocks § action_callout). The
+ * heading is a styled div, not an <hN>: callouts sit between prose sections
+ * and must not perturb the article outline the sidebar "On this page" reads. */
 export function BlockActionCallout({
   heading,
   body,
@@ -31,27 +33,25 @@ export function BlockActionCallout({
       >
         {body}
       </p>
-      {buttons.length ? (
-        <div className="flex flex-wrap gap-3.5" data-testid="block-action-callout-buttons">
-          {buttons.map((btn) => (
-            <SiteLink
-              key={btn.label + btn.url}
-              href={btn.url}
-              wpOrigin={wpOrigin}
-              className={cn(
-                "rounded-full px-[26px] py-3 font-display text-[0.9rem] font-normal tracking-[0.04em] no-underline transition-colors",
-                btn.style === "primary"
-                  ? "bg-white text-ink hover:bg-brand-deep hover:text-white"
-                  : "border-2 border-ink-hairline bg-transparent text-white hover:border-white",
-              )}
-              data-testid="block-action-callout-button"
-              data-button-style={btn.style}
-            >
-              {btn.label}
-            </SiteLink>
-          ))}
-        </div>
-      ) : null}
+      <div className="flex flex-wrap gap-3.5" data-testid="block-action-callout-buttons">
+        {buttons.map((btn) => (
+          <SiteLink
+            key={btn.label + btn.url}
+            href={btn.url}
+            wpOrigin={wpOrigin}
+            className={cn(
+              "rounded-full px-[26px] py-3 font-display text-[0.9rem] font-normal tracking-[0.04em] no-underline transition-colors",
+              btn.style === "primary"
+                ? "bg-white text-ink hover:bg-brand-deep hover:text-white"
+                : "border-2 border-ink-hairline bg-transparent text-white hover:border-white",
+            )}
+            data-testid="block-action-callout-button"
+            data-button-style={btn.style}
+          >
+            {btn.label}
+          </SiteLink>
+        ))}
+      </div>
     </aside>
   );
 }

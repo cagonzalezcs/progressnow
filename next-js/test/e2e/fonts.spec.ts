@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 /* Typography faces load same-origin through the theme static proxy (openspec
  * next-design-system § Typography faces; next-headless-site § Media delivery;
  * next-deployment § Static and proxied asset caching). */
-const APP = process.env.PW_APP_ORIGIN ?? "http://127.0.0.1:3100";
+const APP = process.env.PW_APP_ORIGIN ?? `http://127.0.0.1:${process.env.PW_APP_PORT ?? 3100}`;
 
 test("fonts are requested same-origin, preloaded, and never from a third party", async ({
   page,

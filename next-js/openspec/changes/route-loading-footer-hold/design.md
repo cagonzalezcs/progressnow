@@ -2,7 +2,7 @@
 
 `SiteShell` puts one persistent `<main>` and the `<footer>` inside the `RouteTransition` boundary; `app/globals.css` names them `vt-main` / `vt-footer` with the shared `vt-page` class and fades each old snapshot through the brand blue into the new one. Both frontends share that stylesheet byte for byte (`test/unit/shared-source-drift.test.ts`), and the WordPress theme drives the same names through its cross-document `@view-transition`.
 
-The transition is not the problem. The problem is what happens *after* it: `app/[[...slug]]/page.tsx` is dynamic (`instant = false`, awaits `params` and the cached routes manifest) and wraps the route component in `<Suspense>`, so a client navigation commits — and the view transition runs — as soon as the page shell resolves, with the fallback in `<main>`. Until the route payload lands, `<main>` is a 0px box and the footer is its only content-bearing sibling.
+The transition is not the problem. The problem is what happens _after_ it: `app/[[...slug]]/page.tsx` is dynamic (`instant = false`, awaits `params` and the cached routes manifest) and wraps the route component in `<Suspense>`, so a client navigation commits — and the view transition runs — as soon as the page shell resolves, with the fallback in `<main>`. Until the route payload lands, `<main>` is a 0px box and the footer is its only content-bearing sibling.
 
 Measured front → `/blog/`, viewport 900px, mock API delayed 900ms:
 
@@ -34,7 +34,7 @@ t=1746ms  /blog/  footerTop= 898  mainH= 822   ← content lands, footer slams d
 
 **A flag on `<html>`, not a React context.** The footer is a server component rendered as a direct host child of `RouteTransition`; making its visibility reactive means either a client wrapper around it or threading a context through `SiteShell`. Both put an element between the boundary and `<footer>`, and React's `<ViewTransition>` stamps names on its host children — a wrapper would take the stamp the footer expects. A document-level attribute changes no DOM structure at all, and it matches the idiom already in use: the a11y bootstrap stamps `data-text-size`, `data-motion`, and `.a11y-contrast` on `<html>` before first paint.
 
-*Alternative:* a `display: contents` wrapper carrying inherited `visibility`. Works — `visibility` inherits through a box-less element — but it still changes what React stamps, and it cannot carry the fade (no box, so no `opacity`).
+_Alternative:_ a `display: contents` wrapper carrying inherited `visibility`. Works — `visibility` inherits through a box-less element — but it still changes what React stamps, and it cannot carry the fade (no box, so no `opacity`).
 
 **Set in a layout effect, not a passive one.** React holds the view transition through mutation and layout effects; passive effects run after. A passive effect would risk the new snapshot being captured with the footer still painted, i.e. one frame of the jump surviving inside the transition. `useLayoutEffect` warns when it runs on the server and the fallback is streamed there, so the module picks `useEffect` when `window` is undefined.
 
@@ -48,7 +48,7 @@ t=1746ms  /blog/  footerTop= 898  mainH= 822   ← content lands, footer slams d
 
 **A delay knob on the mock, not a delayed RSC response.** The e2e suite runs against the production build, prerendered against the mock, so a `page.route` delay on the RSC request slows the payload without opening a gap between shell and content — the whole thing arrives at once and the fallback never shows. The gap comes from a slow upstream envelope on a cold cache, which only the mock can produce. `POST /__mock/delay { ms }` mirrors `/__mock/fail`, which already exists for exactly this kind of scenario steering.
 
-*Alternative:* keep the current test, which sets `data-route-loading` itself and asserts the footer goes. It proves the stylesheet shipped and nothing else — it would still pass if `RoutePending` were deleted. Keep it as the CSS unit of the pair; add the navigation test for the wiring.
+_Alternative:_ keep the current test, which sets `data-route-loading` itself and asserts the footer goes. It proves the stylesheet shipped and nothing else — it would still pass if `RoutePending` were deleted. Keep it as the CSS unit of the pair; add the navigation test for the wiring.
 
 ## Risks / Trade-offs
 

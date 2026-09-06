@@ -1,97 +1,123 @@
-import { ArrowGlyph } from "@/components/site/ArrowGlyph";
 import { CtaCard } from "@/components/site/CtaCard";
 import { DashedNote } from "@/components/site/DashedNote";
 import { EventBlocks } from "@/components/site/EventBlocks";
-import { EventCard } from "@/components/site/EventCard";
 import { LinkListCard } from "@/components/site/LinkListCard";
 import { PageHeader } from "@/components/site/PageHeader";
 import { SiteLink } from "@/components/site/SiteLink";
 import { ImageSlot } from "@/components/site/blog/ImageSlot";
+import { EventCard } from "@/components/site/calendar/EventCard";
+import { dateTile } from "@/lib/calendar";
 import { categoryById, eventCategories } from "@/lib/categories";
-import { dateTile, detailRows, hasContact, telHref, whenWhere } from "@/lib/event";
-import { resolveHref } from "@/lib/links";
-import type { SingleEventEnvelope, SiteEnvelope } from "@/lib/schemas";
-import { cn } from "@/lib/utils";
+import { eventDetailRows, eventHasContact, eventWhenWhere, telHref } from "@/lib/event";
+import type { EventCategory, RelatedEvent, SingleEventData } from "@/lib/schemas";
 
 /* Single event (openspec progress-now-v4-events D4, specs "Event hero" …
  * "More upcoming events"; twin of views/single-event.twig / SingleEvent.vue).
  * Hero = PageHeader with extras (white date tile + translucent-ink category
  * pill before the h1; when/where lede; RSVP + Add-to-calendar pills). Content
- * = "About this event" + event blocks; sticky sidebar = Details rows + "Save
- * your spot" CTA (only with an RSVP link) + contact note; "More upcoming
- * events" = EventCard rows on the alt band. Copy comes from `/site.strings`
- * (`event_*`, `cal_crumb_calendar`, `home_*`); the design-copy fallbacks
- * mirror inc/i18n.php for fixtures that predate a string. */
-export interface SingleEventPageProps {
-  envelope: SingleEventEnvelope;
-  site: SiteEnvelope;
-  wpOrigin: string;
+ * = "About this event" + event blocks; sticky sidebar = Details rows (Date /
+ * Time / Location) + "Save your spot" CtaCard (omitted without an RSVP link) +
+ * contact note; "More upcoming events" = EventCard rows on the alt band.
+ * Server component throughout — nothing here needs client JavaScript. */
+export interface SingleEventLabels {
+  crumbHome: string;
+  crumbCalendar: string;
+  breadcrumbLabel: string;
+  rsvpLabel: string;
+  addToCalendarLabel: string;
+  aboutLabel: string;
+  detailsLabel: string;
+  dateLabel: string;
+  timeLabel: string;
+  locationLabel: string;
+  saveTitle: string;
+  saveBody: string;
+  saveLabel: string;
+  contactLabel: string;
+  moreLabel: string;
+  fullCalendarLabel: string;
+  viewLabel: string;
+  sidebarLabel: string;
 }
+
+export const DEFAULT_EVENT_LABELS: SingleEventLabels = {
+  crumbHome: "Home",
+  crumbCalendar: "Calendar",
+  breadcrumbLabel: "Breadcrumb",
+  rsvpLabel: "RSVP",
+  addToCalendarLabel: "Add to calendar",
+  aboutLabel: "About this event",
+  detailsLabel: "Details",
+  dateLabel: "Date",
+  timeLabel: "Time",
+  locationLabel: "Location",
+  saveTitle: "Save your spot",
+  saveBody: "RSVP and we’ll send the details straight to you.",
+  saveLabel: "RSVP Now",
+  contactLabel: "Questions? Contact",
+  moreLabel: "More upcoming events",
+  fullCalendarLabel: "Full calendar",
+  viewLabel: "View event",
+  sidebarLabel: "Event details",
+};
 
 const WHITE_PILL =
   "rounded-full bg-white px-7 py-[13px] font-display text-[0.9rem] font-normal tracking-[0.04em] text-brand no-underline transition-colors hover:bg-brand-deep hover:text-white md:px-9 md:py-3.5 md:text-base";
 const OUTLINE_PILL =
   "rounded-full border-2 border-white bg-transparent px-[22px] py-[11px] font-display text-[0.9rem] font-normal tracking-[0.04em] text-white no-underline transition-colors hover:border-brand-deep hover:bg-brand-deep md:px-[34px] md:py-3 md:text-base";
-const FULL_CALENDAR =
-  "items-center gap-4 text-[1.05rem] font-extrabold uppercase tracking-[0.03em] text-accent no-underline hover:underline hover:underline-offset-4";
-const H2 =
-  "m-0 font-display text-[1.35rem] font-normal leading-[1.2] md:text-[clamp(1.6rem,2.6vw,2.2rem)] md:leading-[1.1]";
+const ARROW = (cls: string) => (
+  <svg aria-hidden="true" focusable="false" viewBox="0 0 40 20" className={cls}>
+    <path d="M0 8.4h26v3.2H0z" />
+    <path d="M24 1.5 38.5 10 24 18.5Z" />
+  </svg>
+);
 
-export function SingleEventPage({ envelope, site, wpOrigin }: SingleEventPageProps) {
-  const { event, related, showRelated, homeUrl, calendarUrl } = envelope;
-  const s = site.strings as Record<string, string>;
-  const t = (key: string, fallback: string) => s[key] || fallback;
-  const labels = {
-    crumbHome: t("blog_crumb_home", "Home"),
-    crumbCalendar: t("cal_crumb_calendar", "Calendar"),
-    rsvp: t("event_rsvp", "RSVP"),
-    addToCalendar: t("event_add_calendar", "Add to calendar"),
-    about: t("event_about", "About this event"),
-    details: t("event_details", "Details"),
-    date: t("event_date", "Date"),
-    time: t("event_time", "Time"),
-    location: t("event_location", "Location"),
-    saveTitle: t("event_save_h", "Save your spot"),
-    saveBody: t("event_save_p", "RSVP and we’ll send the details straight to you."),
-    saveLabel: t("event_save_cta", "RSVP Now"),
-    contact: t("event_contact", "Questions? Contact"),
-    more: t("event_more", "More upcoming events"),
-    fullCalendar: t("home_events_all", "Full calendar"),
-    view: t("home_view_event", "View event"),
-    agenda: t("event_agenda", "Agenda"),
-    goodToKnow: t("event_good_to_know", "Good to know"),
-    a11yNote: t("event_a11y_note", "Accessibility & childcare"),
-    map: t("event_map", "Getting there"),
+export function SingleEvent({
+  event,
+  categories,
+  related = [],
+  showRelated = true,
+  homeUrl = "/",
+  calendarUrl = "/calendar/",
+  labels = {},
+  wpOrigin,
+}: {
+  event: SingleEventData;
+  /** WP term-driven categories — replaces the registry palette when provided */
+  categories?: EventCategory[] | null;
+  related?: RelatedEvent[];
+  showRelated?: boolean;
+  homeUrl?: string;
+  calendarUrl?: string;
+  labels?: Partial<SingleEventLabels>;
+  wpOrigin: string;
+}) {
+  const L: SingleEventLabels = {
+    ...DEFAULT_EVENT_LABELS,
+    ...Object.fromEntries(Object.entries(labels).filter(([, v]) => Boolean(v))),
   };
-
-  // WordPress term categories override the registry palette; the envelope carries them.
-  const categories = eventCategories(
-    envelope.categories.length ? envelope.categories : site.categories,
-  );
-  const category = categoryById(event.cat, categories);
+  const category = categoryById(event.cat, eventCategories(categories));
   const tile = dateTile(event.date);
-  const calendarHref = resolveHref(calendarUrl, wpOrigin).href;
   const hasImage = Boolean(event.featuredImage.src);
   const hasBody = hasImage || event.summary !== "" || event.blocks.length > 0;
+  const moreEvents = showRelated ? related.slice(0, 3) : [];
   const addToCalendar = event.icsUrl || event.gcalUrl;
-  const more = showRelated
-    ? related.slice(0, 3).map((r) => ({ ...r, url: resolveHref(r.url, wpOrigin).href }))
-    : [];
+  const rows = eventDetailRows(event, {
+    date: L.dateLabel,
+    time: L.timeLabel,
+    location: L.locationLabel,
+  });
 
   return (
-    <div
-      data-route-kind="event"
-      className="single-event route-event contents"
-      data-testid="single-event"
-    >
+    <div className="single-event contents" data-route-kind="event" data-testid="single-event">
       <PageHeader
         title={event.title}
-        lede={whenWhere(event)}
+        lede={eventWhenWhere(event)}
+        breadcrumbLabel={L.breadcrumbLabel}
         crumbs={[
-          { label: labels.crumbHome, href: homeUrl },
-          { label: labels.crumbCalendar, href: calendarUrl },
+          { label: L.crumbHome, href: homeUrl },
+          { label: L.crumbCalendar, href: calendarUrl },
         ]}
-        breadcrumbLabel={`${labels.crumbHome} › ${event.title}`}
         before={
           <div className="flex flex-wrap items-center gap-3.5 md:gap-[18px]">
             <span
@@ -113,7 +139,7 @@ export function SingleEventPage({ envelope, site, wpOrigin }: SingleEventPagePro
               </span>
             </span>
             <SiteLink
-              href={`${calendarHref}?category=${event.cat}`}
+              href={`${calendarUrl}?category=${event.cat}`}
               wpOrigin={wpOrigin}
               className="rounded-full bg-ink/[.22] px-3.5 py-[5px] text-[0.72rem] font-extrabold uppercase tracking-[0.06em] text-white no-underline hover:underline hover:underline-offset-4 md:px-4 md:py-1.5 md:text-[0.8rem]"
               data-testid="single-event-category-pill"
@@ -128,24 +154,26 @@ export function SingleEventPage({ envelope, site, wpOrigin }: SingleEventPagePro
         {event.rsvpUrl || addToCalendar ? (
           <div className="flex flex-wrap gap-2.5 md:gap-3.5" data-testid="single-event-actions">
             {event.rsvpUrl ? (
-              <SiteLink
+              <a
                 href={event.rsvpUrl}
-                wpOrigin={wpOrigin}
                 target="_blank"
+                rel="noopener"
                 className={WHITE_PILL}
                 data-testid="single-event-rsvp-link"
               >
-                {labels.rsvp}
-              </SiteLink>
+                {L.rsvpLabel}
+                <span className="sr-only"> (opens in a new tab)</span>
+              </a>
             ) : null}
             {addToCalendar ? (
-              <a
+              <SiteLink
                 href={addToCalendar}
+                wpOrigin={wpOrigin}
                 className={OUTLINE_PILL}
                 data-testid="single-event-add-to-calendar"
               >
-                {labels.addToCalendar}
-              </a>
+                {L.addToCalendarLabel}
+              </SiteLink>
             ) : null}
           </div>
         ) : null}
@@ -163,17 +191,21 @@ export function SingleEventPage({ envelope, site, wpOrigin }: SingleEventPagePro
             data-testid="single-event-article"
           >
             {hasBody ? (
-              <h2 className={H2} data-testid="single-event-about-heading">
-                {labels.about}
+              <h2
+                className="m-0 font-display text-[1.35rem] font-normal leading-[1.2] md:text-[clamp(1.6rem,2.6vw,2.2rem)] md:leading-[1.1]"
+                data-testid="single-event-about-heading"
+              >
+                {L.aboutLabel}
               </h2>
             ) : null}
             {hasImage ? (
               <figure className="m-0 flex flex-col" data-testid="single-event-figure">
-                <div className="relative aspect-video overflow-hidden rounded-[16px] bg-white md:rounded-[20px]">
+                <div className="aspect-video overflow-hidden rounded-[16px] bg-white md:rounded-[20px]">
                   <ImageSlot
                     src={event.featuredImage.src}
                     alt={event.featuredImage.alt}
-                    loading="eager"
+                    priority
+                    sizes="(min-width: 1140px) 780px, 100vw"
                   />
                 </div>
                 {event.featuredImage.caption || event.featuredImage.credit ? (
@@ -181,12 +213,9 @@ export function SingleEventPage({ envelope, site, wpOrigin }: SingleEventPagePro
                     className="mt-3 text-[0.9rem] leading-[1.5] text-muted"
                     data-testid="single-event-figcaption"
                   >
-                    {event.featuredImage.caption}{" "}
-                    {event.featuredImage.credit ? (
-                      <span data-testid="single-event-image-credit">
-                        {event.featuredImage.credit}
-                      </span>
-                    ) : null}
+                    {[event.featuredImage.caption, event.featuredImage.credit]
+                      .filter(Boolean)
+                      .join(" ")}
                   </figcaption>
                 ) : null}
               </figure>
@@ -199,46 +228,33 @@ export function SingleEventPage({ envelope, site, wpOrigin }: SingleEventPagePro
                 {event.summary}
               </p>
             ) : null}
-            <EventBlocks
-              blocks={event.blocks}
-              headings={{
-                agenda: labels.agenda,
-                goodToKnow: labels.goodToKnow,
-                a11yNote: labels.a11yNote,
-                map: labels.map,
-              }}
-            />
+            <EventBlocks blocks={event.blocks} />
           </article>
 
           <aside
-            aria-label={labels.details}
-            className="flex flex-col gap-6 lg:sticky lg:top-[108px] lg:max-h-[calc(100vh-124px)] lg:overflow-auto"
+            aria-label={L.sidebarLabel}
             data-testid="single-event-sidebar"
+            className="flex flex-col gap-6 lg:sticky lg:top-[calc(108px+var(--wp-admin--admin-bar--height,0px))] lg:max-h-[calc(100vh-124px)] lg:overflow-auto"
           >
-            <div className="[&_.row-label]:text-brand">
-              <LinkListCard
-                heading={labels.details}
-                rows={detailRows(event, {
-                  date: labels.date,
-                  time: labels.time,
-                  location: labels.location,
-                })}
-                wpOrigin={wpOrigin}
-              />
-            </div>
+            <LinkListCard
+              heading={L.detailsLabel}
+              rows={rows}
+              className="[&_.row-label]:text-brand"
+              wpOrigin={wpOrigin}
+            />
             {event.rsvpUrl ? (
               <CtaCard
                 id="rsvp"
-                title={labels.saveTitle}
-                body={labels.saveBody}
+                title={L.saveTitle}
+                body={L.saveBody}
                 href={event.rsvpUrl}
-                label={labels.saveLabel}
+                label={L.saveLabel}
                 external
                 wpOrigin={wpOrigin}
               />
             ) : null}
-            {hasContact(event.contact) ? (
-              <DashedNote heading={labels.contact}>
+            {eventHasContact(event) ? (
+              <DashedNote heading={L.contactLabel}>
                 {event.contact.name ? (
                   <p className="font-bold text-ink" data-testid="single-event-contact-name">
                     {event.contact.name}
@@ -267,8 +283,7 @@ export function SingleEventPage({ envelope, site, wpOrigin }: SingleEventPagePro
         </div>
       </section>
 
-      {/* More upcoming events */}
-      {more.length > 0 ? (
+      {moreEvents.length > 0 ? (
         <section
           className="bg-alt px-6 pb-14 pt-11 md:pb-24 md:pt-16"
           data-tone="alt"
@@ -277,42 +292,42 @@ export function SingleEventPage({ envelope, site, wpOrigin }: SingleEventPagePro
         >
           <div className="mx-auto flex max-w-[1140px] flex-col gap-[18px] md:gap-7">
             <div className="flex flex-wrap items-baseline justify-between gap-4">
-              <h2 className={H2} data-testid="single-event-more-heading">
-                {labels.more}
+              <h2
+                className="m-0 font-display text-[1.35rem] font-normal leading-[1.2] md:text-[clamp(1.6rem,2.8vw,2.2rem)] md:leading-[1.1]"
+                data-testid="single-event-more-heading"
+              >
+                {L.moreLabel}
               </h2>
               <SiteLink
                 href={calendarUrl}
                 wpOrigin={wpOrigin}
-                className={cn("hidden md:flex", FULL_CALENDAR)}
+                className="hidden items-center gap-4 text-[1.05rem] font-extrabold uppercase tracking-[0.03em] text-accent no-underline hover:underline hover:underline-offset-4 md:flex"
                 data-testid="single-event-full-calendar-link"
               >
-                {labels.fullCalendar}
-                <ArrowGlyph />
+                {L.fullCalendarLabel}
+                {ARROW("h-5 w-10 flex-none fill-accent")}
               </SiteLink>
             </div>
             <div className="flex flex-col gap-3" data-testid="single-event-more-list">
-              {more.map((ev) => (
+              {moreEvents.map((ev) => (
                 <EventCard
                   key={ev.id}
                   event={ev}
-                  fallbackUrl={calendarHref}
-                  viewLabel={labels.view}
+                  fallbackUrl={calendarUrl}
+                  viewLabel={L.viewLabel}
                   subtle
+                  wpOrigin={wpOrigin}
                 />
               ))}
             </div>
             <SiteLink
               href={calendarUrl}
               wpOrigin={wpOrigin}
-              className={cn(
-                "flex justify-center md:hidden",
-                FULL_CALENDAR,
-                "gap-3.5 text-[0.95rem]",
-              )}
+              className="flex items-center justify-center gap-3.5 text-[0.95rem] font-extrabold uppercase tracking-[0.03em] text-accent no-underline hover:underline hover:underline-offset-4 md:hidden"
               data-testid="single-event-full-calendar-link-compact"
             >
-              {labels.fullCalendar}
-              <ArrowGlyph className="h-[17px] w-[34px] flex-none fill-accent" />
+              {L.fullCalendarLabel}
+              {ARROW("h-[17px] w-[34px] flex-none fill-accent")}
             </SiteLink>
           </div>
         </section>

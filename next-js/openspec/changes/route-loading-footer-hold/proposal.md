@@ -16,7 +16,7 @@ The hold shipped in `b22918d` (`RoutePending` + `<html data-route-loading>` + `a
 
 ### New Capabilities
 
-- `route-loading`: the loading window of a client navigation in the Next.js app — the `data-route-loading` flag's lifecycle and ref-counting, which Suspense boundaries raise it, the footer's held state (unpainted, out of the accessibility tree and tab order, layout space kept) and its reveal, the interaction with the `vt-page` view transition and with reduce motion, and what an in-page URL update must *not* do.
+- `route-loading`: the loading window of a client navigation in the Next.js app — the `data-route-loading` flag's lifecycle and ref-counting, which Suspense boundaries raise it, the footer's held state (unpainted, out of the accessibility tree and tab order, layout space kept) and its reveal, the interaction with the `vt-page` view transition and with reduce motion, and what an in-page URL update must _not_ do.
 
 ### Modified Capabilities
 

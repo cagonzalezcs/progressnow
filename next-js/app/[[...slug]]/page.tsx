@@ -1,5 +1,8 @@
+import type { Metadata } from "next";
 import { permanentRedirect } from "next/navigation";
+import { after } from "next/server";
 import { Suspense } from "react";
+import { RoutePending } from "@/components/nav/RoutePending";
 import { RouteAbout } from "@/components/routes/RouteAbout";
 import { RouteCalendar } from "@/components/routes/RouteCalendar";
 import { RouteEvent } from "@/components/routes/RouteEvent";
@@ -10,8 +13,14 @@ import { RoutePage } from "@/components/routes/RoutePage";
 import { RoutePost } from "@/components/routes/RoutePost";
 import { RoutePostsIndex } from "@/components/routes/RoutePostsIndex";
 import type { RouteProps } from "@/components/routes/types";
-import { getRoutes } from "@/lib/data";
-import { requestPath } from "@/lib/request-path";
+import { ErrorSurface } from "@/components/site/ErrorSurface";
+import { failureDigest, isHangingPromiseRejection } from "@/lib/api";
+import { getRoutes, getSite } from "@/lib/data";
+import { getRouteSeo, shareImage } from "@/lib/data/seo";
+import { getEnv } from "@/lib/env";
+import { logger } from "@/lib/log";
+import { metadataFor, noindexMetadata } from "@/lib/metadata";
+import { isErrorRender, requestPath } from "@/lib/request-path";
 import { langForPath, resolveRoute } from "@/lib/routes";
 
 /* One catch-all page (design D3): every public WordPress URL, in both
@@ -20,6 +29,11 @@ import { langForPath, resolveRoute } from "@/lib/routes";
  * layer (design D11): new content resolves on its first request, and the
  * build needs no API. `searchParams` are only read inside the route components
  * that need them (front, posts index), inside their own Suspense fragments.
+ *
+ * The page renders concurrently with the root layout, so it must be as
+ * resilient to an upstream failure as the layout is: an uncaught throw here
+ * would abort the whole response (Next's bare "Internal Server Error") before
+ * the layout's error document could stream.
  * `params` is awaited outside Suspense, so the route is blocking, as the root
  * layout already is (it renders per request too). */
 export const instant = false;
@@ -36,10 +50,68 @@ const ROUTES = {
   event: RouteEvent,
 } satisfies Record<string, React.ComponentType<RouteProps>>;
 
+/* <head> metadata from the envelope's `seo` block (design D5; seo-metadata
+ * delta): canonical/hreflang verbatim, OG url = canonical, OG image ladder.
+ * Island filter state (?s=, ?category=, ?paged=) is noindex with the clean
+ * canonical; 404 and search take their title from the site strings. Any data
+ * failure yields empty metadata — the page/layout render the error surface. */
+export async function generateMetadata({
+  params,
+  searchParams,
+}: PageProps<"/[[...slug]]">): Promise<Metadata> {
+  try {
+    const [manifest, { slug }, sp] = await Promise.all([getRoutes(), params, searchParams]);
+    const resolved = resolveRoute(manifest, slug);
+    const lang = resolved.lang || "en";
+    const strings = (await getSite(lang)).strings as Record<string, string>;
+    if (resolved.kind === "not_found")
+      return noindexMetadata(strings.nf_doc_title || "Page not found");
+    if (resolved.kind === "search")
+      return noindexMetadata(strings.blog_search_results || "Search results");
+    const [routeSeo, fallbackImage] = await Promise.all([getRouteSeo(resolved), shareImage(lang)]);
+    if (!routeSeo) return noindexMetadata(strings.nf_doc_title || "Page not found");
+    const filtered =
+      resolved.kind === "posts_index" && ["s", "category", "paged"].some((k) => Boolean(sp[k]));
+    const env = getEnv();
+    return metadataFor({
+      seo: routeSeo.seo,
+      images: [routeSeo.image, fallbackImage],
+      type: routeSeo.type,
+      filtered,
+      siteOrigin: env.NEXT_PUBLIC_SITE_ORIGIN,
+      wpOrigin: env.WP_ORIGIN,
+    });
+  } catch (error) {
+    if (isHangingPromiseRejection(error)) throw error; // prerender pass, not a failure
+    const digest = failureDigest(error);
+    after(() => logger.error("metadata_upstream_failure", { digest })); // no clock reads in render
+    return {};
+  }
+}
+
+/** The manifest, or the error surface when WordPress cannot be read (status: proxy.ts). */
+async function loadManifest(): Promise<
+  { ok: true; manifest: Awaited<ReturnType<typeof getRoutes>> } | { ok: false; digest: string }
+> {
+  try {
+    return { ok: true, manifest: await getRoutes() };
+  } catch (error) {
+    if (isHangingPromiseRejection(error)) throw error; // prerender pass, not a failure
+    // See app/layout.tsx: obfuscated across the 'use cache' boundary; the digest links the logs.
+    const digest = failureDigest(error);
+    after(() => logger.error("page_upstream_failure", { digest }));
+    return { ok: false, digest };
+  }
+}
+
 export default async function Page({ params, searchParams }: PageProps<"/[[...slug]]">) {
+  // proxy.ts' internal 500 render: the layout draws the error document; nothing to add here.
+  if (await isErrorRender()) return null;
   // Unknown paths render the 404 view as a normal state; proxy.ts sets the 404 status
   // (a thrown notFound() would only reach the client behind the streamed shell).
-  const [manifest, { slug }] = await Promise.all([getRoutes(), params]);
+  const [loaded, { slug }] = await Promise.all([loadManifest(), params]);
+  if (!loaded.ok) return <ErrorSurface digest={loaded.digest} />;
+  const { manifest } = loaded;
   // Path-only resolution here: `?s=` etc. are handled by the components that read searchParams.
   const resolved = resolveRoute(manifest, slug);
   if (resolved.kind === "not_found") {
@@ -51,7 +123,9 @@ export default async function Page({ params, searchParams }: PageProps<"/[[...sl
   if (resolved.kind === "styleguide") permanentRedirect("/styleguide/");
   const Component = ROUTES[resolved.kind as keyof typeof ROUTES];
   return (
-    <Suspense fallback={<div aria-busy="true" data-testid="route-fallback" />}>
+    // RoutePending also flags <html data-route-loading> so the footer stays
+    // unpainted until <main> has content under it (app/route-loading.css).
+    <Suspense fallback={<RoutePending />}>
       <Component resolved={resolved} searchParams={searchParams} />
     </Suspense>
   );

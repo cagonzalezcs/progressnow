@@ -1,36 +1,23 @@
 import { SiteLink } from "@/components/site/SiteLink";
-import { categoryById, resolveCategories } from "@/lib/categories";
-import { WEEKDAYS, parseISODate } from "@/lib/events";
+import { categoryById, eventCategories } from "@/lib/categories";
+import { MONTH_SHORTS, parseISODate, WEEKDAYS } from "@/lib/events";
 import type { ChapterEvent, EventCategory } from "@/lib/schemas";
 
-const MONTH_SHORTS = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
 const PILL =
   "whitespace-nowrap rounded-full border-2 border-accent px-5 py-2 text-[0.9rem] font-bold text-accent no-underline transition-colors hover:bg-accent hover:text-white";
 
-/* Embedded upcoming event: brand date tile, category eyebrow, RSVP pill. A
- * null event (unpublished/past) degrades to a calendar pointer. */
+/* Upcoming-event card inside a post (openspec gutenberg-post-blocks
+ * § event_embed). A null event (unpublished / past) renders the calendar
+ * fallback so the article never shows a dead reference. */
 export function BlockEventEmbed({
   event,
   categories,
-  calendarHref,
+  calendarUrl = "/calendar/",
   wpOrigin,
 }: {
   event: ChapterEvent | null;
   categories?: EventCategory[] | null;
-  calendarHref: string;
+  calendarUrl?: string;
   wpOrigin: string;
 }) {
   if (!event) {
@@ -52,7 +39,7 @@ export function BlockEventEmbed({
           </span>
         </div>
         <SiteLink
-          href={calendarHref}
+          href={calendarUrl}
           wpOrigin={wpOrigin}
           className={PILL}
           data-testid="block-event-embed-calendar-link"
@@ -63,7 +50,7 @@ export function BlockEventEmbed({
     );
   }
   const date = parseISODate(event.date);
-  const category = categoryById(event.cat, resolveCategories(categories));
+  const category = categoryById(event.cat, eventCategories(categories));
   return (
     <div
       className="block-event-embed grid w-full items-center gap-5 rounded-[16px] bg-white px-6 py-5 shadow-card [grid-template-columns:auto_1fr] md:[grid-template-columns:72px_1fr_auto]"
@@ -99,13 +86,13 @@ export function BlockEventEmbed({
         </span>
       </div>
       <SiteLink
-        href={event.rsvpUrl || event.url || calendarHref}
+        href={event.rsvpUrl ?? event.url ?? calendarUrl}
         wpOrigin={wpOrigin}
+        aria-label={`RSVP: ${event.title}`}
         className={`${PILL} col-span-2 justify-self-start md:col-span-1 md:justify-self-auto`}
         data-testid="block-event-embed-action"
       >
-        {event.rsvpUrl ? "RSVP" : "View event"}
-        <span className="sr-only">: {event.title}</span>
+        RSVP
       </SiteLink>
     </div>
   );

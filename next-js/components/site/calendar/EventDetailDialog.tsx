@@ -1,5 +1,6 @@
 "use client";
 
+import type { RefObject } from "react";
 import {
   Dialog,
   DialogClose,
@@ -7,63 +8,57 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { categoryById } from "@/lib/categories";
-import {
-  type ChapterEvent,
-  type EventCategory,
-  MONTH_NAMES,
-  MONTH_SHORTS,
-  parseISODate,
-  WEEKDAYS,
-} from "@/lib/events";
+import { SiteLink } from "@/components/site/SiteLink";
+import { dateTile, eventDateLine } from "@/lib/calendar";
+import { categoryById, eventCategories } from "@/lib/categories";
+import type { ChapterEvent, EventCategory } from "@/lib/schemas";
 
-/* Event preview dialog (openspec fix-calendar-page-layout D7; twin of
- * EventDetailDialog.vue): radius-20 white card, brand date tile + Bowlby
- * title, 40px round close, When/Where lines, description, accent "View event"
- * pill + outline "RSVP". Radix owns focus trap / Escape; modal content
- * returns focus to its (absent) trigger, so `returnFocusTo` names the chip
- * that opened the dialog and gets focus back on close. */
+/* Event preview dialog (openspec progress-now-v4-events task 2.5, Calendar v4
+ * "Event modal"): radius-20 white card, brand date tile + Bowlby title, 40px
+ * round close, When/Where lines, description, accent "View event" pill +
+ * outline "RSVP". Radix Dialog supplies the focus trap, Escape and focus
+ * restore: the dialog is opened programmatically (no Radix trigger), so the
+ * opener element is recorded by the caller and refocused on close. The
+ * primary action navigates to the
+ * Single Event page — the modal is a fast preview, not the RSVP endpoint. */
 export function EventDetailDialog({
   event,
   categories,
-  showCategoryColors,
+  showCategoryColors = true,
   fallbackUrl = "/calendar/",
   viewLabel = "View event",
   rsvpLabel = "RSVP",
-  returnFocusTo,
+  closeLabel = "Close",
+  openerRef,
   onClose,
+  wpOrigin,
 }: {
   event: ChapterEvent | null;
-  categories: EventCategory[];
-  showCategoryColors: boolean;
+  categories?: EventCategory[] | null;
+  showCategoryColors?: boolean;
   fallbackUrl?: string;
   viewLabel?: string;
   rsvpLabel?: string;
-  /** element focused before the dialog opened (the grid chip) */
-  returnFocusTo?: HTMLElement | null;
+  closeLabel?: string;
+  /** element that opened the dialog — focus returns to it on close */
+  openerRef?: RefObject<HTMLElement | null>;
   onClose: () => void;
+  wpOrigin: string;
 }) {
-  const date = event ? parseISODate(event.date) : null;
-  const category = event ? categoryById(event.cat, categories) : null;
+  const category = event ? categoryById(event.cat, eventCategories(categories)) : null;
   const tileColor = event && showCategoryColors ? (category?.color ?? undefined) : undefined;
-  const dateLine =
-    event && date
-      ? `${WEEKDAYS[date.getDay()]}, ${MONTH_NAMES[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()} · ${event.time}`
-      : "";
+  const tile = event ? dateTile(event.date) : null;
   return (
-    <Dialog open={!!event} onOpenChange={(open) => !open && onClose()}>
-      {event && date ? (
+    <Dialog open={Boolean(event)} onOpenChange={(open) => !open && onClose()}>
+      {event && tile ? (
         <DialogContent
           className="event-detail-dialog max-h-[85vh] gap-4 overflow-auto rounded-[20px] border-none bg-white px-7 pb-[30px] pt-[26px] text-base text-ink shadow-modal ring-0 sm:max-w-[440px]"
           showCloseButton={false}
-          aria-label="Event details"
           data-testid="event-detail-dialog"
           data-event-id={event.id}
           onCloseAutoFocus={(e) => {
-            if (returnFocusTo?.isConnected) {
-              e.preventDefault();
-              returnFocusTo.focus();
-            }
+            e.preventDefault();
+            openerRef?.current?.focus();
           }}
         >
           <div className="flex items-start justify-between gap-3.5">
@@ -78,13 +73,13 @@ export function EventDetailDialog({
                   className="text-[1.3rem] font-extrabold leading-[1.1]"
                   data-testid="event-detail-dialog-day"
                 >
-                  {String(date.getDate()).padStart(2, "0")}
+                  {tile.day}
                 </span>
                 <span
                   className="text-[0.72rem] font-bold tracking-[0.1em]"
                   data-testid="event-detail-dialog-month"
                 >
-                  {MONTH_SHORTS[date.getMonth()]?.toUpperCase()}
+                  {tile.month}
                 </span>
               </span>
               <DialogTitle
@@ -96,15 +91,15 @@ export function EventDetailDialog({
             </div>
             <DialogClose
               className="flex size-10 flex-none cursor-pointer items-center justify-center rounded-full border-2 border-control bg-white text-base font-extrabold text-ink transition-colors hover:border-ink"
-              aria-label="Close"
+              aria-label={closeLabel}
               data-testid="event-detail-dialog-close"
             >
-              ✕
+              <span aria-hidden="true">✕</span>
             </DialogClose>
           </div>
           <div className="flex flex-col gap-1.5 text-base font-medium text-text-body">
             <span data-testid="event-detail-dialog-when">
-              <strong className="text-ink">When:</strong> {dateLine}
+              <strong className="text-ink">When:</strong> {eventDateLine(event)}
             </span>
             <span data-testid="event-detail-dialog-where">
               <strong className="text-ink">Where:</strong> {event.location}
@@ -124,18 +119,17 @@ export function EventDetailDialog({
               {event.desc}
             </DialogDescription>
           ) : (
-            <DialogDescription className="sr-only">{dateLine}</DialogDescription>
+            <DialogDescription className="sr-only">{eventDateLine(event)}</DialogDescription>
           )}
           <div className="flex flex-wrap gap-3">
-            {/* Primary action navigates to the full Single Event page — the modal
-                is an optional fast preview, not the RSVP endpoint (04 §3d). */}
-            <a
+            <SiteLink
               href={event.url ?? fallbackUrl}
+              wpOrigin={wpOrigin}
               className="rounded-full bg-accent px-[26px] py-3 font-display text-[0.9rem] font-normal tracking-[0.04em] text-white no-underline transition-colors hover:bg-brand-deep"
               data-testid="event-detail-dialog-view-link"
             >
               {viewLabel}
-            </a>
+            </SiteLink>
             {event.rsvpUrl ? (
               <a
                 href={event.rsvpUrl}

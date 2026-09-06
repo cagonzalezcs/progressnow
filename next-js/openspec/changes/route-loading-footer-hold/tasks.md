@@ -35,5 +35,5 @@
 
 - [ ] 6.1 `npm run lint`, `npm run typecheck`, `npm test` clean.
 - [ ] 6.2 `npm run test:e2e` clean.
-- [ ] 6.3 `npm run test:a11y` — no *new* violations. Five pre-existing failures on `/calendar/` (adjacent-month day numbers at 2.15:1 contrast) and one pre-existing `test/component/route-event.test.tsx` failure are tracked separately; confirm the count and the routes are unchanged by this work.
+- [ ] 6.3 `npm run test:a11y` — no _new_ violations. Five pre-existing failures on `/calendar/` (adjacent-month day numbers at 2.15:1 contrast) and one pre-existing `test/component/route-event.test.tsx` failure are tracked separately; confirm the count and the routes are unchanged by this work.
 - [ ] 6.4 `openspec verify --change route-loading-footer-hold`, then sync the spec and archive.

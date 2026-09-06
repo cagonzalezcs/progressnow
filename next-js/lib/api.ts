@@ -21,6 +21,8 @@ import {
   type SiteEnvelope,
 } from "@/lib/schemas";
 import { getEnv } from "@/lib/env";
+import { logger, type Logger } from "@/lib/log";
+import { upstreamHealth } from "@/lib/upstream-health";
 
 /* `GET /wp-json/progressnow/v1/*` client — server only (openspec
  * next-headless-site § Single data source with contract validation; design
@@ -41,6 +43,39 @@ export class ApiError extends Error {
   }
 }
 
+/** Duck-typed: Next compiles 'use cache' scopes, route handlers and the proxy
+ * into separate bundles with their own module instances, so `instanceof
+ * ApiError` is false across those boundaries while name/status survive.
+ * Only valid INSIDE the cache scope that called the API: in production, an
+ * error crossing a 'use cache' boundary reaches the caller obfuscated (a plain
+ * Error with a `digest`) — see `failureDigest`. */
+export function isApiError(error: unknown): error is ApiError {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    (error as { name?: unknown }).name === "ApiError" &&
+    typeof (error as { status?: unknown }).status === "number"
+  );
+}
+
+/** The digest Next attached to an error that crossed a 'use cache' boundary
+ * (production obfuscates everything else), else a locally minted reference.
+ * Callers of the cached reads treat every failure as "upstream unavailable":
+ * the data layer already logged the specific cause with the same digest. */
+export function failureDigest(error: unknown): string {
+  const digest = (error as { digest?: unknown } | null)?.digest;
+  // Never mint a time-based fallback: this runs inside render, where Next treats
+  // `Date.now()` during the prerender pass as a fatal "unstable value".
+  return typeof digest === "string" && digest ? digest : "unknown";
+}
+
+/** Cache Components' prerender pass aborts pending cached reads with this
+ * rejection; it is not a data failure and must propagate so Next can switch the
+ * render to request time. Every catch around a cached read rethrows it. */
+export function isHangingPromiseRejection(error: unknown): boolean {
+  return (error as { digest?: unknown } | null)?.digest === "HANGING_PROMISE_REJECTION";
+}
+
 export interface ContractErrorReport {
   endpoint: string;
   issues: unknown;
@@ -54,6 +89,10 @@ export interface ApiOptions {
   onContractError?: (report: ContractErrorReport) => void;
   /** Upstream timeout per request (ms). */
   timeoutMs?: number;
+  /** Structured log sink for upstream failures (network, timeout, 5xx, contract). */
+  log?: Logger;
+  /** Upstream health signal for proxy.ts (defaults to the process singleton). */
+  health?: Pick<typeof upstreamHealth, "markFailure" | "markSuccess">;
 }
 
 export interface PostsParams {
@@ -77,6 +116,8 @@ export function createApi(options: ApiOptions) {
     onContractError = (report) =>
       console.error("[progressnow] API response failed contract validation", report),
     timeoutMs = 10_000,
+    log = logger,
+    health = upstreamHealth,
   } = options;
   const base = apiBase.replace(/\/+$/, "");
 
@@ -85,6 +126,8 @@ export function createApi(options: ApiOptions) {
     const result = schema.safeParse(data);
     if (result.success) return result.data;
     onContractError({ endpoint, issues: result.error.issues });
+    log.error("upstream_contract", { endpoint, issues: result.error.issues.length });
+    health.markFailure();
     throw new ApiError("Response failed contract validation", 500, "progressnow_contract");
   }
 
@@ -102,7 +145,10 @@ export function createApi(options: ApiOptions) {
       });
     } catch (err) {
       const name = (err as { name?: string } | null)?.name;
-      throw new ApiError(name === "TimeoutError" ? "Upstream timeout" : "Network error", 0);
+      const message = name === "TimeoutError" ? "Upstream timeout" : "Network error";
+      log.error("upstream_failure", { path, status: 0, message });
+      health.markFailure();
+      throw new ApiError(message, 0);
     }
     if (!response.ok) {
       let code: string | undefined;
@@ -114,8 +160,14 @@ export function createApi(options: ApiOptions) {
       } catch {
         /* non-JSON error body — keep the generic message */
       }
+      // 404 is a content decision (null for the caller), everything else is an incident.
+      if (response.status !== 404) {
+        log.error("upstream_failure", { path, status: response.status, code, message });
+        health.markFailure();
+      }
       throw new ApiError(message, response.status, code);
     }
+    health.markSuccess();
     return response.json();
   }
 

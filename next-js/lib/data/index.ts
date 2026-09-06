@@ -1,6 +1,16 @@
 import { cacheLife, cacheTag } from "next/cache";
-import { api, ApiError, type EventsParams, type PostsParams } from "@/lib/api";
-import { getEnv } from "@/lib/env";
+import { api, isApiError, type EventsParams, type PostsParams } from "@/lib/api";
+import type {
+  CategoriesEnvelope,
+  EventsEnvelope,
+  FrontPageEnvelope,
+  PageEnvelope,
+  PostsEnvelope,
+  RoutesManifest,
+  SingleEventEnvelope,
+  SinglePostEnvelope,
+  SiteEnvelope,
+} from "@/lib/schemas";
 import {
   eventsTag,
   eventTag,
@@ -12,100 +22,153 @@ import {
   TAG,
   tagsFor,
 } from "@/lib/data/tags";
-import { rehomeEventLinks } from "@/lib/links";
 
 /* Cached reads (openspec design D1; next-headless-site § Content freshness by
  * push revalidation). Every function is a `'use cache'` scope tagged `content`
  * plus its own key; the rebuild receiver revalidates `content`, `routes` and
  * `site`, so freshness is pushed, not polled. Entities that can legitimately be
  * missing (a page/post/event whose slug the manifest listed a moment ago)
- * resolve to null on a WordPress 404; any other upstream failure throws so the
- * route renders the error surface instead of wrong content.
+ * resolve to null on a WordPress 404; any other upstream failure throws an
+ * UpstreamError so the route renders the error surface instead of wrong content.
+ *
+ * Errors never cross the 'use cache' boundary (learned in task 6.8): a failure
+ * thrown inside a cached scope reaches callers obfuscated (digest only), and
+ * when several callers share one in-flight fill the leader's error is rethrown
+ * into the render itself — past every try/catch — which aborts the response
+ * into Next's bare 500. So each cached scope returns a Result, marks a failed
+ * result as not cacheable, and the public getter throws OUTSIDE the scope.
  *
  * Fallback (design D1): if Cache Components has to be dropped, replace the
  * directive + cacheTag/cacheLife with `fetch(..., { next: { tags } })` inside
  * lib/api.ts — the call sites do not change. See lib/data/README.md. */
 
-async function nullOn404<T>(promise: Promise<T>): Promise<T | null> {
-  try {
-    return await promise;
-  } catch (error) {
-    if (error instanceof ApiError && error.status === 404) return null;
-    throw error;
+export type Result<T> =
+  | { ok: true; value: T }
+  | { ok: false; status: number; code?: string; message: string };
+
+/** What the public getters throw on an upstream failure (outside the cache scope). */
+export class UpstreamError extends Error {
+  readonly name = "UpstreamError";
+  readonly status: number;
+  readonly code?: string;
+  /** stable, clock-free reference that matches the data layer's log line */
+  readonly digest: string;
+  constructor(failure: Extract<Result<unknown>, { ok: false }>) {
+    super(failure.message);
+    this.status = failure.status;
+    this.code = failure.code;
+    this.digest = `upstream-${failure.status}${failure.code ? `-${failure.code}` : ""}`;
   }
 }
 
-export async function getRoutes() {
+/** A failed result must not be cached for the profile's lifetime. */
+const NO_CACHE = { stale: 0, revalidate: 0, expire: 0 } as const;
+
+/** Runs INSIDE a 'use cache' scope: API failures become a (non-cached) result. */
+async function attempt<T>(work: () => Promise<T>): Promise<Result<T>> {
+  try {
+    return { ok: true, value: await work() };
+  } catch (error) {
+    if (!isApiError(error)) throw error; // a programming error, not an upstream one
+    cacheLife(NO_CACHE);
+    return { ok: false, status: error.status, code: error.code, message: error.message };
+  }
+}
+
+/** Like attempt(), but a WordPress 404 is a legitimate null (entity gone). */
+async function attemptNullable<T>(work: () => Promise<T>): Promise<Result<T | null>> {
+  try {
+    return { ok: true, value: await work() };
+  } catch (error) {
+    if (!isApiError(error)) throw error;
+    if (error.status === 404) return { ok: true, value: null };
+    cacheLife(NO_CACHE);
+    return { ok: false, status: error.status, code: error.code, message: error.message };
+  }
+}
+
+function unwrap<T>(result: Result<T>): T {
+  if (result.ok) return result.value;
+  throw new UpstreamError(result);
+}
+
+/* ---- cached scopes (private) ---- */
+
+async function cachedRoutes(): Promise<Result<RoutesManifest>> {
   "use cache";
   cacheTag(...tagsFor(TAG.routes));
   cacheLife("content");
-  return api().routes();
+  return attempt(() => api().routes());
 }
 
-export async function getSite(lang: string) {
+async function cachedSite(lang: string): Promise<Result<SiteEnvelope>> {
   "use cache";
   cacheTag(...tagsFor(TAG.site, siteTag(lang)));
   cacheLife("content");
-  return api().site(lang);
+  return attempt(() => api().site(lang));
 }
 
-export async function getFrontPage(lang: string) {
+async function cachedFrontPage(lang: string): Promise<Result<FrontPageEnvelope>> {
   "use cache";
   cacheTag(...tagsFor(frontTag(lang)));
   cacheLife("content");
-  return api().frontPage(lang);
+  return attempt(() => api().frontPage(lang));
 }
 
-export async function getPage(uri: string, lang: string) {
+async function cachedPage(uri: string, lang: string): Promise<Result<PageEnvelope | null>> {
   "use cache";
   cacheTag(...tagsFor(pageTag(lang, uri)));
   cacheLife("content");
-  return nullOn404(api().page(uri, lang));
+  return attemptNullable(() => api().page(uri, lang));
 }
 
-export async function getPost(slug: string, lang: string) {
+async function cachedPost(slug: string, lang: string): Promise<Result<SinglePostEnvelope | null>> {
   "use cache";
   cacheTag(...tagsFor(postTag(lang, slug)));
   cacheLife("content");
-  return nullOn404(api().post(slug, lang));
+  return attemptNullable(() => api().post(slug, lang));
 }
 
-export async function getEvent(slug: string, lang: string) {
+async function cachedEvent(
+  slug: string,
+  lang: string,
+): Promise<Result<SingleEventEnvelope | null>> {
   "use cache";
   cacheTag(...tagsFor(eventTag(lang, slug)));
   cacheLife("content");
-  return nullOn404(api().event(slug, lang));
+  return attemptNullable(() => api().event(slug, lang));
 }
 
-export async function getPosts(params: PostsParams) {
+async function cachedPosts(params: PostsParams): Promise<Result<PostsEnvelope>> {
   "use cache";
   cacheTag(...tagsFor(postsTag(params.lang ?? "")));
   // Per-query search results are short-lived; browse/filter/paged states live with the content.
   cacheLife(params.s ? "search" : "content");
-  return api().posts(params);
+  return attempt(() => api().posts(params));
 }
 
-async function eventsEnvelope(params: EventsParams) {
+async function cachedEvents(params: EventsParams): Promise<Result<EventsEnvelope>> {
   "use cache";
   cacheTag(...tagsFor(eventsTag(params.lang ?? "")));
   cacheLife("content");
-  return api().events(params);
+  return attempt(() => api().events(params));
 }
 
-/* Event permalinks arrive absolute on the WordPress origin. Every consumer of
- * this envelope is the calendar island (server-rendered here, refetched in the
- * browser through /api/events), which never learns WP_ORIGIN and so cannot use
- * SiteLink — the re-homing has to happen here. It sits outside the cached scope
- * so it follows the current WP_ORIGIN rather than the one in force when the
- * entry was written. */
-export async function getEvents(params: EventsParams) {
-  const envelope = await eventsEnvelope(params);
-  return { ...envelope, events: rehomeEventLinks(envelope.events, getEnv().WP_ORIGIN) };
-}
-
-export async function getCategories() {
+async function cachedCategories(): Promise<Result<CategoriesEnvelope>> {
   "use cache";
   cacheTag(...tagsFor("categories"));
   cacheLife("content");
-  return api().categories();
+  return attempt(() => api().categories());
 }
+
+/* ---- public getters: same signatures as before, throw UpstreamError outside the scope ---- */
+
+export const getRoutes = async () => unwrap(await cachedRoutes());
+export const getSite = async (lang: string) => unwrap(await cachedSite(lang));
+export const getFrontPage = async (lang: string) => unwrap(await cachedFrontPage(lang));
+export const getPage = async (uri: string, lang: string) => unwrap(await cachedPage(uri, lang));
+export const getPost = async (slug: string, lang: string) => unwrap(await cachedPost(slug, lang));
+export const getEvent = async (slug: string, lang: string) => unwrap(await cachedEvent(slug, lang));
+export const getPosts = async (params: PostsParams) => unwrap(await cachedPosts(params));
+export const getEvents = async (params: EventsParams) => unwrap(await cachedEvents(params));
+export const getCategories = async () => unwrap(await cachedCategories());

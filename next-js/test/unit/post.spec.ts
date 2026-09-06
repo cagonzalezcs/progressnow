@@ -1,53 +1,65 @@
 import { describe, expect, it } from "vitest";
-import postsFixture from "@fixtures/posts-envelope.json";
-import { authorName, ensureHeadingIds, initials, pickReadNext, proseAnchors } from "@/lib/post";
-import type { PostsEnvelope } from "@/lib/schemas";
+import blogPost from "@fixtures/blog-post.json";
+import singlePost from "@fixtures/single-post.json";
+import { MONTH_SHORTS, parseISODate, toISODate, WEEKDAYS } from "@/lib/events";
+import { bylineInitials, bylineName, postAnchors, readNextPosts } from "@/lib/post";
+import type { BlogPost, SinglePostData } from "@/lib/schemas";
 
-const posts = (postsFixture as unknown as PostsEnvelope).posts;
+const post = singlePost as unknown as SinglePostData;
+const card = blogPost as unknown as BlogPost;
 
-describe("single post helpers", () => {
-  it("byline: named author, committee mode, empty", () => {
-    expect(authorName({ bylineMode: "named", author: "Lorem Ipsum", committee: "" })).toBe(
-      "Lorem Ipsum",
-    );
-    expect(authorName({ bylineMode: "committee", author: "", committee: "Labor Committee" })).toBe(
-      "The Labor Committee",
-    );
-    expect(authorName({ bylineMode: "named", author: "", committee: "" })).toBe("");
-  });
-
-  it("initials drop the word Committee and cap at two letters", () => {
-    expect(initials({ bylineMode: "named", author: "lorem ipsum dolor", committee: "" })).toBe(
-      "LI",
-    );
-    expect(initials({ bylineMode: "committee", author: "", committee: "Labor Committee" })).toBe(
-      "L",
-    );
-    expect(initials({ bylineMode: "named", author: "", committee: "" })).toBe("");
-  });
-
-  it("anchors come from prose h2s, honoring serialized ids and slugging the rest", () => {
-    const anchors = proseAnchors([
-      { type: "prose", html: '<h2 id="sec1">Sed ut <em>perspiciatis</em></h2><p>x</p>' },
-      { type: "pull_quote", quote: "q" },
-      { type: "prose", html: "<h2>At vero eos!</h2>" },
+describe("post helpers", () => {
+  it("collects prose h2 anchors, preferring serialized ids over slugs", () => {
+    const blocks = [
+      { type: "prose" as const, html: '<h2 id="why-now">Why <em>now</em></h2><p>x</p>' },
+      { type: "pull_quote" as const, quote: "q" },
+      { type: "prose" as const, html: "<h2>What Comes Next?</h2><h3>Skip me</h3>" },
+    ];
+    expect(postAnchors(blocks)).toEqual([
+      { label: "Why now", href: "#why-now" },
+      { label: "What Comes Next?", href: "#what-comes-next" },
     ]);
-    expect(anchors).toEqual([
-      { label: "Sed ut perspiciatis", href: "#sec1" },
-      { label: "At vero eos!", href: "#at-vero-eos" },
-    ]);
-    expect(ensureHeadingIds('<h2>At vero eos!</h2><h2 id="keep">K</h2>')).toBe(
-      '<h2 id="at-vero-eos">At vero eos!</h2><h2 id="keep">K</h2>',
-    );
+    expect(postAnchors(post.blocks)).toEqual([]);
   });
 
-  it("read next: same category first, never the current post, three max", () => {
-    const current = posts[0]!;
-    const picked = pickReadNext(posts, { slug: current.slug, cat: current.cat });
-    expect(picked.length).toBeLessThanOrEqual(3);
-    expect(picked.some((p) => p.slug === current.slug)).toBe(false);
-    const firstOther = picked.findIndex((p) => p.cat !== current.cat);
-    const lastSame = picked.map((p) => p.cat === current.cat).lastIndexOf(true);
-    if (firstOther !== -1 && lastSame !== -1) expect(lastSame).toBeLessThan(firstOther);
+  it("read next: same category first, featured excluded, capped at three", () => {
+    const mk = (id: number, cat: BlogPost["cat"], featured = false): BlogPost => ({
+      ...card,
+      id: String(id),
+      cat,
+      featured,
+      title: `Post ${id}`,
+    });
+    const pool = [
+      mk(1, "labor"),
+      mk(2, "chapter", true),
+      mk(3, "chapter"),
+      mk(4, "labor"),
+      mk(5, "chapter"),
+    ];
+    expect(readNextPosts({ cat: "chapter" }, pool).map((p) => p.id)).toEqual(["3", "5", "1"]);
+    expect(readNextPosts(post, [card]).map((p) => p.id)).toEqual([card.id]);
+    expect(readNextPosts(post, [])).toEqual([]);
+  });
+
+  it("byline: named vs committee mode, initials skip the word Committee", () => {
+    const named = { ...post, author: "Lorem Ipsum", committee: "Housing Committee" };
+    expect(bylineName(named)).toBe("Lorem Ipsum");
+    expect(bylineInitials(named)).toBe("LI");
+    expect(bylineName(named, "committee")).toBe("The Housing Committee");
+    expect(bylineInitials(named, "committee")).toBe("H");
+    expect(bylineName({ ...named, author: "" })).toBe("");
+    expect(bylineInitials({ ...named, author: "" })).toBe("");
+  });
+});
+
+describe("event date helpers", () => {
+  it("parses ISO dates as local dates and round-trips", () => {
+    const d = parseISODate("2026-07-04");
+    expect([d.getFullYear(), d.getMonth(), d.getDate()]).toEqual([2026, 6, 4]);
+    expect(WEEKDAYS[d.getDay()]).toBe("Sat");
+    expect(MONTH_SHORTS[d.getMonth()]).toBe("Jul");
+    expect(toISODate(d)).toBe("2026-07-04");
+    expect(toISODate(parseISODate("2026-01-01"))).toBe("2026-01-01");
   });
 });

@@ -1,92 +1,91 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
+import { monthKey, monthOf } from "../../lib/calendar";
+import { toISODate } from "../../lib/events";
 
-/* Calendar interactions in the production build (openspec
- * fix-calendar-page-layout spec calendar-route). The mock's only event is the
- * contract fixture dated 2026-07-04; `/events` honors `from`/`to`, so months
- * outside the server window come back empty except July 2026. */
-const MOCK = process.env.MOCK_ORIGIN ?? `http://127.0.0.1:${process.env.MOCK_PORT ?? 8787}`;
-const label = (page: Page) => page.locator("[data-month-label]");
+/* Calendar in the production build (openspec next-headless-site § Interactive
+ * archive and calendar; next-accessibility § Keyboard, § Dialogs). The REST
+ * window is today −1 → +12 months, so the current month is server-rendered from
+ * props, while the mock corpus' one event (2026-07-04) sits in the past: that
+ * month exercises the out-of-window path (live status, then same-origin fetch). */
+const CURRENT = monthKey(monthOf(toISODate(new Date())));
 
-function monthsBetween(from: Date, year: number, month: number) {
-  return year * 12 + month - (from.getFullYear() * 12 + from.getMonth());
-}
-
-async function stepTo(page: Page, year: number, month: number) {
-  const diff = monthsBetween(new Date(), year, month);
-  const name = diff < 0 ? "Previous month" : "Next month";
-  for (let i = 0; i < Math.abs(diff); i++) await page.getByRole("button", { name }).click();
-}
-
-test("first paint is complete HTML: header, grid, subscribe strip", async ({ request }) => {
-  const html = await (await request.get("/calendar/")).text();
+test("current month grid, list view and empty state are server-rendered", async ({ request }) => {
+  const html = await (await request.get(`/calendar/?month=${CURRENT}`)).text();
   expect(html).toContain('data-route-kind="calendar"');
-  expect(html).toMatch(/<h1[^>]*>Event Calendar<\/h1>/);
-  expect(html).toContain('aria-label="Previous month"');
+  expect(html).toContain(`data-month="${CURRENT}"`);
+  expect(html).toContain('role="grid"');
+  expect(html).toContain('aria-live="polite"');
   expect(html).toContain('id="subscribe"');
-  expect(html).toContain("/feed/chapter-events/");
-  expect(html).toMatch(/data-date="\d{4}-\d{2}-\d{2}"/); // the grid itself is in the stream
-  const es = await (await request.get("/es/calendario/")).text();
-  expect(es).toContain('data-route-kind="calendar"');
+
+  const list = await (await request.get(`/calendar/?month=${CURRENT}&view=list`)).text();
+  expect(list).toContain('data-calendar-view="list"');
+  expect(list).toMatch(/data-calendar-empty=""|View event: /);
+
+  // Out of the REST window → the server streams the live loading status, the island fetches.
+  const past = await (await request.get("/calendar/?month=2026-07")).text();
+  expect(past).toContain('role="status"');
+  expect(past).toContain("Loading events…");
 });
 
-test("?view=list is reload-stable and aria-pressed; month nav announces via aria-live", async ({
+test("month paging, toggle and dialog: URL state, aria-pressed, focus trap and restore", async ({
   page,
 }) => {
-  await page.goto("/calendar/");
-  await page.getByRole("button", { name: "List", exact: true }).click();
-  await expect(page).toHaveURL(/\/calendar\/\?view=list$/);
-  await page.reload();
-  await expect(page.getByRole("button", { name: "List", exact: true })).toHaveAttribute(
-    "aria-pressed",
-    "true",
-  );
-  await expect(page.locator("[data-empty='month'], .event-card").first()).toBeVisible();
+  await page.goto("/calendar/?month=2026-07");
+  await expect(page.getByRole("heading", { level: 2, name: "July 2026" })).toBeVisible();
 
-  const before = await label(page).textContent();
-  await expect(label(page)).toHaveAttribute("aria-live", "polite");
-  await page.getByRole("button", { name: "Next month" }).click();
-  await expect(label(page)).not.toHaveText(before!);
-
-  await page.getByRole("button", { name: "Month", exact: true }).click();
-  await expect(page).toHaveURL(/\/calendar\/$/);
-});
-
-test("in-window months make no /api/events request; out-of-window months fetch same-origin with from/to", async ({
-  page,
-  request,
-}) => {
-  await request.post(`${MOCK}/__mock/reset`);
-  const calls: string[] = [];
-  page.on("request", (r) => {
-    if (r.url().includes("/api/events")) calls.push(r.url());
-  });
-  await page.goto("/calendar/");
-  await page.getByRole("button", { name: "Next month" }).click();
-  await page.getByRole("button", { name: "Previous month" }).click();
-  await page.getByRole("button", { name: "Previous month" }).click();
-  await page.waitForTimeout(300);
-  expect(calls).toEqual([]);
-
-  await page.goto("/calendar/");
-  await stepTo(page, 2026, 6); // July 2026: outside the window from the build date onward
-  await expect(label(page)).toHaveText("July 2026");
-  await expect(page.getByRole("button", { name: "Contract Test Event" })).toBeVisible();
-  expect(calls.length).toBeGreaterThanOrEqual(1);
-  const july = calls.find((u) => u.includes("from=2026-07-01") && u.includes("to=2026-07-31"));
-  expect(july, calls.join("\n")).toBeTruthy();
-  expect(new URL(july!).origin).toBe(new URL(page.url()).origin);
-});
-
-test("chip opens the dialog; Escape restores focus to the chip", async ({ page }) => {
-  await page.goto("/calendar/");
-  await stepTo(page, 2026, 6);
-  const chip = page.getByRole("button", { name: "Contract Test Event" });
-  await chip.focus();
-  await page.keyboard.press("Enter");
-  const dialog = page.getByRole("dialog");
+  const chip = page.getByRole("button", { name: /Contract Test Event —/ });
+  await chip.click();
+  const dialog = page.getByRole("dialog", { name: /Contract Test Event/ });
   await expect(dialog).toBeVisible();
-  await expect(dialog.getByRole("link", { name: "View event" })).toBeVisible();
+  await expect(dialog.getByRole("link", { name: "View event" })).toHaveAttribute(
+    "href",
+    /\/events\//,
+  );
+  await page.keyboard.press("Tab");
+  await expect(dialog.locator(":focus")).toHaveCount(1); // focus stays inside
   await page.keyboard.press("Escape");
   await expect(dialog).toBeHidden();
   await expect(chip).toBeFocused();
+
+  await page.getByRole("button", { name: "List" }).click();
+  await expect(page).toHaveURL(/\?view=list&month=2026-07$/);
+  await expect(page.getByRole("button", { name: "List" })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("link", { name: "View event: Contract Test Event" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Next month" }).click();
+  await expect(page.getByRole("heading", { level: 2, name: "August 2026" })).toBeVisible();
+  await expect(page).toHaveURL(/month=2026-08/);
+  await expect(page.locator("[data-calendar-empty]")).toBeVisible();
+
+  // Reload lands on the same state (URL is the state)
+  await page.reload();
+  await expect(page.getByRole("heading", { level: 2, name: "August 2026" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "List" })).toHaveAttribute("aria-pressed", "true");
+});
+
+test("keyboard: arrow keys move the single tab stop, Enter opens the day's event", async ({
+  page,
+}) => {
+  await page.goto("/calendar/?month=2026-07");
+  const grid = page.locator("[role='grid']:visible");
+  await expect(grid).toHaveCount(1);
+  await grid.getByRole("gridcell", { name: "Wednesday, July 1", exact: true }).focus();
+  await page.keyboard.press("ArrowRight");
+  await page.keyboard.press("ArrowRight");
+  await page.keyboard.press("ArrowRight");
+  await expect(grid.getByRole("gridcell", { name: /July 4, 1 event/ })).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("dialog", { name: /Contract Test Event/ })).toBeVisible();
+});
+
+test("out-of-window month loads once through the same-origin events API", async ({ page }) => {
+  const calls: string[] = [];
+  page.on("request", (r) => {
+    const url = new URL(r.url());
+    if (url.pathname.startsWith("/api/events")) calls.push(`${url.pathname}${url.search}`);
+  });
+  await page.goto("/calendar/?month=2031-01");
+  await expect(page.getByRole("heading", { level: 2, name: "January 2031" })).toBeVisible();
+  await expect(page.locator("[role='grid']:visible")).toHaveCount(1);
+  expect(calls).toEqual(["/api/events/?lang=en&from=2031-01-01&to=2031-01-31"]);
 });
