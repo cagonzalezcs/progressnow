@@ -1,5 +1,6 @@
 import { cacheLife, cacheTag } from "next/cache";
 import { api, ApiError, type EventsParams, type PostsParams } from "@/lib/api";
+import { getEnv } from "@/lib/env";
 import {
   eventsTag,
   eventTag,
@@ -11,6 +12,7 @@ import {
   TAG,
   tagsFor,
 } from "@/lib/data/tags";
+import { rehomeEventLinks } from "@/lib/links";
 
 /* Cached reads (openspec design D1; next-headless-site § Content freshness by
  * push revalidation). Every function is a `'use cache'` scope tagged `content`
@@ -83,11 +85,22 @@ export async function getPosts(params: PostsParams) {
   return api().posts(params);
 }
 
-export async function getEvents(params: EventsParams) {
+async function eventsEnvelope(params: EventsParams) {
   "use cache";
   cacheTag(...tagsFor(eventsTag(params.lang ?? "")));
   cacheLife("content");
   return api().events(params);
+}
+
+/* Event permalinks arrive absolute on the WordPress origin. Every consumer of
+ * this envelope is the calendar island (server-rendered here, refetched in the
+ * browser through /api/events), which never learns WP_ORIGIN and so cannot use
+ * SiteLink — the re-homing has to happen here. It sits outside the cached scope
+ * so it follows the current WP_ORIGIN rather than the one in force when the
+ * entry was written. */
+export async function getEvents(params: EventsParams) {
+  const envelope = await eventsEnvelope(params);
+  return { ...envelope, events: rehomeEventLinks(envelope.events, getEnv().WP_ORIGIN) };
 }
 
 export async function getCategories() {

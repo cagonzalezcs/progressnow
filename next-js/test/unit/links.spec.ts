@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { resolveHref } from "@/lib/links";
+import { rehomeEventLinks, resolveHref } from "@/lib/links";
 
 /* Link re-homing (openspec next-headless-site § Internal links are re-homed
  * onto the app origin; design D4). Same rule set as the Nuxt rendition's
@@ -71,5 +71,39 @@ describe("resolveHref", () => {
 
   it("does not throw on garbage", () => {
     expect(resolveHref("http://[", WP)).toEqual({ kind: "inert", href: "http://[" });
+  });
+});
+
+describe("rehomeEventLinks", () => {
+  it("re-homes the permalink of every event that has one", () => {
+    expect(
+      rehomeEventLinks(
+        [
+          { id: "1", url: "https://wp.example/events/community-cleanup-day/" },
+          { id: "2" },
+          { id: "3", url: "" },
+        ],
+        WP,
+      ),
+    ).toEqual([
+      { id: "1", url: "/events/community-cleanup-day/" },
+      { id: "2" },
+      { id: "3", url: "" },
+    ]);
+  });
+
+  it("leaves permalinks that are already relative, and off-origin ones, alone", () => {
+    expect(
+      rehomeEventLinks(
+        [{ url: "/events/online-workshop/" }, { url: "https://example.org/rsvp" }],
+        WP,
+      ),
+    ).toEqual([{ url: "/events/online-workshop/" }, { url: "https://example.org/rsvp" }]);
+  });
+
+  it("does not mutate the input", () => {
+    const events = [{ url: "https://wp.example/events/fall-social/" }];
+    rehomeEventLinks(events, WP);
+    expect(events[0]!.url).toBe("https://wp.example/events/fall-social/");
   });
 });
