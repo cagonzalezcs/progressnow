@@ -71,7 +71,11 @@ are working on the following:
    screen readers]. Ask us and we will provide an accessible version.
 3. **[Older posts]** — [e.g. images in posts published before DATE may be
    missing text alternatives]. We are reviewing and updating them.
-4. **[Add or remove items as needed.]**
+4. **[Component style guide]** — [the design-system page at `/styleguide/`
+   is a development reference, hidden from search engines; some third-party
+   component demos on it do not yet meet every criterion. It is not part of
+   the public site's content.]
+5. **[Add or remove items as needed.]**
 
 ### Feedback and contact
 
@@ -105,6 +109,17 @@ Core content remains readable if JavaScript is unavailable.
 We assessed the accessibility of this site by **self-evaluation**, combining
 automated testing with manual review. [If applicable: An external evaluation
 was carried out by ORGANIZATION on DATE; the report is available on request.]
+
+[If the site runs the Next.js frontend:] Every release of this site is checked
+automatically with [axe-core](https://github.com/dequelabs/axe-core) against
+the production build: every page type in both languages, in each combination
+of the text-size, high-contrast and reduced-motion settings, and with the
+menus, dialogs and calendar open. Rules mapped to WCAG 2.0, 2.1 and 2.2 at
+levels A and AA — and axe's best-practice rules — must pass before a release
+ships. Keyboard operation, focus order, screen-reader announcements on
+navigation and the motion preference are covered by browser tests on the same
+build. Automated checks cannot find every barrier; the manual review and your
+feedback (above) cover the rest.
 
 ---
 
@@ -184,7 +199,12 @@ totalmente accesible. Estamos trabajando en lo siguiente:
 3. **[Publicaciones antiguas]** — [p. ej., las imágenes de publicaciones
    anteriores a FECHA pueden carecer de texto alternativo]. Las estamos
    revisando y actualizando.
-4. **[Agrega o elimina puntos según corresponda.]**
+4. **[Guía de estilo de componentes]** — [la página del sistema de diseño en
+   `/styleguide/` es una referencia de desarrollo oculta a los buscadores;
+   algunas demostraciones de componentes de terceros que contiene aún no
+   cumplen todos los criterios. No forma parte del contenido público del
+   sitio.]
+5. **[Agrega o elimina puntos según corresponda.]**
 
 ### Comentarios y contacto
 
@@ -220,6 +240,18 @@ Evaluamos la accesibilidad de este sitio mediante **autoevaluación**,
 combinando pruebas automáticas con revisión manual. [Si corresponde: Una
 evaluación externa fue realizada por ORGANIZACIÓN el FECHA; el informe está
 disponible a solicitud.]
+
+[Si el sitio usa el frontend Next.js:] Cada versión de este sitio se verifica
+automáticamente con [axe-core](https://github.com/dequelabs/axe-core) sobre la
+compilación de producción: cada tipo de página en ambos idiomas, en cada
+combinación de los ajustes de tamaño de texto, alto contraste y menos
+movimiento, y con los menús, diálogos y el calendario abiertos. Las reglas
+correspondientes a WCAG 2.0, 2.1 y 2.2 en los niveles A y AA —y las buenas
+prácticas de axe— deben cumplirse antes de publicar. La operación con teclado,
+el orden del foco, los anuncios para lectores de pantalla al navegar y la
+preferencia de movimiento se cubren con pruebas de navegador sobre la misma
+compilación. Las pruebas automáticas no detectan todas las barreras; la
+revisión manual y tus comentarios (arriba) cubren el resto.
 
 ---
 
