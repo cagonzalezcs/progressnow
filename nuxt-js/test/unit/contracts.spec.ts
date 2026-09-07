@@ -23,7 +23,7 @@ import routesManifest from "@fixtures/routes-manifest.json";
 import singleEvent from "@fixtures/single-event.json";
 import singlePost from "@fixtures/single-post.json";
 import site from "@fixtures/site.json";
-import { mockDispatch, mockRoutesManifest } from "../../shared/mock-api";
+import { MOCK_ORIGIN, mockDispatch, mockRoutesManifest } from "../../shared/mock-api";
 
 /* Dual-sided contracts: PHPUnit writes these fixtures from the real
  * serializers (wp-content/themes/progressnow/tests/fixtures); the app's zod
@@ -74,5 +74,37 @@ describe("the nitro mock serves contract-valid envelopes", () => {
     expect(mockDispatch("pages/nope", { lang: "en" })).toBeNull();
     expect(mockDispatch("posts/nope", {})).toBeNull();
     expect(mockDispatch("wat", {})).toBeNull();
+  });
+
+  /* The theme builds header.homeUrl with progressnow_payload_path precisely so
+   * the logo link carries no origin ("the static shell may be served from
+   * another host/CDN"). A `generate:mock` build bakes whatever the mock says
+   * into every prerendered page, so an origin here ships a dead logo link. */
+  it("leaves header.homeUrl root-relative, like the theme fixture", () => {
+    expect(site.header.homeUrl).toBe("/");
+    expect(siteEnvelopeSchema.parse(mockDispatch("site", { lang: "en" })).header.homeUrl).toBe("/");
+    expect(siteEnvelopeSchema.parse(mockDispatch("site", { lang: "es" })).header.homeUrl).toBe(
+      "/es/",
+    );
+  });
+
+  /* Everything WordPress does serialize absolutely has to sit on the origin the
+   * build is served from, or the language switcher and event breadcrumbs walk
+   * off-site. */
+  it("mints its absolute urls on MOCK_ORIGIN", () => {
+    const envelope = siteEnvelopeSchema.parse(mockDispatch("site", { lang: "en" }));
+    for (const language of envelope.languages) {
+      expect(language.url.startsWith(`${MOCK_ORIGIN}/`)).toBe(true);
+    }
+
+    const event = singleEventEnvelopeSchema.parse(
+      mockDispatch("events/contract-test-event", { lang: "en" }),
+    );
+    expect(event.homeUrl).toBe(`${MOCK_ORIGIN}/`);
+    expect(event.calendarUrl).toBe(`${MOCK_ORIGIN}/calendar/`);
+
+    const calendar = pageEnvelopeSchema.parse(mockDispatch("pages/calendar", { lang: "en" }));
+    expect(calendar.calendar?.icsUrl).toBe(`${MOCK_ORIGIN}/feed/chapter-events/`);
+    expect(calendar.seo.canonical).toBe(`${MOCK_ORIGIN}/calendar/`);
   });
 });

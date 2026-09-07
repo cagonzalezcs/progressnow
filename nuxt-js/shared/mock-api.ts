@@ -19,7 +19,26 @@ import singleEventFixture from "../../wp-content/themes/progressnow/tests/fixtur
 import chapterEventFixture from "../../wp-content/themes/progressnow/tests/fixtures/chapter-event.json";
 import categoriesFixture from "../../wp-content/themes/progressnow/tests/fixtures/categories.json";
 
-export const MOCK_ORIGIN = "https://mock.example";
+/* The origin the mock mints absolute URLs on. WordPress serializes absolute
+ * permalinks (languages[].url, seo.canonical, single-event homeUrl/calendarUrl)
+ * and the mock keeps that shape — but `generate:mock` bakes them into the
+ * prerendered pages, so on a deploy they have to name the host actually serving
+ * the build or the language switcher and event breadcrumbs dead-end off-site.
+ * Vercel names that host at build time; anywhere else (dev, tests) the
+ * placeholder keeps fixtures deterministic. Root-relative fields — nav hrefs,
+ * header.homeUrl — never go through here. */
+function mockOrigin(): string {
+  const env: Record<string, string | undefined> =
+    typeof process === "undefined" ? {} : (process.env ?? {});
+  const host =
+    env.NUXT_MOCK_ORIGIN ||
+    (env.VERCEL_ENV === "production" ? env.VERCEL_PROJECT_PRODUCTION_URL : env.VERCEL_URL);
+  if (!host) return "https://mock.example";
+  const trimmed = host.replace(/\/+$/, "");
+  return /^https?:\/\//.test(trimmed) ? trimmed : `https://${trimmed}`;
+}
+
+export const MOCK_ORIGIN = mockOrigin();
 export const MOCK_CONTENT_VERSION = 7;
 
 type Lang = "en" | "es";
@@ -57,6 +76,11 @@ function langOf(value: unknown): Lang {
 function abs(path: string): string {
   return `${MOCK_ORIGIN}${path}`;
 }
+
+const ICS_URL = abs("/feed/chapter-events/");
+const GOOGLE_CAL_URL = `https://calendar.google.com/calendar/r?cid=${encodeURIComponent(
+  ICS_URL.replace(/^https?:\/\//, "webcal://"),
+)}`;
 
 function translationOf(lang: Lang, kind: MockPage["kind"] | "front" | "post" | "event"): string {
   if (kind === "front") return HOME[lang];
@@ -110,7 +134,10 @@ export function mockSite(langValue: unknown) {
     languages: languages(lang, "front"),
     header: {
       ...siteFixture.header,
-      homeUrl: home,
+      // Root-relative, like the theme's own payload (inc/payloads.php builds it
+      // with progressnow_payload_path): the logo link must not hard-code an
+      // origin the static build isn't served from.
+      homeUrl: HOME[lang],
       navItems: [
         { label: lang === "es" ? "Calendario" : "Calendar", href: translationOf(lang, "calendar") },
         { label: "Blog", href: translationOf(lang, "posts_index") },
@@ -177,7 +204,7 @@ export function mockPage(pathValue: string, langValue: unknown) {
         : [],
     calendar:
       page.kind === "calendar"
-        ? { apiBase: `${MOCK_ORIGIN}/mock/v1`, icsUrl: `${MOCK_ORIGIN}/feed/chapter-events/`, googleCalUrl: "https://calendar.google.com/calendar/r?cid=webcal%3A%2F%2Fmock.example%2Ffeed%2Fchapter-events%2F" }
+        ? { apiBase: `${MOCK_ORIGIN}/mock/v1`, icsUrl: ICS_URL, googleCalUrl: GOOGLE_CAL_URL }
         : null,
     languages: languages(lang, page.kind),
     seo: seo({ title: `${page.title} – Progress Now`, description: base.seo.description }, lang, page.kind, page.path),
