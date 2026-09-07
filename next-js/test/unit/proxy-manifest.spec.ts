@@ -55,6 +55,22 @@ describe("createProxyManifest", () => {
     expect(await pm.exists("/about/")).toBe("unavailable");
   });
 
+  it("redirect(): a bare language directory goes to its front page, nothing else moves", async () => {
+    const { pm, fetchImpl } = harness();
+    expect(await pm.redirect("/es/")).toBe("/es/inicio/");
+    expect(await pm.redirect("/es")).toBe("/es/inicio/");
+    expect(await pm.redirect("/")).toBeNull();
+    expect(await pm.redirect("/es/inicio/")).toBeNull();
+    expect(await pm.redirect("/about/")).toBeNull();
+    expect(await pm.redirect("/nope/")).toBeNull();
+    expect(fetchImpl).toHaveBeenCalledTimes(1); // answered from the cached manifest
+  });
+
+  it("redirect(): null while WordPress is unreachable with a cold cache", async () => {
+    const { pm } = harness({ fail: true });
+    expect(await pm.redirect("/es/")).toBeNull();
+  });
+
   it("probe(): one fresh fetch tells whether WordPress answers right now", async () => {
     const { pm, fetchImpl } = harness();
     expect(await pm.exists("/about/")).toBe("known");

@@ -1,6 +1,16 @@
 import { describe, expect, it } from "vitest";
 import { routesManifestSchema } from "@/lib/schemas";
-import { findRoute, langForPath, normalizePath, payloadSlug, resolveRoute } from "@/lib/routes";
+import {
+  findRoute,
+  frontRoute,
+  langForPath,
+  languageDirectories,
+  languageDirectory,
+  languageHomeRedirect,
+  normalizePath,
+  payloadSlug,
+  resolveRoute,
+} from "@/lib/routes";
 import { createMock } from "../mock/api.mjs";
 
 /* Ported unchanged from nuxt-js/test/unit/routes.spec.ts (openspec
@@ -17,13 +27,62 @@ describe("normalizePath", () => {
   });
 });
 
+describe("languageDirectory", () => {
+  it("is the first segment of the front path — Polylang's directory, not the front slug", () => {
+    expect(languageDirectory("/")).toBe("/");
+    expect(languageDirectory("/es/")).toBe("/es/");
+    expect(languageDirectory("/es/inicio/")).toBe("/es/");
+    expect(languageDirectory("/en")).toBe("/en/");
+  });
+
+  it("lists one directory per front route, longest first", () => {
+    // The mock mirrors the real theme: the Spanish front page lives at /es/inicio/.
+    expect(frontRoute(manifest, "es")?.path).toBe("/es/inicio/");
+    expect(languageDirectories(manifest).map(({ lang, dir }) => [lang, dir])).toEqual([
+      ["es", "/es/"],
+      ["en", "/"],
+    ]);
+  });
+});
+
 describe("langForPath", () => {
-  it("picks the longest front-route prefix", () => {
+  it("picks the longest language-directory prefix", () => {
     expect(langForPath(manifest, "/")).toBe("en");
     expect(langForPath(manifest, "/about/")).toBe("en");
     expect(langForPath(manifest, "/es/")).toBe("es");
+    expect(langForPath(manifest, "/es/inicio/")).toBe("es");
     expect(langForPath(manifest, "/es/acerca/")).toBe("es");
+    // Not under the front page's own path, still Spanish (the live bug: 404s drew English chrome).
     expect(langForPath(manifest, "/es/unknown/")).toBe("es");
+    expect(langForPath(manifest, "/es/category/labor/")).toBe("es");
+    // A slug that merely starts with the language code is not in that directory.
+    expect(langForPath(manifest, "/estudiantes/")).toBe("en");
+  });
+});
+
+describe("languageHomeRedirect", () => {
+  it("sends a bare language directory to its front page, like WordPress' 301", () => {
+    expect(languageHomeRedirect(manifest, "/es/")).toBe("/es/inicio/");
+    expect(languageHomeRedirect(manifest, "/es")).toBe("/es/inicio/");
+  });
+
+  it("leaves every other path alone", () => {
+    expect(languageHomeRedirect(manifest, "/")).toBeNull(); // the front page itself
+    expect(languageHomeRedirect(manifest, "/es/inicio/")).toBeNull();
+    expect(languageHomeRedirect(manifest, "/es/blog/")).toBeNull();
+    expect(languageHomeRedirect(manifest, "/nope/")).toBeNull();
+    expect(languageHomeRedirect(manifest, "/es/nada/")).toBeNull();
+  });
+
+  it("does nothing when the front page is the directory itself", () => {
+    const flat = {
+      ...manifest,
+      routes: manifest.routes.map((r) =>
+        r.kind === "front" && r.lang === "es" ? { ...r, path: "/es/" } : r,
+      ),
+    };
+    expect(languageHomeRedirect(flat, "/es/")).toBeNull();
+    expect(langForPath(flat, "/es/nada/")).toBe("es");
   });
 });
 
@@ -89,6 +148,8 @@ describe("resolveRoute", () => {
       lang: "en",
     });
     expect(resolveRoute(manifest, "/es/nada/")).toMatchObject({ kind: "not_found", lang: "es" });
+    // The bare directory is not a route (proxy.ts redirects it); the language still resolves.
+    expect(resolveRoute(manifest, "/es/")).toMatchObject({ kind: "not_found", lang: "es" });
   });
 
   it("accepts Next's segment array and searchParams shapes", () => {

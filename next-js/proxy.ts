@@ -12,7 +12,11 @@ import { upstreamHealth } from "@/lib/upstream-health";
  *     the not-found route internally and answers with its HTML and a real 404
  *     (next-headless-site § Content freshness — unknown path is cheap; the
  *     manifest is cached in memory).
- *  3. Answers a real 500 while WordPress is unreachable (next-headless-site
+ *  3. Mirrors WordPress' 301 from a bare language directory to that language's
+ *     front page (`/es/` → `/es/inicio/`; Polylang keeps a translated static
+ *     front page at its own slug). The query string rides along, so `?s=` on
+ *     the bare directory reaches the front page, which renders the results.
+ *  4. Answers a real 500 while WordPress is unreachable (next-headless-site
  *     § Error and empty surfaces): when its own manifest probe fails, or the
  *     data layer just recorded a failure and a fresh probe confirms it, the
  *     proxy renders the error surface internally (no upstream data needed) and
@@ -99,6 +103,12 @@ export async function proxy(request: NextRequest) {
     pathname !== ERROR_PATH &&
     !APP_SEGMENTS.some((re) => re.test(pathname))
   ) {
+    const front = await routes().redirect(pathname);
+    if (front) {
+      const url = request.nextUrl.clone();
+      url.pathname = front;
+      return NextResponse.redirect(url, 301);
+    }
     let existence = await routes().exists(pathname);
     // A data-layer failure just happened: verify with one fresh probe before trusting memory.
     if (existence !== "unavailable" && upstreamHealth.recentlyFailed(FAILURE_WINDOW_MS)) {

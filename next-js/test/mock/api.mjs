@@ -35,8 +35,13 @@ export const EVENT_SLUG = "contract-test-event";
 /** @typedef {"en" | "es"} Lang */
 /** @typedef {{ lang: Lang; path: string; slug: string; kind: "posts_index" | "about" | "get_involved" | "calendar" | "page" | "styleguide"; template: string; title: string }} MockPage */
 
+/** Polylang's language directories: the hidden default at `/`, Spanish under `/es/`. */
 /** @type {Record<Lang, string>} */
-const HOME = { en: "/", es: "/es/" };
+const LANG_DIR = { en: "/", es: "/es/" };
+/** Front-page paths as the real theme reports them: a translated static front
+ * page keeps its slug (`/es/inicio/`), and WordPress 301s the bare `/es/` to it. */
+/** @type {Record<Lang, string>} */
+const HOME = { en: "/", es: "/es/inicio/" };
 
 /** @type {MockPage[]} */
 export const PAGES = [
@@ -153,8 +158,8 @@ export function createMock(options = {}) {
   /** @param {Lang} lang @param {MockPage["kind"] | "front" | "post" | "event"} kind */
   function translationOf(lang, kind) {
     if (kind === "front") return HOME[lang];
-    if (kind === "post") return `${HOME[lang]}blog/${POST_SLUG}/`;
-    if (kind === "event") return `${HOME[lang]}events/${EVENT_SLUG}/`;
+    if (kind === "post") return `${LANG_DIR[lang]}blog/${POST_SLUG}/`;
+    if (kind === "event") return `${LANG_DIR[lang]}events/${EVENT_SLUG}/`;
     return PAGES.find((p) => p.lang === lang && p.kind === kind)?.path ?? HOME[lang];
   }
 

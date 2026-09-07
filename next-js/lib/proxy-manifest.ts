@@ -1,5 +1,5 @@
 import { routesManifestSchema, type RoutesManifest } from "@/lib/schemas";
-import { resolveRoute } from "@/lib/routes";
+import { languageHomeRedirect, resolveRoute } from "@/lib/routes";
 
 /* Route existence check for proxy.ts (openspec next-headless-site § Content
  * freshness — unknown paths; Next docs: a 404 status must be decided before
@@ -75,6 +75,11 @@ export function createProxyManifest({
         if (manifest && resolveRoute(manifest, path).kind !== "not_found") return "known";
       }
       return "unknown";
+    },
+    /** Bare language directory → its front page (`/es/` → `/es/inicio/`), else null. */
+    async redirect(path: string): Promise<string | null> {
+      if (!manifest || now() - fetchedAt > ttlMs) await refresh();
+      return manifest ? languageHomeRedirect(manifest, path) : null;
     },
     /** Is WordPress answering right now? One fresh /routes fetch (dedupes in-flight). */
     async probe(): Promise<boolean> {

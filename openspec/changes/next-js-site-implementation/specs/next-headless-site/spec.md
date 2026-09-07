@@ -19,6 +19,14 @@ The Next.js app (`next-js/`) SHALL serve a page for every public WordPress route
 - **WHEN** `/about` is requested without a trailing slash
 - **THEN** the response is a permanent redirect to `/about/`
 
+#### Scenario: Bare language directory redirects to the front page
+- **WHEN** `/es/` is requested and the Spanish front page's manifest path is `/es/inicio/` (Polylang keeps a translated static front page at its own slug and 301s the bare directory to it)
+- **THEN** the response is a `301` to `/es/inicio/` with the query string preserved (`/es/?s=…` lands on `/es/inicio/?s=…`, where the front page renders the Spanish search results)
+
+#### Scenario: Unknown Spanish path keeps Spanish chrome
+- **WHEN** `/es/no-existe/` is requested and the Spanish front page lives at `/es/inicio/`
+- **THEN** the 404 renders with `html[lang]="es"` and Spanish chrome and strings — the language is decided by the `/es/` directory (the first segment of the front path), never by the front page's full path
+
 ### Requirement: Server rendering of every route state
 Every route, including search results, filtered and paged archives, category archives, and the calendar's initial window, SHALL be fully rendered on the server on first paint; the browser SHALL NOT need to fetch data before content is visible, and the document with JavaScript disabled SHALL contain the same primary content, navigation, and footer.
 

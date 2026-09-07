@@ -17,7 +17,7 @@ test("chrome renders per language from /site and the skip link lands on main", a
   await page.keyboard.press("Enter");
   await expect(page.locator("main#main")).toBeFocused();
 
-  await page.goto("/es/");
+  await page.goto("/es/inicio/");
   await expect(page.locator("html")).toHaveAttribute("lang", "es");
   await expect(
     page.getByRole("navigation", { name: "Main" }).last().getByRole("link", { name: "Calendario" }),

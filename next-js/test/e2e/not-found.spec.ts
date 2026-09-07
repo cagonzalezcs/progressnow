@@ -13,7 +13,8 @@ async function strings(request: APIRequestContext, lang: string) {
 
 for (const [lang, path, home, calendar] of [
   ["en", "/does-not-exist/", "/", "/calendar/"],
-  ["es", "/es/no-existe/", "/es/", "/es/calendario/"],
+  // The Spanish front page lives at its own slug, as on the real theme (Polylang 301s /es/ to it).
+  ["es", "/es/no-existe/", "/es/inicio/", "/es/calendario/"],
 ] as const) {
   test(`unknown ${lang} path → 404 status, ${lang} copy, pills to ${lang} home and calendar`, async ({
     page,
