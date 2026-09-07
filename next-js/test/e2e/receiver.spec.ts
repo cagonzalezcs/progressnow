@@ -60,15 +60,23 @@ test.describe.serial("POST /api/rebuild", () => {
     await expect
       .poll(
         async () =>
-          ((await (await request.get(`${MOCK}/__mock/build-status`)).json()) as unknown[]).length,
+          (
+            (await (await request.get(`${MOCK}/__mock/build-status`)).json()) as {
+              body?: { buildId?: string };
+            }[]
+          ).some((c) => c.body?.buildId === json.buildId),
         { timeout: 10_000 },
       )
-      .toBeGreaterThan(0);
-    const [callback] = (await (await request.get(`${MOCK}/__mock/build-status`)).json()) as {
+      .toBe(true);
+    // Pick this test's own callback: chrome.spec.ts also fires a rebuild (to make a
+    // route cold for the footer-hold window), and it may be recorded here in parallel.
+    const callbacks = (await (await request.get(`${MOCK}/__mock/build-status`)).json()) as {
       body: { buildId: string; status: string; contentVersion: number };
       timestamp: string;
       signature: string;
     }[];
+    const callback = callbacks.find((c) => c.body?.buildId === json.buildId);
+    expect(callback, `no callback for buildId ${json.buildId}`).toBeDefined();
     expect(callback!.body).toEqual({
       buildId: json.buildId,
       status: "succeeded",

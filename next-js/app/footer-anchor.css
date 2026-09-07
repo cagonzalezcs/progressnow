@@ -1,0 +1,34 @@
+/* ---------------------------------------------------------------------------
+ * The footer never enters the viewport on its own — next-js only
+ * (openspec footer-anchor § The footer starts below the fold and stays there).
+ *
+ * Not in app/globals.css: that file is a byte-identical copy of the theme's
+ * src/css/tailwind.css (test/unit/shared-source-drift.test.ts fails on any
+ * drift). The theme is a multi-page app whose footer never outruns its
+ * content; this app's <main> can be empty for as long as a route payload
+ * takes, and can grow again afterwards when an island renders.
+ *
+ * Giving <main> a full viewport of minimum height puts the footer below the
+ * fold in every state — loading, streamed, short page, island not yet
+ * rendered, settled — so it neither appears during a navigation nor moves
+ * anywhere the visitor can see. Content landing only pushes it further down.
+ *
+ * Two earlier attempts are worth not repeating:
+ *
+ *   `visibility: hidden` while the route loaded. Removed the jump, but the
+ *   footer is a dark band on a white ground, so every navigation flashed
+ *   dark → white → dark — a photosensitivity hazard (WCAG 2.3.1), worse than
+ *   what it fixed.
+ *
+ *   A sticky-footer flex column (`body` flex, `.site-main` flex: 1). That
+ *   anchors the footer's BOTTOM edge to the viewport's, which reserves its
+ *   height *inside* the viewport: measured on /blog/, 352px of footer showed
+ *   while the route loaded and slid back out to 32px when the content landed.
+ *   The bottom edge never moved above the fold, so a test written around that
+ *   invariant passed while the visible defect remained. The invariant that
+ *   matters is the TOP edge.
+ * ------------------------------------------------------------------------- */
+.site-main {
+  min-height: 100vh;
+  min-height: 100dvh; /* dvh where supported: mobile toolbars must not shrink it */
+}

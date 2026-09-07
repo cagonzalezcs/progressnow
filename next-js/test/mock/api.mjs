@@ -7,7 +7,7 @@
  * route. Plain ESM so both the standalone server (node) and vitest import it.
  *
  * E2E hooks (not part of the WordPress contract): `setPostTitle`,
- * `setCanonicalOrigin`, `setFailing`, `reset`, and the request log. */
+ * `setCanonicalOrigin`, `setFailing`, `setDelay`, `reset`, and the request log. */
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
@@ -134,8 +134,14 @@ function langOf(value) {
  */
 export function createMock(options = {}) {
   const origin = options.origin ?? "https://mock.example";
-  /** @type {{ canonicalOrigin: string | null; postTitles: Map<string, string>; failing: boolean }} */
-  const state = { canonicalOrigin: null, postTitles: new Map(), failing: false };
+  /** @type {{ canonicalOrigin: string | null; postTitles: Map<string, string>; failing: boolean; delayMs: number; delayPath: string }} */
+  const state = {
+    canonicalOrigin: null,
+    postTitles: new Map(),
+    failing: false,
+    delayMs: 0,
+    delayPath: "",
+  };
   /** @type {string[]} */
   const requests = [];
 
@@ -480,6 +486,29 @@ export function createMock(options = {}) {
     setFailing(value) {
       state.failing = value;
     },
+    /** Milliseconds a matching envelope response is held back — opens a route's
+     * loading window on demand (openspec route-loading § The loading window is
+     * exercised end to end). */
+    get delayMs() {
+      return state.delayMs;
+    },
+    /** Envelope path prefix the delay applies to; "" means every envelope. Scoping it
+     * keeps a delay set by one spec from slowing the routes another spec is timing. */
+    get delayPath() {
+      return state.delayPath;
+    },
+    /** @param {string} path envelope path, without the `progressnow/v1/` prefix */
+    isDelayed(path) {
+      return state.delayMs > 0 && path.startsWith(state.delayPath);
+    },
+    /** @param {unknown} value @param {unknown} [path] @returns {boolean} false when `value` is not a finite, non-negative number, or `path` is not a string */
+    setDelay(value, path = "") {
+      if (typeof value !== "number" || !Number.isFinite(value) || value < 0) return false;
+      if (typeof path !== "string") return false;
+      state.delayMs = value;
+      state.delayPath = path;
+      return true;
+    },
     /** @param {string} slug @param {string} title */
     setPostTitle(slug, title) {
       state.postTitles.set(slug, title);
@@ -492,6 +521,8 @@ export function createMock(options = {}) {
       state.canonicalOrigin = null;
       state.postTitles.clear();
       state.failing = false;
+      state.delayMs = 0;
+      state.delayPath = "";
       requests.length = 0;
     },
   };
