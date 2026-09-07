@@ -69,8 +69,13 @@ export function readEnv(source: Record<string, string | undefined>): Env {
     const problems = result.error.issues.map((i) => `${i.path.join(".") || "env"}: ${i.message}`);
     throw new EnvError(
       `Invalid environment:\n  - ${problems.join("\n  - ")}\n\n` +
-        "Local development: copy next-js/.env.example to .env.local (MAMP's self-signed certificate also needs " +
-        "NODE_TLS_REJECT_UNAUTHORIZED=0), or run `npm run dev:mock` to use the fixture-backed mock API without WordPress.",
+        "Local development: copy next-js/.env.example to .env.local, or run `npm run dev:mock` to use the " +
+        "fixture-backed mock API without WordPress.\n" +
+        "The standalone server does not read .env.local — export these in the shell (or pass them through " +
+        "your process manager) before `npm run start:standalone`.\n" +
+        "TLS against a local MAMP PRO site: trust MAMP's CA from the shell, which Node reads at process " +
+        "start, so .env.local is too late — NODE_EXTRA_CA_CERTS=/Applications/MAMP/Library/OpenSSL/certs/MAMP_PRO_Root_CA.crt. " +
+        "Never NODE_TLS_REJECT_UNAUTHORIZED=0: it disables verification outright and Node warns on every fetch.",
     );
   }
   const parsed = result.data;

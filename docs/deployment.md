@@ -1,8 +1,14 @@
-# Deployment guide — PHP shell + Nuxt static rendition
+# Deployment guide
 
 How the pieces fit, what to configure, and how to run it locally, on a plain
-host, or behind CloudFront. Everything the operator has to do is listed;
-nothing in this setup runs `node` on the WordPress host.
+host, behind CloudFront, or as a headless Next.js app on its own origin.
+Everything the operator has to do is listed; nothing in any of these setups
+runs `node` on the WordPress host.
+
+Sections 1–9 cover the **PHP shell + Nuxt static rendition** (`nuxt-js/`).
+Section 10 covers the **headless Next.js frontend** (`next-js/`). An install
+runs one of the two; the PHP theme alone (no JS frontend) needs only the
+theme active and `CHAPTER_REBUILD_TRANSPORT` left at `none`.
 
 ## 1. How it works
 
@@ -196,3 +202,179 @@ fits this contract; reporting back is the same signed `POST /build-status`
   — the PHP passthrough serves the generated files.
 - No WordPress at all: `npm run generate:mock` (fixture-backed nitro mock) and
   `npm run preview`.
+
+## 10. Headless Next.js (`next-js/`)
+
+The Next.js app is a separate origin (say `https://www.example.org`) that
+renders every public route server-side from `GET /wp-json/progressnow/v1/*`
+(the same API, contracts and fixtures the Nuxt rendition uses). WordPress stays
+on its own origin as CMS + API; nothing in the browser talks to WordPress.
+Design: `openspec/changes/next-js-site-implementation/design.md`.
+
+### 10.1 How it works
+
+1. **Every request renders on the Next origin.** A request proxy (`proxy.ts`)
+   mints a per-request CSP nonce, decides real 404s/500s from an in-memory copy
+   of the `/routes` manifest, and mirrors Polylang's `/es/` → `/es/inicio/`
+   redirect. The root layout renders the chrome for the request's language;
+   route components render from envelopes read through `lib/data/*` —
+   `'use cache'` functions tagged `content` + `routes` | `site` | `post:{lang}:{slug}` …
+   with a long `cacheLife`. WordPress is contacted only on a cache miss.
+2. **Content changes revalidate, they do not rebuild.** With
+   `CHAPTER_REBUILD_TRANSPORT=webhook`, `inc/rebuild.php` POSTs the signed
+   rebuild event (§6) to `POST /api/rebuild` on the Next origin. The receiver
+   verifies the HMAC + ±300 s window, rejects replays, invalidates the
+   `content`/`routes`/`site` tags, answers `202 { buildId, status: "started" }`
+   and — when `WP_BUILD_STATUS_URL` is set — reports `succeeded` through the
+   same signed `POST /build-status`, which marks the build live in the admin
+   "Site build" panel. Editors see fresh pages within the dispatcher's
+   debounce (`CHAPTER_REBUILD_DEBOUNCE`, default 90 s); "Rebuild now" is
+   immediate.
+3. **Canonical ownership is a constant.** `CHAPTER_CANONICAL_ORIGIN` makes
+   `inc/seo.php` emit canonical, `hreflang`, `og:url` and the core sitemap on
+   the Next origin — in every REST envelope and in the PHP theme's own head — so
+   the two origins never compete. Next passes those values through verbatim.
+4. **Media and fonts.** Images go through `next/image` (remote patterns from
+   `IMAGE_HOSTS`, default the WordPress host; AVIF/WebP; SVG never optimized).
+   The theme's `static/` (fonts, brand art) is proxied same-origin
+   (`/wp-content/themes/progressnow/static/*` → `WP_ORIGIN`) with immutable
+   caching so `@font-face` never crosses origins. The ICS feed stays on
+   WordPress; the calendar links out to it.
+
+### 10.2 Environment contract (`next-js/.env.example`)
+
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `WP_API_BASE` | yes | `https://cms.example.org/wp-json/progressnow/v1` (server-only) |
+| `WP_ORIGIN` | derived | WordPress origin for media, the static proxy and link re-homing; from `WP_API_BASE` unless set |
+| `NEXT_PUBLIC_SITE_ORIGIN` | yes | public origin of the Next app: sitemap, robots, absolute Open Graph URLs |
+| `CHAPTER_REBUILD_SECRET` | yes | same value as wp-config.php; ≥ 16 characters |
+| `WP_BUILD_STATUS_URL` | recommended | `https://cms.example.org/wp-json/progressnow/v1/build-status` — the receiver reports the build live |
+| `IMAGE_HOSTS` | optional | comma-separated hosts `next/image` may optimize from (default: the `WP_ORIGIN` host) |
+| `CSP_REPORT_ONLY` | optional | `1` ships the Content-Security-Policy as report-only for the rollout window |
+| `CSP_REPORT_URI` | optional | `report-uri` for the policy, either mode |
+| `MOCK_API` | dev/CI only | `1` = fixture-backed mock API, relaxes the secret |
+
+Startup validates the contract (`instrumentation.ts` → `lib/env.ts`) and fails
+naming the variable. `NEXT_PUBLIC_*`, `WP_API_BASE`/`WP_ORIGIN` and
+`IMAGE_HOSTS` are also read at **build** time (Next inlines public variables and
+serializes `next.config.ts`), so give the same values to the build and the
+runtime. The WordPress host must be reachable on a public hostname: the image
+optimizer refuses private-IP upstreams.
+
+### 10.3 wp-config.php constants
+
+```php
+define( 'CHAPTER_FRONTEND', 'islands' );                 // the PHP theme keeps rendering the WordPress origin
+define( 'CHAPTER_REBUILD_TRANSPORT', 'webhook' );
+define( 'CHAPTER_REBUILD_WEBHOOK_URL', 'https://www.example.org/api/rebuild' );
+define( 'CHAPTER_REBUILD_SECRET', 'long-random-string' ); // = next-js CHAPTER_REBUILD_SECRET
+define( 'CHAPTER_CANONICAL_ORIGIN', 'https://www.example.org' );
+// define( 'CHAPTER_REBUILD_DEBOUNCE', 90 );
+define( 'DISABLE_WP_CRON', true );                        // system cron hits wp-cron.php every minute (§2)
+```
+
+Leave `CHAPTER_STATIC_DIR` / `CHAPTER_STATIC_ORIGIN` / `CHAPTER_GITHUB_*`
+unset. WordPress needs outbound HTTPS to the Next origin; the Next host needs
+outbound HTTPS to WordPress.
+
+### 10.4 Hosting paths (same build, no code changes)
+
+**Vercel.** Import the repo with root directory `next-js`; set the variables of
+§10.2 for Production (and Preview if you want previews against the same
+WordPress). Vercel builds its own output (`output: 'standalone'` is skipped
+when `VERCEL` is set), runs the proxy at the edge of each request and keeps the
+data cache per deployment. `NEXT_PUBLIC_BUILD_ID` is derived from the commit.
+
+**Docker.** `next-js/Dockerfile` is a multi-stage build on `node:22-alpine`:
+non-root user, `PORT`/`HOSTNAME` honored (defaults 3000 / 0.0.0.0), a
+`HEALTHCHECK` on `/api/health`. Build-time values are `--build-arg`s:
+
+```bash
+cd next-js
+docker build -t progressnow-next \
+  --build-arg WP_API_BASE=https://cms.example.org/wp-json/progressnow/v1 \
+  --build-arg NEXT_PUBLIC_SITE_ORIGIN=https://www.example.org \
+  --build-arg NEXT_PUBLIC_BUILD_ID=$(git rev-parse --short HEAD) .
+docker run -d -p 3000:3000 --env-file .env.production progressnow-next
+node scripts/smoke.mjs http://127.0.0.1:3000     # /api/health, /, /es/
+```
+
+`.env.production` carries the runtime set (§10.2, same `WP_API_BASE` and
+`NEXT_PUBLIC_SITE_ORIGIN` as the build). CI builds this image and runs the
+smoke against the fixture mock on every push (`.github/workflows/ci.yml`);
+nothing is pushed to a registry.
+
+**VPS + reverse proxy.** `npm ci && npm run build`, then run
+`node .next/standalone/server.js` (copy `.next/static` next to it —
+`scripts/start-standalone.mjs` does exactly that) under systemd with the
+environment file, and put nginx/Caddy in front for TLS:
+
+```nginx
+server {
+    listen 443 ssl http2;
+    server_name www.example.org;
+    location / {
+        proxy_pass         http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header   Host $host;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
+```
+
+The app sets its own security headers (HSTS, `nosniff`, `Referrer-Policy`,
+`Permissions-Policy`) and the nonce CSP; do not add a second CSP at the proxy.
+Compression and TLS belong to the reverse proxy.
+
+### 10.5 Security headers and the CSP rollout
+
+Every HTML response carries a `Content-Security-Policy` with a fresh nonce
+(`script-src 'self' 'nonce-…' 'strict-dynamic'`, `img-src` limited to the app,
+`data:`, the WordPress origin and `IMAGE_HOSTS`, `font-src 'self'`,
+`frame-src` only the video players, `frame-ancestors 'none'`,
+`object-src 'none'`, `base-uri 'self'`). Roll it out with `CSP_REPORT_ONLY=1`
+first, watch `CSP_REPORT_URI` (or the browser console) for a release cycle,
+then unset it. `/styleguide/` (noindex) alone allows `img-src https:` for the
+vendored component demos.
+
+### 10.6 Cache: single instance, and the multi-instance seam
+
+v1 keeps the data cache in the process (or per Vercel deployment). Run **one**
+instance behind the reverse proxy, or several only if they share a cache:
+Next's `cacheHandler` (`next.config.ts`) accepts a Redis/KV implementation so
+that the tag invalidation from `/api/rebuild` reaches every instance. The seam
+is documented, not shipped; until it is configured, a second instance would
+serve stale pages after a content save until its own entries expire
+(`cacheLife` `content`: revalidate 1 day).
+
+### 10.7 Smoke, cutover, rollback
+
+1. Deploy with the variables set; `node scripts/smoke.mjs <origin>` must print
+   `PASS` (health, `/`, `/es/`).
+2. Set the constants (§10.3), then in the admin *Site build* panel press
+   "Rebuild now": the panel goes `requested → live` within seconds and
+   `GET <origin>/api/health` shows the `buildId` the panel reports.
+3. Save a post; the public page changes within the debounce. Check
+   `view-source:` on a WordPress URL: canonical points at the Next origin.
+4. Point DNS / the reverse proxy at the app. The PHP theme keeps serving the
+   WordPress origin (canonical to Next), so nothing breaks if DNS lags.
+
+Rollback: unset `CHAPTER_CANONICAL_ORIGIN` and set
+`CHAPTER_REBUILD_TRANSPORT` to `none` — the WordPress origin is canonical
+again and fully rendered by the PHP theme; the Next app can stay up or go
+away. A stale Next cache after a rebuild failure: press "Rebuild now" or
+restart the instance (the cache is in-process).
+
+### 10.8 Local development
+
+`next-js/.env.local` from `.env.example` (`WP_API_BASE` on the MAMP site,
+`NEXT_PUBLIC_SITE_ORIGIN=http://localhost:3000`, the secret from
+wp-config.php; trust MAMP's CA from the shell — see `next-js/README.md`).
+`npm run dev` for the app; for the full loop set the constants of §10.3 in the
+local wp-config.php with `CHAPTER_REBUILD_WEBHOOK_URL=http://localhost:3000/api/rebuild`
+and `CHAPTER_CANONICAL_ORIGIN=http://localhost:3000`. No WordPress at all:
+`npm run dev:mock`, or `npm run build:mock && npm run start:standalone` for the
+production build against the fixture mock.
+

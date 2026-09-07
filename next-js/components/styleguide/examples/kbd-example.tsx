@@ -1,3 +1,5 @@
+/* a11y-patched (scripts/a11y-patch-examples.mjs): aria-label added to 1 text inputs, 1 icon-only buttons.
+ * Upstream shadcn registry example otherwise unchanged; re-run the script after a re-sync. */
 import { Example, ExampleWrapper } from "@/components/styleguide/examples/example";
 import { Button } from "@/components/ui/button";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
@@ -108,7 +110,7 @@ function KbdInInputGroup() {
   return (
     <Example title="InputGroup">
       <InputGroup>
-        <InputGroupInput />
+        <InputGroupInput aria-label="Text input" />
         <InputGroupAddon>
           <Kbd>Space</Kbd>
         </InputGroupAddon>
@@ -122,7 +124,7 @@ function KbdInTooltip() {
     <Example title="Tooltip">
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button size="icon-sm" variant="outline">
+          <Button aria-label="Save" size="icon-sm" variant="outline">
             <SaveIcon />
           </Button>
         </TooltipTrigger>

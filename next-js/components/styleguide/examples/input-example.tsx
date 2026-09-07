@@ -1,3 +1,5 @@
+/* a11y-patched (scripts/a11y-patch-examples.mjs): aria-label added to 2 select triggers, 1 native selects.
+ * Upstream shadcn registry example otherwise unchanged; re-run the script after a re-sync. */
 import { Example, ExampleWrapper } from "@/components/styleguide/examples/example";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -126,7 +128,7 @@ function InputWithSelect() {
       <div className="flex w-full gap-2">
         <Input type="text" placeholder="Enter amount" className="flex-1" />
         <Select defaultValue="usd">
-          <SelectTrigger className="w-32">
+          <SelectTrigger aria-label="Select" className="w-32">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -158,7 +160,7 @@ function InputWithNativeSelect() {
     <Example title="With Native Select">
       <div className="flex w-full gap-2">
         <Input type="tel" placeholder="(555) 123-4567" className="flex-1" />
-        <NativeSelect defaultValue="+1">
+        <NativeSelect aria-label="+1" defaultValue="+1">
           <NativeSelectOption value="+1">+1</NativeSelectOption>
           <NativeSelectOption value="+44">+44</NativeSelectOption>
           <NativeSelectOption value="+46">+46</NativeSelectOption>
@@ -190,7 +192,7 @@ function InputForm() {
             <Field>
               <FieldLabel htmlFor="form-country">Country</FieldLabel>
               <Select defaultValue="us">
-                <SelectTrigger id="form-country">
+                <SelectTrigger aria-label="Select" id="form-country">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

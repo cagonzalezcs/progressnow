@@ -27,22 +27,25 @@ export function FaqAccordion({ items }: { items: { question: string; answer: str
           data-question={item.question}
         >
           <AccordionTrigger
-            className="items-center gap-4 rounded-none bg-transparent px-4 py-3.5 text-[0.98rem] font-bold text-ink hover:bg-alt hover:no-underline lg:px-5 lg:py-4 lg:text-[1.05rem] [&>svg]:hidden"
+            className="items-center gap-4 rounded-none bg-transparent px-4 py-3.5 text-[0.98rem] font-bold text-ink hover:bg-alt hover:no-underline lg:px-5 lg:py-4 lg:text-[1.05rem]"
             data-testid="faq-accordion-trigger"
+            icon={
+              <svg
+                className="pointer-events-none size-4 shrink-0 text-accent"
+                aria-hidden="true"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="square"
+                data-testid="faq-accordion-icon"
+              >
+                <path d="M2 8h12" />
+                <path className="[[data-state=open]_&]:hidden" d="M8 2v12" />
+              </svg>
+            }
           >
             <span data-testid="faq-accordion-question">{item.question}</span>
-            <svg
-              className="pointer-events-none !block size-4 shrink-0 text-accent"
-              aria-hidden="true"
-              viewBox="0 0 16 16"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="square"
-            >
-              <path d="M2 8h12" />
-              <path className="[[data-state=open]_&]:hidden" d="M8 2v12" />
-            </svg>
           </AccordionTrigger>
           <AccordionContent
             className="px-4 pb-4 lg:px-5 lg:pb-[18px]"

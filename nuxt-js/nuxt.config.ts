@@ -17,6 +17,9 @@ import tailwindcss from "@tailwindcss/vite";
  *   NUXT_DEV_WP_ORIGIN       local WordPress origin proxied by `nuxt dev`
  *                            (default https://chapter.test:8890)
  *   NUXT_MOCK_API=1          serve the fixture-backed nitro mock instead
+ *   NUXT_MOCK_ORIGIN         origin the mock mints its absolute URLs on
+ *                            (default: the Vercel deploy host, else
+ *                            https://mock.example)
  *   CHAPTER_CONTENT_VERSION  content version stamped into shell-manifest.json
  */
 const mock = process.env.NUXT_MOCK_API === "1";

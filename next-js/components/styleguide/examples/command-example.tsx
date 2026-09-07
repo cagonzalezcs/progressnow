@@ -1,3 +1,6 @@
+/* hand-patched (a11y burn-down, task 4.10): the "Inline" list drops its <CommandSeparator> — a
+ * role="separator" child is not allowed inside cmdk's role="listbox" (aria-required-children); the
+ * dialog examples keep theirs (a dialog is not part of the static page). */
 "use client";
 
 import * as React from "react";
@@ -78,7 +81,6 @@ function CommandInline() {
                   <span>Calculator</span>
                 </CommandItem>
               </CommandGroup>
-              <CommandSeparator />
               <CommandGroup heading="Settings">
                 <CommandItem>
                   <UserIcon />

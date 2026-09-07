@@ -17,7 +17,7 @@ test("chrome renders per language from /site and the skip link lands on main", a
   await page.keyboard.press("Enter");
   await expect(page.locator("main#main")).toBeFocused();
 
-  await page.goto("/es/");
+  await page.goto("/es/inicio/");
   await expect(page.locator("html")).toHaveAttribute("lang", "es");
   await expect(
     page.getByRole("navigation", { name: "Main" }).last().getByRole("link", { name: "Calendario" }),
@@ -327,4 +327,41 @@ test("archive filtering and search do not start a view transition", async ({ pag
   await expect(page).toHaveURL(/[?&]s=union/);
   await page.waitForTimeout(800);
   expect(await vt.read(), "typing in the archive search should not animate the page").toEqual([]);
+});
+
+test("a hash link focuses its heading after client navigation without leaving a hydration mismatch", async ({
+  page,
+}) => {
+  const hydration: string[] = [];
+  page.on("console", (msg) => {
+    if (msg.type() === "error" && /hydrat|Minified React error #4(18|25|23)/i.test(msg.text()))
+      hydration.push(msg.text());
+  });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await page.getByRole("contentinfo").getByRole("link", { name: "FAQ" }).click();
+  await expect(page).toHaveURL(/\/about\/#faq$/);
+  const heading = page.locator("#faq");
+  await expect(heading).toBeFocused();
+  // tabindex is lent for the focus and returned once focus moves on.
+  await expect(heading).toHaveAttribute("tabindex", "-1");
+  await page.keyboard.press("Tab");
+  await expect(heading).not.toBeFocused();
+  await expect(heading).not.toHaveAttribute("tabindex", /.*/);
+  await page.waitForLoadState("networkidle");
+  expect(hydration).toEqual([]);
+});
+
+test("a hard load of a hash URL leaves the server HTML untouched (no hydration mismatch)", async ({
+  page,
+}) => {
+  const hydration: string[] = [];
+  page.on("console", (msg) => {
+    if (msg.type() === "error" && /hydrat|Minified React error #4(18|25|23)/i.test(msg.text()))
+      hydration.push(msg.text());
+  });
+  await page.goto("/about/#faq");
+  await page.waitForLoadState("networkidle");
+  await expect(page.locator("#faq")).not.toHaveAttribute("tabindex", /.*/);
+  expect(hydration).toEqual([]);
 });

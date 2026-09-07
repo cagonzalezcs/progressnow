@@ -9,6 +9,14 @@ export async function requestPath(): Promise<string> {
   return h.get("x-pathname") ?? "/";
 }
 
+/** The per-request CSP nonce minted by proxy.ts (`x-nonce`); undefined only
+ * outside the proxy (build-time prerender, unit tests). */
+export const NONCE_HEADER = "x-nonce";
+
+export async function requestNonce(): Promise<string | undefined> {
+  return (await headers()).get(NONCE_HEADER) ?? undefined;
+}
+
 /** Set by proxy.ts on its internal render of the 500 surface (x-error-render). */
 export const ERROR_RENDER_HEADER = "x-error-render";
 

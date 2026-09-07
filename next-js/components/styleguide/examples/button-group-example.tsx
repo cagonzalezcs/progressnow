@@ -1,3 +1,5 @@
+/* a11y-patched (scripts/a11y-patch-examples.mjs): aria-label added to 23 icon-only buttons, 2 select triggers, 1 text inputs.
+ * Upstream shadcn registry example otherwise unchanged; re-run the script after a re-sync. */
 "use client";
 
 import { useState } from "react";
@@ -132,7 +134,7 @@ function ButtonGroupWithDropdown() {
           <Button variant="outline">Update</Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
+              <Button aria-label="Expand" variant="outline" size="icon">
                 <ChevronDownIcon />
               </Button>
             </DropdownMenuTrigger>
@@ -146,7 +148,7 @@ function ButtonGroupWithDropdown() {
           <Button variant="outline">Follow</Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
+              <Button aria-label="Expand" variant="outline" size="icon">
                 <ChevronDownIcon />
               </Button>
             </DropdownMenuTrigger>
@@ -201,7 +203,7 @@ function ButtonGroupWithSelect() {
         <Label htmlFor="amount">Amount</Label>
         <ButtonGroup>
           <Select value={currency} onValueChange={setCurrency}>
-            <SelectTrigger>
+            <SelectTrigger aria-label="Select">
               <SelectValue />
             </SelectTrigger>
             <SelectContent align="start">
@@ -213,7 +215,7 @@ function ButtonGroupWithSelect() {
             </SelectContent>
           </Select>
           <Input placeholder="Enter amount to send" />
-          <Button variant="outline">
+          <Button aria-label="Forward" variant="outline">
             <ArrowRightIcon />
           </Button>
         </ButtonGroup>
@@ -227,13 +229,13 @@ function ButtonGroupWithIcons() {
     <Example title="With Icons">
       <div className="flex flex-col gap-4">
         <ButtonGroup>
-          <Button variant="outline">
+          <Button aria-label="Flip Horizontal" variant="outline">
             <FlipHorizontalIcon />
           </Button>
-          <Button variant="outline">
+          <Button aria-label="Flip Vertical" variant="outline">
             <FlipVerticalIcon />
           </Button>
-          <Button variant="outline">
+          <Button aria-label="Rotate Cw" variant="outline">
             <RotateCwIcon />
           </Button>
         </ButtonGroup>
@@ -271,10 +273,10 @@ function ButtonGroupWithFields() {
                 px
               </InputGroupAddon>
             </InputGroup>
-            <Button variant="outline" size="icon">
+            <Button aria-label="Remove" variant="outline" size="icon">
               <MinusIcon />
             </Button>
-            <Button variant="outline" size="icon">
+            <Button aria-label="Add" variant="outline" size="icon">
               <PlusIcon />
             </Button>
           </ButtonGroup>
@@ -304,7 +306,7 @@ function ButtonGroupWithSelectAndInput() {
     <Example title="With Select and Input">
       <ButtonGroup>
         <Select defaultValue="hours">
-          <SelectTrigger id="duration">
+          <SelectTrigger aria-label="Select duration" id="duration">
             <SelectValue placeholder="Select duration" />
           </SelectTrigger>
           <SelectContent align="start">
@@ -315,7 +317,7 @@ function ButtonGroupWithSelectAndInput() {
             </SelectGroup>
           </SelectContent>
         </Select>
-        <Input />
+        <Input aria-label="Text input" />
       </ButtonGroup>
     </Example>
   );
@@ -326,7 +328,7 @@ function ButtonGroupNested() {
     <Example title="Nested">
       <ButtonGroup>
         <ButtonGroup>
-          <Button variant="outline" size="icon">
+          <Button aria-label="Add" variant="outline" size="icon">
             <PlusIcon />
           </Button>
         </ButtonGroup>
@@ -402,10 +404,10 @@ function ButtonGroupPaginationSplit() {
           </Button>
         </ButtonGroup>
         <ButtonGroup>
-          <Button variant="outline" size="icon-xs">
+          <Button aria-label="Back" variant="outline" size="icon-xs">
             <ArrowLeftIcon />
           </Button>
-          <Button variant="outline" size="icon-xs">
+          <Button aria-label="Forward" variant="outline" size="icon-xs">
             <ArrowRightIcon />
           </Button>
         </ButtonGroup>
@@ -419,15 +421,15 @@ function ButtonGroupNavigation() {
     <Example title="Navigation">
       <ButtonGroup>
         <ButtonGroup>
-          <Button variant="outline">
+          <Button aria-label="Back" variant="outline">
             <ArrowLeftIcon />
           </Button>
-          <Button variant="outline">
+          <Button aria-label="Forward" variant="outline">
             <ArrowRightIcon />
           </Button>
         </ButtonGroup>
         <ButtonGroup aria-label="Single navigation button">
-          <Button variant="outline" size="icon">
+          <Button aria-label="Back" variant="outline" size="icon">
             <ArrowLeftIcon />
           </Button>
         </ButtonGroup>
@@ -465,10 +467,10 @@ function ButtonGroupVertical() {
     <Example title="Vertical">
       <div className="flex gap-6">
         <ButtonGroup orientation="vertical" aria-label="Media controls" className="h-fit">
-          <Button variant="outline" size="icon">
+          <Button aria-label="Add" variant="outline" size="icon">
             <PlusIcon />
           </Button>
-          <Button variant="outline" size="icon">
+          <Button aria-label="Remove" variant="outline" size="icon">
             <MinusIcon />
           </Button>
         </ButtonGroup>
@@ -482,29 +484,29 @@ function ButtonGroupVerticalNested() {
     <Example title="Vertical Nested">
       <ButtonGroup orientation="vertical" aria-label="Design tools palette">
         <ButtonGroup orientation="vertical">
-          <Button variant="outline" size="icon">
+          <Button aria-label="Search" variant="outline" size="icon">
             <SearchIcon />
           </Button>
-          <Button variant="outline" size="icon">
+          <Button aria-label="Copy" variant="outline" size="icon">
             <CopyIcon />
           </Button>
-          <Button variant="outline" size="icon">
+          <Button aria-label="Share" variant="outline" size="icon">
             <ShareIcon />
           </Button>
         </ButtonGroup>
         <ButtonGroup orientation="vertical">
-          <Button variant="outline" size="icon">
+          <Button aria-label="Flip Horizontal" variant="outline" size="icon">
             <FlipHorizontalIcon />
           </Button>
-          <Button variant="outline" size="icon">
+          <Button aria-label="Flip Vertical" variant="outline" size="icon">
             <FlipVerticalIcon />
           </Button>
-          <Button variant="outline" size="icon">
+          <Button aria-label="Rotate Cw" variant="outline" size="icon">
             <RotateCwIcon />
           </Button>
         </ButtonGroup>
         <ButtonGroup>
-          <Button variant="outline" size="icon">
+          <Button aria-label="Delete" variant="outline" size="icon">
             <TrashIcon />
           </Button>
         </ButtonGroup>

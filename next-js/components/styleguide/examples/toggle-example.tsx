@@ -1,3 +1,5 @@
+/* a11y-patched (scripts/a11y-patch-examples.mjs): aria-label added to 3 icon-only buttons.
+ * Upstream shadcn registry example otherwise unchanged; re-run the script after a re-sync. */
 import { Example, ExampleWrapper } from "@/components/styleguide/examples/example";
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
@@ -109,7 +111,7 @@ function ToggleWithButtonIcon() {
     <Example title="With Button Icon">
       <div className="flex flex-col gap-4">
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon-sm">
+          <Button aria-label="Bold" variant="outline" size="icon-sm">
             <BoldIcon />
           </Button>
           <Toggle variant="outline" aria-label="Toggle sm icon" size="sm">
@@ -117,7 +119,7 @@ function ToggleWithButtonIcon() {
           </Toggle>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon">
+          <Button aria-label="Italic" variant="outline" size="icon">
             <ItalicIcon />
           </Button>
           <Toggle variant="outline" aria-label="Toggle default icon" size="default">
@@ -125,7 +127,7 @@ function ToggleWithButtonIcon() {
           </Toggle>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon-lg">
+          <Button aria-label="Underline" variant="outline" size="icon-lg">
             <UnderlineIcon />
           </Button>
           <Toggle variant="outline" aria-label="Toggle lg icon" size="lg">

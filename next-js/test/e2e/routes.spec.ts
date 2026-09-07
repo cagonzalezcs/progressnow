@@ -53,6 +53,62 @@ test("derived posts-index states resolve: /blog/page/N/, /category/{slug}/, ?s="
   );
 });
 
+/* Found against a real WordPress in openspec next-js-site-implementation task 8.5:
+ * `/posts` validates `category` against the registry enum, so an unknown slug is a
+ * 400 upstream. The archive path must 404 (WordPress does) and the query filter must
+ * be dropped — neither may reach the API. */
+test("an unknown category 404s as an archive path and is ignored as a filter", async ({
+  page,
+  request,
+}) => {
+  expect((await request.get("/category/no-such-category/")).status()).toBe(404);
+  await page.goto("/category/no-such-category/");
+  await expect(page.locator("[data-route-kind='not_found']:visible")).toBeVisible();
+
+  expect((await request.get("/es/category/no-such-category/")).status()).toBe(404);
+
+  const filtered = await request.get("/blog/?category=no-such-category");
+  expect(filtered.status()).toBe(200);
+  await page.goto("/blog/?category=no-such-category");
+  await expect(page.locator("[data-archive='browse']")).toHaveCount(1);
+});
+
+test("a bare language directory 301s to that language's front page, as WordPress does", async ({
+  page,
+  request,
+  baseURL,
+}) => {
+  // Polylang keeps the translated static front page at its own slug (/es/inicio/) and
+  // redirects the bare /es/ to it; the app mirrors that from the manifest, not a hard-coded slug.
+  const { routes } = await manifest(request);
+  const front = routes.find((r) => r.kind === "front" && r.lang === "es")!;
+  expect(front.path).toBe("/es/inicio/");
+
+  // The server may emit Location relative or absolute; resolve it either way.
+  const bare = await request.get("/es/", { maxRedirects: 0 });
+  expect(bare.status()).toBe(301);
+  expect(new URL(bare.headers()["location"]!, baseURL).pathname).toBe(front.path);
+  // The query string survives the hop…
+  const tagged = await request.get("/es/?utm_source=x", { maxRedirects: 0 });
+  expect(tagged.status()).toBe(301);
+  expect(new URL(tagged.headers()["location"]!, baseURL).search).toBe("?utm_source=x");
+  // …search included: the front page renders the results after the hop.
+  const search = await request.get("/es/?s=contract", { maxRedirects: 0 });
+  expect(search.status()).toBe(301);
+  expect(new URL(search.headers()["location"]!, baseURL).search).toBe("?s=contract");
+  await page.goto("/es/?s=contract");
+  await expect(page).toHaveURL(/\/es\/inicio\/\?s=contract$/);
+  await expect(page.locator("[data-route-kind='search']:visible")).toBeVisible();
+
+  await page.goto("/es/");
+  await expect(page).toHaveURL(/\/es\/inicio\/$/);
+  await expect(page.locator("html")).toHaveAttribute("lang", "es");
+  await expect(page.locator("[data-route-kind]:visible")).toHaveAttribute(
+    "data-route-kind",
+    "front",
+  );
+});
+
 test("an unknown path is a 404 rendered from site strings and costs zero WordPress requests", async ({
   page,
   request,
@@ -66,9 +122,13 @@ test("an unknown path is a 404 rendered from site strings and costs zero WordPre
     "not_found",
   );
   await expect(page.locator("h1")).not.toBeEmpty();
+  // Spanish chrome comes from the /es/ directory, not the front page's full path (/es/inicio/).
   const es = await page.goto("/es/no-existe/");
   expect(es?.status()).toBe(404);
   await expect(page.locator("html")).toHaveAttribute("lang", "es");
+  await expect(
+    page.getByRole("navigation", { name: "Main" }).last().getByRole("link", { name: "Calendario" }),
+  ).toHaveAttribute("href", "/es/calendario/");
 
   const log = (await (await request.get(`${MOCK}/__mock/requests`)).json()) as string[];
   expect(log.filter((p) => p.includes("does-not-exist") || p.includes("no-existe"))).toEqual([]);

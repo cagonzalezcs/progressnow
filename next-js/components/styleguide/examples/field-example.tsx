@@ -1,3 +1,5 @@
+/* a11y-patched (scripts/a11y-patch-examples.mjs): aria-label added to 6 select triggers, 29 labelled controls.
+ * Upstream shadcn registry example otherwise unchanged; re-run the script after a re-sync. */
 "use client";
 
 import { useState } from "react";
@@ -163,7 +165,7 @@ function SelectFields() {
         <Field>
           <FieldLabel htmlFor="select-basic">Basic Select</FieldLabel>
           <Select>
-            <SelectTrigger id="select-basic">
+            <SelectTrigger aria-label="Choose an option" id="select-basic">
               <SelectValue placeholder="Choose an option" />
             </SelectTrigger>
             <SelectContent>
@@ -178,7 +180,7 @@ function SelectFields() {
         <Field>
           <FieldLabel htmlFor="select-country">Country</FieldLabel>
           <Select>
-            <SelectTrigger id="select-country">
+            <SelectTrigger aria-label="Select your country" id="select-country">
               <SelectValue placeholder="Select your country" />
             </SelectTrigger>
             <SelectContent>
@@ -195,7 +197,7 @@ function SelectFields() {
           <FieldLabel htmlFor="select-timezone">Timezone</FieldLabel>
           <FieldDescription>Choose your local timezone for accurate scheduling.</FieldDescription>
           <Select>
-            <SelectTrigger id="select-timezone">
+            <SelectTrigger aria-label="Select timezone" id="select-timezone">
               <SelectValue placeholder="Select timezone" />
             </SelectTrigger>
             <SelectContent>
@@ -210,7 +212,7 @@ function SelectFields() {
         <Field data-invalid>
           <FieldLabel htmlFor="select-invalid">Invalid Select</FieldLabel>
           <Select>
-            <SelectTrigger id="select-invalid" aria-invalid>
+            <SelectTrigger aria-label="This field has an error" id="select-invalid" aria-invalid>
               <SelectValue placeholder="This field has an error" />
             </SelectTrigger>
             <SelectContent>
@@ -226,7 +228,7 @@ function SelectFields() {
         <Field data-disabled>
           <FieldLabel htmlFor="select-disabled-field">Disabled Field</FieldLabel>
           <Select disabled>
-            <SelectTrigger id="select-disabled-field">
+            <SelectTrigger aria-label="Cannot select" id="select-disabled-field">
               <SelectValue placeholder="Cannot select" />
             </SelectTrigger>
             <SelectContent>
@@ -324,15 +326,19 @@ function CheckboxFields() {
     <Example title="Checkbox Fields">
       <FieldGroup>
         <Field orientation="horizontal">
-          <Checkbox id="checkbox-basic" defaultChecked />
+          <Checkbox
+            aria-label="I agree to the terms and conditions"
+            id="checkbox-basic"
+            defaultChecked
+          />
           <FieldLabel htmlFor="checkbox-basic">I agree to the terms and conditions</FieldLabel>
         </Field>
         <Field orientation="horizontal">
           <FieldLabel htmlFor="checkbox-right">Accept terms and conditions</FieldLabel>
-          <Checkbox id="checkbox-right" />
+          <Checkbox aria-label="Accept terms and conditions" id="checkbox-right" />
         </Field>
         <Field orientation="horizontal">
-          <Checkbox id="checkbox-with-desc" />
+          <Checkbox aria-label="Subscribe to newsletter" id="checkbox-with-desc" />
           <FieldContent>
             <FieldLabel htmlFor="checkbox-with-desc">Subscribe to newsletter</FieldLabel>
             <FieldDescription>
@@ -342,7 +348,10 @@ function CheckboxFields() {
         </Field>
         <FieldLabel htmlFor="checkbox-with-title">
           <Field orientation="horizontal">
-            <Checkbox id="checkbox-with-title" />
+            <Checkbox
+              aria-label="Enable Touch ID Enable Touch ID to quickly unlock your device."
+              id="checkbox-with-title"
+            />
             <FieldContent>
               <FieldTitle>Enable Touch ID</FieldTitle>
               <FieldDescription>Enable Touch ID to quickly unlock your device.</FieldDescription>
@@ -354,25 +363,25 @@ function CheckboxFields() {
           <FieldDescription>Select all that apply to customize your experience.</FieldDescription>
           <FieldGroup className="gap-3">
             <Field orientation="horizontal">
-              <Checkbox id="pref-dark" />
+              <Checkbox aria-label="Dark mode" id="pref-dark" />
               <FieldLabel htmlFor="pref-dark">Dark mode</FieldLabel>
             </Field>
             <Field orientation="horizontal">
-              <Checkbox id="pref-compact" />
+              <Checkbox aria-label="Compact view" id="pref-compact" />
               <FieldLabel htmlFor="pref-compact">Compact view</FieldLabel>
             </Field>
             <Field orientation="horizontal">
-              <Checkbox id="pref-notifications" />
+              <Checkbox aria-label="Enable notifications" id="pref-notifications" />
               <FieldLabel htmlFor="pref-notifications">Enable notifications</FieldLabel>
             </Field>
           </FieldGroup>
         </FieldSet>
         <Field data-invalid orientation="horizontal">
-          <Checkbox id="checkbox-invalid" aria-invalid />
+          <Checkbox aria-label="Invalid checkbox" id="checkbox-invalid" aria-invalid />
           <FieldLabel htmlFor="checkbox-invalid">Invalid checkbox</FieldLabel>
         </Field>
         <Field data-disabled orientation="horizontal">
-          <Checkbox id="checkbox-disabled-field" disabled />
+          <Checkbox aria-label="Disabled checkbox" id="checkbox-disabled-field" disabled />
           <FieldLabel htmlFor="checkbox-disabled-field">Disabled checkbox</FieldLabel>
         </Field>
       </FieldGroup>
@@ -388,15 +397,15 @@ function RadioFields() {
           <FieldLegend variant="label">Subscription Plan</FieldLegend>
           <RadioGroup defaultValue="free">
             <Field orientation="horizontal">
-              <RadioGroupItem value="free" id="radio-free" />
+              <RadioGroupItem aria-label="Free Plan" value="free" id="radio-free" />
               <FieldLabel htmlFor="radio-free">Free Plan</FieldLabel>
             </Field>
             <Field orientation="horizontal">
-              <RadioGroupItem value="pro" id="radio-pro" />
+              <RadioGroupItem aria-label="Pro Plan" value="pro" id="radio-pro" />
               <FieldLabel htmlFor="radio-pro">Pro Plan</FieldLabel>
             </Field>
             <Field orientation="horizontal">
-              <RadioGroupItem value="enterprise" id="radio-enterprise" />
+              <RadioGroupItem aria-label="Enterprise" value="enterprise" id="radio-enterprise" />
               <FieldLabel htmlFor="radio-enterprise">Enterprise</FieldLabel>
             </Field>
           </RadioGroup>
@@ -406,22 +415,22 @@ function RadioFields() {
           <FieldDescription>Choose your preferred battery level.</FieldDescription>
           <RadioGroup>
             <Field orientation="horizontal">
-              <RadioGroupItem value="high" id="battery-high" />
+              <RadioGroupItem aria-label="High" value="high" id="battery-high" />
               <FieldLabel htmlFor="battery-high">High</FieldLabel>
             </Field>
             <Field orientation="horizontal">
-              <RadioGroupItem value="medium" id="battery-medium" />
+              <RadioGroupItem aria-label="Medium" value="medium" id="battery-medium" />
               <FieldLabel htmlFor="battery-medium">Medium</FieldLabel>
             </Field>
             <Field orientation="horizontal">
-              <RadioGroupItem value="low" id="battery-low" />
+              <RadioGroupItem aria-label="Low" value="low" id="battery-low" />
               <FieldLabel htmlFor="battery-low">Low</FieldLabel>
             </Field>
           </RadioGroup>
         </FieldSet>
         <RadioGroup className="gap-6">
           <Field orientation="horizontal">
-            <RadioGroupItem value="option1" id="radio-content-1" />
+            <RadioGroupItem aria-label="Enable Touch ID" value="option1" id="radio-content-1" />
             <FieldContent>
               <FieldLabel htmlFor="radio-content-1">Enable Touch ID</FieldLabel>
               <FieldDescription>Enable Touch ID to quickly unlock your device.</FieldDescription>
@@ -431,7 +440,11 @@ function RadioFields() {
         <RadioGroup className="gap-3">
           <FieldLabel htmlFor="radio-title-1">
             <Field orientation="horizontal">
-              <RadioGroupItem value="title1" id="radio-title-1" />
+              <RadioGroupItem
+                aria-label="Enable Touch ID Enable Touch ID to quickly unlock your device."
+                value="title1"
+                id="radio-title-1"
+              />
               <FieldContent>
                 <FieldTitle>Enable Touch ID</FieldTitle>
                 <FieldDescription>Enable Touch ID to quickly unlock your device.</FieldDescription>
@@ -443,11 +456,21 @@ function RadioFields() {
           <FieldLegend variant="label">Invalid Radio Group</FieldLegend>
           <RadioGroup>
             <Field data-invalid orientation="horizontal">
-              <RadioGroupItem value="invalid1" id="radio-invalid-1" aria-invalid />
+              <RadioGroupItem
+                aria-label="Invalid Option 1"
+                value="invalid1"
+                id="radio-invalid-1"
+                aria-invalid
+              />
               <FieldLabel htmlFor="radio-invalid-1">Invalid Option 1</FieldLabel>
             </Field>
             <Field data-invalid orientation="horizontal">
-              <RadioGroupItem value="invalid2" id="radio-invalid-2" aria-invalid />
+              <RadioGroupItem
+                aria-label="Invalid Option 2"
+                value="invalid2"
+                id="radio-invalid-2"
+                aria-invalid
+              />
               <FieldLabel htmlFor="radio-invalid-2">Invalid Option 2</FieldLabel>
             </Field>
           </RadioGroup>
@@ -456,11 +479,21 @@ function RadioFields() {
           <FieldLegend variant="label">Disabled Radio Group</FieldLegend>
           <RadioGroup disabled>
             <Field data-disabled orientation="horizontal">
-              <RadioGroupItem value="disabled1" id="radio-disabled-1" disabled />
+              <RadioGroupItem
+                aria-label="Disabled Option 1"
+                value="disabled1"
+                id="radio-disabled-1"
+                disabled
+              />
               <FieldLabel htmlFor="radio-disabled-1">Disabled Option 1</FieldLabel>
             </Field>
             <Field data-disabled orientation="horizontal">
-              <RadioGroupItem value="disabled2" id="radio-disabled-2" disabled />
+              <RadioGroupItem
+                aria-label="Disabled Option 2"
+                value="disabled2"
+                id="radio-disabled-2"
+                disabled
+              />
               <FieldLabel htmlFor="radio-disabled-2">Disabled Option 2</FieldLabel>
             </Field>
           </RadioGroup>
@@ -479,14 +512,14 @@ function SwitchFields() {
             <FieldLabel htmlFor="switch-airplane">Airplane Mode</FieldLabel>
             <FieldDescription>Turn on airplane mode to disable all connections.</FieldDescription>
           </FieldContent>
-          <Switch id="switch-airplane" />
+          <Switch aria-label="Airplane Mode" id="switch-airplane" />
         </Field>
         <Field orientation="horizontal">
           <FieldLabel htmlFor="switch-dark">Dark Mode</FieldLabel>
-          <Switch id="switch-dark" />
+          <Switch aria-label="Dark Mode" id="switch-dark" />
         </Field>
         <Field orientation="horizontal">
-          <Switch id="switch-marketing" />
+          <Switch aria-label="Marketing Emails" id="switch-marketing" />
           <FieldContent>
             <FieldLabel htmlFor="switch-marketing">Marketing Emails</FieldLabel>
             <FieldDescription>
@@ -498,11 +531,15 @@ function SwitchFields() {
           <FieldLabel>Privacy Settings</FieldLabel>
           <FieldDescription>Manage your privacy preferences.</FieldDescription>
           <Field orientation="horizontal">
-            <Switch id="switch-profile" defaultChecked />
+            <Switch
+              aria-label="Make profile visible to others"
+              id="switch-profile"
+              defaultChecked
+            />
             <FieldLabel htmlFor="switch-profile">Make profile visible to others</FieldLabel>
           </Field>
           <Field orientation="horizontal">
-            <Switch id="switch-email" />
+            <Switch aria-label="Show email on profile" id="switch-email" />
             <FieldLabel htmlFor="switch-email">Show email on profile</FieldLabel>
           </Field>
         </Field>
@@ -511,14 +548,14 @@ function SwitchFields() {
             <FieldLabel htmlFor="switch-invalid">Invalid Switch</FieldLabel>
             <FieldDescription>This switch has validation errors.</FieldDescription>
           </FieldContent>
-          <Switch id="switch-invalid" aria-invalid />
+          <Switch aria-label="Invalid Switch" id="switch-invalid" aria-invalid />
         </Field>
         <Field data-disabled orientation="horizontal">
           <FieldContent>
             <FieldLabel htmlFor="switch-disabled-field">Disabled Switch</FieldLabel>
             <FieldDescription>This switch is currently disabled.</FieldDescription>
           </FieldContent>
-          <Switch id="switch-disabled-field" disabled />
+          <Switch aria-label="Disabled Switch" id="switch-disabled-field" disabled />
         </Field>
       </FieldGroup>
     </Example>
@@ -735,7 +772,7 @@ function HorizontalFields() {
             <FieldLabel htmlFor="horizontal-switch">Email Notifications</FieldLabel>
             <FieldDescription>Receive email updates about your account.</FieldDescription>
           </FieldContent>
-          <Switch id="horizontal-switch" />
+          <Switch aria-label="Email Notifications" id="horizontal-switch" />
         </Field>
         <Field orientation="horizontal">
           <FieldContent>
@@ -743,7 +780,7 @@ function HorizontalFields() {
             <FieldDescription>Choose your favorite fruit.</FieldDescription>
           </FieldContent>
           <Select>
-            <SelectTrigger id="horizontal-select">
+            <SelectTrigger aria-label="Select a fruit" id="horizontal-select">
               <SelectValue placeholder="Select a fruit" />
             </SelectTrigger>
             <SelectContent>

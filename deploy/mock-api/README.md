@@ -20,6 +20,11 @@ npx vercel deploy --prod --yes               # from the repo root
 
 - `snapshot.json` — every response, keyed by `path?sorted-query`; the source
   origin is stored as `__ORIGIN__` and re-homed to the request host.
+- `demo-overrides.mjs` — demo values for Chapter Settings the source leaves
+  blank (the social profile URLs, without which both footers drop the icon
+  row). `snapshot.mjs` applies it on every refresh; run it directly
+  (`node deploy/mock-api/demo-overrides.mjs`) to patch the committed snapshot.
+  Only blank fields are filled, so real values always win.
 - `api/index.mjs` — the handler. `/posts` is paginated/filtered (category, `s`)
   from the full list; `/events` is windowed by `after`/`before`; unknown slugs
   return WordPress-shaped 404s; `POST /build-status` acknowledges.

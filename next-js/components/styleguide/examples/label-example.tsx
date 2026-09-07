@@ -1,3 +1,5 @@
+/* a11y-patched (scripts/a11y-patch-examples.mjs): aria-label added to 1 labelled controls.
+ * Upstream shadcn registry example otherwise unchanged; re-run the script after a re-sync. */
 import { Example, ExampleWrapper } from "@/components/styleguide/examples/example";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Field } from "@/components/ui/field";
@@ -20,7 +22,7 @@ function LabelWithCheckbox() {
   return (
     <Example title="With Checkbox">
       <Field orientation="horizontal">
-        <Checkbox id="label-demo-terms" />
+        <Checkbox aria-label="Accept terms and conditions" id="label-demo-terms" />
         <Label htmlFor="label-demo-terms">Accept terms and conditions</Label>
       </Field>
     </Example>

@@ -50,16 +50,50 @@ export function pathFromSegments(segments: string[] | undefined): string {
   return normalizePath(`/${(segments ?? []).join("/")}`);
 }
 
-/** Longest-prefix match of the front routes decides the language of any path. */
-export function langForPath(manifest: RoutesManifest, path: string): string {
-  const fronts = manifest.routes
+/** Polylang's language directory for a front path: `/` for the (hidden)
+ * default language, `/es/` for a prefixed one. A translated static front page
+ * keeps its own slug (`/es/inicio/`), so the directory is the first segment of
+ * the front path, never the whole path. */
+export function languageDirectory(frontPath: string): string {
+  const first = normalizePath(frontPath).split("/")[1] ?? "";
+  return first === "" ? "/" : `/${first}/`;
+}
+
+export interface LanguageDirectory {
+  lang: string;
+  /** `/` or `/es/` */
+  dir: string;
+  front: Route;
+}
+
+/** One entry per front route, longest directory first (so `/es/` beats `/`). */
+export function languageDirectories(manifest: RoutesManifest): LanguageDirectory[] {
+  return manifest.routes
     .filter((r) => r.kind === "front")
-    .sort((a, b) => b.path.length - a.path.length);
+    .map((front) => ({ lang: front.lang, dir: languageDirectory(front.path), front }))
+    .sort((a, b) => b.dir.length - a.dir.length);
+}
+
+/** Longest language-directory prefix decides the language of any path. */
+export function langForPath(manifest: RoutesManifest, path: string): string {
   const normalized = normalizePath(path);
-  for (const front of fronts) {
-    if (normalized === front.path || normalized.startsWith(front.path)) return front.lang;
+  for (const { dir, lang } of languageDirectories(manifest)) {
+    if (normalized === dir || normalized.startsWith(dir)) return lang;
   }
   return manifest.routes[0]?.lang ?? "";
+}
+
+/** WordPress answers a bare language directory (`/es/`) with a 301 to that
+ * language's front page when the front page lives at its own slug
+ * (`/es/inicio/`). Returns that front path, or null when `path` is not a bare
+ * directory, is a route of its own, or already is the front page. */
+export function languageHomeRedirect(manifest: RoutesManifest, path: string): string | null {
+  const normalized = normalizePath(path);
+  if (findRoute(manifest, normalized)) return null;
+  const hit = languageDirectories(manifest).find(({ dir }) => dir === normalized);
+  if (!hit) return null;
+  const front = normalizePath(hit.front.path);
+  return front === normalized ? null : front;
 }
 
 export function findRoute(manifest: RoutesManifest, path: string): Route | null {

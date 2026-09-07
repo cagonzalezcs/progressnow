@@ -57,7 +57,7 @@ Bilingual (EN at `/`, ES at `/es/…`), accessible (WCAG 2.2 AA target, built-in
 | `CHAPTER_FRONTEND` | `islands` (default) | `nuxt` | `islands` (the PHP theme stays server-rendered) |
 | `CHAPTER_REBUILD_TRANSPORT` | `none` | `github` or `webhook` (+ `CHAPTER_STATIC_DIR` / `CHAPTER_STATIC_ORIGIN`) | `webhook` → `<next-origin>/api/rebuild` (+ `CHAPTER_REBUILD_SECRET`) |
 | `CHAPTER_CANONICAL_ORIGIN` | unset | unset | the Next origin, so canonical / `hreflang` / `og:url` / sitemap point at the public frontend |
-| Status | shipping | `nuxt4-static-platform` 51/59 tasks | `next-js-site-implementation` in progress (see Roadmap) |
+| Status | shipping | `nuxt4-static-platform` 51/59 tasks | shipping — `next-js-site-implementation` (see Roadmap) |
 
 Run one JS frontend per install. Both JS apps read `GET /wp-json/progressnow/v1/*`, share the theme's zod contracts, Tailwind tokens and category registry by drift test, and reproduce every route in both languages.
 
@@ -121,13 +121,14 @@ Key properties:
 │   ├── modules/        routes-manifest, shell-manifest
 │   ├── shared/         fixture-backed mock API
 │   └── test/unit       contracts, resolver, shell/freshness/cache, drift tests
-├── next-js/             headless Next.js frontend (see next-js/README.md; in progress)
+├── next-js/             headless Next.js frontend (see next-js/README.md)
 │   ├── app/            App Router: catch-all route, api/rebuild, api/health, api/events
 │   ├── components/     site components (React), shadcn/ui, a11y provider
-│   ├── lib/            schemas (drift-guarded copy), api, data cache, routes, links, signing
-│   └── test/           unit + component (Vitest/RTL/jest-axe), mock API, Playwright e2e + axe-core
+│   ├── lib/            schemas (drift-guarded copy), api, data cache, routes, links, signing, security headers
+│   ├── test/           unit + component (Vitest/RTL/jest-axe), mock API, Playwright e2e + axe-core
+│   └── Dockerfile      standalone image (node:22-alpine, non-root, HEALTHCHECK)
 ├── docs/
-│   ├── deployment.md            operator guide: constants, GitHub config, same-host vs CDN, cutover, rollback
+│   ├── deployment.md            operator guide: constants, GitHub config, same-host vs CDN, headless Next.js (§10), cutover, rollback
 │   └── accessibility-statement.md  EN/ES base text for the public Accessibility page
 ├── infra/terraform/     reference S3 + CloudFront + GitHub OIDC module (optional)
 ├── openspec/            specs (current behavior) + changes (proposals, designs, tasks)
@@ -219,7 +220,9 @@ npm run dev:mock        # against the fixture-backed mock API, no WordPress need
 | `npm run test:unit` | Vitest: resolver, links, api, receiver, a11y settings; components with RTL + jest-axe; contract + drift tests |
 | `npm run test:e2e` | Playwright against the production build + mock API, both languages |
 | `npm run test:a11y` | axe-core over every route × language × a11y mode × interactive state, against the production build |
-| `npm run build` | `next build` (standalone output) + bundle budget check |
+| `npm run build:mock` | production build (standalone) against the mock; `npm run start:standalone` serves it |
+| `npm run test:failure` | serial mock-mutating scenarios: upstream failure → real 500, canonical origin verbatim |
+| `npm run build` | `next build` (standalone output; the first-load budget is asserted by `test:e2e`) |
 
 WordPress side: `CHAPTER_REBUILD_TRANSPORT=webhook`, `CHAPTER_REBUILD_WEBHOOK_URL=<next-origin>/api/rebuild`, `CHAPTER_REBUILD_SECRET`, `CHAPTER_CANONICAL_ORIGIN=<next-origin>`.
 
@@ -250,7 +253,7 @@ Three supported shapes, all documented step by step in `docs/deployment.md`:
 1. **Same-host** (`STATIC_DEPLOY_TARGET=rsync`): the workflow syncs the build into `CHAPTER_STATIC_DIR` on the WordPress host. Apache/nginx rules serve the static paths directly; PHP passthrough is the fallback.
 2. **CDN** (`STATIC_DEPLOY_TARGET=s3`): `infra/terraform/` provisions a private versioned bucket, a CloudFront distribution (static paths → S3, everything else → WordPress honoring origin cache headers, optional 5xx failover to prerendered HTML) and a GitHub OIDC role.
 3. **Webhook**: WordPress POSTs a signed `{ event: "rebuild", … }` to any receiver (e.g. API Gateway → CodeBuild) that runs `npm ci && npm run generate`, syncs, and reports back with the same signed `POST /build-status`.
-4. **Headless Next.js** (`next-js/`): deploy the standalone build (Vercel, a container, or a VPS) and point the same signed webhook at `<next-origin>/api/rebuild`; the receiver revalidates its cache and reports back with `POST /build-status`. Guide section in progress (`next-js-site-implementation`).
+4. **Headless Next.js** (`next-js/`): deploy the standalone build (Vercel, the `Dockerfile`, or a VPS behind a reverse proxy) and point the same signed webhook at `<next-origin>/api/rebuild`; the receiver revalidates its cache and reports back with `POST /build-status`. Set `CHAPTER_CANONICAL_ORIGIN` to the Next origin. `docs/deployment.md` §10; `node scripts/smoke.mjs <origin>` after each deploy.
 
 The rebuild workflow (`.github/workflows/rebuild-site.yml`) listens for `repository_dispatch` (`rebuild-site`), `workflow_dispatch`, and pushes to `main` touching `nuxt-js/`, with `concurrency: rebuild-site` so bursts of edits collapse into one build. Repository variables/secrets: `WP_API_BASE`, `STATIC_DEPLOY_TARGET`, `WP_BUILD_STATUS_URL`, `CHAPTER_REBUILD_SECRET`, plus rsync or S3 credentials.
 
@@ -328,7 +331,8 @@ npm run generate:mock && npm run verify:output
 # next-js
 cd next-js
 npm run lint && npm run typecheck && npm run test:unit
-npm run build && npm run test:e2e && npm run test:a11y   # against the fixture-backed mock, no WordPress
+npm run build:mock && npm run test:e2e && npm run test:a11y && npm run test:failure   # against the fixture-backed mock, no WordPress
+# CI also builds the Dockerfile and runs scripts/smoke.mjs against the container
 ```
 
 Contract fixtures in `tests/fixtures/*.json` are asserted from both sides (PHPUnit byte-equality, vitest zod parse). Regenerate deliberately:
@@ -372,7 +376,7 @@ Open changes in `openspec/changes/` (task counts at time of writing):
 | Change | Status | Scope |
 |---|---|---|
 | `nuxt4-static-platform` | 51/59 | Remaining: remove the Vite islands after cutover verification (tasks 7.x), final cleanup |
-| `next-js-site-implementation` | 0/53 | Headless Next.js frontend (`next-js/`): Tailwind v4 + shadcn/ui, SSR from `progressnow/v1`, signed-webhook revalidation, axe-core gate against the build, View Transitions; `site/` renamed to `nuxt-js/`; `CHAPTER_CANONICAL_ORIGIN` |
+| `next-js-site-implementation` | 54/57 | Headless Next.js frontend (`next-js/`): Tailwind v4 + shadcn/ui, SSR from `progressnow/v1`, signed-webhook revalidation, nonce CSP, axe-core gate against the build, View Transitions, Dockerfile; `site/` renamed to `nuxt-js/`; `CHAPTER_CANONICAL_ORIGIN`. Remaining: kitchen-sink a11y burn-down, local end-to-end against a real WordPress, final gate |
 | `open-source-release-readiness` | partial | Plugins/backups untracked, MIT declared everywhere, `scrub-brand.sh` removed, dev origin neutralized (done in this repo's first commit). Remaining: plugin-missing admin notice, `CONTRIBUTING` / `CODE_OF_CONDUCT` / `SECURITY`, no-analytics policy, hygiene CI gate, release checklist |
 | `content-invalidation-completeness` | 0/27 | Bump content version on every public write (pages, menus, terms, attachments, strings), one bump per request, WP timezone, language-aware categories |
 | `security-sanitize-url-sinks` | 0/12 | `progressnow_safe_url()` scheme allow-list on every `:href`/`:src` sink |

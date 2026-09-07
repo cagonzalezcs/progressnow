@@ -12,7 +12,7 @@ import { getRouteLanguages } from "@/lib/data/languages";
 import { getEnv } from "@/lib/env";
 import { logger } from "@/lib/log";
 import { canonicalOrigin, organizationNode } from "@/lib/json-ld";
-import { isErrorRender, requestPath } from "@/lib/request-path";
+import { isErrorRender, requestNonce, requestPath } from "@/lib/request-path";
 import { resolveRoute } from "@/lib/routes";
 
 /* ONE root layout for every route (design D3/D6): the chrome persists across
@@ -79,15 +79,21 @@ async function loadShell(path: string): Promise<Shell> {
 }
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const [path, errorRender] = await Promise.all([requestPath(), isErrorRender()]);
-  if (errorRender) return <ErrorDocument lang={langFromPrefix(path)} />;
+  const [path, errorRender, nonce] = await Promise.all([
+    requestPath(),
+    isErrorRender(),
+    requestNonce(),
+  ]);
+  if (errorRender) return <ErrorDocument lang={langFromPrefix(path)} nonce={nonce} />;
   const shell = await loadShell(path);
-  if (!shell.ok) return <ErrorDocument lang={langFromPrefix(path)} digest={shell.digest} />;
+  if (!shell.ok)
+    return <ErrorDocument lang={langFromPrefix(path)} digest={shell.digest} nonce={nonce} />;
   const env = getEnv();
   return (
-    <RootDocument lang={shell.lang}>
+    <RootDocument lang={shell.lang} nonce={nonce}>
       <JsonLd
         id="ld-organization"
+        nonce={nonce}
         nodes={[
           organizationNode(shell.site, {
             canonicalOrigin: shell.canonical,

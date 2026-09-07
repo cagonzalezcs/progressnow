@@ -27,6 +27,20 @@ const singlePostFixture = fixture("single-post");
 const singleEventFixture = fixture("single-event");
 const chapterEventFixture = fixture("chapter-event");
 const categoriesFixture = fixture("categories");
+const CATEGORY_IDS = new Set(
+  categoriesFixture.categories.map((/** @type {{id: string}} */ c) => c.id),
+);
+
+/** A WordPress REST error the mock answers verbatim (same envelope inc/rest.php sends). */
+export class MockRestError extends Error {
+  /** @param {number} status @param {string} code @param {string} message */
+  constructor(status, code, message) {
+    super(message);
+    this.name = "MockRestError";
+    this.status = status;
+    this.code = code;
+  }
+}
 
 export const MOCK_CONTENT_VERSION = 7;
 export const POST_SLUG = "contract-test-post";
@@ -35,8 +49,13 @@ export const EVENT_SLUG = "contract-test-event";
 /** @typedef {"en" | "es"} Lang */
 /** @typedef {{ lang: Lang; path: string; slug: string; kind: "posts_index" | "about" | "get_involved" | "calendar" | "page" | "styleguide"; template: string; title: string }} MockPage */
 
+/** Polylang's language directories: the hidden default at `/`, Spanish under `/es/`. */
 /** @type {Record<Lang, string>} */
-const HOME = { en: "/", es: "/es/" };
+const LANG_DIR = { en: "/", es: "/es/" };
+/** Front-page paths as the real theme reports them: a translated static front
+ * page keeps its slug (`/es/inicio/`), and WordPress 301s the bare `/es/` to it. */
+/** @type {Record<Lang, string>} */
+const HOME = { en: "/", es: "/es/inicio/" };
 
 /** @type {MockPage[]} */
 export const PAGES = [
@@ -153,8 +172,8 @@ export function createMock(options = {}) {
   /** @param {Lang} lang @param {MockPage["kind"] | "front" | "post" | "event"} kind */
   function translationOf(lang, kind) {
     if (kind === "front") return HOME[lang];
-    if (kind === "post") return `${HOME[lang]}blog/${POST_SLUG}/`;
-    if (kind === "event") return `${HOME[lang]}events/${EVENT_SLUG}/`;
+    if (kind === "post") return `${LANG_DIR[lang]}blog/${POST_SLUG}/`;
+    if (kind === "event") return `${LANG_DIR[lang]}events/${EVENT_SLUG}/`;
     return PAGES.find((p) => p.lang === lang && p.kind === kind)?.path ?? HOME[lang];
   }
 
@@ -384,10 +403,23 @@ export function createMock(options = {}) {
     const lang = langOf(query.lang);
     const s = typeof query.s === "string" ? query.s.trim().toLowerCase() : "";
     const category = typeof query.category === "string" ? query.category : "";
+    // inc/rest.php validates `category` against the registry enum — an unknown
+    // slug is a 400, not an empty result. The mock must reject it too, or the
+    // app's own handling of unknown categories goes untested (openspec
+    // next-test-harness § Mock API fidelity).
+    if (category && category !== "all" && !CATEGORY_IDS.has(category)) {
+      throw new MockRestError(400, "rest_invalid_param", "Invalid parameter(s): category");
+    }
     let list = postsFixture.posts.map((p) => ({
       ...p,
       title: p.slug === POST_SLUG ? titleOf(POST_SLUG, p.title) : p.title,
       url: abs(translationOf(lang, "post")),
+      // The fixture card has no image; the mock gives it a WordPress upload so the
+      // next/image path (optimizer URL, alt, allowlisted host) is exercised end to end.
+      image:
+        p.slug === POST_SLUG
+          ? { src: `${origin}/wp-content/uploads/${POST_SLUG}.png`, alt: p.title }
+          : p.image,
     }));
     if (s) list = list.filter((p) => p.title.toLowerCase().includes(s));
     if (category && category !== "all") list = list.filter((p) => p.cat === category);
@@ -443,7 +475,8 @@ export function createMock(options = {}) {
 
   /**
    * Route a `/wp-json/progressnow/v1/<path>?<query>` request to a fixture
-   * builder. Returns null for unknown content (the server answers 404).
+   * builder. Returns null for unknown content (the server answers 404) and
+   * throws MockRestError for a request the real API rejects.
    * @param {string} path @param {Record<string, unknown>} query
    * @returns {unknown | null}
    */

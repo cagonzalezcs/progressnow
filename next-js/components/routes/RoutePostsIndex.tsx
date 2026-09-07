@@ -8,7 +8,7 @@ import { FeaturedPostCard } from "@/components/site/blog/FeaturedPostCard";
 import { Pagination } from "@/components/site/blog/Pagination";
 import { PostCard } from "@/components/site/blog/PostCard";
 import { isBrowse } from "@/lib/archive-url";
-import { categoryById, postCategories } from "@/lib/categories";
+import { categoryById, isRealCategory, postCategories } from "@/lib/categories";
 import { getPage, getPosts, getRoutes, getSite } from "@/lib/data";
 import { getEnv } from "@/lib/env";
 import { payloadSlug } from "@/lib/routes";
@@ -21,6 +21,13 @@ import type { PostsEnvelope, SiteEnvelope } from "@/lib/schemas";
  * toolbar only writes the URL. */
 const STRIPE =
   "flex flex-col items-center gap-1 rounded-[16px] border-2 border-dashed border-border-muted px-6 py-11 text-center md:rounded-[20px] md:px-8 md:py-14";
+
+/* Browse mode lifts one post out of the page into the featured card, so asking the
+ * endpoint for its default 24 leaves 23 in the grid — a ragged last row at every
+ * breakpoint (3 columns ≥1200px, 2 at md). Ask for one more so the grid always gets
+ * 24, which divides evenly by both. Filtered mode has no featured card and stays on
+ * the default. */
+const PER_PAGE_BROWSE = 25;
 
 export async function RoutePostsIndex({ resolved, searchParams }: RouteProps) {
   const [site, manifest, page] = await Promise.all([
@@ -35,16 +42,21 @@ export async function RoutePostsIndex({ resolved, searchParams }: RouteProps) {
   const paths = interiorPaths(manifest, resolved.lang);
   const basePath = resolved.route?.path ?? resolved.path;
   const categories = postCategories(site.categories);
+  /* `/category/{slug}/` for a slug the registry does not have is a 404, decided by the
+   * proxy before this route streams (lib/proxy-manifest). This only sees such a slug
+   * when the proxy failed open because /site was unreadable — degrade to the unfiltered
+   * archive rather than send an out-of-enum value to /posts and take a 400. */
+  const archiveCategory = isRealCategory(resolved.category, categories) ? resolved.category : "";
 
   // Path-derived state (category archive, /page/N/); query state is read inside Suspense.
   const isSearchPath = resolved.kind === "search";
   const title = isSearchPath
     ? `Search results for ${resolved.search}`
-    : resolved.category
-      ? categoryById(resolved.category, categories).label
+    : archiveCategory
+      ? categoryById(archiveCategory, categories).label
       : page?.title || "From the blog";
   const lede =
-    isSearchPath || resolved.category
+    isSearchPath || archiveCategory
       ? ""
       : page?.lede ||
         `News, analysis, and dispatches from chapter organizers across ${site.chapter.region_label || "our community"}.`;
@@ -101,18 +113,23 @@ async function ArchiveWithQuery({
   const query = await searchParams;
   const pick = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v)?.trim() ?? "";
   const s = pick(query.s) || resolved.search;
-  const category = pick(query.category) || resolved.category;
+  const categories = postCategories(site.categories);
+  // A stale or hand-edited `?category=` is a filter WordPress would ignore — drop it
+  // rather than send an out-of-enum value to `/posts` and take a 400.
+  const requested = pick(query.category) || resolved.category;
+  const category = isRealCategory(requested, categories) ? requested : "";
   const paged = Number.parseInt(pick(query.paged) || "", 10);
   const page = Number.isFinite(paged) && paged > 1 ? paged : resolved.page;
   const state = { s, category, page };
+  const browse = isBrowse(state);
   const posts = await getPosts({
     lang: resolved.lang,
     s: s || undefined,
     category: category || undefined,
     page,
+    perPage: browse ? PER_PAGE_BROWSE : undefined,
   });
   const strings = site.strings as Record<string, string>;
-  const categories = postCategories(site.categories);
 
   return (
     <ArchiveFrame
@@ -127,7 +144,7 @@ async function ArchiveWithQuery({
         clear: "Clear filters",
       }}
     >
-      {isBrowse(state) ? (
+      {browse ? (
         <Browse posts={posts} site={site} basePath={basePath} page={page} wpOrigin={wpOrigin} />
       ) : (
         <Filtered posts={posts} site={site} basePath={basePath} state={state} wpOrigin={wpOrigin} />

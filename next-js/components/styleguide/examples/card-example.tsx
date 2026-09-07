@@ -1,3 +1,5 @@
+/* hand-patched (a11y burn-down, task 4.10): the "Content Edge to Edge" scroll box is a
+ * keyboard-reachable named region (scrollable-region-focusable). */
 "use client";
 
 import * as React from "react";
@@ -76,7 +78,13 @@ function CardContentEdgeToEdge() {
           <CardDescription>Review the terms before accepting the agreement.</CardDescription>
         </CardHeader>
         <CardContent className="-mb-(--card-spacing) px-0">
-          <div className="max-h-48 space-y-4 overflow-y-scroll border-t bg-muted/50 px-(--card-spacing) py-4 text-sm leading-relaxed">
+          <div
+            role="region"
+            aria-label="Terms of service"
+            // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- a scrollable region must be keyboard reachable (WCAG 2.1.1)
+            tabIndex={0}
+            className="max-h-48 space-y-4 overflow-y-scroll border-t bg-muted/50 px-(--card-spacing) py-4 text-sm leading-relaxed"
+          >
             <p>
               These terms govern your use of the workspace, including access to shared documents,
               project files, and collaboration tools.

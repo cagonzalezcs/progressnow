@@ -1,5 +1,5 @@
 {
-  "$comment": "Ratchet for the vendored shadcn registry examples in /styleguide/ (openspec next-accessibility \u00a7 axe-core gate). The a11y gate fails if the kitchen sink's offending node count EXCEEDS this; lower it as examples are patched (task 4.10). Site code is always held at zero.",
-  "maxKitchenSinkNodes": 192,
-  "measured": "2026-09-05 after primitive fixes + token scope"
+  "$comment": "Ratchet for the vendored shadcn registry examples in /styleguide/ (openspec next-accessibility \u00a7 axe-core gate). The a11y gate fails if the kitchen sink's offending node count EXCEEDS this. Burned down to zero in task 4.10 (scripts/a11y-patch-examples.mjs + hand patches noted in the example/primitive headers); after an upstream re-sync, re-run the script rather than raising this. Site code is always held at zero.",
+  "maxKitchenSinkNodes": 0,
+  "measured": "2026-09-07 after the task 4.10 burn-down (192 \u2192 0)"
 }

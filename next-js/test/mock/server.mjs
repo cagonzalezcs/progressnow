@@ -7,6 +7,8 @@
  *   POST /wp-json/progressnow/v1/build-status   records the receiver's callback
  *   GET  /wp-content/themes/progressnow/static/*  the theme's fonts/brand art
  *                                       (the app proxies this path same-origin)
+ *   GET  /wp-content/uploads/*.png      a generated PNG — a "WordPress upload"
+ *                                       for the next/image e2e
  *   GET  /__mock/requests               request log (paths) — e2e asserts on it
  *   GET  /__mock/build-status           recorded callbacks
  *   POST /__mock/posts/{slug}           { title } overlay for the webhook e2e
@@ -23,7 +25,8 @@ import { createServer } from "node:http";
 import { createReadStream, statSync } from "node:fs";
 import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
-import { createMock } from "./api.mjs";
+import { createMock, MockRestError } from "./api.mjs";
+import { solidPng } from "./png.mjs";
 
 const PORT = Number(process.env.MOCK_PORT ?? 8787);
 const HOST = process.env.MOCK_HOST ?? "127.0.0.1";
@@ -46,6 +49,9 @@ const MIME = {
   ".json": "application/json",
   ".txt": "text/plain",
 };
+
+const UPLOADS_PREFIX = "/wp-content/uploads/";
+const UPLOAD_PNG = solidPng(640, 400);
 
 const mock = createMock({ origin: ORIGIN });
 /** @type {unknown[]} */
@@ -110,6 +116,17 @@ const server = createServer(async (req, res) => {
     return json(res, 404, { error: "unknown mock op" });
   }
 
+  // --- "WordPress uploads": one generated PNG for any *.png (next/image e2e) --
+  if (pathname.startsWith(UPLOADS_PREFIX) && req.method === "GET") {
+    if (!pathname.endsWith(".png")) return json(res, 404, { error: "not found" });
+    res.writeHead(200, {
+      "Content-Type": "image/png",
+      "Content-Length": String(UPLOAD_PNG.length),
+      "Cache-Control": "public, max-age=31536000, immutable",
+    });
+    return res.end(UPLOAD_PNG);
+  }
+
   // --- theme static assets (fonts, brand placeholders) ----------------------
   if (pathname.startsWith(STATIC_PREFIX) && req.method === "GET") {
     const rel = normalize(decodeURIComponent(pathname.slice(STATIC_PREFIX.length))).replace(
@@ -167,7 +184,18 @@ const server = createServer(async (req, res) => {
     if (mock.isDelayed(path)) await new Promise((r) => setTimeout(r, mock.delayMs));
 
     const query = Object.fromEntries(url.searchParams.entries());
-    const body = mock.dispatch(path, query);
+    /** @type {unknown | null} */
+    let body;
+    try {
+      body = mock.dispatch(path, query);
+    } catch (error) {
+      if (!(error instanceof MockRestError)) throw error;
+      return json(res, error.status, {
+        code: error.code,
+        message: error.message,
+        data: { status: error.status },
+      });
+    }
     if (body === null) {
       return json(res, 404, {
         code: "progressnow_not_found",

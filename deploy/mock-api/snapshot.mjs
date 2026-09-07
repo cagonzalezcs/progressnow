@@ -11,6 +11,7 @@
 import { mkdirSync, writeFileSync, copyFileSync, existsSync, cpSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { applyDemoOverrides } from "./demo-overrides.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, "..", "..");
@@ -77,8 +78,11 @@ for (const r of routes.routes) {
   else if (r.kind !== "front") await grab(`/pages/${slug}`, { lang: r.lang });
 }
 
+// Chapter Settings the source leaves blank (socials) get demo values so the
+// preview renders the same UI the configured site would — see demo-overrides.mjs.
+const filled = applyDemoOverrides(snapshot);
 writeFileSync(join(HERE, "snapshot.json"), JSON.stringify({ source: SOURCE, takenAt: new Date().toISOString(), entries: snapshot }));
-console.log(`${Object.keys(snapshot).length} responses → snapshot.json`);
+console.log(`${Object.keys(snapshot).length} responses (+${filled} demo field(s)) → snapshot.json`);
 
 // Media: referenced uploads (from the local WP tree) + the whole theme static dir (fonts/brand art).
 const pub = join(HERE, "public");

@@ -12,8 +12,8 @@ const FONT_PRELOADS = [
 /* <html>/<body> shared by the site's root layout (app/[[...slug]]) and the
  * styleguide's (app/styleguide — its own segment so the kitchen sink bundle
  * never reaches another route). The a11y bootstrap runs before first paint
- * (so <html> carries the visitor's settings on the first frame);
- * `nonce` arrives with the CSP work (task 8.1). */
+ * (so <html> carries the visitor's settings on the first frame) and carries the
+ * request's CSP nonce (proxy.ts → lib/request-path `requestNonce`). */
 export function RootDocument({
   lang,
   nonce,

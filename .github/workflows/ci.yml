@@ -112,6 +112,30 @@ jobs:
       - name: Upstream-failure e2e (serial, flips the mock)
         run: npm run test:failure
         env: { PW_SKIP_BUILD: "1" }
+      # Container smoke (openspec next-deployment § Container smoke): build the
+      # standalone image, run it on the host network next to the mock, and hit
+      # /api/health + / + /es/. Nothing is pushed.
+      - name: Container image + smoke against the mock
+        env:
+          WP_API_BASE: http://127.0.0.1:8787/wp-json/progressnow/v1
+          NEXT_PUBLIC_SITE_ORIGIN: http://127.0.0.1:3000
+        run: |
+          docker build -t progressnow-next:ci \
+            --build-arg WP_API_BASE="$WP_API_BASE" \
+            --build-arg NEXT_PUBLIC_SITE_ORIGIN="$NEXT_PUBLIC_SITE_ORIGIN" \
+            --build-arg NEXT_PUBLIC_BUILD_ID="${GITHUB_SHA::7}" .
+          node test/mock/server.mjs & echo $! > mock.pid
+          docker run -d --name next --network host \
+            -e MOCK_API=1 -e WP_API_BASE="$WP_API_BASE" \
+            -e NEXT_PUBLIC_SITE_ORIGIN="$NEXT_PUBLIC_SITE_ORIGIN" \
+            -e CHAPTER_REBUILD_SECRET=playwright-test-secret \
+            progressnow-next:ci
+          status=0
+          node scripts/smoke.mjs http://127.0.0.1:3000 --timeout 60 || status=$?
+          docker logs next
+          docker rm -f next >/dev/null
+          kill "$(cat mock.pid)" || true
+          exit $status
       - name: Upload axe-core reports and screenshots
         if: always()
         uses: actions/upload-artifact@v4

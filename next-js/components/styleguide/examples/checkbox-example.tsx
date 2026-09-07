@@ -1,3 +1,5 @@
+/* a11y-patched (scripts/a11y-patch-examples.mjs): aria-label added to 12 labelled controls.
+ * Upstream shadcn registry example otherwise unchanged; re-run the script after a re-sync. */
 "use client";
 
 import * as React from "react";
@@ -39,7 +41,7 @@ function CheckboxBasic() {
   return (
     <Example title="Basic">
       <Field orientation="horizontal">
-        <Checkbox id="terms" />
+        <Checkbox aria-label="Accept terms and conditions" id="terms" />
         <FieldLabel htmlFor="terms">Accept terms and conditions</FieldLabel>
       </Field>
     </Example>
@@ -50,7 +52,7 @@ function CheckboxWithDescription() {
   return (
     <Example title="With Description">
       <Field orientation="horizontal">
-        <Checkbox id="terms-2" defaultChecked />
+        <Checkbox aria-label="Accept terms and conditions" id="terms-2" defaultChecked />
         <FieldContent>
           <FieldLabel htmlFor="terms-2">Accept terms and conditions</FieldLabel>
           <FieldDescription>
@@ -66,7 +68,7 @@ function CheckboxInvalid() {
   return (
     <Example title="Invalid">
       <Field orientation="horizontal" data-invalid>
-        <Checkbox id="terms-3" aria-invalid />
+        <Checkbox aria-label="Accept terms and conditions" id="terms-3" aria-invalid />
         <FieldLabel htmlFor="terms-3">Accept terms and conditions</FieldLabel>
       </Field>
     </Example>
@@ -77,7 +79,7 @@ function CheckboxDisabled() {
   return (
     <Example title="Disabled">
       <Field orientation="horizontal">
-        <Checkbox id="toggle" disabled />
+        <Checkbox aria-label="Enable notifications" id="toggle" disabled />
         <FieldLabel htmlFor="toggle">Enable notifications</FieldLabel>
       </Field>
     </Example>
@@ -90,7 +92,11 @@ function CheckboxWithTitle() {
       <FieldGroup>
         <FieldLabel htmlFor="toggle-2">
           <Field orientation="horizontal">
-            <Checkbox id="toggle-2" defaultChecked />
+            <Checkbox
+              aria-label="Enable notifications You can enable or disable notifications at any time."
+              id="toggle-2"
+              defaultChecked
+            />
             <FieldContent>
               <FieldTitle>Enable notifications</FieldTitle>
               <FieldDescription>
@@ -101,7 +107,11 @@ function CheckboxWithTitle() {
         </FieldLabel>
         <FieldLabel htmlFor="toggle-4">
           <Field orientation="horizontal" data-disabled>
-            <Checkbox id="toggle-4" disabled />
+            <Checkbox
+              aria-label="Enable notifications You can enable or disable notifications at any time."
+              id="toggle-4"
+              disabled
+            />
             <FieldContent>
               <FieldTitle>Enable notifications</FieldTitle>
               <FieldDescription>
@@ -171,7 +181,12 @@ function CheckboxInTable() {
         <TableHeader>
           <TableRow>
             <TableHead className="w-8">
-              <Checkbox id="select-all" checked={selectAll} onCheckedChange={handleSelectAll} />
+              <Checkbox
+                aria-label="Select all"
+                id="select-all"
+                checked={selectAll}
+                onCheckedChange={handleSelectAll}
+              />
             </TableHead>
             <TableHead>Name</TableHead>
             <TableHead>Email</TableHead>
@@ -183,6 +198,7 @@ function CheckboxInTable() {
             <TableRow key={row.id} data-state={selectedRows.has(row.id) ? "selected" : undefined}>
               <TableCell>
                 <Checkbox
+                  aria-label="{`row ${row.id}`}"
                   id={`row-${row.id}`}
                   checked={selectedRows.has(row.id)}
                   onCheckedChange={(checked) => handleSelectRow(row.id, checked === true)}
@@ -205,25 +221,25 @@ function CheckboxGroup() {
       <Field>
         <FieldLabel>Show these items on the desktop:</FieldLabel>
         <Field orientation="horizontal">
-          <Checkbox id="finder-pref-9k2-hard-disks-ljj" />
+          <Checkbox aria-label="Hard disks" id="finder-pref-9k2-hard-disks-ljj" />
           <FieldLabel htmlFor="finder-pref-9k2-hard-disks-ljj" className="font-normal">
             Hard disks
           </FieldLabel>
         </Field>
         <Field orientation="horizontal">
-          <Checkbox id="finder-pref-9k2-external-disks-1yg" />
+          <Checkbox aria-label="External disks" id="finder-pref-9k2-external-disks-1yg" />
           <FieldLabel htmlFor="finder-pref-9k2-external-disks-1yg" className="font-normal">
             External disks
           </FieldLabel>
         </Field>
         <Field orientation="horizontal">
-          <Checkbox id="finder-pref-9k2-cds-dvds-fzt" />
+          <Checkbox aria-label="CDs, DVDs, and iPods" id="finder-pref-9k2-cds-dvds-fzt" />
           <FieldLabel htmlFor="finder-pref-9k2-cds-dvds-fzt" className="font-normal">
             CDs, DVDs, and iPods
           </FieldLabel>
         </Field>
         <Field orientation="horizontal">
-          <Checkbox id="finder-pref-9k2-connected-servers-6l2" />
+          <Checkbox aria-label="Connected servers" id="finder-pref-9k2-connected-servers-6l2" />
           <FieldLabel htmlFor="finder-pref-9k2-connected-servers-6l2" className="font-normal">
             Connected servers
           </FieldLabel>

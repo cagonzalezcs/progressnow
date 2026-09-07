@@ -1,5 +1,6 @@
 import { execSync } from "node:child_process";
 import type { NextConfig } from "next";
+import { STATIC_SECURITY_HEADERS } from "./lib/security-headers";
 
 /* Headless Next.js frontend for the Progress Now theme (openspec design
  * next-js-site-implementation D1, D4, D11).
@@ -63,6 +64,9 @@ const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
     dangerouslyAllowSVG: false,
+    // The optimizer refuses private-IP upstreams (SSRF guard). Only the fixture mock on
+    // 127.0.0.1 needs it; a production WordPress must be reachable on a public host.
+    dangerouslyAllowLocalIP: process.env.MOCK_API === "1",
     remotePatterns: imageHosts.flatMap((hostname) => [
       { protocol: "https" as const, hostname },
       { protocol: "http" as const, hostname },
@@ -74,6 +78,9 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
+      // Static security headers everywhere (API, build assets, the theme static proxy);
+      // HTML responses also get the per-request CSP from proxy.ts (design D11).
+      { source: "/:path*", headers: [...STATIC_SECURITY_HEADERS] },
       {
         source: `${THEME_STATIC}/:path*`,
         headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],

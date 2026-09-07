@@ -1,3 +1,5 @@
+/* a11y-patched (scripts/a11y-patch-examples.mjs): aria-label added to 1 select triggers.
+ * Upstream shadcn registry example otherwise unchanged; re-run the script after a re-sync. */
 import { Example, ExampleWrapper } from "@/components/styleguide/examples/example";
 import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -188,7 +190,7 @@ function AlertExample5() {
             <Field>
               <FieldLabel htmlFor="project-framework">Framework</FieldLabel>
               <Select>
-                <SelectTrigger id="project-framework">
+                <SelectTrigger aria-label="Select a framework" id="project-framework">
                   <SelectValue placeholder="Select a framework" />
                 </SelectTrigger>
                 <SelectContent>

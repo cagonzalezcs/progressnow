@@ -35,6 +35,14 @@ deploy fails on the missing root directory, before any build log exists.
 | unset | `npm run generate:mock` | Fixture-backed render — no WordPress needed, same output CI checks |
 | set | `npm run generate` | Prerender against that WordPress |
 
+A mock build has no WordPress origin to borrow, so it mints its absolute URLs
+(`languages[].url`, `seo.canonical`, single-event `homeUrl`/`calendarUrl`) on
+the deploy host itself — `VERCEL_PROJECT_PRODUCTION_URL` in production, the
+deployment's own `VERCEL_URL` in a preview, `https://mock.example` off Vercel.
+Override with `NUXT_MOCK_ORIGIN`. Root-relative fields the theme deliberately
+ships without an origin — the nav hrefs and the logo's `header.homeUrl` — stay
+relative.
+
 So a fresh project deploys a working preview with zero configuration, and
 pointing it at a real backend is one environment variable. Nitro detects Vercel
 and switches to its `vercel-static` preset, writing `.vercel/output` (Build

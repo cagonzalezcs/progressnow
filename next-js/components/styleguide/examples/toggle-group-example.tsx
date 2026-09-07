@@ -1,3 +1,5 @@
+/* a11y-patched (scripts/a11y-patch-examples.mjs): aria-label added to 1 select triggers.
+ * Upstream shadcn registry example otherwise unchanged; re-run the script after a re-sync. */
 "use client";
 
 import * as React from "react";
@@ -259,7 +261,7 @@ function ToggleGroupWithInputAndSelect() {
       <div className="flex items-center gap-2">
         <Input type="search" placeholder="Search..." className="flex-1" />
         <Select defaultValue="all">
-          <SelectTrigger className="w-32">
+          <SelectTrigger aria-label="Select" className="w-32">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

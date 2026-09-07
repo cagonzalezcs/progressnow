@@ -1,3 +1,6 @@
+/* hand-patched (a11y burn-down, task 4.10): the three asChild examples render links, not list
+ * items, so their ItemGroup is role="group" rather than the default role="list"
+ * (aria-required-children). */
 "use client";
 
 import Image from "next/image";
@@ -877,7 +880,7 @@ function MutedVariantItemsExtraSmall() {
 function DefaultLinkItems() {
   return (
     <Example title="asChild">
-      <ItemGroup>
+      <ItemGroup role="group">
         <Item asChild>
           <a href="#">
             <ItemContent>
@@ -937,7 +940,7 @@ function DefaultLinkItems() {
 function OutlineLinkItems() {
   return (
     <Example title="Outline - asChild">
-      <ItemGroup>
+      <ItemGroup role="group">
         <Item variant="outline" asChild>
           <a href="#">
             <ItemContent>
@@ -997,7 +1000,7 @@ function OutlineLinkItems() {
 function MutedLinkItems() {
   return (
     <Example title="Muted - asChild">
-      <ItemGroup>
+      <ItemGroup role="group">
         <Item variant="muted" asChild>
           <a href="#">
             <ItemContent>
