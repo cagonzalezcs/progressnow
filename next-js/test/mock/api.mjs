@@ -27,6 +27,20 @@ const singlePostFixture = fixture("single-post");
 const singleEventFixture = fixture("single-event");
 const chapterEventFixture = fixture("chapter-event");
 const categoriesFixture = fixture("categories");
+const CATEGORY_IDS = new Set(
+  categoriesFixture.categories.map((/** @type {{id: string}} */ c) => c.id),
+);
+
+/** A WordPress REST error the mock answers verbatim (same envelope inc/rest.php sends). */
+export class MockRestError extends Error {
+  /** @param {number} status @param {string} code @param {string} message */
+  constructor(status, code, message) {
+    super(message);
+    this.name = "MockRestError";
+    this.status = status;
+    this.code = code;
+  }
+}
 
 export const MOCK_CONTENT_VERSION = 7;
 export const POST_SLUG = "contract-test-post";
@@ -389,6 +403,13 @@ export function createMock(options = {}) {
     const lang = langOf(query.lang);
     const s = typeof query.s === "string" ? query.s.trim().toLowerCase() : "";
     const category = typeof query.category === "string" ? query.category : "";
+    // inc/rest.php validates `category` against the registry enum — an unknown
+    // slug is a 400, not an empty result. The mock must reject it too, or the
+    // app's own handling of unknown categories goes untested (openspec
+    // next-test-harness § Mock API fidelity).
+    if (category && category !== "all" && !CATEGORY_IDS.has(category)) {
+      throw new MockRestError(400, "rest_invalid_param", "Invalid parameter(s): category");
+    }
     let list = postsFixture.posts.map((p) => ({
       ...p,
       title: p.slug === POST_SLUG ? titleOf(POST_SLUG, p.title) : p.title,
@@ -454,7 +475,8 @@ export function createMock(options = {}) {
 
   /**
    * Route a `/wp-json/progressnow/v1/<path>?<query>` request to a fixture
-   * builder. Returns null for unknown content (the server answers 404).
+   * builder. Returns null for unknown content (the server answers 404) and
+   * throws MockRestError for a request the real API rejects.
    * @param {string} path @param {Record<string, unknown>} query
    * @returns {unknown | null}
    */

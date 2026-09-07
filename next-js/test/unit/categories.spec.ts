@@ -4,6 +4,7 @@ import {
   DEFAULT_CATEGORIES,
   eventCategories,
   hexToRgba,
+  isRealCategory,
   postCategories,
   resolveCategories,
 } from "@/lib/categories";
@@ -28,6 +29,24 @@ describe("categories", () => {
     expect(resolveCategories([{ id: "all", label: "x", color: null }])).toEqual(DEFAULT_CATEGORIES);
     expect(categoryById("labor", postCategories(wp)).label).toBe("Labor & Work");
     expect(categoryById("nope", postCategories()).id).toBe("all");
+  });
+
+  /* `/posts` rejects a category outside its enum with a 400, so an unknown slug
+   * must never reach the API: `/category/{slug}/` 404s like WordPress does and
+   * `?category=` drops the filter (openspec next-headless-site § route parity). */
+  it("recognizes only real categories — 'all', unknown ids and blanks are not real", () => {
+    const list = postCategories();
+    expect(isRealCategory("labor", list)).toBe(true);
+    expect(isRealCategory("all", list)).toBe(false);
+    expect(isRealCategory("announcements", list)).toBe(false);
+    expect(isRealCategory("", list)).toBe(false);
+  });
+
+  it("follows the WordPress override when it renames the registry", () => {
+    const wp = [{ id: "housing", label: "Housing", color: "#000000" }];
+    const list = postCategories(wp);
+    expect(isRealCategory("housing", list)).toBe(true);
+    expect(isRealCategory("labor", list)).toBe(false);
   });
 
   it("hexToRgba", () => {

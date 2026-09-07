@@ -25,7 +25,7 @@ import { createServer } from "node:http";
 import { createReadStream, statSync } from "node:fs";
 import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
-import { createMock } from "./api.mjs";
+import { createMock, MockRestError } from "./api.mjs";
 import { solidPng } from "./png.mjs";
 
 const PORT = Number(process.env.MOCK_PORT ?? 8787);
@@ -184,7 +184,18 @@ const server = createServer(async (req, res) => {
     if (mock.isDelayed(path)) await new Promise((r) => setTimeout(r, mock.delayMs));
 
     const query = Object.fromEntries(url.searchParams.entries());
-    const body = mock.dispatch(path, query);
+    /** @type {unknown | null} */
+    let body;
+    try {
+      body = mock.dispatch(path, query);
+    } catch (error) {
+      if (!(error instanceof MockRestError)) throw error;
+      return json(res, error.status, {
+        code: error.code,
+        message: error.message,
+        data: { status: error.status },
+      });
+    }
     if (body === null) {
       return json(res, 404, {
         code: "progressnow_not_found",

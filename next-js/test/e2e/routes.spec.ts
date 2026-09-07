@@ -53,6 +53,26 @@ test("derived posts-index states resolve: /blog/page/N/, /category/{slug}/, ?s="
   );
 });
 
+/* Found against a real WordPress in openspec next-js-site-implementation task 8.5:
+ * `/posts` validates `category` against the registry enum, so an unknown slug is a
+ * 400 upstream. The archive path must 404 (WordPress does) and the query filter must
+ * be dropped — neither may reach the API. */
+test("an unknown category 404s as an archive path and is ignored as a filter", async ({
+  page,
+  request,
+}) => {
+  expect((await request.get("/category/no-such-category/")).status()).toBe(404);
+  await page.goto("/category/no-such-category/");
+  await expect(page.locator("[data-route-kind='not_found']:visible")).toBeVisible();
+
+  expect((await request.get("/es/category/no-such-category/")).status()).toBe(404);
+
+  const filtered = await request.get("/blog/?category=no-such-category");
+  expect(filtered.status()).toBe(200);
+  await page.goto("/blog/?category=no-such-category");
+  await expect(page.locator("[data-archive='browse']")).toHaveCount(1);
+});
+
 test("a bare language directory 301s to that language's front page, as WordPress does", async ({
   page,
   request,

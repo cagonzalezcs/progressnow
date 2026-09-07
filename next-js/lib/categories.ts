@@ -28,6 +28,11 @@ export function categoryById(id: string, list: EventCategory[]): EventCategory {
   return list.find((c) => c.id === id) ?? list[0]!;
 }
 
+/** A real (non-"all") category in `list`. `/posts` rejects anything else with a 400. */
+export function isRealCategory(id: string, list: EventCategory[]): boolean {
+  return id !== "" && id !== "all" && list.some((c) => c.id !== "all" && c.id === id);
+}
+
 /** #RRGGBB → rgba() with the given alpha; passes non-hex strings through. */
 export function hexToRgba(hex: string, alpha: number): string {
   const h = hex.replace("#", "");
