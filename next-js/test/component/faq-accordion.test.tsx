@@ -26,6 +26,12 @@ describe("FaqAccordion", () => {
     const triggers = screen.getAllByRole("button");
     expect(triggers).toHaveLength(3);
     for (const t of triggers) expect(t).toHaveAttribute("aria-expanded", "false");
+    // The plus/minus glyph is the only indicator: no lucide chevron competes
+    // for the row's right edge (that was the inline-minus / stray-caret bug).
+    for (const t of triggers) {
+      expect(t.querySelectorAll("svg")).toHaveLength(1);
+      expect(t.querySelector("[data-slot=accordion-trigger-icon]")).toBeNull();
+    }
     expect(await axe(container)).toHaveNoViolations();
 
     triggers[0]!.focus();
