@@ -1,0 +1,18 @@
+# Build context for the Dockerfile: app sources + lockfile only. The test
+# harness reads the theme's fixtures from outside this directory and would fail
+# `next build`'s type check inside the image.
+node_modules
+.next
+.env
+.env.*
+!.env.example
+test
+test-results
+playwright-report
+playwright.config.ts
+vitest.config.mts
+tsconfig.tsbuildinfo
+Dockerfile
+.dockerignore
+openspec
+*.md
