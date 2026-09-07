@@ -1,3 +1,5 @@
+/* a11y-patched (scripts/a11y-patch-examples.mjs): aria-label added to 3 icon-only buttons, 23 empty tab panels.
+ * Upstream shadcn registry example otherwise unchanged; re-run the script after a re-sync. */
 import { Example, ExampleWrapper } from "@/components/styleguide/examples/example";
 import { Button } from "@/components/ui/button";
 import {
@@ -46,6 +48,8 @@ function TabsBasic() {
           <TabsTrigger value="home">Home</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
+        <TabsContent value="home" />
+        <TabsContent value="settings" />
       </Tabs>
     </Example>
   );
@@ -60,6 +64,9 @@ function TabsLine() {
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
           <TabsTrigger value="reports">Reports</TabsTrigger>
         </TabsList>
+        <TabsContent value="overview" />
+        <TabsContent value="analytics" />
+        <TabsContent value="reports" />
       </Tabs>
     </Example>
   );
@@ -74,12 +81,16 @@ function TabsVariantsComparison() {
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
+          <TabsContent value="overview" />
+          <TabsContent value="analytics" />
         </Tabs>
         <Tabs defaultValue="overview">
           <TabsList variant="line">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
+          <TabsContent value="overview" />
+          <TabsContent value="analytics" />
         </Tabs>
       </div>
     </Example>
@@ -96,6 +107,8 @@ function TabsDisabled() {
             Disabled
           </TabsTrigger>
         </TabsList>
+        <TabsContent value="home" />
+        <TabsContent value="settings" />
       </Tabs>
     </Example>
   );
@@ -115,6 +128,8 @@ function TabsWithIcons() {
             Code
           </TabsTrigger>
         </TabsList>
+        <TabsContent value="preview" />
+        <TabsContent value="code" />
       </Tabs>
     </Example>
   );
@@ -125,16 +140,19 @@ function TabsIconOnly() {
     <Example title="Icon Only">
       <Tabs defaultValue="home">
         <TabsList>
-          <TabsTrigger value="home">
+          <TabsTrigger aria-label="Home" value="home">
             <HomeIcon />
           </TabsTrigger>
-          <TabsTrigger value="search">
+          <TabsTrigger aria-label="Search" value="search">
             <SearchIcon />
           </TabsTrigger>
-          <TabsTrigger value="settings">
+          <TabsTrigger aria-label="Settings" value="settings">
             <SettingsIcon />
           </TabsTrigger>
         </TabsList>
+        <TabsContent value="home" />
+        <TabsContent value="search" />
+        <TabsContent value="settings" />
       </Tabs>
     </Example>
   );
@@ -150,6 +168,10 @@ function TabsMultiple() {
           <TabsTrigger value="reports">Reports</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
+        <TabsContent value="overview" />
+        <TabsContent value="analytics" />
+        <TabsContent value="reports" />
+        <TabsContent value="settings" />
       </Tabs>
     </Example>
   );
@@ -216,6 +238,9 @@ function TabsLineDisabled() {
             Reports
           </TabsTrigger>
         </TabsList>
+        <TabsContent value="overview" />
+        <TabsContent value="analytics" />
+        <TabsContent value="reports" />
       </Tabs>
     </Example>
   );

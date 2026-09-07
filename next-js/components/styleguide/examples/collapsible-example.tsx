@@ -1,3 +1,7 @@
+/* a11y-patched (scripts/a11y-patch-examples.mjs): aria-label added to 2 empty tab panels.
+ * Upstream shadcn registry example otherwise unchanged; re-run the script after a re-sync. */
+/* hand-patched (a11y burn-down, task 4.10): the "Settings" icon-only trigger is named by state
+ * (Collapse / Expand) — its icon is a conditional expression the codemod does not read. */
 "use client";
 
 import * as React from "react";
@@ -8,7 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ChevronRightIcon, FolderIcon, FileIcon, MinimizeIcon, MaximizeIcon } from "lucide-react";
 
 export default function CollapsibleExample() {
@@ -116,6 +120,8 @@ function CollapsibleFileTree() {
               <TabsTrigger value="explorer">Explorer</TabsTrigger>
               <TabsTrigger value="settings">Outline</TabsTrigger>
             </TabsList>
+            <TabsContent value="explorer" />
+            <TabsContent value="settings" />
           </Tabs>
         </CardHeader>
         <CardContent>
@@ -167,7 +173,7 @@ function CollapsibleSettings() {
               </CollapsibleContent>
             </FieldGroup>
             <CollapsibleTrigger asChild>
-              <Button variant="outline" size="icon">
+              <Button variant="outline" size="icon" aria-label={isOpen ? "Collapse" : "Expand"}>
                 {isOpen ? <MinimizeIcon /> : <MaximizeIcon />}
               </Button>
             </CollapsibleTrigger>

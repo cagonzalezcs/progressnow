@@ -1,3 +1,6 @@
+/* hand-patched shadcn primitive (a11y burn-down, task 4.10): the icon-only trigger, clear
+ * and chip-remove buttons carry default aria-labels ("Open options", "Clear selection",
+ * "Remove"); callers can still override them. */
 "use client"
 
 import * as React from "react"
@@ -27,6 +30,7 @@ function ComboboxTrigger({
   return (
     <ComboboxPrimitive.Trigger
       data-slot="combobox-trigger" data-testid="combobox-trigger"
+      aria-label="Open options"
       className={cn("[&_svg:not([class*='size-'])]:size-4", className)}
       {...props}
     >
@@ -40,6 +44,7 @@ function ComboboxClear({ className, ...props }: ComboboxPrimitive.Clear.Props) {
   return (
     <ComboboxPrimitive.Clear
       data-slot="combobox-clear" data-testid="combobox-clear"
+      aria-label="Clear selection"
       render={<InputGroupButton variant="ghost" size="icon-xs" />}
       className={cn(className)}
       {...props}
@@ -251,6 +256,7 @@ function ComboboxChip({
       {children}
       {showRemove && (
         <ComboboxPrimitive.ChipRemove
+          aria-label="Remove"
           render={<Button variant="ghost" size="icon-xs" />}
           className="-ml-1 opacity-50 hover:opacity-100"
           data-slot="combobox-chip-remove" data-testid="combobox-chip-remove"

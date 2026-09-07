@@ -1,3 +1,5 @@
+/* a11y-patched (scripts/a11y-patch-examples.mjs): aria-label added to 1 select triggers, 4 text inputs.
+ * Upstream shadcn registry example otherwise unchanged; re-run the script after a re-sync. */
 "use client";
 
 import * as React from "react";
@@ -862,7 +864,7 @@ function ComboboxMultiple() {
                 {values.map((value: string) => (
                   <ComboboxChip key={value}>{value}</ComboboxChip>
                 ))}
-                <ComboboxChipsInput />
+                <ComboboxChipsInput aria-label="Search" />
               </React.Fragment>
             )}
           </ComboboxValue>
@@ -901,7 +903,7 @@ function ComboboxMultipleDisabled() {
                 {values.map((value: string) => (
                   <ComboboxChip key={value}>{value}</ComboboxChip>
                 ))}
-                <ComboboxChipsInput disabled />
+                <ComboboxChipsInput aria-label="Search" disabled />
               </React.Fragment>
             )}
           </ComboboxValue>
@@ -941,7 +943,7 @@ function ComboboxMultipleInvalid() {
                   {values.map((value: string) => (
                     <ComboboxChip key={value}>{value}</ComboboxChip>
                   ))}
-                  <ComboboxChipsInput aria-invalid="true" />
+                  <ComboboxChipsInput aria-label="Search" aria-invalid="true" />
                 </React.Fragment>
               )}
             </ComboboxValue>
@@ -1016,7 +1018,7 @@ function ComboboxMultipleNoRemove() {
                     {value}
                   </ComboboxChip>
                 ))}
-                <ComboboxChipsInput />
+                <ComboboxChipsInput aria-label="Search" />
               </React.Fragment>
             )}
           </ComboboxValue>
@@ -1137,7 +1139,7 @@ function ComboboxWithOtherInputs() {
         </ComboboxContent>
       </Combobox>
       <Select>
-        <SelectTrigger className="w-52">
+        <SelectTrigger aria-label="Select a framework" className="w-52">
           <SelectValue placeholder="Select a framework" />
         </SelectTrigger>
         <SelectContent>

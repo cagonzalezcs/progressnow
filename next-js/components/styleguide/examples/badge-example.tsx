@@ -1,3 +1,5 @@
+/* hand-patched (a11y burn-down, task 4.10): "Custom Colors" uses green-700 / sky-700 so the
+ * 50-shade text meets 4.5:1 (upstream 600 shades measure 3.1 and 3.8). */
 import { Example, ExampleWrapper } from "@/components/styleguide/examples/example";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
@@ -185,10 +187,10 @@ function BadgeCustomColors() {
     <Example title="Custom Colors" className="max-w-fit">
       <div className="flex flex-wrap gap-2 style-sera:gap-6">
         <Badge className="bg-blue-600 text-blue-50 dark:bg-blue-600 dark:text-blue-50">Blue</Badge>
-        <Badge className="bg-green-600 text-green-50 dark:bg-green-600 dark:text-green-50">
+        <Badge className="bg-green-700 text-green-50 dark:bg-green-700 dark:text-green-50">
           Green
         </Badge>
-        <Badge className="bg-sky-600 text-sky-50 dark:bg-sky-600 dark:text-sky-50">Sky</Badge>
+        <Badge className="bg-sky-700 text-sky-50 dark:bg-sky-700 dark:text-sky-50">Sky</Badge>
         <Badge className="bg-purple-600 text-purple-50 dark:bg-purple-600 dark:text-purple-50">
           Purple
         </Badge>

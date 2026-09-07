@@ -1,3 +1,8 @@
+/* a11y-patched (scripts/a11y-patch-examples.mjs): aria-label added to 8 icon-only buttons, 6 text inputs.
+ * Upstream shadcn registry example otherwise unchanged; re-run the script after a re-sync. */
+/* hand-patched (a11y burn-down, task 4.10): the "Disabled" group and its addon label keep full
+ * opacity so the label text stays at 4.5:1 while the input itself still reads as disabled
+ * (color-contrast; axe cannot see that a dimmed wrapper is an inactive control). */
 "use client";
 
 import { useState } from "react";
@@ -172,7 +177,11 @@ function InputGroupWithAddons() {
             <InputGroupInput id="input-icon-both-10" />
             <InputGroupAddon align="inline-end">
               <StarIcon />
-              <InputGroupButton size="icon-xs" onClick={() => toast("Copied to clipboard")}>
+              <InputGroupButton
+                aria-label="Copy"
+                size="icon-xs"
+                onClick={() => toast("Copied to clipboard")}
+              >
                 <CopyIcon />
               </InputGroupButton>
             </InputGroupAddon>
@@ -224,35 +233,35 @@ function InputGroupWithButtons() {
             </InputGroupAddon>
           </InputGroup>
           <InputGroup>
-            <InputGroupInput id="input-button-14" />
+            <InputGroupInput aria-label="Input button 14" id="input-button-14" />
             <InputGroupAddon>
               <InputGroupButton variant="outline">Outline</InputGroupButton>
             </InputGroupAddon>
           </InputGroup>
           <InputGroup>
-            <InputGroupInput id="input-button-15" />
+            <InputGroupInput aria-label="Input button 15" id="input-button-15" />
             <InputGroupAddon>
               <InputGroupButton variant="secondary">Secondary</InputGroupButton>
             </InputGroupAddon>
           </InputGroup>
           <InputGroup>
-            <InputGroupInput id="input-button-16" />
+            <InputGroupInput aria-label="Input button 16" id="input-button-16" />
             <InputGroupAddon align="inline-end">
               <InputGroupButton variant="secondary">Button</InputGroupButton>
             </InputGroupAddon>
           </InputGroup>
           <InputGroup>
-            <InputGroupInput id="input-button-17" />
+            <InputGroupInput aria-label="Input button 17" id="input-button-17" />
             <InputGroupAddon align="inline-end">
-              <InputGroupButton size="icon-xs">
+              <InputGroupButton aria-label="Copy" size="icon-xs">
                 <CopyIcon />
               </InputGroupButton>
             </InputGroupAddon>
           </InputGroup>
           <InputGroup>
-            <InputGroupInput id="input-button-18" />
+            <InputGroupInput aria-label="Input button 18" id="input-button-18" />
             <InputGroupAddon align="inline-end">
-              <InputGroupButton variant="secondary" size="icon-xs">
+              <InputGroupButton aria-label="Delete" variant="secondary" size="icon-xs">
                 <TrashIcon />
               </InputGroupButton>
             </InputGroupAddon>
@@ -280,7 +289,11 @@ function InputGroupWithTooltip({
             <InputGroupAddon align="inline-end">
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <InputGroupButton className="rounded-full" size="icon-xs">
+                  <InputGroupButton
+                    aria-label="Information"
+                    className="rounded-full"
+                    size="icon-xs"
+                  >
                     <InfoIcon />
                   </InputGroupButton>
                 </TooltipTrigger>
@@ -322,7 +335,7 @@ function InputGroupWithTooltip({
             <Popover>
               <PopoverTrigger asChild>
                 <InputGroupAddon>
-                  <InputGroupButton variant="secondary" size="icon-xs">
+                  <InputGroupButton aria-label="Information" variant="secondary" size="icon-xs">
                     <InfoIcon />
                   </InputGroupButton>
                 </InputGroupAddon>
@@ -339,7 +352,11 @@ function InputGroupWithTooltip({
             <InputGroupAddon className="pl-1 text-muted-foreground">https://</InputGroupAddon>
             <InputGroupInput id="input-secure-19" />
             <InputGroupAddon align="inline-end">
-              <InputGroupButton size="icon-xs" onClick={() => toast("Added to favorites")}>
+              <InputGroupButton
+                aria-label="Favorite"
+                size="icon-xs"
+                onClick={() => toast("Added to favorites")}
+              >
                 <StarIcon />
               </InputGroupButton>
             </InputGroupAddon>
@@ -364,7 +381,7 @@ function InputGroupWithKbd() {
             </InputGroupAddon>
           </InputGroup>
           <InputGroup>
-            <InputGroupInput id="input-kbd-23" />
+            <InputGroupInput aria-label="Input kbd 23" id="input-kbd-23" />
             <InputGroupAddon align="inline-end">
               <Kbd>⌘K</Kbd>
             </InputGroupAddon>
@@ -410,7 +427,7 @@ function InputGroupWithKbd() {
           </InputGroupAddon>
           <InputGroupAddon align="inline-end">12 results</InputGroupAddon>
         </InputGroup>
-        <InputGroup data-disabled="true">
+        <InputGroup data-disabled="true" className="has-disabled:opacity-100">
           <InputGroupInput
             id="input-search-disabled-28"
             placeholder="Search documentation..."
@@ -419,7 +436,12 @@ function InputGroupWithKbd() {
           <InputGroupAddon>
             <SearchIcon />
           </InputGroupAddon>
-          <InputGroupAddon align="inline-end">Disabled</InputGroupAddon>
+          <InputGroupAddon
+            align="inline-end"
+            className="group-data-[disabled=true]/input-group:opacity-100"
+          >
+            Disabled
+          </InputGroupAddon>
         </InputGroup>
         <FieldGroup className="grid grid-cols-2 gap-4">
           <Field>
@@ -613,10 +635,10 @@ function InputGroupTextareaExamples() {
                 <CodeIcon />
                 script.js
               </InputGroupText>
-              <InputGroupButton size="icon-xs" className="ml-auto">
+              <InputGroupButton aria-label="Refresh" size="icon-xs" className="ml-auto">
                 <RefreshCwIcon />
               </InputGroupButton>
-              <InputGroupButton size="icon-xs" variant="ghost">
+              <InputGroupButton aria-label="Copy" size="icon-xs" variant="ghost">
                 <CopyIcon />
               </InputGroupButton>
             </InputGroupAddon>

@@ -1,3 +1,5 @@
+/* a11y-patched (scripts/a11y-patch-examples.mjs): aria-label added to 1 icon-only buttons.
+ * Upstream shadcn registry example otherwise unchanged; re-run the script after a re-sync. */
 "use client";
 
 import { Example, ExampleWrapper } from "@/components/styleguide/examples/example";
@@ -119,7 +121,7 @@ function TooltipWithKeyboard() {
     <Example title="With Keyboard Shortcut">
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="outline" size="icon-sm">
+          <Button aria-label="Save" variant="outline" size="icon-sm">
             <SaveIcon />
           </Button>
         </TooltipTrigger>

@@ -1,3 +1,5 @@
+/* a11y-patched (scripts/a11y-patch-examples.mjs): aria-label added to 6 native selects.
+ * Upstream shadcn registry example otherwise unchanged; re-run the script after a re-sync. */
 import { Example, ExampleWrapper } from "@/components/styleguide/examples/example";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import {
@@ -22,7 +24,7 @@ export default function NativeSelectExample() {
 function NativeSelectBasic() {
   return (
     <Example title="Basic">
-      <NativeSelect>
+      <NativeSelect aria-label="Select a fruit">
         <NativeSelectOption value="">Select a fruit</NativeSelectOption>
         <NativeSelectOption value="apple">Apple</NativeSelectOption>
         <NativeSelectOption value="banana">Banana</NativeSelectOption>
@@ -39,7 +41,7 @@ function NativeSelectBasic() {
 function NativeSelectWithGroups() {
   return (
     <Example title="With Groups">
-      <NativeSelect>
+      <NativeSelect aria-label="Select a food">
         <NativeSelectOption value="">Select a food</NativeSelectOption>
         <NativeSelectOptGroup label="Fruits">
           <NativeSelectOption value="apple">Apple</NativeSelectOption>
@@ -60,13 +62,13 @@ function NativeSelectSizes() {
   return (
     <Example title="Sizes">
       <div className="flex flex-col gap-4">
-        <NativeSelect size="sm">
+        <NativeSelect aria-label="Select a fruit" size="sm">
           <NativeSelectOption value="">Select a fruit</NativeSelectOption>
           <NativeSelectOption value="apple">Apple</NativeSelectOption>
           <NativeSelectOption value="banana">Banana</NativeSelectOption>
           <NativeSelectOption value="blueberry">Blueberry</NativeSelectOption>
         </NativeSelect>
-        <NativeSelect size="default">
+        <NativeSelect aria-label="Select a fruit" size="default">
           <NativeSelectOption value="">Select a fruit</NativeSelectOption>
           <NativeSelectOption value="apple">Apple</NativeSelectOption>
           <NativeSelectOption value="banana">Banana</NativeSelectOption>
@@ -98,7 +100,7 @@ function NativeSelectWithField() {
 function NativeSelectDisabled() {
   return (
     <Example title="Disabled">
-      <NativeSelect disabled>
+      <NativeSelect aria-label="Disabled" disabled>
         <NativeSelectOption value="">Disabled</NativeSelectOption>
         <NativeSelectOption value="apple">Apple</NativeSelectOption>
         <NativeSelectOption value="banana">Banana</NativeSelectOption>
@@ -111,7 +113,7 @@ function NativeSelectDisabled() {
 function NativeSelectInvalid() {
   return (
     <Example title="Invalid">
-      <NativeSelect aria-invalid="true">
+      <NativeSelect aria-label="Error state" aria-invalid="true">
         <NativeSelectOption value="">Error state</NativeSelectOption>
         <NativeSelectOption value="apple">Apple</NativeSelectOption>
         <NativeSelectOption value="banana">Banana</NativeSelectOption>

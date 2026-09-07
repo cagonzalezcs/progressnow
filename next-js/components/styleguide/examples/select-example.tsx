@@ -1,3 +1,5 @@
+/* a11y-patched (scripts/a11y-patch-examples.mjs): aria-label added to 17 select triggers, 1 native selects.
+ * Upstream shadcn registry example otherwise unchanged; re-run the script after a re-sync. */
 "use client";
 
 import * as React from "react";
@@ -52,7 +54,7 @@ function SelectBasic() {
   return (
     <Example title="Basic">
       <Select>
-        <SelectTrigger>
+        <SelectTrigger aria-label="Select a fruit">
           <SelectValue placeholder="Select a fruit" />
         </SelectTrigger>
         <SelectContent>
@@ -76,7 +78,10 @@ function SelectWithIcons() {
     <Example title="With Icons">
       <div className="flex flex-col gap-4">
         <Select>
-          <SelectTrigger size="sm">
+          <SelectTrigger
+            aria-label="{<>\n                  <ChartLineIcon />\n                  Chart Type\n                </>}"
+            size="sm"
+          >
             <SelectValue
               placeholder={
                 <>
@@ -104,7 +109,10 @@ function SelectWithIcons() {
           </SelectContent>
         </Select>
         <Select>
-          <SelectTrigger size="default">
+          <SelectTrigger
+            aria-label="{<>\n                  <ChartLineIcon />\n                  Chart Type\n                </>}"
+            size="default"
+          >
             <SelectValue
               placeholder={
                 <>
@@ -140,7 +148,7 @@ function SelectWithGroups() {
   return (
     <Example title="With Groups & Labels">
       <Select>
-        <SelectTrigger>
+        <SelectTrigger aria-label="Select a fruit">
           <SelectValue placeholder="Select a fruit" />
         </SelectTrigger>
         <SelectContent>
@@ -167,7 +175,7 @@ function SelectLargeList() {
   return (
     <Example title="Large List">
       <Select>
-        <SelectTrigger>
+        <SelectTrigger aria-label="Select an item">
           <SelectValue placeholder="Select an item" />
         </SelectTrigger>
         <SelectContent>
@@ -189,7 +197,7 @@ function SelectSizes() {
     <Example title="Sizes">
       <div className="flex flex-col gap-4">
         <Select>
-          <SelectTrigger size="sm">
+          <SelectTrigger aria-label="Small size" size="sm">
             <SelectValue placeholder="Small size" />
           </SelectTrigger>
           <SelectContent>
@@ -201,7 +209,7 @@ function SelectSizes() {
           </SelectContent>
         </Select>
         <Select>
-          <SelectTrigger size="default">
+          <SelectTrigger aria-label="Default size" size="default">
             <SelectValue placeholder="Default size" />
           </SelectTrigger>
           <SelectContent>
@@ -223,7 +231,7 @@ function SelectWithButton() {
       <div className="flex flex-col gap-4">
         <div className="flex items-center gap-2">
           <Select>
-            <SelectTrigger size="sm">
+            <SelectTrigger aria-label="Small" size="sm">
               <SelectValue placeholder="Small" />
             </SelectTrigger>
             <SelectContent>
@@ -240,7 +248,7 @@ function SelectWithButton() {
         </div>
         <div className="flex items-center gap-2">
           <Select>
-            <SelectTrigger>
+            <SelectTrigger aria-label="Default">
               <SelectValue placeholder="Default" />
             </SelectTrigger>
             <SelectContent>
@@ -262,7 +270,7 @@ function SelectItemAligned() {
   return (
     <Example title="Popper">
       <Select>
-        <SelectTrigger>
+        <SelectTrigger aria-label="Select a fruit">
           <SelectValue placeholder="Select a fruit" />
         </SelectTrigger>
         <SelectContent position="popper">
@@ -287,7 +295,7 @@ function SelectWithField() {
       <Field>
         <FieldLabel htmlFor="select-fruit">Favorite Fruit</FieldLabel>
         <Select>
-          <SelectTrigger id="select-fruit">
+          <SelectTrigger aria-label="Select a fruit" id="select-fruit">
             <SelectValue placeholder="Select a fruit" />
           </SelectTrigger>
           <SelectContent>
@@ -311,7 +319,7 @@ function SelectInvalid() {
     <Example title="Invalid">
       <div className="flex flex-col gap-4">
         <Select>
-          <SelectTrigger aria-invalid="true">
+          <SelectTrigger aria-label="Select a fruit" aria-invalid="true">
             <SelectValue placeholder="Select a fruit" />
           </SelectTrigger>
           <SelectContent>
@@ -327,7 +335,7 @@ function SelectInvalid() {
         <Field data-invalid>
           <FieldLabel htmlFor="select-fruit-invalid">Favorite Fruit</FieldLabel>
           <Select>
-            <SelectTrigger id="select-fruit-invalid" aria-invalid>
+            <SelectTrigger aria-label="Select a fruit" id="select-fruit-invalid" aria-invalid>
               <SelectValue placeholder="Select a fruit" />
             </SelectTrigger>
             <SelectContent>
@@ -353,7 +361,7 @@ function SelectInline() {
       <div className="flex items-center gap-2">
         <Input placeholder="Search..." className="flex-1" />
         <Select>
-          <SelectTrigger className="w-[140px]">
+          <SelectTrigger aria-label="Filter" className="w-[140px]">
             <SelectValue placeholder="Filter" />
           </SelectTrigger>
           <SelectContent>
@@ -364,7 +372,7 @@ function SelectInline() {
             </SelectGroup>
           </SelectContent>
         </Select>
-        <NativeSelect className="w-[140px]">
+        <NativeSelect aria-label="Sort by" className="w-[140px]">
           <NativeSelectOption value="">Sort by</NativeSelectOption>
           <NativeSelectOption value="name">Name</NativeSelectOption>
           <NativeSelectOption value="date">Date</NativeSelectOption>
@@ -379,7 +387,7 @@ function SelectDisabled() {
   return (
     <Example title="Disabled">
       <Select disabled>
-        <SelectTrigger>
+        <SelectTrigger aria-label="Disabled">
           <SelectValue placeholder="Disabled" />
         </SelectTrigger>
         <SelectContent>
@@ -421,7 +429,7 @@ function SelectPlan() {
   return (
     <Example title="Subscription Plan">
       <Select value={plan} onValueChange={setPlan}>
-        <SelectTrigger className="h-auto! w-72">
+        <SelectTrigger aria-label="Select" className="h-auto! w-72">
           <SelectValue>{selectedPlan && <SelectPlanItem plan={selectedPlan} />}</SelectValue>
         </SelectTrigger>
         <SelectContent>
@@ -464,7 +472,7 @@ function SelectInDialog() {
             <DialogDescription>Use the select below to choose a fruit.</DialogDescription>
           </DialogHeader>
           <Select>
-            <SelectTrigger>
+            <SelectTrigger aria-label="Select a fruit">
               <SelectValue placeholder="Select a fruit" />
             </SelectTrigger>
             <SelectContent>

@@ -34,9 +34,13 @@ npm run parity                                # Nuxt (nuxt-js/.output/public) vs
                                               # test:e2e includes the front-page first-load JS budget (budget.json)
 ```
 
-`test:a11y` runs axe-core over every route × language × a11y mode. Our code is
-held at zero violations; the vendored shadcn registry examples in the styleguide
-ratchet down through `test/e2e/a11y/kitchen-sink-baseline.json`.
+`test:a11y` runs axe-core over every route × language × a11y mode. Our code and
+the styleguide's vendored shadcn registry examples are both held at zero
+violations (`test/e2e/a11y/kitchen-sink-baseline.json`). The examples ship
+without accessible names on icon-only buttons and Radix controls; after an
+upstream re-sync run `node scripts/a11y-patch-examples.mjs` (idempotent — it
+records what it did in each file's header) and re-check the hand patches noted
+at the top of the few examples and primitives that needed more.
 
 ## Layout
 

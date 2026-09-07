@@ -1,3 +1,5 @@
+/* a11y-patched (scripts/a11y-patch-examples.mjs): aria-label added to 1 select triggers.
+ * Upstream shadcn registry example otherwise unchanged; re-run the script after a re-sync. */
 import { Example, ExampleWrapper } from "@/components/styleguide/examples/example";
 import { Field, FieldLabel } from "@/components/ui/field";
 import {
@@ -94,7 +96,7 @@ function PaginationIconsOnly() {
         <Field orientation="horizontal" className="w-fit">
           <FieldLabel htmlFor="select-rows-per-page">Rows per page</FieldLabel>
           <Select defaultValue="25">
-            <SelectTrigger className="w-20" id="select-rows-per-page">
+            <SelectTrigger aria-label="Select" className="w-20" id="select-rows-per-page">
               <SelectValue />
             </SelectTrigger>
             <SelectContent align="start">

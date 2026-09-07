@@ -1,3 +1,5 @@
+/* a11y-patched (scripts/a11y-patch-examples.mjs): aria-label added to 3 select triggers, 3 text inputs.
+ * Upstream shadcn registry example otherwise unchanged; re-run the script after a re-sync. */
 import { Example, ExampleWrapper } from "@/components/styleguide/examples/example";
 import { Button } from "@/components/ui/button";
 import {
@@ -333,7 +335,7 @@ function TableWithSelect() {
             <TableCell className="font-medium">Design homepage</TableCell>
             <TableCell>
               <Select defaultValue="sarah">
-                <SelectTrigger className="w-40" size="sm">
+                <SelectTrigger aria-label="Select" className="w-40" size="sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -352,7 +354,7 @@ function TableWithSelect() {
             <TableCell className="font-medium">Implement API</TableCell>
             <TableCell>
               <Select defaultValue="marcus">
-                <SelectTrigger className="w-40" size="sm">
+                <SelectTrigger aria-label="Select" className="w-40" size="sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -371,7 +373,7 @@ function TableWithSelect() {
             <TableCell className="font-medium">Write tests</TableCell>
             <TableCell>
               <Select defaultValue="emily">
-                <SelectTrigger className="w-40" size="sm">
+                <SelectTrigger aria-label="Select" className="w-40" size="sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -407,21 +409,39 @@ function TableWithInput() {
           <TableRow>
             <TableCell className="font-medium">Wireless Mouse</TableCell>
             <TableCell>
-              <Input type="number" defaultValue="1" className="h-8 w-20" min="0" />
+              <Input
+                aria-label="Text input"
+                type="number"
+                defaultValue="1"
+                className="h-8 w-20"
+                min="0"
+              />
             </TableCell>
             <TableCell>$29.99</TableCell>
           </TableRow>
           <TableRow>
             <TableCell className="font-medium">Mechanical Keyboard</TableCell>
             <TableCell>
-              <Input type="number" defaultValue="2" className="h-8 w-20" min="0" />
+              <Input
+                aria-label="Text input"
+                type="number"
+                defaultValue="2"
+                className="h-8 w-20"
+                min="0"
+              />
             </TableCell>
             <TableCell>$129.99</TableCell>
           </TableRow>
           <TableRow>
             <TableCell className="font-medium">USB-C Hub</TableCell>
             <TableCell>
-              <Input type="number" defaultValue="1" className="h-8 w-20" min="0" />
+              <Input
+                aria-label="Text input"
+                type="number"
+                defaultValue="1"
+                className="h-8 w-20"
+                min="0"
+              />
             </TableCell>
             <TableCell>$49.99</TableCell>
           </TableRow>

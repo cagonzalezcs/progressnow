@@ -1,3 +1,5 @@
+/* a11y-patched (scripts/a11y-patch-examples.mjs): aria-label added to 1 native selects, 4 select triggers, 5 labelled controls, 1 icon-only buttons.
+ * Upstream shadcn registry example otherwise unchanged; re-run the script after a re-sync. */
 "use client";
 
 import * as React from "react";
@@ -250,6 +252,7 @@ function DialogChatSettings() {
           </DialogHeader>
           <div className="flex flex-col gap-4">
             <NativeSelect
+              aria-label="General"
               value={tab}
               onChange={(e) => setTab(e.target.value)}
               className="w-full md:hidden"
@@ -273,7 +276,7 @@ function DialogChatSettings() {
                       <Field orientation="horizontal">
                         <FieldLabel htmlFor="theme">Theme</FieldLabel>
                         <Select value={theme} onValueChange={setTheme}>
-                          <SelectTrigger id="theme">
+                          <SelectTrigger aria-label="Select" id="theme">
                             <SelectValue placeholder="Select" />
                           </SelectTrigger>
                           <SelectContent align="end">
@@ -289,7 +292,7 @@ function DialogChatSettings() {
                       <Field orientation="horizontal">
                         <FieldLabel htmlFor="accent-color">Accent Color</FieldLabel>
                         <Select value={accentColor} onValueChange={setAccentColor}>
-                          <SelectTrigger id="accent-color">
+                          <SelectTrigger aria-label="Select" id="accent-color">
                             <SelectValue placeholder="Select" />
                           </SelectTrigger>
                           <SelectContent align="end">
@@ -332,7 +335,7 @@ function DialogChatSettings() {
                           </FieldDescription>
                         </FieldContent>
                         <Select value={spokenLanguage} onValueChange={setSpokenLanguage}>
-                          <SelectTrigger id="spoken-language">
+                          <SelectTrigger aria-label="Select" id="spoken-language">
                             <SelectValue placeholder="Select" />
                           </SelectTrigger>
                           <SelectContent align="end" position="item-aligned">
@@ -354,7 +357,7 @@ function DialogChatSettings() {
                       <Field orientation="horizontal">
                         <FieldLabel htmlFor="voice">Voice</FieldLabel>
                         <Select value={voice} onValueChange={setVoice}>
-                          <SelectTrigger id="voice">
+                          <SelectTrigger aria-label="Select" id="voice">
                             <SelectValue placeholder="Select" />
                           </SelectTrigger>
                           <SelectContent align="end" position="item-aligned">
@@ -381,7 +384,12 @@ function DialogChatSettings() {
                       </FieldDescription>
                       <FieldGroup data-slot="checkbox-group">
                         <Field orientation="horizontal">
-                          <Checkbox id="push" defaultChecked disabled />
+                          <Checkbox
+                            aria-label="Push notifications"
+                            id="push"
+                            defaultChecked
+                            disabled
+                          />
                           <FieldLabel htmlFor="push" className="font-normal">
                             Push notifications
                           </FieldLabel>
@@ -397,13 +405,13 @@ function DialogChatSettings() {
                       </FieldDescription>
                       <FieldGroup data-slot="checkbox-group">
                         <Field orientation="horizontal">
-                          <Checkbox id="push-tasks" />
+                          <Checkbox aria-label="Push notifications" id="push-tasks" />
                           <FieldLabel htmlFor="push-tasks" className="font-normal">
                             Push notifications
                           </FieldLabel>
                         </Field>
                         <Field orientation="horizontal">
-                          <Checkbox id="email-tasks" />
+                          <Checkbox aria-label="Email notifications" id="email-tasks" />
                           <FieldLabel htmlFor="email-tasks" className="font-normal">
                             Email notifications
                           </FieldLabel>
@@ -425,7 +433,7 @@ function DialogChatSettings() {
                         <InputGroupAddon align="inline-end">
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <InputGroupButton size="icon-xs">
+                              <InputGroupButton aria-label="Information" size="icon-xs">
                                 <InfoIcon />
                               </InputGroupButton>
                             </TooltipTrigger>
@@ -463,7 +471,11 @@ function DialogChatSettings() {
                             Enable customizations to make ChatGPT more personalized.
                           </FieldDescription>
                         </FieldContent>
-                        <Switch id="customization" defaultChecked />
+                        <Switch
+                          aria-label="Enable customizations"
+                          id="customization"
+                          defaultChecked
+                        />
                       </Field>
                     </FieldLabel>
                   </FieldGroup>
@@ -479,7 +491,7 @@ function DialogChatSettings() {
                           to your email.
                         </FieldDescription>
                       </FieldContent>
-                      <Switch id="2fa" />
+                      <Switch aria-label="Multi-factor authentication" id="2fa" />
                     </Field>
                     <FieldSeparator />
                     <Field orientation="horizontal">
