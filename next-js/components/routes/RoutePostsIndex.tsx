@@ -22,6 +22,13 @@ import type { PostsEnvelope, SiteEnvelope } from "@/lib/schemas";
 const STRIPE =
   "flex flex-col items-center gap-1 rounded-[16px] border-2 border-dashed border-border-muted px-6 py-11 text-center md:rounded-[20px] md:px-8 md:py-14";
 
+/* Browse mode lifts one post out of the page into the featured card, so asking the
+ * endpoint for its default 24 leaves 23 in the grid — a ragged last row at every
+ * breakpoint (3 columns ≥1200px, 2 at md). Ask for one more so the grid always gets
+ * 24, which divides evenly by both. Filtered mode has no featured card and stays on
+ * the default. */
+const PER_PAGE_BROWSE = 25;
+
 export async function RoutePostsIndex({ resolved, searchParams }: RouteProps) {
   const [site, manifest, page] = await Promise.all([
     getSite(resolved.lang),
@@ -114,11 +121,13 @@ async function ArchiveWithQuery({
   const paged = Number.parseInt(pick(query.paged) || "", 10);
   const page = Number.isFinite(paged) && paged > 1 ? paged : resolved.page;
   const state = { s, category, page };
+  const browse = isBrowse(state);
   const posts = await getPosts({
     lang: resolved.lang,
     s: s || undefined,
     category: category || undefined,
     page,
+    perPage: browse ? PER_PAGE_BROWSE : undefined,
   });
   const strings = site.strings as Record<string, string>;
 
@@ -135,7 +144,7 @@ async function ArchiveWithQuery({
         clear: "Clear filters",
       }}
     >
-      {isBrowse(state) ? (
+      {browse ? (
         <Browse posts={posts} site={site} basePath={basePath} page={page} wpOrigin={wpOrigin} />
       ) : (
         <Filtered posts={posts} site={site} basePath={basePath} state={state} wpOrigin={wpOrigin} />

@@ -100,6 +100,9 @@ export interface PostsParams {
   category?: string;
   page?: number;
   lang?: string;
+  /** Overrides the endpoint's default of 24 (max 50). Browse pages ask for 25 so the
+   * grid still holds a full 24 after the featured card takes one — see PER_PAGE_BROWSE. */
+  perPage?: number;
 }
 
 export interface EventsParams {
@@ -197,12 +200,19 @@ export function createApi(options: ApiOptions) {
         .join("/")}`;
       return validate(pageEnvelopeSchema, await getJson(path, langParams(lang)), "/pages");
     },
-    posts: async ({ s, category, page, lang }: PostsParams = {}): Promise<PostsEnvelope> => {
+    posts: async ({
+      s,
+      category,
+      page,
+      lang,
+      perPage,
+    }: PostsParams = {}): Promise<PostsEnvelope> => {
       const params = new URLSearchParams();
       if (s && s.trim() !== "") params.set("s", s.trim());
       if (category && category !== "all") params.set("category", category);
       if (page && page > 1) params.set("page", String(page));
       if (lang) params.set("lang", lang);
+      if (perPage) params.set("per_page", String(perPage));
       return validate(postsEnvelopeSchema, await getJson("/posts", params), "/posts");
     },
     /** Throws ApiError(404, "progressnow_post_not_found") for an unknown slug. */
