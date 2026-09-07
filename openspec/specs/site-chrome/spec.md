@@ -16,7 +16,7 @@ All templates SHALL render a sticky site header (via `base.twig` → `SiteHeader
 - **THEN** each behaves exactly as before the re-skin (keyboard, focus, persistence)
 
 ### Requirement: Mobile navigation toggle
-Below `lg` the header SHALL show the lockup, a white "Join" pill (44px tall) and a 44px hamburger `<button>` (2px `rgba(255,255,255,.6)` border, radius 12, `aria-label="Menu"`, `aria-expanded`, `aria-controls`). Activating it SHALL expand an **in-header panel** beneath the bar (same blue, 1px 25%-white top hairline) containing the flat nav (About, Calendar, Blog, Get Involved — Bowlby 1.05rem, 13px×12px padding, radius-10 hover/current pill), a hairline, and a row with the EN/ES group on the left and a text-size group on the right — three 44×44 buttons "A" / "A+" / "A++" (700, radius 10, 2px border `rgba(255,255,255,.5)`, active white background with brand text, `aria-pressed`) driving the same `textSize` setting as the desktop Aa widget. High-contrast and reduce-motion toggles SHALL NOT render on mobile (visitors zoom / use OS settings); the desktop Aa popover keeps them. Escape or a second activation SHALL close the panel and return focus to the button; a client navigation SHALL close it. No drawer, overlay, scroll lock or tablet two-tier strip SHALL render.
+Below `lg` the header (implemented in the Nuxt `SiteHeader` component and rendered identically by the PHP shell's crawlable header markup) SHALL show the lockup, a white "Join" pill (44px tall) and a 44px hamburger `<button>` (2px `rgba(255,255,255,.6)` border, radius 12, `aria-label="Menu"`, `aria-expanded`, `aria-controls`). Activating it SHALL expand an **in-header panel** beneath the bar (same blue, 1px 25%-white top hairline) containing the flat nav (About, Calendar, Blog, Get Involved — Bowlby 1.05rem, 13px×12px padding, radius-10 hover/current pill), a hairline, and a row with the EN/ES group on the left and a text-size group on the right — three 44×44 buttons "A" / "A+" / "A++" (700, radius 10, 2px border `rgba(255,255,255,.5)`, active white background with brand text, `aria-pressed`) driving the same `textSize` setting as the desktop Aa widget. High-contrast and reduce-motion toggles SHALL NOT render on mobile (visitors zoom / use OS settings); the desktop Aa popover keeps them. Escape or a second activation SHALL close the panel and return focus to the button; a client navigation SHALL close it. No drawer, overlay, scroll lock or tablet two-tier strip SHALL render.
 
 #### Scenario: Toggle opens nav
 - **WHEN** a 390px visitor taps the hamburger
@@ -42,11 +42,15 @@ All templates SHALL render the v4 footer: background `#1B1B22` (`data-tone="ink"
 - **THEN** the footer reflects them without template edits
 
 ### Requirement: Shared chapter context
-`StarterSite::add_to_context()` SHALL expose a `chapter` array (join URL, Facebook/Instagram/Twitter URLs, newsletter URL, meeting blurb) consumed by header, footer, and front-page templates; nav locations `primary` and `footer` SHALL be registered. Demo starter context (`foo`, `stuff`, `notes`, `myfoo` filter) SHALL be removed.
+`StarterSite::add_to_context()` SHALL expose a `chapter` array (identity: name, short name, region label, logo/artwork/share-image URLs; join URL; Facebook/Instagram/Twitter URLs; newsletter URL; contact email; footer tagline; committees) consumed by header, footer, and front-page templates and serialized identically into the `/site` REST payload. Social and newsletter URLs SHALL default to empty (no regional accounts); the join URL defaults to the site’s own Get Involved page (`/get-involved/#join`). Nav locations `primary`, `about`, and the four footer locations SHALL be registered. Demo starter context (`foo`, `stuff`, `notes`, `myfoo` filter) SHALL be removed.
 
 #### Scenario: Single source for chapter URLs
-- **WHEN** the join URL changes in `add_to_context()`
-- **THEN** header, hero, and footer CTAs all reflect it without template edits
+- **WHEN** the join URL changes in Chapter Settings
+- **THEN** header, hero, footer CTAs, and the `/site` payload all reflect it without template edits
+
+#### Scenario: No regional defaults
+- **WHEN** Chapter Settings has no social URLs
+- **THEN** the context carries empty social URLs and no regional account URL appears anywhere
 
 ### Requirement: Language toggle is a Polylang language switcher
 The header EN/ES toggle SHALL be a Polylang language switcher: each segment is an `<a>` linking to the current page's translation URL (or the target language's home when no translation exists), rendered from server-provided language data. The active language segment SHALL be marked `aria-current="true"`. All responsive header instances SHALL receive the same language props and stay consistent. The toggle SHALL NOT record a client language cookie or trigger any machine-translation bridge; navigation to the translated URL is the entire behavior. The EN/ES codes themselves remain untranslated.
@@ -76,3 +80,10 @@ When the chapter has not uploaded a header/footer logo (`identity.logo_*.is_defa
 #### Scenario: Uploaded logo
 - **WHEN** a chapter sets a header logo under Chapter Settings → Identity & brand
 - **THEN** the header renders that image in place of the lockup at the same height
+
+### Requirement: Chrome renders in the shell and in the app
+The PHP shell SHALL render the header (logo link home, primary nav links, About items, Join CTA, EN/ES links) and the footer (logo, link columns, socials, contact, tagline, accessibility line) as plain crawlable HTML inside `#__nuxt`; the Nuxt app SHALL render the same chrome from the `site:{lang}` payload after takeover.
+
+#### Scenario: Nav links crawlable
+- **WHEN** any page is fetched without JavaScript
+- **THEN** the header and footer navigation links are present as anchors in the HTML

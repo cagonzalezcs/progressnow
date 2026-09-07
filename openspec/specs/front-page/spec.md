@@ -5,18 +5,26 @@ TBD - created by archiving change chapter-theme-foundation. Update Purpose after
 ## Requirements
 
 ### Requirement: Front page template
-The theme SHALL provide `front-page.php` rendering `views/front-page.twig` via Timber (and `RouteFront.vue` in the Nuxt rendition), containing in order: hero, who-we-are, upcoming events, from-the-blog, closing CTA. Each band SHALL carry a `data-tone` attribute from the v4 set (`blue` hero and CTA, `white` who-we-are and blog, `alt` events) for high-contrast mode. No counties strip, get-involved steps, or Closing CTA band SHALL render.
+The theme SHALL provide `front-page.php` rendering `views/front-page.twig` via Timber as the PHP shell (crawlable content for every section), and `RouteFront.vue` in the Nuxt rendition rendering the designed sections in the same order, containing in order: hero, who-we-are, upcoming events, from-the-blog, closing CTA. Each band SHALL carry a `data-tone` attribute from the v4 set (`blue` hero and CTA, `white` who-we-are and blog, `alt` events) for high-contrast mode. No counties strip, get-involved steps, or Closing CTA band SHALL render.
 
 #### Scenario: Front page renders all sections
 - **WHEN** a visitor loads the site root with a static front page configured
 - **THEN** the five v4 sections render in order with the tones above and no PHP/Twig errors
 
+#### Scenario: Shell and app agree
+- **WHEN** the front page shell is fetched without JavaScript and then loaded with JavaScript
+- **THEN** both renditions present the same five sections with the same copy, events, and posts
+
 ### Requirement: Hero section
-The hero SHALL be a `#1848D8` band (`data-tone="blue"`) with a two-cell flex row from 700px (each `flex:1 1 500px`): left, a centered column (`max-width:540px`, gap 34px) holding the page `<h1>` — `identity.hero_headline` as real text in Bowlby One uppercase `clamp(2.2rem,4.2vw,3.4rem)`, `line-height:1.08`, `max-width:15ch`, `text-shadow:0.09em 0.09em 0 #0F2E9C` (the v3 `hero_headline_image` override is removed) — a 600 1.35rem subhead (`max-width:34ch`), a white "Join Now" pill (Bowlby 1.15rem, brand text, `#0F2E9C`/white hover) linking the chapter join URL, and a 2px dashed `#A9C7FF` radius-16 secondary CTA box with a 700 1.25rem label and arrow glyph linking Get Involved; decorative `sparkle.svg` (34px, −10°), `star-notch.svg` (52px, 10°) and `star.svg` (50px) in `text-brand-light` around the column, `aria-hidden`. Right, `identity.hero_photo` in the duotone treatment at opacity .38, `object-fit:cover`, `min-height:480px`. Below 700px the column comes first (56px 24px 48px padding, `h1` 2rem, subhead 1.1rem, two stars only) and the photo follows at 240px tall.
+The hero SHALL be a `#1848D8` band (`data-tone="blue"`) with a two-cell flex row from 700px (each `flex:1 1 500px`): left, a centered column (`max-width:540px`, gap 34px) holding the page `<h1>` — `identity.hero_headline` as real text in Bowlby One uppercase `clamp(2.2rem,4.2vw,3.4rem)`, `line-height:1.08`, `max-width:15ch`, `text-shadow:0.09em 0.09em 0 #0F2E9C` (the v3 `hero_headline_image` override is removed) — a 600 1.35rem subhead (`max-width:34ch`), a white "Join Now" pill (Bowlby 1.15rem, brand text, `#0F2E9C`/white hover) linking the chapter join URL, and a 2px dashed `#A9C7FF` radius-16 secondary CTA box with a 700 1.25rem label and arrow glyph linking Get Involved; decorative `sparkle.svg` (34px, −10°), `star-notch.svg` (52px, 10°) and `star.svg` (50px) in `text-brand-light` around the column, `aria-hidden`. Right, `identity.hero_photo` (from Chapter Settings; default: the shipped neutral placeholder photo with a neutral alt) in the duotone treatment at opacity .38, `object-fit:cover`, `min-height:480px`. Below 700px the column comes first (56px 24px 48px padding, `h1` 2rem, subhead 1.1rem, two stars only) and the photo follows at 240px tall. No default headline or alt SHALL name a region.
 
 #### Scenario: Headline is accessible text
 - **WHEN** the front page renders
 - **THEN** the `<h1>` contains the headline as text (translatable via Chapter Settings / Polylang) with the deep-blue offset, and star art is `aria-hidden`
+
+#### Scenario: Neutral defaults
+- **WHEN** the front page renders with no hero headline or photo configured
+- **THEN** the default headline and photo alt contain no regional name
 
 #### Scenario: Join CTA
 - **WHEN** a visitor clicks the hero Join Now pill
@@ -27,7 +35,7 @@ The hero SHALL be a `#1848D8` band (`data-tone="blue"`) with a two-cell flex row
 - **THEN** the copy stacks above a 240px duotone photo with the headline legible at 2rem
 
 ### Requirement: Who we are section (v4)
-The who-we-are section SHALL be a white band (`data-tone="white"`, `#about`) with a `minmax(320px,1.15fr) minmax(300px,1fr)` grid from `md`: left, the chapter's who-we-are photo (`identity.who_image`, shipped neutral placeholder) in the duotone treatment at opacity .30 with radius 24 and a decorative `star.svg` (52px, `text-brand`, `saturate(1.4)`) overhanging the top-right corner; right, a right-aligned column — accent eyebrow (800, uppercase, `.04em`), Bowlby `h2` `clamp(2rem,3.6vw,3.1rem)`, 700 1.22rem paragraphs, and an accent "More about us" arrow link. Below `md` the order SHALL be eyebrow, heading, photo (radius 18, no star), paragraphs (600, 1.05rem), link, all left-aligned. Copy SHALL come from the page's ACF fields per language.
+The who-we-are section SHALL be a white band (`data-tone="white"`, `#about`) with a `minmax(320px,1.15fr) minmax(300px,1fr)` grid from `md`: left, the chapter's who-we-are photo (`identity.who_image` from Chapter Settings; default: the shipped neutral placeholder — no county map or regional artwork ships) in the duotone treatment at opacity .30 with radius 24 and a decorative `star.svg` (52px, `text-brand`, `saturate(1.4)`) overhanging the top-right corner; right, a right-aligned column — accent eyebrow (800, uppercase, `.04em`), Bowlby `h2` `clamp(2rem,3.6vw,3.1rem)`, 700 1.22rem paragraphs, and an accent "More about us" arrow link. Below `md` the order SHALL be eyebrow, heading, photo (radius 18, no star), paragraphs (600, 1.05rem), link, all left-aligned. Copy SHALL come from the page's ACF fields per language, with neutral defaults that reference the chapter through the identity accessor and never a region.
 
 #### Scenario: Photo replaces artwork
 - **WHEN** the front page renders
@@ -36,6 +44,10 @@ The who-we-are section SHALL be a white band (`data-tone="white"`, `#about`) wit
 #### Scenario: Mobile order
 - **WHEN** the viewport is 390px
 - **THEN** eyebrow and heading precede the photo and all text is left-aligned
+
+#### Scenario: Neutral artwork by default
+- **WHEN** the front page renders with no who-we-are image configured
+- **THEN** the neutral placeholder appears and no county names are present in the DOM
 
 ### Requirement: Upcoming events section
 The front page SHALL list up to `event_count` (default 5, max 6) published `chapter_event` posts **in the active language** with `event_date` >= now, ordered soonest first, on the `#F2F5FB` band (`data-tone="alt"`, `#events`) under a Bowlby "Upcoming events" `h2` with an accent "Full calendar" arrow link (right of the heading from `md`, centered below the list on mobile). Each row SHALL be a white radius-16 card (shadow `0 1px 4px rgba(27,27,34,.07)`) that is itself the link (`aria-label` "View event: <title>"): a `#1848D8` radius-12 date tile (800 1.4rem day, 700 .75rem `.1em` month), 700 1.18rem title, `#4A5568` 500 meta "<when> · <where>", and at `md+` a visual outline "View event" pill (Bowlby .88rem, `#0E62E6` border/text, filling on row hover); on mobile the tile is 60px and the meta shows the date only. When no upcoming events exist the *Events empty state (v4)* SHALL render instead.

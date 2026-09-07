@@ -3,6 +3,7 @@
 ## Purpose
 TBD - created by archiving change polylang-translations. Update Purpose after archive.
 ## Requirements
+
 ### Requirement: Polylang language and URL configuration
 The site SHALL run Polylang with two languages: English (`en_US`) as the default and Spanish (`es_ES`). URL modifications SHALL place the language code in the directory (`/es/`) with the default language code hidden, so English pages resolve at `/` and Spanish pages at `/es/…`. Pretty permalinks SHALL be enabled (a required prerequisite). The `page`, `post`, and `chapter_event` post types and their public taxonomies SHALL be registered as translatable.
 
@@ -41,7 +42,7 @@ The header toggle SHALL render `<a>` links (EN and ES) that navigate to the tran
 - **THEN** the ES segment is styled active with `aria-current` and the EN segment links to the English equivalent
 
 ### Requirement: Theme copy and menus translate the Polylang-native way
-Static theme strings rendered in Twig or passed into Vue islands SHALL be translatable via `pll_register_string()` and output through `pll__()`/`pll_e()`, so their Spanish values are managed in Polylang's String Translations. Header and footer navigation SHALL use per-language WP menus assigned through Polylang. Language-neutral tokens (county names, `@chapterhandle`, emails, the "the chapter"/"Progress Now" brand, the EN/ES codes) SHALL remain untranslated.
+Static theme strings rendered in Twig or delivered to the Nuxt app (via the `/site` payload `strings` map) SHALL be translatable via `pll_register_string()` under the "Chapter" string group and output through `pll__()`/`pll_e()`, so their Spanish values are managed in Polylang's String Translations. Header and footer navigation SHALL use per-language WP menus assigned through Polylang. Language-neutral tokens (the chapter name and short name from Chapter Settings, emails, social handles when configured, the EN/ES codes) SHALL remain untranslated. Existing Spanish translations SHALL be preserved across the brand scrub, with only regional mentions rewritten.
 
 #### Scenario: Section headings in Spanish
 - **WHEN** the Spanish front page renders
@@ -50,6 +51,10 @@ Static theme strings rendered in Twig or passed into Vue islands SHALL be transl
 #### Scenario: Spanish navigation menu
 - **WHEN** the Spanish site renders its header
 - **THEN** the nav shows the Spanish menu assigned to `es_ES`
+
+#### Scenario: App receives translated strings
+- **WHEN** the Nuxt app renders a Spanish route
+- **THEN** its chrome labels come from the `/site?lang=es` `strings` map and match the Twig shell
 
 ### Requirement: Teaser queries filter by active language
 Front-page teaser queries (`chapter_event` upcoming events, blog featured/rows) SHALL return only content in the active language. Spanish translations of the teased posts and events SHALL be seeded and linked to their English originals so the Spanish front page shows real Spanish teasers. Where no translation exists, the section's existing empty-state SHALL render.
@@ -110,4 +115,3 @@ Static English labels rendered by the interior Twig templates that are neither A
 #### Scenario: Body copy comes from Spanish page fields
 - **WHEN** a seeded Spanish interior page renders its body
 - **THEN** the content comes from the Spanish page's own ACF values / `post_content` and never falls back to the English fixture prose
-
