@@ -59,7 +59,7 @@
 - [x] 5.4 Passthrough (`init` priority 0) for `/_nuxt/*`, `*/_payload.json`, `/_payload.json`, `/shell-manifest.json` from `CHAPTER_STATIC_DIR` — MIME map, `immutable`/`max-age=60`, ETag/304, traversal + NUL rejection, query string ignored, inert without the constant; web-server snippets → `docs/deployment.md` (6.7)
 - [x] 5.5 New-build detection: `progressnow_shell_observe_build()` → `progressnow_rebuild_mark_live()`, WP Super Cache purge, `progressnow/shell/new_build` action; transient refreshed on the fetch
 - [x] 5.6 PHPUnit `tests/test-shell.php` (20 tests): mode/bypass, manifest disk/HTTP/degraded/cached, tag order, wp_head gating, `__SHELL_DATA__` equality vs the REST builders for post/page/front/posts-index/search, HTML-safe JSON, key grammar, passthrough resolution, new-build idempotency, compiled `base.twig` in both modes
-- [ ] 5.7 Local end-to-end with `CHAPTER_FRONTEND=nuxt` + passthrough: confirm takeover with zero landing-route requests, measure CLS on front/post/calendar, both languages
+- [x] 5.7 Local end-to-end with `CHAPTER_FRONTEND=nuxt` + passthrough: confirm takeover with zero landing-route requests, measure CLS on front/post/calendar, both languages — run 2026-09-07 (headless Chromium, 10 landings EN+ES: front/post/calendar/about/blog): Nuxt mounted on every landing, 0 landing `_payload.json` and 0 REST requests (calendar's own window fetch excepted), 1 manifest fetch, CLS ≤ 0.015 (blog) / ≤ 0.007 elsewhere; client navigation = same document + 1 payload, title/canonical/`html[lang]` follow. Gap found and fixed: hreflang links vanished after the first client navigation (unhead adopts the shell's links by dedupe key; the plugin detached them) — `navigation.client.ts` now drops only the un-adopted ones after unhead's render, pinned by `test/unit/head-handoff.spec.ts`
 - [ ] 5.8 Execute the functional-parity checklist (spec `nuxt-static-site`) in EN and ES; file and fix every gap before cutover
 
 ## 6. Rebuild pipeline (code + reference infra)
@@ -75,5 +75,5 @@
 ## 7. Cutover and cleanup
 
 - [ ] 7.1 Set `CHAPTER_FRONTEND=nuxt` in production once a build is live (operator); monitor build state, canonical/hreflang/JSON-LD parity, and CLS for a release cycle
-- [ ] 7.2 Remove the islands: theme `src/`, `dist/`, `vite.config.js`, `package.json`/lockfile, `@kucrut/vite-for-wp` (composer + `theme_enqueue_scripts`), `navigation.ts`, `data-vue-island` branches, the `CHAPTER_FRONTEND` flag; point `preload_fonts()` at the static font paths
-- [ ] 7.3 Update `.github/workflows/ci.yml` (drop the theme JS job) and the theme README architecture section
+- [x] 7.2 ~~Remove the islands~~ **Decision 2026-09-07: the islands stay.** `next-js-site-implementation` keeps the PHP theme as the server-rendered option for installs without a Node host, so `src/`, the Vite bundle, `navigation.ts`, the `data-vue-island` branches and the `CHAPTER_FRONTEND` flag (`islands` default) are permanent; nothing is deleted at cutover (proposal/design/spec deltas amended to match)
+- [x] 7.3 ~~Drop the theme JS job~~ CI keeps the theme `js` job (islands stay); README wording updated — root README + theme README no longer describe the islands as interim

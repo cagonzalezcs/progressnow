@@ -51,8 +51,8 @@ When the admin bar renders, the shell SHALL omit the app tags and mark the docum
 - **WHEN** a logged-in editor with the admin bar visits any public page
 - **THEN** no Nuxt script loads and clicking a link performs a full PHP page load
 
-### Requirement: Frontend mode flag during migration
-A `CHAPTER_FRONTEND` constant (`islands` default, `nuxt`) SHALL select between the existing Vite islands and the shell+Nuxt handoff until the islands are removed; the two modes SHALL never both enqueue their bundles on one page.
+### Requirement: Frontend mode flag
+A `CHAPTER_FRONTEND` constant (`islands` default, `nuxt`) SHALL select between the Vite islands (the PHP-only frontend) and the shell+Nuxt handoff; both modes are supported indefinitely, and the two SHALL never both enqueue their bundles on one page.
 
 #### Scenario: Flag flips the bundle
 - **WHEN** `CHAPTER_FRONTEND` is `nuxt`

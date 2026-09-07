@@ -1,9 +1,10 @@
-import { defineNuxtPlugin, useRouter, useState } from "#imports";
+import { defineNuxtPlugin, injectHead, useRouter, useState } from "#imports";
 import type { RouteLocationNormalizedLoaded } from "vue-router";
 import { internalLinkTarget } from "@/lib/chapter/links";
 import { setLocation } from "@/lib/location";
 import { closeMenu } from "@/lib/menu";
 import { installUrlStateRouter } from "@/lib/url-state";
+import { dropUnadoptedAlternates, rendersAlternates } from "@/lib/chapter/seo";
 
 /* Client navigation glue (openspec spec nuxt-static-site § Functional parity):
  *
@@ -16,7 +17,9 @@ import { installUrlStateRouter } from "@/lib/url-state";
  *  - the reactive stores the header depends on (current path, drawer state)
  *    follow the router; the URL-state adapter gets the router instance;
  *  - after the first client navigation the PHP shell's `hreflang` alternates
- *    are dropped so unhead owns the head (see useRouteSeo). */
+ *    are handed to unhead (see useRouteSeo): unhead adopts one element per
+ *    language in place, the rest are dropped once that render has happened —
+ *    detaching them earlier leaves unhead updating orphaned nodes. */
 export default defineNuxtPlugin({
   name: "progressnow:navigation",
   dependsOn: ["progressnow:shell"],
@@ -45,11 +48,16 @@ export default defineNuxtPlugin({
     router.afterEach((to, from) => {
       if (from.matched.length === 0) return; // initial navigation = the shell's route
       if (to.path === from.path) return;
-      if (!navigated.value) {
-        navigated.value = true;
-        for (const link of phpAlternates) link.remove();
-      }
+      if (!navigated.value) navigated.value = true;
     });
+    const hooks = phpAlternates.length ? injectHead(nuxtApp).hooks : undefined;
+    if (hooks) {
+      const off = hooks.hook("dom:rendered", ({ renders }) => {
+        if (!navigated.value || !rendersAlternates(renders)) return;
+        dropUnadoptedAlternates(phpAlternates);
+        off();
+      });
+    }
 
     const origin = window.location.origin;
 

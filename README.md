@@ -57,7 +57,7 @@ Bilingual (EN at `/`, ES at `/es/…`), accessible (WCAG 2.2 AA target, built-in
 | `CHAPTER_FRONTEND` | `islands` (default) | `nuxt` | `islands` (the PHP theme stays server-rendered) |
 | `CHAPTER_REBUILD_TRANSPORT` | `none` | `github` or `webhook` (+ `CHAPTER_STATIC_DIR` / `CHAPTER_STATIC_ORIGIN`) | `webhook` → `<next-origin>/api/rebuild` (+ `CHAPTER_REBUILD_SECRET`) |
 | `CHAPTER_CANONICAL_ORIGIN` | unset | unset | the Next origin, so canonical / `hreflang` / `og:url` / sitemap point at the public frontend |
-| Status | shipping | `nuxt4-static-platform` 51/59 tasks | shipping — `next-js-site-implementation` (see Roadmap) |
+| Status | shipping | `nuxt4-static-platform` 57/59 tasks | shipping — `next-js-site-implementation` (see Roadmap) |
 
 Run one JS frontend per install. Both JS apps read `GET /wp-json/progressnow/v1/*`, share the theme's zod contracts, Tailwind tokens and category registry by drift test, and reproduce every route in both languages.
 
@@ -99,7 +99,7 @@ Key properties:
 - **Static by default, fresh by guard.** A *freshness guard* compares the shell's `contentVersion` with the static build's; if the build is stale the session stays on REST until the next build lands.
 - **Nothing runs `node` on the WordPress host.** Builds run in GitHub Actions (or any webhook receiver).
 - **One contract.** `schemas.ts` (zod) defines every payload shape; PHP serializers and TS consumers are held to it by committed JSON fixtures asserted from both sides.
-- **Three frontends, one CMS.** `CHAPTER_FRONTEND` selects `islands` (the PHP theme with its Vite-built Vue islands, still in the theme until the cleanup phase) or `nuxt` (the shell handoff above); the headless `next-js/` app needs no flag — it runs elsewhere and WordPress only points its canonical origin and rebuild webhook at it. Switching back is a constant flip.
+- **Three frontends, one CMS.** `CHAPTER_FRONTEND` selects `islands` (the PHP theme with its Vite-built Vue islands — the PHP-only frontend, kept permanently) or `nuxt` (the shell handoff above); the headless `next-js/` app needs no flag — it runs elsewhere and WordPress only points its canonical origin and rebuild webhook at it. Switching back is a constant flip.
 
 ## Repository layout
 
@@ -173,7 +173,7 @@ wp eval-file wp-content/themes/progressnow/bin/seed.php
 
 The seed is idempotent: categories + colors, 14 placeholder events, lorem posts covering every block type, menus, Chapter Settings, interior documents, the Spanish page pairs and string translations. Spanish pages are written on create only.
 
-Legacy islands mode (default until `CHAPTER_FRONTEND` is set):
+Islands mode (default — `CHAPTER_FRONTEND` unset or `islands`):
 
 ```bash
 npm run dev       # Vite dev server with HMR
