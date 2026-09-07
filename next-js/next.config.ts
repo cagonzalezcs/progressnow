@@ -64,6 +64,9 @@ const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
     dangerouslyAllowSVG: false,
+    // The optimizer refuses private-IP upstreams (SSRF guard). Only the fixture mock on
+    // 127.0.0.1 needs it; a production WordPress must be reachable on a public host.
+    dangerouslyAllowLocalIP: process.env.MOCK_API === "1",
     remotePatterns: imageHosts.flatMap((hostname) => [
       { protocol: "https" as const, hostname },
       { protocol: "http" as const, hostname },

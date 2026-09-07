@@ -393,6 +393,12 @@ export function createMock(options = {}) {
       ...p,
       title: p.slug === POST_SLUG ? titleOf(POST_SLUG, p.title) : p.title,
       url: abs(translationOf(lang, "post")),
+      // The fixture card has no image; the mock gives it a WordPress upload so the
+      // next/image path (optimizer URL, alt, allowlisted host) is exercised end to end.
+      image:
+        p.slug === POST_SLUG
+          ? { src: `${origin}/wp-content/uploads/${POST_SLUG}.png`, alt: p.title }
+          : p.image,
     }));
     if (s) list = list.filter((p) => p.title.toLowerCase().includes(s));
     if (category && category !== "all") list = list.filter((p) => p.cat === category);
