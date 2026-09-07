@@ -84,8 +84,8 @@
 						<img src="{{ header_props.logoUrl }}" alt="{{ identity.name }}" class="block h-9 w-auto max-w-[200px]">
 					{% endif %}
 				{% endset %}
-				{% set shell_lang_segment = 'box-border inline-flex cursor-pointer items-center self-stretch rounded-full border-[3px] px-[13px] font-display text-[0.8rem] leading-none font-normal tracking-[0.04em] no-underline hover:underline hover:underline-offset-[3px]' %}
-				{% set shell_lang_group = 'notranslate box-border flex items-center gap-0.5 overflow-hidden rounded-full bg-white px-1' %}
+				{% set shell_lang_segment = 'box-border inline-flex cursor-pointer items-center self-stretch rounded-full border-[3px] px-[13px] font-display text-[0.8rem] leading-none font-normal tracking-[0.04em] no-underline hover:underline hover:underline-offset-[3px] focus-visible:outline-ink focus-visible:outline-offset-[-3px] focus-visible:inset-ring-2 focus-visible:inset-ring-white focus-visible:ring-2 focus-visible:ring-white' %}
+				{% set shell_lang_group = 'notranslate box-border flex items-center gap-0.5 rounded-full bg-white px-1' %}
 
 				{# mobile (< md) #}
 				<div class="md:hidden">

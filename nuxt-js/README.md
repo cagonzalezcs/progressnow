@@ -21,6 +21,30 @@ Copy `.env.example` to `.env`. `NUXT_PUBLIC_WP_API_BASE` must be the absolute
 `…/wp-json/progressnow/v1` of the WordPress that generate reads from; the
 rebuild workflow sets it from a repository variable.
 
+## Vercel
+
+The Vercel project must set **Root Directory** to `nuxt-js`. The repo-root
+`.vercelignore` is an allowlist shared with the `next-js` project — `/nuxt-js`
+has to stay re-included there or the builder receives no source at all and the
+deploy fails on the missing root directory, before any build log exists.
+
+`vercel.json` picks the build from the environment:
+
+| `NUXT_PUBLIC_WP_API_BASE` | Build | Result |
+| --- | --- | --- |
+| unset | `npm run generate:mock` | Fixture-backed render — no WordPress needed, same output CI checks |
+| set | `npm run generate` | Prerender against that WordPress |
+
+So a fresh project deploys a working preview with zero configuration, and
+pointing it at a real backend is one environment variable. Nitro detects Vercel
+and switches to its `vercel-static` preset, writing `.vercel/output` (Build
+Output API) instead of `.output/public` — leave **Output Directory** unset so
+Vercel consumes that directly.
+
+`deploy/mock-api/` (project `progressnow-mock-api`) serves a recorded copy of
+the read API if you want a deployed backend rather than the built-in fixtures:
+set `NUXT_PUBLIC_WP_API_BASE` to `<mock-api-origin>/wp-json/progressnow/v1`.
+
 ## Layout
 
 ```

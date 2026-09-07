@@ -27,6 +27,17 @@ export default defineNuxtModule({
       manifest = routesManifestSchema.parse(mockRoutesManifest());
       logger.info("NUXT_MOCK_API=1 — using the fixture routes");
     } else {
+      // Outside `nuxt dev` the chapter.test default is never right: a build
+      // host has no local WordPress, so the fetch dies as an opaque
+      // "fetch failed" against a hostname nobody set. Name the variable.
+      if (!nuxt.options.dev && !process.env.NUXT_PUBLIC_WP_API_BASE) {
+        throw new Error(
+          "routes-manifest: NUXT_PUBLIC_WP_API_BASE is unset, so this build has no " +
+            "WordPress to read /routes from. Set it to the absolute " +
+            "…/wp-json/progressnow/v1 of the source site, or build with " +
+            "NUXT_MOCK_API=1 (`npm run generate:mock`) for a fixture-backed render.",
+        );
+      }
       manifest = await fetchManifest(String(pub.wpApiBase ?? ""));
     }
 
