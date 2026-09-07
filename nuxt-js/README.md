@@ -90,7 +90,7 @@ event:{lang}:{slug} | posts:{lang}`.
 
 `app/components/site/**`, `app/components/ui/**`, `app/composables/useA11ySettings.ts`,
 `app/lib/schemas.ts` and `app/assets/css/tailwind.css` are copies of the theme's
-`src/` (the Vite islands) until the islands are removed (openspec tasks 7.x). Edit
+`src/` (the Vite islands, which stay as the PHP-only frontend). Edit
 the theme copy and re-copy; `test/unit/shared-source-drift.test.ts` fails on any
 drift between the theme's
 `src/{components/site,composables/useA11ySettings.ts,lib/schemas.ts,css/tailwind.css}`

@@ -46,14 +46,31 @@ export function normalizePath(path: string): string {
 
 /** Longest-prefix match of the front routes decides the language of any path. */
 export function langForPath(manifest: RoutesManifest, path: string): string {
-  const fronts = manifest.routes
-    .filter((r) => r.kind === "front")
-    .sort((a, b) => b.path.length - a.path.length);
   const normalized = normalizePath(path);
-  for (const front of fronts) {
-    if (normalized === front.path || normalized.startsWith(front.path)) return front.lang;
+  // Longest prefix wins: a language's front path, or its bare root when the
+  // home is a page permalink (`/es/inicio/`) — WordPress still serves the root
+  // itself for search (`/es/?s=…`) and 404s (`/es/missing/`).
+  const prefixes: Array<{ prefix: string; lang: string }> = [];
+  for (const front of manifest.routes) {
+    if (front.kind !== "front") continue;
+    prefixes.push({ prefix: front.path, lang: front.lang });
+    const root = languageRoot(manifest, front);
+    if (root) prefixes.push({ prefix: root, lang: front.lang });
+  }
+  prefixes.sort((a, b) => b.prefix.length - a.prefix.length);
+  for (const { prefix, lang } of prefixes) {
+    if (normalized === prefix || normalized.startsWith(prefix)) return lang;
   }
   return manifest.routes[0]?.lang ?? "";
+}
+
+function languageRoot(manifest: RoutesManifest, front: Route): string | null {
+  const segment = front.path.match(/^\/([^/]+)\//)?.[1];
+  if (!segment) return null;
+  const root = `/${segment}/`;
+  if (root === front.path) return null; // already matched as the front path
+  const own = manifest.routes.filter((r) => r.lang === front.lang);
+  return own.every((r) => r.path === root || r.path.startsWith(root)) ? root : null;
 }
 
 export function findRoute(manifest: RoutesManifest, path: string): Route | null {
@@ -72,7 +89,11 @@ export function postsIndexRoute(manifest: RoutesManifest, lang: string): Route |
 const PAGED = /^(.*?\/)page\/(\d+)\/$/;
 const CATEGORY = /^(\/(?:[a-z]{2}\/)?)category\/([^/]+)\/$/;
 
-export function resolveRoute(manifest: RoutesManifest, rawPath: string, query: Query = {}): ResolvedRoute {
+export function resolveRoute(
+  manifest: RoutesManifest,
+  rawPath: string,
+  query: Query = {},
+): ResolvedRoute {
   const path = normalizePath(rawPath);
   const search = first(query.s).trim();
   const queryCategory = first(query.category).trim();
@@ -93,7 +114,13 @@ export function resolveRoute(manifest: RoutesManifest, rawPath: string, query: Q
   if (paged) {
     const parent = findRoute(manifest, paged[1]!);
     if (parent && parent.kind === "posts_index") {
-      return { ...base, kind: "posts_index", route: parent, lang: parent.lang, page: Number.parseInt(paged[2]!, 10) };
+      return {
+        ...base,
+        kind: "posts_index",
+        route: parent,
+        lang: parent.lang,
+        page: Number.parseInt(paged[2]!, 10),
+      };
     }
   }
 

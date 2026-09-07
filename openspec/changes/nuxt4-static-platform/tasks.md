@@ -1,7 +1,7 @@
 ## 1. Bootstrap the worktree
 
 - [x] 1.1 Add `wp-content/themes/progressnow/bin/worktree-bootstrap.sh`: symlink untracked WP core (`wp-admin/`, `wp-includes/`, root `wp-*.php`, `index.php`), `wp-config.php`, `wp-content/{plugins,uploads,languages}` from the main checkout into a worktree; print the MAMP host/docroot steps
-- [ ] 1.2 Snapshot the local DB (`wp db export` to a path outside the repo) before any content migration — operator step, needs MySQL running (`bin/scrub-brand.sh` also snapshots unless `--no-backup`)
+- [x] 1.2 Snapshot the local DB (`wp db export` to a path outside the repo) before any content migration — done 2026-09-07 → `~/progressnow-db-backups/progressnow-20260907-115600.sql`
 - [x] 1.3 Remove the superseded empty scaffold `openspec/changes/deploy-pipeline/`
 
 ## 2. Rename + brand scrub — identity, defaults, assets, seed
@@ -19,7 +19,7 @@
 - [x] 2.10 Rewrite `bin/seed.php` demo content EN + ES (event venues, titles, descriptions, pages, options, string translations) with no regional tokens; idempotency and Polylang linking kept
 - [x] 2.11 Add `bin/scrub-brand.sh`: `--yes` confirmation, snapshot, rename data migration (block names, ACF keys, options slug, theme mods, content version, active theme), EN/ES phrase replacements via `wp search-replace`, `blogname`/`blogdescription`, re-seed, rewrite flush, audit query
 - [x] 2.12 Tests: `tests/test-brand-audit.php` (shipped files, placeholder assets, contexts, ICS, legacy slugs, seed ES); `test-seo`, `test-front-page`, `test-pages` updated for identity + no-placeholder socials; PHPUnit 105 green, vitest green, vue-tsc + eslint clean
-- [ ] 2.13 Run `bin/scrub-brand.sh --yes` against the local DB (MAMP/MySQL up); audit reports zero; spot-check `/`, `/es/`, About, calendar, ICS feed in both languages
+- [x] 2.13 Local DB migrated (active theme `progressnow`, `chapter_build_state` present); `bin/scrub-brand.sh` itself was dropped in the history rewrite ("Removing political language") since it carried the old phrases — audit re-run 2026-09-07 by SQL (`wp_posts`/`wp_postmeta`/`wp_options` against the `test-brand-audit` pattern, plus old `field_*`/block prefixes): zero hits; all 70 `/routes` URLs + EN/ES ICS feeds fetched: 200 and clean
 - [x] 2.14 Organization scrub (user decision): no Progress Now anywhere — identity defaults "Progress Now"; "Join us" CTA pointing at Get Involved; membership/dues/YDSA copy rewritten EN + ES; `dsausa.org` links removed; font "Manifold" → "Manifold" (`static/fonts/manifold/Manifold-*.woff2`); star mark replaces the rose in all placeholder art; brand-audit pattern extended; `bin/scrub-brand.sh` migrates the DB phrases
 
 ## 3. REST contracts (theme)
@@ -49,7 +49,7 @@
 - [x] 4.12 `nuxt.config.ts`: `ssr: true`, payload extraction, `rootId` `__nuxt`, `features.inlineStyles: false`, `components: { dirs: [] }`, prerender from the module (no crawling), dev proxy for `/wp-json` + `/wp-content`
 - [x] 4.13 vitest (56): contract fixtures + mock envelopes, route resolution, shell reader/store, cache order, freshness guard, head, link detection, manifest extraction, categories drift. Boot smoke deferred to 5.7 (real shell + browser)
 - [x] 4.14 CI `site` job: `npm ci`, lint, typecheck, test, mock generate, `verify:output`, output artifact; PHPUnit job kept
-- [ ] 4.15 `nuxt generate` against local WordPress succeeds for both languages; inspect `.output/public` (routes, payloads, manifest) — mock generate verified (15 routes, en + es, SSR head/lang/canonical/hreflang correct); the real run needs the Progress Now theme active on MAMP
+- [x] 4.15 `nuxt generate` against local WordPress succeeds for both languages; inspect `.output/public` (routes, payloads, manifest) — real run 2026-09-07 against `progressnow.test:8890`: 70 routes / 142 prerendered (en + es), 70 `_payload.json`, `shell-manifest.json` content v278, `verify:output` green (canonicals reflect the local `CHAPTER_CANONICAL_ORIGIN`)
 
 ## 5. PHP shell + handoff
 
@@ -59,8 +59,8 @@
 - [x] 5.4 Passthrough (`init` priority 0) for `/_nuxt/*`, `*/_payload.json`, `/_payload.json`, `/shell-manifest.json` from `CHAPTER_STATIC_DIR` — MIME map, `immutable`/`max-age=60`, ETag/304, traversal + NUL rejection, query string ignored, inert without the constant; web-server snippets → `docs/deployment.md` (6.7)
 - [x] 5.5 New-build detection: `progressnow_shell_observe_build()` → `progressnow_rebuild_mark_live()`, WP Super Cache purge, `progressnow/shell/new_build` action; transient refreshed on the fetch
 - [x] 5.6 PHPUnit `tests/test-shell.php` (20 tests): mode/bypass, manifest disk/HTTP/degraded/cached, tag order, wp_head gating, `__SHELL_DATA__` equality vs the REST builders for post/page/front/posts-index/search, HTML-safe JSON, key grammar, passthrough resolution, new-build idempotency, compiled `base.twig` in both modes
-- [ ] 5.7 Local end-to-end with `CHAPTER_FRONTEND=nuxt` + passthrough: confirm takeover with zero landing-route requests, measure CLS on front/post/calendar, both languages
-- [ ] 5.8 Execute the functional-parity checklist (spec `nuxt-static-site`) in EN and ES; file and fix every gap before cutover
+- [x] 5.7 Local end-to-end with `CHAPTER_FRONTEND=nuxt` + passthrough: confirm takeover with zero landing-route requests, measure CLS on front/post/calendar, both languages — run 2026-09-07 (headless Chromium, 10 landings EN+ES: front/post/calendar/about/blog): Nuxt mounted on every landing, 0 landing `_payload.json` and 0 REST requests (calendar's own window fetch excepted), 1 manifest fetch, CLS ≤ 0.015 (blog) / ≤ 0.007 elsewhere; client navigation = same document + 1 payload, title/canonical/`html[lang]` follow. Gap found and fixed: hreflang links vanished after the first client navigation (unhead adopts the shell's links by dedupe key; the plugin detached them) — `navigation.client.ts` now drops only the un-adopted ones after unhead's render, pinned by `test/unit/head-handoff.spec.ts`
+- [x] 5.8 Execute the functional-parity checklist (spec `nuxt-static-site`) in EN and ES; file and fix every gap before cutover — `nuxt-js/scripts/parity-check.mjs` (21 checks × EN/ES: About dropdown, mobile toggle, EN/ES switcher, a11y widget + persistence, footer, front sections, blog search/category/pagination + URL state, single post, calendar views/dialog/ICS/Google, single event, About/Get Involved/interior templates, search results, 404, prefetch + view transitions, reduced motion, page errors) run 2026-09-07 in both modes: 40/42 each, identical results; the 2 misses are the seeded content (one Spanish post → no page 2, no read-next). Gap found and fixed: under `/es/` the Nuxt resolver fell back to English for search and 404s because the Spanish home is the page permalink `/es/inicio/` — `langForPath` now also recognizes the bare language root (`routes.spec.ts`)
 
 ## 6. Rebuild pipeline (code + reference infra)
 
@@ -75,5 +75,5 @@
 ## 7. Cutover and cleanup
 
 - [ ] 7.1 Set `CHAPTER_FRONTEND=nuxt` in production once a build is live (operator); monitor build state, canonical/hreflang/JSON-LD parity, and CLS for a release cycle
-- [ ] 7.2 Remove the islands: theme `src/`, `dist/`, `vite.config.js`, `package.json`/lockfile, `@kucrut/vite-for-wp` (composer + `theme_enqueue_scripts`), `navigation.ts`, `data-vue-island` branches, the `CHAPTER_FRONTEND` flag; point `preload_fonts()` at the static font paths
-- [ ] 7.3 Update `.github/workflows/ci.yml` (drop the theme JS job) and the theme README architecture section
+- [x] 7.2 ~~Remove the islands~~ **Decision 2026-09-07: the islands stay.** `next-js-site-implementation` keeps the PHP theme as the server-rendered option for installs without a Node host, so `src/`, the Vite bundle, `navigation.ts`, the `data-vue-island` branches and the `CHAPTER_FRONTEND` flag (`islands` default) are permanent; nothing is deleted at cutover (proposal/design/spec deltas amended to match)
+- [x] 7.3 ~~Drop the theme JS job~~ CI keeps the theme `js` job (islands stay); README wording updated — root README + theme README no longer describe the islands as interim

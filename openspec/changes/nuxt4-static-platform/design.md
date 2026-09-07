@@ -112,9 +112,9 @@ PHPUnit (WorDBless) covers: identity defaults and overrides, brand audit, new RE
 4. **Nuxt app** — scaffold `nuxt-js/`, port components/CSS/schemas/tests, route manifest module, shell store, mock API, CI job; `nuxt generate` succeeds against local WP and against the mock.
 5. **Shell + handoff behind a flag** — `CHAPTER_FRONTEND=islands|nuxt` (`wp-config` constant, default `islands`) selects Vite islands vs shell+Nuxt; same-host passthrough serves a local generate; parity checklist executed on `nuxt`.
 6. **Rebuild pipeline (code + reference)** — `inc/rebuild.php` (transports), admin panel, WP-CLI, `rebuild-site.yml`, `infra/terraform/`, `docs/deployment.md`. Operator provisions hosting from the guide.
-7. **Cutover + cleanup** — flip `CHAPTER_FRONTEND=nuxt` once a build is live, watch build state and CLS/SEO checks for a release cycle, then delete `src/`, `dist/`, `vite.config.js`, theme `package.json`, `@kucrut/vite-for-wp`, and the flag.
+7. **Cutover** — flip `CHAPTER_FRONTEND=nuxt` once a build is live, watch build state and CLS/SEO checks for a release cycle. No cleanup: the islands, `src/`, `dist/`, `vite.config.js`, theme `package.json`, `@kucrut/vite-for-wp` and the flag stay — `islands` remains the PHP-only frontend (decision 2026-09-07, aligned with `next-js-site-implementation`).
 
-**Rollback:** until step 7, flipping the flag back restores the islands with no data changes (the scrub is content-only and intentional). After step 7, rollback is reverting the cleanup commit plus the flag. Reference infra is the operator's to keep or destroy.
+**Rollback:** flipping the flag back restores the islands with no data changes (the scrub is content-only and intentional) — at any time, since the islands are never removed. Reference infra is the operator's to keep or destroy.
 
 ## Open Questions
 

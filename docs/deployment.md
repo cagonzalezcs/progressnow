@@ -182,7 +182,7 @@ fits this contract; reporting back is the same signed `POST /build-status`
 ## 8. Rollback
 
 - **App problem:** set `CHAPTER_FRONTEND` back to `islands` — the PHP islands
-  build is still in the theme until the cleanup phase removes it.
+  build stays in the theme permanently (the PHP-only frontend).
 - **Bad build:** S3 keeps 30 days of object versions (restore the previous
   `shell-manifest.json` and `_nuxt/builds/*`, or re-run the workflow from an
   older commit); with rsync re-run the workflow, or point `CHAPTER_STATIC_DIR`
