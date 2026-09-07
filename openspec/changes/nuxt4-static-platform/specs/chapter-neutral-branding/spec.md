@@ -3,6 +3,10 @@
 ### Requirement: No regional references on visible surfaces
 No page, feed, head metadata, admin field label, seed content, or Polylang string — in English or Spanish — SHALL contain a reference to the the region, "regional", "the chapter", the `@chapterhandle`/`legacy` social handles, the `legacy` newsletter form, regional county names, or regional cities. Spanish translations SHALL be preserved as Spanish content with only the regional mentions rewritten.
 
+#### Scenario: Regional tokens audited
+- **WHEN** the brand-audit test scans the shipped files, seed (EN + ES), contexts, ICS feed, and structured data, and the database audit (`wp_posts`, `wp_postmeta`, `wp_options`) runs against the same pattern
+- **THEN** no regional token is found in either language and every public route and feed responds without one
+
 ### Requirement: No organization references on visible surfaces
 The theme SHALL NOT relate to the the parent organization: no surface, asset, font name, link, or shipped file SHALL contain "Progress Now", "the parent organization", "democratic organizing/organizing" copy, YDSA, `dsausa.org` links, national-dues copy, or the rose mark. The palette, layout, typography faces, and organizing spirit (labor, mutual aid, political education, electoral, socials) SHALL be kept; the default organization name is "Progress Now".
 
