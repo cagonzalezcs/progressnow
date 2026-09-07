@@ -15,6 +15,14 @@ The Next.js app (`next-js/`) SHALL serve a page for every public WordPress route
 - **WHEN** `/blog/page/2/`, `/category/labor/`, or `/blog/?s=strike` is requested
 - **THEN** each renders the posts index in the matching state (page 2, category filter, search results) and `/blog/page/2/` keeps its own canonical
 
+#### Scenario: Unknown category archive is a 404
+- **WHEN** `/category/{slug}/` is requested for a slug outside the category registry (`/site.categories`, else the bundled `categories.json`)
+- **THEN** the response is a `404`, decided before the route streams, matching WordPress — the read API validates `category` against the registry enum, so the slug must never reach `/posts`; when the registry cannot be read the check fails open and the unfiltered archive renders instead
+
+#### Scenario: Unknown category filter is ignored
+- **WHEN** `/blog/?category={slug}` is requested for a slug outside the registry
+- **THEN** the filter is dropped and the unfiltered posts index renders `200`, as WordPress ignores an unknown query filter, rather than passing an out-of-enum value to the API
+
 #### Scenario: Trailing slash normalization
 - **WHEN** `/about` is requested without a trailing slash
 - **THEN** the response is a permanent redirect to `/about/`
