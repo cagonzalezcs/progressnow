@@ -3,6 +3,7 @@ import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 import jsxA11y from "eslint-plugin-jsx-a11y";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
+import htmlSinks from "./html-sinks.allowlist.json" with { type: "json" };
 
 /* Static layer of the a11y contract (openspec next-accessibility): jsx-a11y
  * strict on every component. The axe-core gate against the build is the
@@ -14,6 +15,15 @@ const eslintConfig = defineConfig([
   ...nextTs,
   // eslint-config-next already registers the jsx-a11y plugin; only the strict rule set is added here.
   { files: ["**/*.{ts,tsx}"], rules: jsxA11y.flatConfigs.strict.rules },
+  {
+    // HTML sink governance (openspec next-edge-trust-boundaries § HTML sinks are enumerated
+    // and justified): dangerouslySetInnerHTML is an error everywhere except the allowlisted
+    // files, where each sink carries a `// html-sink: kses|encoder|static` comment
+    // (test/unit/html-sinks.spec.ts keeps the allowlist honest).
+    files: ["**/*.{ts,tsx}"],
+    rules: { "react/no-danger": "error" },
+  },
+  { files: Object.keys(htmlSinks.files), rules: { "react/no-danger": "off" } },
   {
     files: ["**/*.{ts,tsx}"],
     rules: {
@@ -42,6 +52,8 @@ const eslintConfig = defineConfig([
     files: ["components/ui/**/*.tsx", "hooks/**/*.ts"],
     rules: {
       "no-restricted-syntax": "off",
+      // chart.tsx injects its own generated CSS variables; vendored, not in the production routes.
+      "react/no-danger": "off",
       "react-hooks/set-state-in-effect": "off",
       "jsx-a11y/click-events-have-key-events": "warn",
       "jsx-a11y/no-noninteractive-element-interactions": "warn",

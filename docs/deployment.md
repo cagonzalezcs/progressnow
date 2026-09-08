@@ -250,7 +250,7 @@ Design: `openspec/changes/next-js-site-implementation/design.md`.
 | `NEXT_PUBLIC_SITE_ORIGIN` | yes | public origin of the Next app: sitemap, robots, absolute Open Graph URLs |
 | `CHAPTER_REBUILD_SECRET` | yes | same value as wp-config.php; ≥ 16 characters |
 | `WP_BUILD_STATUS_URL` | recommended | `https://cms.example.org/wp-json/progressnow/v1/build-status` — the receiver reports the build live |
-| `IMAGE_HOSTS` | optional | comma-separated hosts `next/image` may optimize from (default: the `WP_ORIGIN` host) |
+| `IMAGE_HOSTS` | optional | comma-separated upstreams `next/image` may optimize from (default: `WP_ORIGIN`). A bare host is **https-only**; write `http://host[:port]` to allow plain http for that host |
 | `CSP_REPORT_ONLY` | optional | `1` ships the Content-Security-Policy as report-only for the rollout window |
 | `CSP_REPORT_URI` | optional | `report-uri` for the policy, either mode |
 | `MOCK_API` | dev/CI only | `1` = fixture-backed mock API, relaxes the secret |
@@ -338,6 +338,74 @@ Every HTML response carries a `Content-Security-Policy` with a fresh nonce
 first, watch `CSP_REPORT_URI` (or the browser console) for a release cycle,
 then unset it. `/styleguide/` (noindex) alone allows `img-src https:` for the
 vendored component demos.
+
+**Edge trust boundaries** (openspec `next-edge-trust-boundaries`). The proxy
+steers its own internal 404/500 renders with four request headers —
+`x-pathname`, `x-nonce`, `x-not-found-render`, `x-error-render` — and
+authenticates that loop with `x-internal-token` (derived from
+`CHAPTER_REBUILD_SECRET`, so every instance of a deployment agrees; random per
+process when the secret is unset in mock mode). A public request carrying any
+of the four headers has them stripped before routing, status and CSP are
+decided: a spoofed `x-nonce` never reaches the policy, `x-not-found-render`
+cannot skip the 404 decision, `x-error-render` cannot fetch the error document
+with a 200. Nothing to configure; do not forward or set these headers at the
+reverse proxy. `INTERNAL_ORIGIN` (optional) is where the proxy fetches its own
+404/500 renders — the standalone server uses `http://127.0.0.1:$PORT`, Vercel
+the public origin; if you set it, keep it on loopback or the same deployment.
+
+`next/image` optimizes only `https` upstreams for bare `IMAGE_HOSTS` entries;
+a plain-`http` WordPress (a local install) must be listed with its scheme,
+`IMAGE_HOSTS=http://cms.local:8888`. The optimizer answers 400 for anything
+else. Every `dangerouslySetInnerHTML` in the app is enumerated in
+`next-js/html-sinks.allowlist.json` with a `// html-sink: kses|encoder|static`
+comment at the sink; `react/no-danger` is an error anywhere else and
+`test/unit/html-sinks.spec.ts` fails when the set changes without the
+allowlist.
+
+**`/api/events` abuse posture.** The calendar's month fetch is the one public,
+unauthenticated endpoint that reaches WordPress (`GET /api/events?lang=&from=&to=`,
+same-origin only by CSP `connect-src`; the browser never sees the WordPress
+origin). It is bounded by design, not by a per-IP limit in the app:
+
+| Layer | Setting |
+| --- | --- |
+| Input | `lang` (`xx` / `xx-yy`) and ISO dates only; anything else is a 400 with `no-store` |
+| Response cache | `Cache-Control: public, max-age=60, stale-while-revalidate=300` — a CDN or browser absorbs repeats |
+| Data cache | the read goes through the `'use cache'` data layer (`cacheLife` `content`, tag-invalidated by `/api/rebuild`), so one upstream request per distinct (`lang`, `from`, `to`) window until the next content save, whatever the request rate — but each *new* window is an upstream request, hence the edge limit below |
+| Upstream | one request, `AbortSignal.timeout(10 s)`, no retry |
+| Failure | 503 `{ error, digest }` with `no-store`; the digest matches the structured log line — never a crash, never a stale-looking 200 |
+
+If you want a hard ceiling in front of it (recommended on a VPS, optional on
+Vercel where the WAF absorbs floods), rate-limit at the edge:
+
+- **Vercel:** Project → Firewall → Add rule: *if* `Request Path` *starts with*
+  `/api/events` → *then* `Rate Limit`, e.g. 60 requests / 60 s per IP, action
+  `Deny` (429). Preview deployments inherit the rule.
+- **nginx** (in the `server` block of §10.4):
+
+  ```nginx
+  limit_req_zone $binary_remote_addr zone=events:10m rate=1r/s;
+  location /api/events {
+      limit_req zone=events burst=20 nodelay;
+      limit_req_status 429;
+      proxy_pass http://127.0.0.1:3000;
+      proxy_set_header Host $host;
+      proxy_set_header X-Forwarded-Proto $scheme;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  }
+  ```
+
+`/api/rebuild` needs no rate limit: it refuses anything that is not
+`application/json` (415), stops reading at 16 KB (413) before it verifies the
+HMAC, and answers 401 for a bad or replayed signature — all without touching
+the cache.
+
+**Demo backends.** `deploy/mock-api` (the snapshot that stands in for
+WordPress on `progressnow-next.vercel.app`) is a demo backend, not production:
+its `POST /build-status` requires the same HMAC as the real API
+(`CHAPTER_REBUILD_SECRET` on that Vercel project; 401 otherwise) and it
+re-homes URLs only to its own configured origin, never to a request's
+`X-Forwarded-Host`. See `deploy/mock-api/README.md`.
 
 ### 10.6 Cache: single instance, and the multi-instance seam
 

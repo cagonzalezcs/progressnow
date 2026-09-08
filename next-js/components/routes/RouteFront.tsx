@@ -167,6 +167,7 @@ export function FrontPage({
             <h2
               className={cn("order-2", H2)}
               data-testid="home-who-heading"
+              // html-sink: kses — front-page editor markup (notranslate spans)
               dangerouslySetInnerHTML={{ __html: who.heading }}
             />
             <p
@@ -185,6 +186,7 @@ export function FrontPage({
             <p
               className="order-4 m-0 text-[1.05rem] font-semibold leading-[1.5] md:text-[1.22rem] md:font-bold md:leading-[1.45]"
               data-testid="home-who-p3"
+              // html-sink: kses — front-page editor markup (line breaks)
               dangerouslySetInnerHTML={{ __html: who.p3 }}
             />
             <SiteLink

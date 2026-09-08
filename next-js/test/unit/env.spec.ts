@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { EnvError, readEnv } from "@/lib/env";
+import { EnvError, imageRemotePatterns, readEnv } from "@/lib/env";
 
 /* Fail-fast environment contract (openspec next-deployment § Environment
  * contract and startup validation). `readEnv` is pure; `getEnv` memoizes it
@@ -17,7 +17,8 @@ describe("readEnv", () => {
     expect(env.WP_ORIGIN).toBe("https://wp.example");
     expect(env.NEXT_PUBLIC_SITE_ORIGIN).toBe("https://app.example");
     expect(env.MOCK_API).toBe(false);
-    expect(env.IMAGE_HOSTS).toEqual(["wp.example"]);
+    // The default carries the WordPress scheme: https-only for the optimizer.
+    expect(env.IMAGE_HOSTS).toEqual(["https://wp.example"]);
     expect(env.WP_BUILD_STATUS_URL).toBeUndefined();
   });
 
@@ -62,10 +63,38 @@ describe("readEnv", () => {
     expect(env.NEXT_PUBLIC_SITE_ORIGIN).toBe("http://localhost:3000");
   });
 
-  it("parses IMAGE_HOSTS as a trimmed list", () => {
-    expect(readEnv({ ...valid, IMAGE_HOSTS: " wp.example, cdn.example ,," }).IMAGE_HOSTS).toEqual([
-      "wp.example",
-      "cdn.example",
+  it("parses IMAGE_HOSTS as a trimmed list of bare hosts or http(s) origins", () => {
+    expect(
+      readEnv({ ...valid, IMAGE_HOSTS: " wp.example, cdn.example ,, http://cms.local:8890" })
+        .IMAGE_HOSTS,
+    ).toEqual(["wp.example", "cdn.example", "http://cms.local:8890"]);
+    for (const bad of ["ftp://cdn.example", "https://cdn.example/uploads", "cdn example"]) {
+      expect(() => readEnv({ ...valid, IMAGE_HOSTS: bad }), bad).toThrow(/IMAGE_HOSTS/);
+    }
+  });
+});
+
+/* openspec next-edge-trust-boundaries § Image optimization uses HTTPS
+ * upstreams in production. */
+describe("imageRemotePatterns", () => {
+  it("maps a bare host to https only", () => {
+    expect(imageRemotePatterns(["cms.example.org", "CDN.example.org"])).toEqual([
+      { protocol: "https", hostname: "cms.example.org" },
+      { protocol: "https", hostname: "cdn.example.org" },
+    ]);
+  });
+
+  it("honors a scheme-qualified entry as written, port included, and de-duplicates", () => {
+    expect(
+      imageRemotePatterns([
+        "http://cms.local:8890",
+        "https://cdn.example.org",
+        "cdn.example.org",
+        "",
+      ]),
+    ).toEqual([
+      { protocol: "http", hostname: "cms.local", port: "8890" },
+      { protocol: "https", hostname: "cdn.example.org" },
     ]);
   });
 });

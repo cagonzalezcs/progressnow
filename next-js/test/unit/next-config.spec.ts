@@ -25,34 +25,41 @@ afterEach(() => {
 });
 
 describe("images", () => {
-  it("serves AVIF/WebP, keeps SVG out of the optimizer, and allows only the WordPress host by default", async () => {
+  const patterns = (c: NextConfig) =>
+    c.images?.remotePatterns?.map(
+      (p) => `${p.protocol}://${p.hostname}${"port" in p && p.port ? `:${p.port}` : ""}`,
+    );
+
+  it("serves AVIF/WebP, keeps SVG out of the optimizer, and allows only the WordPress host — https only — by default", async () => {
     const c = await load({ WP_API_BASE: "https://cms.example.org/wp-json/progressnow/v1" });
     expect(c.images?.formats).toEqual(["image/avif", "image/webp"]);
     expect(c.images?.dangerouslyAllowSVG).toBe(false);
     expect(c.images?.dangerouslyAllowLocalIP).toBe(false);
-    expect(c.images?.remotePatterns?.map((p) => `${p.protocol}://${p.hostname}`)).toEqual([
-      "https://cms.example.org",
-      "http://cms.example.org",
-    ]);
+    expect(patterns(c)).toEqual(["https://cms.example.org"]);
   });
 
-  it("lets the optimizer reach the loopback mock only under MOCK_API=1", async () => {
+  it("lets the optimizer reach the loopback mock, over http, only under MOCK_API=1", async () => {
     const c = await load({ MOCK_API: "1" });
     expect(c.images?.dangerouslyAllowLocalIP).toBe(true);
-    expect(c.images?.remotePatterns?.map((p) => p.hostname)).toEqual(["127.0.0.1", "127.0.0.1"]);
+    expect(patterns(c)).toEqual(["http://127.0.0.1:8787"]);
   });
 
-  it("IMAGE_HOSTS replaces the default allowlist", async () => {
+  /* openspec next-edge-trust-boundaries § Image optimization uses HTTPS
+   * upstreams in production: a bare IMAGE_HOSTS entry never allows http. */
+  it("IMAGE_HOSTS replaces the default allowlist; bare entries are https-only", async () => {
     const c = await load({
       WP_API_BASE: "https://cms.example.org/wp-json/progressnow/v1",
       IMAGE_HOSTS: "uploads.example.org, cdn.example.org",
     });
-    expect(c.images?.remotePatterns?.map((p) => p.hostname)).toEqual([
-      "uploads.example.org",
-      "uploads.example.org",
-      "cdn.example.org",
-      "cdn.example.org",
-    ]);
+    expect(patterns(c)).toEqual(["https://uploads.example.org", "https://cdn.example.org"]);
+  });
+
+  it("a scheme-qualified IMAGE_HOSTS entry is honored as written, port included", async () => {
+    const c = await load({
+      WP_API_BASE: "https://cms.example.org/wp-json/progressnow/v1",
+      IMAGE_HOSTS: "http://cms.local:8890, https://cdn.example.org, cdn.example.org",
+    });
+    expect(patterns(c)).toEqual(["http://cms.local:8890", "https://cdn.example.org"]);
   });
 });
 

@@ -1,0 +1,12 @@
+{
+  "$comment": "Every dangerouslySetInnerHTML in application code, by file → sink count (openspec next-edge-trust-boundaries § HTML sinks are enumerated and justified). eslint.config.mjs turns react/no-danger off for exactly these files; test/unit/html-sinks.spec.ts fails when the set or a count changes, or when a sink lacks its `// html-sink: kses|encoder|static` comment. Vendored shadcn primitives (components/ui) are exempt separately and out of the production routes' render path.",
+  "files": {
+    "components/layout/RootDocument.tsx": 1,
+    "components/seo/JsonLd.tsx": 1,
+    "components/site/BlockA11yNote.tsx": 1,
+    "components/site/CtaCard.tsx": 1,
+    "components/site/blog/blocks/BlockProse.tsx": 1,
+    "components/site/interior/InteriorShell.tsx": 1,
+    "components/routes/RouteFront.tsx": 2
+  }
+}
