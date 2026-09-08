@@ -43,7 +43,7 @@ Every default string in `inc/options.php`, `inc/pages.php`, and the Twig ledes i
   (same-host mode), and records new builds; `inc/rebuild.php` dispatches
   rebuilds (GitHub `repository_dispatch` or a signed webhook) when content
   changes — nothing runs `node` on the host. Operate it from Chapter Settings →
-  **Site build** or `wp chapter rebuild` / `wp chapter build-status`. Setup:
+  **Site build** or `wp chapter rebuild` / `wp chapter build-status` (`wp chapter audit-urls` reports stored URLs with unsafe schemes). Setup:
   `docs/deployment.md`.
 
 ### Vue islands on Timber

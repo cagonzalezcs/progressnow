@@ -145,7 +145,7 @@ function progressnow_pages_faq_row( $row ) {
  */
 function progressnow_pages_link_row( $row ) {
 	$label = trim( (string) ( $row['label'] ?? '' ) );
-	$url   = trim( (string) ( $row['url'] ?? '' ) );
+	$url   = progressnow_safe_url( $row['url'] ?? '' );
 	if ( '' === $label || '' === $url ) {
 		return null;
 	}
@@ -888,7 +888,7 @@ function progressnow_about_context( $post_id ) {
 	$identity            = progressnow_identity();
 	$short               = esc_html( $identity['short_name'] );
 	$region              = $identity['region_label'];
-	$committees_link_url = progressnow_pages_text( $post_id, 'about_committees_link_url', '/get-involved/#committees' );
+	$committees_link_url = progressnow_safe_url( progressnow_pages_text( $post_id, 'about_committees_link_url', '/get-involved/#committees' ) );
 
 	$about = array(
 		'mission'    => array(
@@ -992,7 +992,7 @@ function progressnow_about_context( $post_id ) {
 						'title'  => $title,
 						'covers' => trim( (string) ( $row['covers'] ?? '' ) ),
 						'action' => '' !== $action ? $action : 'Read',
-						'url'    => trim( (string) ( $row['url'] ?? '' ) ),
+						'url'    => progressnow_safe_url( $row['url'] ?? '' ),
 					);
 				},
 				array(
@@ -1066,7 +1066,7 @@ function progressnow_get_involved_context( $post_id, $join_url ) {
 	if ( function_exists( 'get_field' ) ) {
 		$option = get_field( 'instagram_url', 'option' );
 		if ( is_string( $option ) && '' !== trim( $option ) ) {
-			$instagram = trim( $option );
+			$instagram = progressnow_safe_url( $option );
 		}
 	}
 
@@ -1078,7 +1078,7 @@ function progressnow_get_involved_context( $post_id, $join_url ) {
 	}
 	$channel_defaults[] = array( 'label' => 'Email', 'desc' => 'Questions, press, and anything else', 'link_label' => 'Write us', 'url' => 'mailto:', 'badge' => '', 'external' => false );
 
-	$card_url = progressnow_pages_text( $post_id, 'gi_card_link_url', $join_url );
+	$card_url = progressnow_safe_url( progressnow_pages_text( $post_id, 'gi_card_link_url', $join_url ) );
 
 	$gi = array(
 		'join'       => array(
@@ -1092,7 +1092,7 @@ function progressnow_get_involved_context( $post_id, $join_url ) {
 				if ( '' === $title ) {
 					return null;
 				}
-				$url = trim( (string) ( $row['link_url'] ?? '' ) );
+				$url = progressnow_safe_url( $row['link_url'] ?? '' );
 				return array(
 					'title'      => $title,
 					'body'       => wp_kses_post( trim( (string) ( $row['body'] ?? '' ) ) ),
@@ -1124,7 +1124,7 @@ function progressnow_get_involved_context( $post_id, $join_url ) {
 				if ( '' === $label ) {
 					return null;
 				}
-				$url        = trim( (string) ( $row['url'] ?? '' ) );
+				$url        = progressnow_safe_url( $row['url'] ?? '' );
 				$link_label = trim( (string) ( $row['link_label'] ?? '' ) );
 				return array(
 					'label'      => wp_kses_post( $label ),

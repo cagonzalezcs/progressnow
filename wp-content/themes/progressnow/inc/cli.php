@@ -126,6 +126,50 @@ class Progressnow_CLI_Chapter {
 		}
 		\WP_CLI\Utils\format_items( 'table', $rows, array( 'field', 'value' ) );
 	}
+
+	/**
+	 * Report stored URLs (block attrs, event rsvp_url, page + option URL
+	 * fields) whose scheme progressnow_safe_url() rejects. Read-only: the
+	 * serializers already drop these at render; clean them up in wp-admin.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--format=<format>]
+	 * : table or json.
+	 * ---
+	 * default: table
+	 * options:
+	 *   - table
+	 *   - json
+	 * ---
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp chapter audit-urls
+	 *     wp chapter audit-urls --format=json
+	 *
+	 * @subcommand audit-urls
+	 *
+	 * @param array $args       Positional args.
+	 * @param array $assoc_args Flags.
+	 */
+	public function audit_urls( $args, $assoc_args ) {
+		$findings = progressnow_audit_unsafe_urls();
+		$format   = \WP_CLI\Utils\get_flag_value( $assoc_args, 'format', 'table' );
+
+		if ( 'json' === $format ) {
+			WP_CLI::line( wp_json_encode( $findings, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
+			return;
+		}
+
+		if ( ! $findings ) {
+			WP_CLI::success( 'No unsafe stored URLs found.' );
+			return;
+		}
+
+		\WP_CLI\Utils\format_items( 'table', $findings, array( 'where', 'id', 'field', 'value' ) );
+		WP_CLI::warning( count( $findings ) . ' unsafe URL value(s); fix them in wp-admin.' );
+	}
 }
 
 WP_CLI::add_command( 'chapter', 'Progressnow_CLI_Chapter' );
