@@ -8,7 +8,14 @@
  *
  * Public contract (other domains call these):
  * - progressnow_cache_remember( $key, $cb, $ttl = 900 ): mixed — transient-backed
- *   memoization of $cb(), invalidated by content-version bumps.
+ *   memoization of $cb(), invalidated by content-version bumps. A $cb that
+ *   returns null signals "not cacheable" (e.g. a slug that did not resolve):
+ *   the null is returned but no transient is written.
+ *
+ * Cardinality rule: only persist keys with bounded cardinality. Callers that
+ * hash unbounded user input (free-text search) must bypass this helper and
+ * lean on the HTTP cache layer instead — without a persistent object cache,
+ * every distinct key is a `wp_options` row.
  */
 
 /**
@@ -26,6 +33,8 @@ function progressnow_content_version() {
  * @param string   $key Cache key fragment (unique per payload).
  * @param callable $cb  Produces the value on miss. Must not return false —
  *                      get_transient() can't distinguish it from a miss.
+ *                      Return null to serve the miss without persisting it
+ *                      (negative lookups must not become transient rows).
  * @param int      $ttl Backstop TTL in seconds (default 900).
  * @return mixed
  */
@@ -38,7 +47,9 @@ function progressnow_cache_remember( $key, $cb, $ttl = 900 ) {
 	}
 
 	$value = $cb();
-	set_transient( $transient, $value, $ttl );
+	if ( null !== $value ) {
+		set_transient( $transient, $value, $ttl );
+	}
 
 	return $value;
 }
@@ -61,10 +72,37 @@ function progressnow_cache_bump_version() {
 
 add_action( 'save_post_post', 'progressnow_cache_bump_version' );
 add_action( 'save_post_event', 'progressnow_cache_bump_version' );
-add_action( 'deleted_post', 'progressnow_cache_bump_version' );
+add_action( 'deleted_post', 'progressnow_cache_bump_on_post_delete', 10, 2 );
 
-// Term edits — only the two canonical-category taxonomies matter.
+/**
+ * Post types whose deletion invalidates the public payloads. `deleted_post`
+ * also fires for revisions, auto-drafts, nav-menu items, and attachments —
+ * none of which change a public response, so they must not churn the
+ * version (each bump also triggers the static rebuild).
+ *
+ * @return string[]
+ */
+function progressnow_cache_public_post_types() {
+	return array( 'post', 'event', 'page' );
+}
+
+/**
+ * @param int          $post_id Deleted post ID.
+ * @param WP_Post|null $post    The deleted post (WP ≥ 5.5 passes it).
+ */
+function progressnow_cache_bump_on_post_delete( $post_id, $post = null ) {
+	$post_type = $post instanceof WP_Post ? $post->post_type : get_post_type( $post_id );
+
+	if ( in_array( (string) $post_type, progressnow_cache_public_post_types(), true ) ) {
+		progressnow_cache_bump_version();
+	}
+}
+
+// Term create/edit/delete — only the two canonical-category taxonomies matter.
+// (`created_term` and `delete_term` both pass the taxonomy as the 3rd arg.)
 add_action( 'edited_term', 'progressnow_cache_bump_on_term_edit', 10, 3 );
+add_action( 'created_term', 'progressnow_cache_bump_on_term_edit', 10, 3 );
+add_action( 'delete_term', 'progressnow_cache_bump_on_term_edit', 10, 3 );
 
 function progressnow_cache_bump_on_term_edit( $term_id, $tt_id, $taxonomy ) {
 	if ( in_array( $taxonomy, array( 'category', 'event_category' ), true ) ) {

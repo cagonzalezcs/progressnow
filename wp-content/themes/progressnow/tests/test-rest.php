@@ -238,6 +238,117 @@ class TestRest extends BaseTestCase {
 		$this->assertSame( 'chapter', $cats['categories'][0]['id'] );
 	}
 
+	/** Count transient writes whose name starts with a prefix (WP fires `setted_transient`). */
+	private function count_transient_writes( $prefix ) {
+		$counter = (object) array( 'n' => 0 );
+		add_action(
+			'setted_transient',
+			static function ( $transient ) use ( $counter, $prefix ) {
+				if ( 0 === strpos( (string) $transient, $prefix ) ) {
+					$counter->n++;
+				}
+			}
+		);
+
+		return static function () use ( $counter ) {
+			return $counter->n;
+		};
+	}
+
+	/** `page` above the cap is a schema 400, never a huge-OFFSET query. */
+	public function test_page_above_maximum_is_400() {
+		$this->make_post( 'Only' );
+
+		$this->assertSame( 200, $this->get_json( '/progressnow/v1/posts', array( 'page' => PROGRESSNOW_REST_MAX_PAGE ) )->get_status() );
+
+		$response = $this->get_json( '/progressnow/v1/posts', array( 'page' => PROGRESSNOW_REST_MAX_PAGE + 1 ) );
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'rest_invalid_param', $response->get_data()['code'] );
+	}
+
+	/** Distinct `?s=` values must not accumulate transient rows; non-search pages still do. */
+	public function test_search_is_not_transient_cached() {
+		$this->make_post( 'Hit', array( 'post_content' => 'A xylophonic organizing drive.' ) );
+		$writes = $this->count_transient_writes( 'progressnow_rest_posts_' );
+
+		foreach ( array( 'aaa', 'bbb', 'xylophonic' ) as $term ) {
+			$this->get_json( '/progressnow/v1/posts', array( 's' => $term ) );
+		}
+		$this->assertSame( 0, $writes(), 'search responses must not be persisted' );
+
+		$listed = $this->get_json( '/progressnow/v1/posts' );
+		$this->assertSame( 1, $writes(), 'the plain list is still cached' );
+
+		// The uncached search response still carries the HTTP cache headers.
+		$search  = $this->get_json( '/progressnow/v1/posts', array( 's' => 'xylophonic' ) );
+		$headers = $search->get_headers();
+		$this->assertSame( 'public, max-age=300, stale-while-revalidate=3600', $headers['Cache-Control'] );
+		$this->assertNotEmpty( $headers['ETag'] );
+		$this->assertSame( 'Hit', $search->get_data()['posts'][0]['title'] );
+		$this->assertSame( 1, $listed->get_data()['total'] );
+	}
+
+	/** Unknown slugs are served as 404 without a negative transient, but with a short public Cache-Control. */
+	public function test_unknown_slug_is_not_negatively_cached() {
+		$writes = $this->count_transient_writes( 'progressnow_rest_' );
+
+		foreach ( array( 'no-such-a', 'no-such-b' ) as $slug ) {
+			$response = $this->get_json( '/progressnow/v1/posts/' . $slug );
+			$this->assertSame( 404, $response->get_status() );
+			$this->assertSame( 'public, max-age=60', $response->get_headers()['Cache-Control'] );
+		}
+		$this->assertSame( 404, $this->get_json( '/progressnow/v1/events/no-such-event' )->get_status() );
+		$this->assertSame( 404, $this->get_json( '/progressnow/v1/pages/no/such/page' )->get_status() );
+		$this->assertSame( 0, $writes(), '404 lookups must not write transients' );
+
+		// A resolving slug is still cached, and a 400 stays uncached (no Cache-Control).
+		$this->make_post( 'Real', array( 'post_name' => 'real-post' ) );
+		$this->assertSame( 200, $this->get_json( '/progressnow/v1/posts/real-post' )->get_status() );
+		$this->assertSame( 1, $writes() );
+		$bad = $this->get_json( '/progressnow/v1/posts', array( 'category' => 'nope' ) );
+		$this->assertArrayNotHasKey( 'Cache-Control', $bad->get_headers() );
+	}
+
+	/** Pure clamp: reversed ranges swap, out-of-range ends pin to [now-2y, now+5y]. */
+	public function test_event_window_clamp() {
+		$now = new DateTimeImmutable( '2026-09-07', new DateTimeZone( 'UTC' ) );
+
+		$this->assertSame( array( '2026-01-01', '2026-12-31' ), progressnow_rest_clamp_event_window( '2026-01-01', '2026-12-31', $now ) );
+		$this->assertSame( array( '2026-01-01', '2026-12-31' ), progressnow_rest_clamp_event_window( '2026-12-31', '2026-01-01', $now ), 'reversed → swapped' );
+		$this->assertSame( array( '2024-09-07', '2031-09-07' ), progressnow_rest_clamp_event_window( '1900-01-01', '2999-12-31', $now ), 'centuries → bounds' );
+		$this->assertSame( array( '2031-09-07', '2031-09-07' ), progressnow_rest_clamp_event_window( '2100-01-01', '2200-01-01', $now ), 'fully past max → pinned' );
+		$this->assertSame( array( '2024-09-07', '2024-09-07' ), progressnow_rest_clamp_event_window( '1900-01-01', '1901-01-01', $now ), 'fully before min → pinned' );
+	}
+
+	/** The effective /events query window is the clamped one. */
+	public function test_events_window_is_clamped_in_query() {
+		$seen = array();
+		add_filter(
+			'posts_pre_query',
+			function ( $pre, $query ) use ( &$seen ) {
+				if ( 'event' === $query->get( 'post_type' ) ) {
+					$seen[] = $query->get( 'meta_query' );
+				}
+				return $pre;
+			},
+			5,
+			2
+		);
+
+		$response = $this->get_json( '/progressnow/v1/events', array( 'after' => '2999-01-01', 'before' => '1900-01-01' ) );
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertCount( 1, $seen );
+
+		$now = new DateTimeImmutable( 'now', progressnow_events_timezone() );
+		$this->assertSame(
+			array(
+				$now->modify( PROGRESSNOW_REST_EVENTS_WINDOW_MIN )->format( 'Y-m-d' ) . ' 00:00:00',
+				$now->modify( PROGRESSNOW_REST_EVENTS_WINDOW_MAX )->format( 'Y-m-d' ) . ' 23:59:59',
+			),
+			$seen[0][0]['value']
+		);
+	}
+
 	/** Malformed /events dates are rejected. */
 	public function test_events_bad_date_is_400() {
 		$response = $this->get_json( '/progressnow/v1/events', array( 'after' => '2026-13-99' ) );

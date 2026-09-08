@@ -25,8 +25,10 @@ class TestBlogPerformance extends BaseTestCase {
 		add_action( 'save_post_post', 'progressnow_blog_store_read_minutes', 20 );
 		add_action( 'save_post_post', 'progressnow_cache_bump_version' );
 		add_action( 'save_post_event', 'progressnow_cache_bump_version' );
-		add_action( 'deleted_post', 'progressnow_cache_bump_version' );
+		add_action( 'deleted_post', 'progressnow_cache_bump_on_post_delete', 10, 2 );
 		add_action( 'edited_term', 'progressnow_cache_bump_on_term_edit', 10, 3 );
+		add_action( 'created_term', 'progressnow_cache_bump_on_term_edit', 10, 3 );
+		add_action( 'delete_term', 'progressnow_cache_bump_on_term_edit', 10, 3 );
 		add_action( 'acf/save_post', 'progressnow_cache_bump_on_options_save' );
 
 		do_action( 'after_setup_theme' );
@@ -181,6 +183,74 @@ class TestBlogPerformance extends BaseTestCase {
 
 		do_action( 'edited_term', 6, 6, 'event_category' );
 		$this->assertSame( $before + 2, progressnow_content_version() );
+	}
+
+	public function test_term_create_and_delete_bump_for_canonical_taxonomies() {
+		$before = progressnow_content_version();
+
+		do_action( 'created_term', 7, 7, 'post_tag' );
+		do_action( 'delete_term', 7, 7, 'post_tag', (object) array(), array() );
+		$this->assertSame( $before, progressnow_content_version(), 'post_tag create/delete must not bump' );
+
+		do_action( 'created_term', 8, 8, 'category' );
+		$this->assertSame( $before + 1, progressnow_content_version(), 'category create must bump' );
+
+		do_action( 'delete_term', 8, 8, 'event_category', (object) array(), array() );
+		$this->assertSame( $before + 2, progressnow_content_version(), 'event_category delete must bump' );
+	}
+
+	public function test_post_delete_bumps_only_for_public_post_types() {
+		$before = progressnow_content_version();
+
+		foreach ( array( 'revision', 'nav_menu_item', 'auto-draft', 'attachment' ) as $noise ) {
+			do_action( 'deleted_post', 99, (object) array( 'post_type' => $noise ) );
+		}
+		$this->assertSame( $before, progressnow_content_version(), 'noise post types must not churn the version' );
+
+		$page = wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'publish', 'post_title' => 'P' ) );
+		$at   = progressnow_content_version();
+		wp_delete_post( $page, true );
+		$this->assertSame( $at + 1, progressnow_content_version(), 'page delete must bump' );
+	}
+
+	public function test_cache_remember_does_not_persist_null() {
+		$calls = 0;
+		$cb    = function () use ( &$calls ) {
+			$calls++;
+			return null;
+		};
+
+		$this->assertNull( progressnow_cache_remember( 'perf_null', $cb ) );
+		$this->assertNull( progressnow_cache_remember( 'perf_null', $cb ) );
+		$this->assertSame( 2, $calls, 'null must be recomputed, never stored' );
+		$this->assertFalse( get_transient( 'progressnow_perf_null_' . progressnow_content_version() ) );
+	}
+
+	/** The ICS body is memoized per content version — the all-events query runs once, not per hit. */
+	public function test_ics_body_is_cached_until_version_bump() {
+		$queries = 0;
+		add_filter(
+			'posts_pre_query',
+			function ( $pre, $query ) use ( &$queries ) {
+				if ( 'event' === $query->get( 'post_type' ) ) {
+					$queries++;
+				}
+				return $pre;
+			},
+			10,
+			2
+		);
+
+		$first  = progressnow_events_cached_ics();
+		$second = progressnow_events_cached_ics();
+
+		$this->assertSame( $first, $second );
+		$this->assertSame( progressnow_events_build_ics(), $first, 'cached body must equal the freshly built one' );
+		$this->assertSame( 2, $queries, 'one query for the cached pair, one for the direct build' );
+
+		progressnow_cache_bump_version();
+		progressnow_events_cached_ics();
+		$this->assertSame( 3, $queries, 'version bump must invalidate the feed body' );
 	}
 
 	public function test_acf_options_save_bumps_version_post_ids_do_not() {

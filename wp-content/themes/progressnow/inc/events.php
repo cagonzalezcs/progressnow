@@ -1056,8 +1056,23 @@ function progressnow_events_ics_fold( $line ) {
 function progressnow_events_render_ics() {
 	header( 'Content-Type: text/calendar; charset=utf-8' );
 	header( 'Content-Disposition: inline; filename="chapter-events.ics"' );
+	// Same policy as the REST layer: editors fresh, anonymous edge-cacheable.
+	header( 'Cache-Control: ' . ( is_user_logged_in() ? 'no-store' : 'public, max-age=300, stale-while-revalidate=3600' ) );
 
-	echo progressnow_events_build_ics();
+	echo progressnow_events_cached_ics();
+}
+
+/**
+ * The VCALENDAR body, transient-cached per language and invalidated by the
+ * content version. The feed is identical for every anonymous subscriber
+ * between edits, so the all-events query runs once per version, not per hit.
+ *
+ * @return string
+ */
+function progressnow_events_cached_ics() {
+	$lang = function_exists( 'pll_current_language' ) ? (string) pll_current_language() : '';
+
+	return progressnow_cache_remember( 'events_ics_' . md5( $lang ), 'progressnow_events_build_ics' );
 }
 
 /**
