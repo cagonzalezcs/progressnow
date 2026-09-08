@@ -74,13 +74,21 @@ const routes = useChapterRoutes();
 const home = computed(() => frontRoute(routes.value, lang.value)?.path ?? "/");
 const basePath = computed(() => route?.path ?? props.resolved.path);
 
+/* Header state is path-derived only (`/category/{slug}/` archive, search),
+ * matching next-js: the island's `?category=` chip filter must not retitle
+ * the page. `resolved` is reactive to the query here, so gate on the path
+ * rather than reading `resolved.category` directly. */
+const archiveCategory = computed(() =>
+  /\/category\/[^/]+\/?$/.test(props.resolved.path) ? props.resolved.category : "",
+);
+
 const title = computed(() => {
   if (isSearch) return `Search results for ${props.resolved.search}`;
-  if (props.resolved.category) return postCategoryById(props.resolved.category).label;
+  if (archiveCategory.value) return postCategoryById(archiveCategory.value).label;
   return page.value?.title || "From the blog";
 });
 const lede = computed(() =>
-  isSearch || props.resolved.category
+  isSearch || archiveCategory.value
     ? ""
     : page.value?.lede ||
       `News, analysis, and dispatches from chapter organizers across ${site.value?.chapter.region_label ?? "our community"}.`,
