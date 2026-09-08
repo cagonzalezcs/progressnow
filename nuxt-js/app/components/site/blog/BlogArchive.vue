@@ -80,6 +80,10 @@ const isDefaultState = computed(
 );
 
 const fetched = ref<PostsEnvelope | null>(null);
+/* Filter state the current `fetched` envelope answers, so the visible count
+ * line stays truthful (stale count + stale label) while the next fetch is in
+ * flight instead of pairing an old total with the newly pressed chip. */
+const fetchedFor = ref<{ q: string; cat: string } | null>(null);
 const loading = ref(false);
 const failed = ref(false);
 let controller: AbortController | null = null;
@@ -98,6 +102,7 @@ async function runFetch() {
     );
     if (ctl !== controller) return;
     fetched.value = envelope;
+    fetchedFor.value = { q: query.value.trim(), cat: activeCat.value };
   } catch (err) {
     if (isAbortError(err) || ctl !== controller) return;
     failed.value = true;
@@ -111,6 +116,7 @@ function syncState() {
     // Back to the embedded browse page — no fetch needed.
     controller?.abort();
     fetched.value = null;
+    fetchedFor.value = null;
     loading.value = false;
     failed.value = false;
     return;
@@ -180,8 +186,9 @@ const pageItems = computed<(number | "…")[]>(() => {
 
 const resultLine = computed(() => {
   const n = total.value;
-  const q = query.value.trim();
-  const cat = activeCat.value === "all" ? "" : ` in ${postCategoryById(activeCat.value).label}`;
+  const q = fetchedFor.value?.q ?? query.value.trim();
+  const catId = fetchedFor.value?.cat ?? activeCat.value;
+  const cat = catId === "all" ? "" : ` in ${postCategoryById(catId).label}`;
   return `${n} ${n === 1 ? "post" : "posts"}${cat}${q ? ` matching “${q}”` : ""}`;
 });
 
@@ -322,10 +329,18 @@ const PAGE_BTN =
     <section v-else ref="resultsTop" class="scroll-mt-20 bg-white px-6 pb-14 pt-6 md:pb-[72px] md:pt-8" data-tone="white">
       <div class="mx-auto flex max-w-[1200px] flex-col gap-3.5 md:gap-[18px]">
         <div class="flex flex-wrap items-baseline justify-between gap-3 border-b-[3px] border-brand pb-2.5 md:gap-4 md:pb-3">
-          <div role="status" aria-live="polite" class="font-display text-[1.05rem] md:text-[1.3rem]">
-            <template v-if="loading">Searching…</template>
-            <template v-else-if="!failed">{{ resultLine }}</template>
+          <!-- Visible count keeps the previous line (dimmed) while a fetch is in
+               flight; "Searching…" is announced to assistive tech only, as in
+               next-js, so chip switches don't flash a heading. -->
+          <div
+            role="status"
+            aria-live="polite"
+            :class="['font-display text-[1.05rem] transition-opacity md:text-[1.3rem]', loading && 'opacity-70']"
+          >
+            <template v-if="fetched && !failed">{{ resultLine }}</template>
+            <template v-else>&nbsp;</template>
           </div>
+          <p role="status" aria-live="polite" class="sr-only">{{ loading ? "Searching…" : "" }}</p>
           <button
             type="button"
             class="cursor-pointer border-none bg-transparent p-0 text-[0.9rem] font-bold text-accent hover:underline hover:underline-offset-4 md:text-[0.95rem]"
@@ -335,19 +350,21 @@ const PAGE_BTN =
           </button>
         </div>
 
-        <!-- Loading skeleton -->
-        <div v-if="loading" aria-hidden="true" class="flex flex-col gap-3 md:grid md:gap-6 md:[grid-template-columns:repeat(auto-fill,minmax(260px,1fr))]">
+        <!-- Loading skeleton: only when there are no previous results to keep
+             on screen (first filter from browse). Otherwise the stale grid stays
+             put and dims until the new envelope lands. -->
+        <div v-if="loading && !fetched" aria-hidden="true" class="flex flex-col gap-3 md:grid md:gap-6 md:[grid-template-columns:repeat(auto-fill,minmax(260px,1fr))]">
           <div v-for="n in 4" :key="n" class="h-24 animate-pulse rounded-[16px] bg-alt md:h-[260px] md:rounded-[20px]"></div>
         </div>
 
         <!-- Error state -->
-        <div v-else-if="failed" class="flex flex-col items-center gap-1 rounded-[16px] border-2 border-dashed border-border-muted px-6 py-11 text-center md:rounded-[20px] md:px-8 md:py-14">
+        <div v-else-if="failed && !loading" class="flex flex-col items-center gap-1 rounded-[16px] border-2 border-dashed border-border-muted px-6 py-11 text-center md:rounded-[20px] md:px-8 md:py-14">
           <div class="text-[1.05rem] font-extrabold md:text-[1.2rem] md:font-bold">Something went wrong</div>
           <p class="m-0 max-w-[42ch] text-base leading-[1.45] md:text-[1.1rem]">We couldn&rsquo;t load posts just now. Give it another try.</p>
           <button type="button" class="mt-4 cursor-pointer rounded-full border-2 border-accent bg-transparent px-6 py-2.5 text-[0.92rem] font-bold text-accent transition-colors hover:bg-accent hover:text-white" @click="runFetch">Retry</button>
         </div>
 
-        <template v-else>
+        <div v-else :aria-busy="loading || undefined" :class="['flex flex-col gap-3.5 transition-opacity md:gap-[18px]', loading && 'opacity-70']">
           <div v-if="results.length > 0" class="flex flex-col gap-3 md:grid md:gap-6 md:[grid-template-columns:repeat(auto-fill,minmax(260px,1fr))]">
             <PostCard v-for="post in results" :key="post.id" :post="post" variant="compact" read-time />
           </div>
@@ -382,7 +399,7 @@ const PAGE_BTN =
             </nav>
             <div class="text-center text-[0.9rem] font-bold text-muted md:pt-3 md:text-[0.95rem]">Page {{ currentPage }} of {{ totalPages }}</div>
           </template>
-        </template>
+        </div>
       </div>
     </section>
 
