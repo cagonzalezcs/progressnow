@@ -154,7 +154,17 @@ export function jsonLdGraph(nodes: (JsonLdNode | null)[]): {
   };
 }
 
-/** Safe to inline: `<` cannot close the script element. */
+/** Safe to inline (parity with the theme's progressnow_json_for_script, inc/escaping.php):
+ * `<`, `>`, `&` and U+2028/U+2029 become JSON unicode escapes, so no value can
+ * close the script element, inject markup, or break a pre-ES2019 parser. */
+const SCRIPT_UNSAFE = /[<>&\u2028\u2029]/g;
+const SCRIPT_ESCAPES: Record<string, string> = {
+  "<": "\\u003c",
+  ">": "\\u003e",
+  "&": "\\u0026",
+  "\u2028": "\\u2028",
+  "\u2029": "\\u2029",
+};
 export function serializeJsonLd(value: unknown): string {
-  return JSON.stringify(value).replace(/</g, "\\u003c");
+  return JSON.stringify(value).replace(SCRIPT_UNSAFE, (c) => SCRIPT_ESCAPES[c] ?? c);
 }
