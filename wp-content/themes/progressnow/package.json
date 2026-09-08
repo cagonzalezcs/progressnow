@@ -9,6 +9,7 @@
     "build": "node_modules/.bin/vue-tsc --noEmit && vite build",
     "preview": "node_modules/.bin/vite preview",
     "lint": "eslint",
+    "audit:twig": "node bin/twig-audit.mjs",
     "lint:fix": "eslint --fix",
     "format": "prettier . --write",
     "typecheck": "./node_modules/.bin/vue-tsc --noEmit",

@@ -107,6 +107,15 @@ The whole site reads one token set declared in `src/css/tailwind.css` (`@theme`,
 - Every component root gets one kebab-case block class (`site-header`, `event-calendar`) — a style-free hook for debugging/tests.
 - Accessibility: a11y widget settings persist to localStorage `chapter-a11y` (migrated from the pre-rename key on first load); respect `prefers-reduced-motion`; keep ≥4.5:1 label contrast in hover states.
 
+### Output escaping
+
+Twig runs with **autoescape on** (`html` strategy, `StarterSite::update_twig_environment_options`): every `{{ … }}` is HTML-escaped, so context builders hand Twig **unescaped** values (no `esc_html()`/`esc_attr()` before the template — that would double-escape). Attribute JSON stays `|json_encode|e("html_attr")`.
+
+- **Trusted HTML opts out with `|raw` plus a same-line marker naming the sanitizer**: `{# raw: kses #}` (editor HTML through `wp_kses_post`, or `|kses_post` at render time), `{# raw: encoder #}` (`progressnow_json_for_script()` output), `{# raw: markup #}` (HTML authored by the theme/core whose interpolated values are escaped explicitly with `|e` / `|e("html_attr")`). Put the marker at the start of the line (Twig strips the newline after a trailing `#}`).
+- **Inline `<script>` JSON goes through one encoder**: `progressnow_json_for_script()` in `inc/escaping.php` (JSON-LD, `__SHELL_DATA__`, `__NUXT__.config`, the importmap, and anything new). It escapes `<`, `>`, `&`, quotes, `/` and U+2028/9 so a value can never close the element; never pass `JSON_UNESCAPED_SLASHES`. `next-js/lib/json-ld.ts` `serializeJsonLd` keeps parity.
+- **Gate**: `node bin/twig-audit.mjs` (also `npm run audit:twig`, and the `js` CI job) fails on an unmarked `|raw`, a `<script>` that interpolates anything but the encoder's output, `json_encode` concatenated into a `<script>` line, or autoescape switched off; `tests/test-twig-audit.php` runs the same rules under `composer test`.
+- **Regression suite**: `tests/test-output-escaping.php` seeds hostile strings into every editor field family and renders every public template (plus the JSON-LD head, the Nuxt shell payload and the ICS feed). A new template in `views/` must be added to its `COVERED` list (with a render) or to `NOT_A_SURFACE` with a reason.
+
 ### REST API (`/wp-json/progressnow/v1`)
 
 GET-only, public, publish-only; handlers reuse the domain serializers so REST shapes match the embedded contexts by construction. Additive changes stay on `/v1`; renames/removals go to `/v2`.

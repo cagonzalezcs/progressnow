@@ -20,7 +20,7 @@
 
 ## 4. Gate
 
-- [ ] 4.1 Add `bin/twig-audit.mjs`: fails on `|raw` without marker, `<script>` interpolation not via the encoder, or autoescape not enabled in `StarterSite.php`
-- [ ] 4.2 Add a PHPUnit test that runs the same checks (so `composer test` alone catches it)
-- [ ] 4.3 Add the audit step to the theme `js` job in `.github/workflows/ci.yml`
-- [ ] 4.4 Document the rule in the theme README ("Styling conventions" → new "Output escaping" section) and in `openspec/config.yaml` project rules
+- [x] 4.1 Add `bin/twig-audit.mjs`: fails on `|raw` without marker, `<script>` interpolation not via the encoder, or autoescape not enabled in `StarterSite.php`
+- [x] 4.2 Add a PHPUnit test that runs the same checks (so `composer test` alone catches it)
+- [x] 4.3 Add the audit step to the theme `js` job in `.github/workflows/ci.yml`
+- [x] 4.4 Document the rule in the theme README ("Styling conventions" → new "Output escaping" section) and in `openspec/config.yaml` project rules

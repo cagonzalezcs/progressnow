@@ -33,6 +33,7 @@ jobs:
           cache-dependency-path: wp-content/themes/progressnow/package-lock.json
       - run: npm ci
       - run: npm run lint
+      - run: node bin/twig-audit.mjs # autoescape on, every |raw marked, inline JSON via the encoder
       - run: npm test
       - run: npm run build # includes vue-tsc typecheck
 
