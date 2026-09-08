@@ -502,7 +502,7 @@ function progressnow_event_to_chapter_event( $post ) {
 		'url'      => (string) get_permalink( $wp_post ),
 	);
 
-	$rsvp = trim( (string) progressnow_events_get_field( $post_id, 'rsvp_url' ) );
+	$rsvp = progressnow_safe_url( progressnow_events_get_field( $post_id, 'rsvp_url' ) );
 	if ( $rsvp ) {
 		$event['rsvpUrl'] = $rsvp;
 	}
@@ -798,7 +798,7 @@ function progressnow_event_to_single( $post ) {
 		'city'          => $city,
 		'cost'          => trim( (string) progressnow_events_get_field( $post_id, 'cost' ) ),
 		'rsvpRequired'  => (bool) progressnow_events_get_field( $post_id, 'rsvp_required' ),
-		'rsvpUrl'       => trim( (string) progressnow_events_get_field( $post_id, 'rsvp_url' ) ),
+		'rsvpUrl'       => progressnow_safe_url( progressnow_events_get_field( $post_id, 'rsvp_url' ) ),
 		'capacity'      => $capacity,
 		'directionsUrl' => $directions,
 		'gcalUrl'       => $gcal_url,

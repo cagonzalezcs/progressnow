@@ -97,16 +97,16 @@ class StarterSite extends Site {
 			'name'           => $identity['name'] ?? 'Progress Now',
 			'short_name'     => $identity['short_name'] ?? 'Progress Now',
 			'region_label'   => $identity['region_label'] ?? 'our community',
-			'join_url'       => $this->option_field( 'join_url', '/get-involved/#join' ),
-			'newsletter_url' => $this->option_field( 'newsletter_url', '' ),
+			'join_url'       => progressnow_safe_url( $this->option_field( 'join_url', '/get-involved/#join' ) ),
+			'newsletter_url' => progressnow_safe_url( $this->option_field( 'newsletter_url', '' ) ),
 			'contact_email'  => $this->option_field( 'contact_email', '' ),
 			'footer_tagline' => $this->option_field( 'footer_tagline', '' ),
-			'instagram_url'  => $this->option_field( 'instagram_url', '' ),
+			'instagram_url'  => progressnow_safe_url( $this->option_field( 'instagram_url', '' ) ),
 			'committees'     => function_exists( 'progressnow_chapter_committees' ) ? progressnow_chapter_committees() : array(),
 			'socials'        => array(
 				array(
 					'name' => 'Facebook',
-					'url'  => $this->option_field( 'facebook_url', '' ),
+					'url'  => progressnow_safe_url( $this->option_field( 'facebook_url', '' ) ),
 				),
 				array(
 					'name' => 'Instagram',
@@ -114,7 +114,7 @@ class StarterSite extends Site {
 				),
 				array(
 					'name' => 'Twitter',
-					'url'  => $this->option_field( 'twitter_url', '' ),
+					'url'  => progressnow_safe_url( $this->option_field( 'twitter_url', '' ) ),
 				),
 			),
 		);

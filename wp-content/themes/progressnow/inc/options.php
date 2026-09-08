@@ -280,6 +280,8 @@ function progressnow_front_hero( $front_id ) {
 			$hero[ $key ] = trim( $value );
 		}
 	}
+	$hero['cta_primary_url']   = progressnow_safe_url( $hero['cta_primary_url'] );
+	$hero['cta_secondary_url'] = progressnow_safe_url( $hero['cta_secondary_url'] );
 
 	return $hero;
 }
@@ -316,6 +318,7 @@ function progressnow_front_who( $front_id ) {
 			$who[ $key ] = trim( $value );
 		}
 	}
+	$who['link_url'] = progressnow_safe_url( $who['link_url'] );
 
 	// Heading + third paragraph are rendered unescaped (inline markup / <br> allowed).
 	$who['heading'] = wp_kses_post( $who['heading'] );
@@ -383,6 +386,7 @@ function progressnow_newhere_card() {
 
 	// Body is rendered unescaped in the Twig (inline markup allowed).
 	$card['body']     = wp_kses_post( $card['body'] );
+	$card['url']      = progressnow_safe_url( $card['url'] );
 	$card['external'] = progressnow_options_url_is_external( $card['url'] );
 
 	return $card;
@@ -398,7 +402,7 @@ function progressnow_chapter_join_url() {
 	if ( function_exists( 'get_field' ) ) {
 		$value = get_field( 'join_url', 'option' );
 		if ( is_string( $value ) && '' !== trim( $value ) ) {
-			return trim( $value );
+			return progressnow_safe_url( $value );
 		}
 	}
 	return '/get-involved/#join';

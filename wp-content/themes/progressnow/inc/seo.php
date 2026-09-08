@@ -909,7 +909,7 @@ function progressnow_seo_event_schema( $post, $org_id ) {
 		$event['location'] = $place;
 	}
 
-	$rsvp = trim( (string) progressnow_events_get_field( $post->ID, 'rsvp_url' ) );
+	$rsvp = progressnow_safe_url( progressnow_events_get_field( $post->ID, 'rsvp_url' ) );
 	if ( $rsvp ) {
 		$event['offers'] = array(
 			'@type' => 'Offer',

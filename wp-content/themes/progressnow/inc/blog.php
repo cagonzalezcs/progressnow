@@ -360,7 +360,7 @@ function progressnow_blog_block_image_contract( $block ) {
 
 	$src = $attachment_id ? ( wp_get_attachment_image_url( $attachment_id, 'large' ) ?: null ) : null;
 	if ( ! $src && preg_match( '#<img[^>]*\ssrc="([^"]+)"#', $html, $m ) ) {
-		$src = $m[1];
+		$src = progressnow_safe_url( html_entity_decode( $m[1], ENT_QUOTES, 'UTF-8' ) ) ?: null;
 	}
 
 	$alt = $attachment_id ? (string) get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ) : '';
@@ -522,7 +522,7 @@ function progressnow_blog_blocks_from_content( $post ) {
 				$data = progressnow_blog_block_data( $block );
 				$out  = array(
 					'type' => 'video',
-					'url'  => (string) ( $data['url'] ?? '' ),
+					'url'  => progressnow_safe_url( $data['url'] ?? '' ),
 				);
 				$poster_id = (int) ( $data['poster'] ?? 0 );
 				if ( $poster_id ) {
@@ -532,8 +532,9 @@ function progressnow_blog_blocks_from_content( $post ) {
 				if ( '' !== $caption ) {
 					$out['caption'] = $caption;
 				}
-				if ( '' !== (string) ( $data['transcript_url'] ?? '' ) ) {
-					$out['transcriptUrl'] = (string) $data['transcript_url'];
+				$transcript_url = progressnow_safe_url( $data['transcript_url'] ?? '' );
+				if ( '' !== $transcript_url ) {
+					$out['transcriptUrl'] = $transcript_url;
 				}
 				$blocks[] = $out;
 				break;
@@ -611,7 +612,7 @@ function progressnow_blog_blocks_from_content( $post ) {
 					}
 					$buttons[] = array(
 						'label' => $label,
-						'url'   => esc_url_raw( (string) ( $btn['url'] ?? '' ) ),
+						'url'   => progressnow_safe_url( $btn['url'] ?? '' ),
 						'style' => 'outline' === ( $btn['style'] ?? '' ) ? 'outline' : 'primary',
 					);
 				}
@@ -861,10 +862,10 @@ function progressnow_blog_archive_context( $context ) {
 
 	$pagination = array();
 	if ( $paged > 1 ) {
-		$pagination['newerUrl'] = get_pagenum_link( $paged - 1, false );
+		$pagination['newerUrl'] = progressnow_safe_url( get_pagenum_link( $paged - 1, false ) );
 	}
 	if ( $paged < (int) $query->max_num_pages ) {
-		$pagination['olderUrl'] = get_pagenum_link( $paged + 1, false );
+		$pagination['olderUrl'] = progressnow_safe_url( get_pagenum_link( $paged + 1, false ) );
 	}
 	$context['archive_pagination'] = $pagination ? $pagination : null;
 

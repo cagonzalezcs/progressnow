@@ -44,7 +44,7 @@ Bilingual (EN at `/`, ES at `/es/…`), accessible (WCAG 2.2 AA target, built-in
 | **Authoring** | Gutenberg posts restricted to 14 blocks (8 core + 6 `progressnow/*` ACF blocks: person-quote, video, audio, document, event-embed, action-callout); `event` CPT with `event_category` taxonomy; Chapter Settings options page |
 | **SEO** | Hand-rolled head: description ladder, canonical, robots, Open Graph / Twitter cards, JSON-LD `Organization` / `Article` / `Event`. No SEO plugin |
 | **i18n** | Polylang Pro page pairs for every public page, translated menus and UI strings, language-filtered queries |
-| **Ops** | Chapter Settings → **Site build** panel, `wp chapter rebuild` / `wp chapter build-status`, GitHub Actions rebuild workflow, optional Terraform for S3 + CloudFront |
+| **Ops** | Chapter Settings → **Site build** panel, `wp chapter rebuild` / `wp chapter build-status` / `wp chapter audit-urls`, GitHub Actions rebuild workflow, optional Terraform for S3 + CloudFront |
 
 ## Frontends: pick one
 
