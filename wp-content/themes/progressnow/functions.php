@@ -16,6 +16,9 @@ Timber::$dirname = [ 'templates', 'views' ];
 
 new StarterSite();
 
+// Output escaping first: every other domain file may serialize into a <script>.
+require_once __DIR__ . '/inc/escaping.php';
+
 // WP data wiring, one file per domain.
 require_once __DIR__ . '/inc/cache.php';
 require_once __DIR__ . '/inc/identity.php';

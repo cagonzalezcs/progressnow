@@ -1,8 +1,8 @@
 ## 1. Script-context encoder
 
-- [ ] 1.1 Add `inc/escaping.php` with `progressnow_json_for_script( $data ): string` (`JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE`, U+2028/2029 replaced); require it first in `functions.php`
-- [ ] 1.2 Switch `inc/seo.php` JSON-LD output to the encoder; assert `</script>` in a title cannot terminate the block (`tests/test-seo.php`)
-- [ ] 1.3 Switch `inc/shell.php` (`__SHELL_DATA__`, `__NUXT__.config`, importmap) to the encoder; keep `tests/test-shell.php` "hostile content cannot escape the payload" green
+- [x] 1.1 Add `inc/escaping.php` with `progressnow_json_for_script( $data ): string` (`JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE`, U+2028/2029 replaced); require it first in `functions.php`
+- [x] 1.2 Switch `inc/seo.php` JSON-LD output to the encoder; assert `</script>` in a title cannot terminate the block (`tests/test-seo.php`)
+- [x] 1.3 Switch `inc/shell.php` (`__SHELL_DATA__`, `__NUXT__.config`, importmap) to the encoder; keep `tests/test-shell.php` "hostile content cannot escape the payload" green
 - [ ] 1.4 Add the U+2028/`>`/`&` parity vector to `next-js/lib/json-ld.ts` `serializeJsonLd` and `next-js/test/unit/json-ld.spec.ts`
 
 ## 2. Hostile-content regression suite

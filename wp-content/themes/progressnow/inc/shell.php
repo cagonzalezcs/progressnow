@@ -246,11 +246,10 @@ function progressnow_shell_purge_page_cache() {
  * @return string HTML.
  */
 function progressnow_shell_render_tags( array $manifest ) {
-	$json_flags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
-	$lines      = array();
+	$lines = array();
 
 	if ( ! empty( $manifest['importmap'] ) ) {
-		$lines[] = '<script type="importmap">' . wp_json_encode( array( 'imports' => (object) $manifest['importmap'] ), $json_flags ) . '</script>';
+		$lines[] = '<script type="importmap">' . progressnow_json_for_script( array( 'imports' => (object) $manifest['importmap'] ) ) . '</script>';
 	}
 	foreach ( $manifest['css'] as $href ) {
 		$lines[] = sprintf( '<link rel="stylesheet" href="%s" crossorigin>', esc_url( $href ) );
@@ -258,7 +257,7 @@ function progressnow_shell_render_tags( array $manifest ) {
 	foreach ( $manifest['modulepreload'] as $href ) {
 		$lines[] = sprintf( '<link rel="modulepreload" as="script" crossorigin href="%s">', esc_url( $href ) );
 	}
-	$lines[] = '<script>window.__NUXT__={};window.__NUXT__.config=' . wp_json_encode( $manifest['runtimeConfig'], $json_flags ) . '</script>';
+	$lines[] = '<script>window.__NUXT__={};window.__NUXT__.config=' . progressnow_json_for_script( $manifest['runtimeConfig'] ) . '</script>';
 	$lines[] = sprintf( '<script type="module" src="%s" crossorigin></script>', esc_url( $manifest['entry'] ) );
 	foreach ( $manifest['prefetch'] as $href ) {
 		$lines[] = sprintf( '<link rel="prefetch" as="script" crossorigin href="%s">', esc_url( $href ) );
@@ -415,14 +414,15 @@ function progressnow_shell_data( $manifest = null ) {
 }
 
 /**
- * HTML-safe JSON for a `<script type="application/json">` element: `<`, `>`
- * and `&` are escaped so `</script>` can never break out.
+ * HTML-safe JSON for a `<script type="application/json">` element via the
+ * shared script-context encoder (inc/escaping.php): `<`, `>`, `&`, quotes
+ * and `/` are escaped so `</script>` can never break out.
  *
  * @param array $data Shell data.
  * @return string
  */
 function progressnow_shell_data_json( array $data ) {
-	return (string) wp_json_encode( $data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+	return progressnow_json_for_script( $data );
 }
 
 /**
