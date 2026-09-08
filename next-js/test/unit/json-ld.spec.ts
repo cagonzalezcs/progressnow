@@ -112,7 +112,14 @@ describe("json-ld", () => {
     const graph = jsonLdGraph([organizationNode(site, o), null]);
     expect(graph["@context"]).toBe("https://schema.org");
     expect(graph["@graph"]).toHaveLength(1);
-    expect(serializeJsonLd({ a: "</script>" })).toBe('{"a":"\\u003c/script>"}');
+    expect(serializeJsonLd({ a: "</script>" })).toBe('{"a":"\\u003c/script\\u003e"}');
+    // Parity vector with the theme's progressnow_json_for_script (tests/test-shell.php):
+    // no literal <, >, &, U+2028 or U+2029 survives, and the value round-trips.
+    const hostile = "</script><script>alert(1)</script> & <b> 'q' \"dq\" \u2028\u2029";
+    const out = serializeJsonLd({ a: hostile });
+    expect(out).not.toMatch(/[<>&\u2028\u2029]/);
+    expect(out).not.toContain("</script>");
+    expect(JSON.parse(out)).toEqual({ a: hostile });
     expect(canonicalOrigin(post.seo, "https://app.example")).toBe("http://example.org");
     expect(canonicalOrigin({ ...post.seo, canonical: "" }, "https://app.example")).toBe(
       "https://app.example",

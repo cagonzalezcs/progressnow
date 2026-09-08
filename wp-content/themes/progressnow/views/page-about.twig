@@ -63,8 +63,8 @@
 				{# ---- 1. About the Chapter ---- #}
 				{% if about.chapter.visible %}
 				<h2 id="chapter" class="{{ h2class }}">{{ about.chapter.heading }}</h2>
-				<div class="{{ prose }}">{{ about.chapter.p1|raw }}</div>
-				<div class="{{ prose }}">{{ about.chapter.p2|raw }}</div>
+				{# raw: kses #}<div class="{{ prose }}">{{ about.chapter.p1|raw }}</div>
+				{# raw: kses #}<div class="{{ prose }}">{{ about.chapter.p2|raw }}</div>
 
 				{% if about.chapter.photo %}
 					<figure class="m-0 my-1.5 flex flex-col md:my-2 xl:my-3">
@@ -87,14 +87,14 @@
 				{# ---- 2. Mission & History ---- #}
 				{% if about.history.visible %}
 				<h2 id="mission" class="{{ h2class }} {{ h2later }}">{{ about.history.heading }}</h2>
-				<div class="{{ prose }}">{{ about.history.body|raw }}</div>
+				{# raw: kses #}<div class="{{ prose }}">{{ about.history.body|raw }}</div>
 
 				{% if about.history.timeline|length %}
 				<ol class="m-0 flex list-none flex-col gap-2.5 p-0">
 					{% for item in about.history.timeline %}
 						<li class="grid items-baseline gap-3.5 [grid-template-columns:72px_1fr] md:gap-[18px] md:[grid-template-columns:90px_1fr] {{ row }}">
 							<span class="font-display text-[0.95rem] font-normal text-brand md:text-base">{{ item.year }}</span>
-							<span class="text-[0.95rem] leading-[1.55] text-text-body md:text-base">{{ item.text|raw }}</span>
+							{# raw: kses #}<span class="text-[0.95rem] leading-[1.55] text-text-body md:text-base">{{ item.text|raw }}</span>
 						</li>
 					{% endfor %}
 				</ol>
@@ -104,7 +104,7 @@
 				{# ---- 3. Where We Organize ---- #}
 				{% if about.counties.visible %}
 				<h2 id="counties" class="{{ h2class }} {{ h2later }}">{{ about.counties.heading }}</h2>
-				<div class="{{ prose }}">{{ about.counties.intro|raw }}</div>
+				{# raw: kses #}<div class="{{ prose }}">{{ about.counties.intro|raw }}</div>
 
 				<div class="{{ card_grid }}">
 					{% for c in about.counties.cards %}
@@ -124,7 +124,7 @@
 				{# ---- 4. Committees (rows edited under Chapter Settings) ---- #}
 				{% if about.committees.visible %}
 				<h2 id="committees" class="{{ h2class }} {{ h2later }}">{{ about.committees.heading }}</h2>
-				<div class="{{ prose }}">{{ about.committees.intro|raw }}</div>
+				{# raw: kses #}<div class="{{ prose }}">{{ about.committees.intro|raw }}</div>
 
 				<div class="{{ card_grid }}">
 					{% for committee in chapter.committees %}
@@ -143,7 +143,7 @@
 				{# ---- 5. Bylaws & Code of Conduct ---- #}
 				{% if about.governance.visible %}
 				<h2 id="bylaws" class="{{ h2class }} {{ h2later }}">{{ about.governance.heading }}</h2>
-				<div class="{{ prose }}">{{ about.governance.intro|raw }}</div>
+				{# raw: kses #}<div class="{{ prose }}">{{ about.governance.intro|raw }}</div>
 
 				<div class="flex flex-col gap-2.5">
 					{% for doc in about.governance.docs %}
@@ -181,7 +181,7 @@
 				{% if about.dues.visible %}
 				<aside id="dues" class="mt-1.5 {{ callout }}">
 					<div class="font-display text-base font-normal text-brand md:text-[1.05rem]">{{ about.dues.heading }}</div>
-					<div class="text-base leading-[1.65] text-text-body [&_p]:m-0 [&_p+p]:mt-3 [&_a]:font-bold [&_a]:text-accent [&_a]:underline [&_a]:underline-offset-[3px]">{{ about.dues.body|raw }}</div>
+					{# raw: kses #}<div class="text-base leading-[1.65] text-text-body [&_p]:m-0 [&_p+p]:mt-3 [&_a]:font-bold [&_a]:text-accent [&_a]:underline [&_a]:underline-offset-[3px]">{{ about.dues.body|raw }}</div>
 					<a href="{{ chapter.join_url }}" target="_blank" rel="noopener" class="mt-1 self-start {{ pill_fill }}">{{ pll__('Update my dues') }}</a>
 				</aside>
 				{% endif %}
@@ -205,7 +205,7 @@
 				{% endif %}
 
 				{% if chapter.contact_email %}
-					{% include 'partials/dashed-note.twig' with { id: 'contact', heading: pll__('Contact'), body: '<p>' ~ pll__('Questions, ideas, or press —') ~ ' <a class="notranslate" href="mailto:' ~ chapter.contact_email ~ '">' ~ chapter.contact_email ~ '</a></p>' } only %}
+					{% include 'partials/dashed-note.twig' with { id: 'contact', heading: pll__('Contact'), body: '<p>' ~ pll__('Questions, ideas, or press —')|e ~ ' <a class="notranslate" href="mailto:' ~ chapter.contact_email|e('html_attr') ~ '">' ~ chapter.contact_email|e ~ '</a></p>' } only %}
 				{% endif %}
 			</aside>
 

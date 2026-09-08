@@ -351,8 +351,10 @@ function progressnow_seo_head() {
 	$card = ! empty( $image['large'] ) ? 'summary_large_image' : 'summary';
 	printf( '<meta name="twitter:card" content="%s">' . "\n", esc_attr( $card ) );
 
-	$json = wp_json_encode( progressnow_seo_json_ld( $subject ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
-	if ( $json ) {
+	// Script-context encoder (inc/escaping.php): a headline containing
+	// `</script>` can never terminate the block.
+	$json = progressnow_json_for_script( progressnow_seo_json_ld( $subject ) );
+	if ( '' !== $json ) {
 		echo '<script type="application/ld+json">' . $json . '</script>' . "\n";
 	}
 }

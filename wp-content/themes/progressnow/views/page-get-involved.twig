@@ -57,7 +57,7 @@
 							<div aria-hidden="true" class="flex size-12 items-center justify-center rounded-[12px] bg-brand font-display text-[1.4rem] font-normal text-white md:size-14 md:text-[1.6rem]">{{ loop.index }}</div>
 							<div class="flex flex-col gap-2">
 								<div class="text-[1.05rem] font-bold md:text-[1.1rem]">{{ step.title }}</div>
-								<div class="{{ prose_sm }}">{{ step.body|raw }}</div>
+								{# raw: kses #}<div class="{{ prose_sm }}">{{ step.body|raw }}</div>
 								{% if step.link_label and step.href %}
 									<a href="{{ step.href }}"{% if step.external %} target="_blank" rel="noopener"{% endif %} class="{{ link_accent }}">{{ step.link_label }}</a>
 								{% endif %}
@@ -70,7 +70,7 @@
 				{# ---- Committees (cards edited under Chapter Settings) ---- #}
 				{% if gi.committees.visible %}
 				<h2 id="committees" class="{{ h2class }} {{ h2later }}">{{ gi.committees.heading }}</h2>
-				<div class="{{ prose }}">{{ gi.committees.intro|raw }}</div>
+				{# raw: kses #}<div class="{{ prose }}">{{ gi.committees.intro|raw }}</div>
 
 				<div class="{{ card_grid }}">
 					{% for committee in chapter.committees %}
@@ -90,7 +90,7 @@
 					{% for channel in gi.channels.items %}
 						<div class="flex flex-col items-start gap-3 md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-5 {{ row }}">
 							<div class="flex flex-col gap-[3px]">
-								<span class="text-[1.02rem] font-bold md:text-[1.05rem]">{{ channel.label|raw }}</span>
+								{# raw: kses #}<span class="text-[1.02rem] font-bold md:text-[1.05rem]">{{ channel.label|raw }}</span>
 								{% if channel.desc %}
 									<span class="text-[0.9rem] leading-[1.5] text-muted">{{ channel.desc }}</span>
 								{% endif %}
@@ -143,7 +143,7 @@
 				{% endif %}
 
 				{% if chapter.contact_email %}
-					{% include 'partials/dashed-note.twig' with { id: 'contact', heading: pll__('Contact'), body: '<p>' ~ pll__('Questions, ideas, or press —') ~ ' <a class="notranslate" href="mailto:' ~ chapter.contact_email ~ '">' ~ chapter.contact_email ~ '</a></p>' } only %}
+					{% include 'partials/dashed-note.twig' with { id: 'contact', heading: pll__('Contact'), body: '<p>' ~ pll__('Questions, ideas, or press —')|e ~ ' <a class="notranslate" href="mailto:' ~ chapter.contact_email|e('html_attr') ~ '">' ~ chapter.contact_email|e ~ '</a></p>' } only %}
 				{% endif %}
 			</aside>
 

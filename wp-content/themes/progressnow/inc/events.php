@@ -1073,7 +1073,7 @@ function progressnow_events_build_ics() {
 	$lines = array(
 		'BEGIN:VCALENDAR',
 		'VERSION:2.0',
-		'PRODID:-//' . str_replace( '/', '-', $name ) . '//Events//EN',
+		'PRODID:-//' . progressnow_events_ics_escape( str_replace( '/', '-', $name ) ) . '//Events//EN',
 		'CALSCALE:GREGORIAN',
 		'METHOD:PUBLISH',
 		'X-WR-CALNAME:' . progressnow_events_ics_escape( $name . ' Events' ),

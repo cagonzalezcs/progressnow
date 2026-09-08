@@ -403,6 +403,30 @@ class TestSeo extends BaseTestCase {
 		$this->assertSame( get_permalink( $post ), $article['mainEntityOfPage'] );
 	}
 
+	public function test_hostile_headline_cannot_terminate_the_json_ld_block() {
+		// Administrators/Editors have unfiltered_html: the title is stored verbatim.
+		kses_remove_filters();
+		$title = '</script><script>alert(1)</script> Tom & Jerry';
+		update_option( 'options_chapter_name', $title );
+		$this->view_post( array( 'post_title' => $title, 'post_content' => 'Body </script><script>alert(2)</script>' ) );
+		$html = $this->head_output();
+		kses_init_filters();
+
+		// The document still has exactly one script element, and it is the JSON-LD block.
+		$this->assertSame( 1, preg_match_all( '#<script#', $html ), 'exactly one script element' );
+		$this->assertStringNotContainsString( '</script><script>', $html );
+		$this->assertStringNotContainsString( 'alert(1)</script>', $html );
+		preg_match( '#<script type="application/ld\+json">(.*?)</script>#s', $html, $m );
+		$this->assertStringNotContainsString( '<', $m[1], 'no literal < inside the block' );
+		$this->assertStringNotContainsString( '&', $m[1], 'no literal & inside the block' );
+
+		// …and the block round-trips the exact strings as data.
+		$data = $this->json_ld( $html );
+		$this->assertSame( $title, $data['@graph'][0]['name'] );
+		$this->assertSame( $title, $data['@graph'][1]['headline'] );
+		$this->assertSame( 'Body', $data['@graph'][1]['description'], 'description ladder strips tags' );
+	}
+
 	public function test_article_schema_committee_byline_is_organization() {
 		$post = $this->view_post();
 		update_post_meta( $post->ID, 'byline_mode', 'committee' );

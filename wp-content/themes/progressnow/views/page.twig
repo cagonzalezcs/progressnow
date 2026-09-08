@@ -32,7 +32,7 @@
 			<article id="post-{{ post.ID }}" class="post-type-{{ post.post_type }} flex min-w-0 flex-col gap-5 md:gap-[22px] xl:gap-[26px]">
 
 				{% if post.content %}
-					<div class="prose-chapter">{{ post.content }}</div>
+					{# raw: kses #}<div class="prose-chapter">{{ post.content|kses_post|raw }}</div>
 				{% else %}
 					<p class="m-0 {{ prose }}">Our chapter is governed by its members. These documents spell out how we make decisions together, how we treat each other, and what to do when something goes wrong. Every member is encouraged to read them &mdash; and every member has the power to propose changes.</p>
 
@@ -54,7 +54,7 @@
 					<aside id="grievance" class="callout-card mt-1.5 scroll-mt-[calc(110px+var(--wp-admin--admin-bar--height,0px))] {{ callout }}">
 						<div class="font-display text-base font-normal text-brand md:text-[1.05rem]">{{ pll__('Need to report something?') }}</div>
 						{% if grievance_body|default('') %}
-							<div class="prose-chapter text-base leading-[1.65] text-text-body">{{ grievance_body|raw }}</div>
+							{# raw: kses #}<div class="prose-chapter text-base leading-[1.65] text-text-body">{{ grievance_body|raw }}</div>
 						{% else %}
 							<p class="m-0 text-base leading-[1.65] text-text-body">Our grievance officers are here for you. Reports are handled confidentially, and you can always bring a support person.{% if chapter.contact_email %} Email <a href="mailto:{{ chapter.contact_email }}" class="notranslate font-bold text-accent underline underline-offset-[3px] hover:text-brand-deep">{{ chapter.contact_email }}</a> or speak to any grievance officer at a meeting.{% else %} Speak to any grievance officer at a meeting.{% endif %}</p>
 						{% endif %}
@@ -80,7 +80,7 @@
 				] } only %}
 
 				{% if chapter.contact_email %}
-					{% include 'partials/dashed-note.twig' with { id: 'contact', heading: pll__('Contact'), body: '<p>' ~ pll__('Questions, ideas, or press —') ~ ' <a class="notranslate" href="mailto:' ~ chapter.contact_email ~ '">' ~ chapter.contact_email ~ '</a></p>' } only %}
+					{% include 'partials/dashed-note.twig' with { id: 'contact', heading: pll__('Contact'), body: '<p>' ~ pll__('Questions, ideas, or press —')|e ~ ' <a class="notranslate" href="mailto:' ~ chapter.contact_email|e('html_attr') ~ '">' ~ chapter.contact_email|e ~ '</a></p>' } only %}
 				{% endif %}
 			</aside>
 

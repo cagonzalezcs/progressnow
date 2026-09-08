@@ -1,13 +1,20 @@
 schema: spec-driven
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+# Project context (shown to AI when creating artifacts).
+context: |
+  Theme (wp-content/themes/progressnow): Timber/Twig on WordPress, Vue islands; headless
+  frontends next-js/ and nuxt-js/ consume the theme's REST contract.
+
+  Output escaping (security-template-output-escaping):
+  - Twig autoescape is ON (html). Context builders hand Twig unescaped values; never
+    esc_html()/esc_attr() a value bound for a template (double escaping).
+  - Every |raw carries a same-line marker naming its sanitizer: {# raw: kses #},
+    {# raw: encoder #} or {# raw: markup #}. bin/twig-audit.mjs and
+    tests/test-twig-audit.php fail the build otherwise.
+  - Anything serialized into an inline <script> uses progressnow_json_for_script()
+    (inc/escaping.php); never json_encode into a <script> directly.
+  - New public templates need a hostile-content case in tests/test-output-escaping.php
+    (COVERED) or an exclusion reason (NOT_A_SURFACE).
 
 # Per-artifact rules (optional)
 # Add custom rules for specific artifacts.

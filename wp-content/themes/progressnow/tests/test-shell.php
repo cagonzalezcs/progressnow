@@ -363,12 +363,12 @@ class TestShell extends BaseTestCase {
 		$html  = progressnow_shell_render_tags( $this->manifest() );
 		$lines = array_values( array_filter( explode( "\n", $html ) ) );
 
-		$this->assertStringStartsWith( '<script type="importmap">{"imports":{"#entry":"/_nuxt/entry.abc.js"}}</script>', $lines[0] );
+		$this->assertStringStartsWith( '<script type="importmap">{"imports":{"#entry":"\\/_nuxt\\/entry.abc.js"}}</script>', $lines[0] );
 		$this->assertSame( '<link rel="stylesheet" href="/_nuxt/entry.abc.css" crossorigin>', $lines[1] );
 		$this->assertSame( '<link rel="modulepreload" as="script" crossorigin href="/_nuxt/entry.abc.js">', $lines[2] );
 		$this->assertSame( '<link rel="modulepreload" as="script" crossorigin href="/_nuxt/chunk.def.js">', $lines[3] );
-		$this->assertStringStartsWith( '<script>window.__NUXT__={};window.__NUXT__.config={"public":{"wpApiBase":"/wp-json/progressnow/v1"', $lines[4] );
-		$this->assertStringContainsString( '"app":{"baseURL":"/","buildId":"build-1"', $lines[4] );
+		$this->assertStringStartsWith( '<script>window.__NUXT__={};window.__NUXT__.config={"public":{"wpApiBase":"\\/wp-json\\/progressnow\\/v1"', $lines[4] );
+		$this->assertStringContainsString( '"app":{"baseURL":"\\/","buildId":"build-1"', $lines[4] );
 		$this->assertSame( '<script type="module" src="/_nuxt/entry.abc.js" crossorigin></script>', $lines[5] );
 		$this->assertSame( '<link rel="prefetch" as="script" crossorigin href="/_nuxt/route.ghi.js">', $lines[6] );
 		$this->assertStringNotContainsString( '__NUXT_DATA__', $html );
@@ -470,16 +470,18 @@ class TestShell extends BaseTestCase {
 		$json = progressnow_shell_data_json(
 			array(
 				'lang' => '',
-				'data' => array( 'x' => array( 'html' => '</script><script>alert(1)</script> & <b>' ) ),
+				'data' => array( 'x' => array( 'html' => "</script><script>alert(1)</script> & <b> 'q' \"dq\" \u{2028}" ) ),
 			)
 		);
 
 		$this->assertStringNotContainsString( '</script>', $json );
 		$this->assertStringNotContainsString( '<', $json );
 		$this->assertStringNotContainsString( '&', $json );
-		// The closing tag survives only as its JSON unicode escape.
-		$this->assertStringContainsString( chr( 92 ) . 'u003C/script' . chr( 92 ) . 'u003E', $json );
-		$this->assertSame( '</script><script>alert(1)</script> & <b>', json_decode( $json, true )['data']['x']['html'] );
+		$this->assertStringNotContainsString( "'", $json );
+		$this->assertStringNotContainsString( "\u{2028}", $json );
+		// The closing tag survives only as its JSON unicode escape (slash escaped too).
+		$this->assertStringContainsString( chr( 92 ) . 'u003C' . chr( 92 ) . '/script' . chr( 92 ) . 'u003E', $json );
+		$this->assertSame( "</script><script>alert(1)</script> & <b> 'q' \"dq\" \u{2028}", json_decode( $json, true )['data']['x']['html'] );
 	}
 
 	public function test_posts_key_grammar_matches_the_app() {

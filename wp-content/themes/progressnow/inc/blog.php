@@ -667,7 +667,7 @@ function progressnow_post_to_blog_post( $post ) {
 		'slug'        => $post->post_name,
 		'cat'         => progressnow_blog_post_cat( $post ),
 		'date'        => get_the_date( 'M j, Y', $post ),
-		'excerpt'     => wp_strip_all_tags( get_the_excerpt( $post ) ),
+		'excerpt'     => html_entity_decode( wp_strip_all_tags( get_the_excerpt( $post ) ), ENT_QUOTES, 'UTF-8' ),
 		'bylineMode'  => $byline_mode,
 		'author'      => get_the_author_meta( 'display_name', (int) $post->post_author ),
 		'featured'    => is_sticky( $post->ID ),
@@ -959,7 +959,7 @@ function progressnow_blog_front_page_context( $context ) {
 		'date'      => get_the_date( 'F j, Y', $featured ),
 		'read'      => progressnow_blog_read_minutes( $featured ) . ' min read',
 		'title'     => html_entity_decode( get_the_title( $featured ), ENT_QUOTES, 'UTF-8' ),
-		'excerpt'   => wp_strip_all_tags( get_the_excerpt( $featured ) ),
+		'excerpt'   => html_entity_decode( wp_strip_all_tags( get_the_excerpt( $featured ) ), ENT_QUOTES, 'UTF-8' ),
 		'url'       => get_permalink( $featured ),
 		'image'     => progressnow_blog_teaser_image( $featured ),
 	);

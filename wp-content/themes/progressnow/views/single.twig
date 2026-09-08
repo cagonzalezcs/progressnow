@@ -90,7 +90,7 @@
 						{# Prose HTML is kses-sanitized at serialize time (inc/blog.php). #}
 						{% for block in single_post.blocks %}
 							{% if block.type == 'prose' %}
-								<div class="block-prose prose-chapter prose-post w-full">{{ block.html|raw }}</div>
+								{# raw: kses #}<div class="block-prose prose-chapter prose-post w-full">{{ block.html|raw }}</div>
 							{% elseif block.type == 'pull_quote' %}
 								<aside class="block-pull-quote flex w-full flex-col gap-2.5 rounded-[16px] border-l-[5px] border-brand bg-alt px-[22px] py-5 md:gap-3 md:rounded-[20px] md:border-l-[6px] md:px-[30px] md:py-[26px]">
 									<blockquote class="m-0 font-display text-[1.05rem] font-normal leading-[1.4] text-ink md:text-[1.25rem] md:leading-[1.35]">{{ block.quote }}</blockquote>
@@ -157,7 +157,7 @@
 		{# Non-post single (event permalink etc.): plain editor content. #}
 		{% include 'partials/page-header.twig' with { title: function('html_entity_decode', post.title), crumbs: [{ label: pll__('Home'), href: home_url|default('/') }] } only %}
 		<article class="mx-auto max-w-[880px] px-6 py-12">
-			<div class="prose-chapter">{{ post.content }}</div>
+			{# raw: kses #}<div class="prose-chapter">{{ post.content|kses_post|raw }}</div>
 		</article>
 	{% endif %}
 {% endblock %}

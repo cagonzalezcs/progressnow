@@ -191,7 +191,7 @@
 			</div>
 			{% if shell_nuxt %}
 				</div>
-				<script type="application/json" id="__SHELL_DATA__">{{ shell_data_json|raw }}</script>
+				{# raw: encoder #}<script type="application/json" id="__SHELL_DATA__">{{ shell_data_json|raw }}</script>
 			{% endif %}
 			{{ function('wp_footer') }}
 		{% endblock %}
