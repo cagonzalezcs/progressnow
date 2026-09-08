@@ -169,3 +169,50 @@ test("the 301 language redirect is secured too", async ({ request }) => {
   expect(lang.status()).toBe(301);
   expectSecurityHeaders(lang.headers(), "/es/");
 });
+
+/* Internal render headers (openspec next-edge-trust-boundaries § Internal
+ * render headers are not honored from the public edge): the proxy steers its
+ * own 404/500 renders with x-nonce, x-pathname, x-not-found-render and
+ * x-error-render. From a public client they are stripped before any decision. */
+test.describe("spoofed internal headers are ignored", () => {
+  test("x-nonce never reaches the CSP or the inline scripts", async ({ request }) => {
+    const spoof = "QUFBQUFBQUFBQUFBQUFBQQ==";
+    const res = await request.get("/", { headers: { "x-nonce": spoof } });
+    expect(res.status()).toBe(200);
+    const nonce = expectSecurityHeaders(res.headers(), "/ (x-nonce spoof)");
+    expect(nonce).not.toBe(spoof);
+    const html = await res.text();
+    expect(html).not.toContain(spoof);
+    expect(html).toContain(`nonce="${nonce}"`);
+  });
+
+  test("x-not-found-render + x-pathname on an unknown path still yield the 404 for that path", async ({
+    request,
+  }) => {
+    const res = await request.get("/does-not-exist/", {
+      headers: { "x-not-found-render": "1", "x-pathname": "/es/", "x-nonce": "AAAA" },
+    });
+    expect(res.status()).toBe(404);
+    expect(res.headers()["x-robots-tag"]).toBe("noindex");
+    const html = await res.text();
+    expect(html).toContain('data-route-kind="not_found"');
+    // The spoofed x-pathname did not switch the language of the document.
+    expect(html).toMatch(/<html[^>]*\slang="en"/);
+  });
+
+  test("x-error-render on a real path yields the page, not the error document", async ({
+    request,
+  }) => {
+    const res = await request.get("/about/", { headers: { "x-error-render": "1" } });
+    expect(res.status()).toBe(200);
+    const html = await res.text();
+    expect(html).toContain('data-route-kind="about"');
+    expect(html).not.toContain('data-route-kind="error"');
+  });
+
+  test("x-pathname alone does not switch the language or the chrome", async ({ request }) => {
+    const res = await request.get("/", { headers: { "x-pathname": "/es/inicio/" } });
+    expect(res.status()).toBe(200);
+    expect(await res.text()).toMatch(/<html[^>]*\slang="en"/);
+  });
+});

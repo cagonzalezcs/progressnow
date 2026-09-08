@@ -1,5 +1,6 @@
 import { execSync } from "node:child_process";
 import type { NextConfig } from "next";
+import { imageRemotePatterns } from "./lib/env";
 import { STATIC_SECURITY_HEADERS } from "./lib/security-headers";
 
 /* Headless Next.js frontend for the Progress Now theme (openspec design
@@ -9,7 +10,8 @@ import { STATIC_SECURITY_HEADERS } from "./lib/security-headers";
  *   WP_API_BASE            absolute …/wp-json/progressnow/v1 (server-only)
  *   WP_ORIGIN              WordPress origin; derived from WP_API_BASE when unset
  *   NEXT_PUBLIC_SITE_ORIGIN public origin of this app (sitemap, robots, OG)
- *   IMAGE_HOSTS            comma-separated hosts allowed for next/image
+ *   IMAGE_HOSTS            comma-separated hosts allowed for next/image: a bare
+ *                          host is https-only; `http://host[:port]` opts in to http
  *   MOCK_API=1             fixture-backed mock API (dev / e2e)
  *
  * Runtime validation of the full env contract lives in lib/env.ts; this file
@@ -20,8 +22,10 @@ const apiBase =
   (process.env.MOCK_API === "1" ? "http://127.0.0.1:8787/wp-json/progressnow/v1" : "");
 const wpOrigin = process.env.WP_ORIGIN ?? (apiBase ? new URL(apiBase).origin : "");
 
-/** Hosts next/image may optimize from: IMAGE_HOSTS, else the WordPress host. */
-const imageHosts = (process.env.IMAGE_HOSTS ?? (wpOrigin ? new URL(wpOrigin).hostname : ""))
+/** Upstreams next/image may optimize from: IMAGE_HOSTS, else the WordPress origin
+ * (scheme included, so a production https WordPress is https-only and the http
+ * fixture mock keeps its loopback http — openspec next-edge-trust-boundaries). */
+const imageHosts = (process.env.IMAGE_HOSTS ?? wpOrigin)
   .split(",")
   .map((h) => h.trim())
   .filter(Boolean);
@@ -67,10 +71,8 @@ const nextConfig: NextConfig = {
     // The optimizer refuses private-IP upstreams (SSRF guard). Only the fixture mock on
     // 127.0.0.1 needs it; a production WordPress must be reachable on a public host.
     dangerouslyAllowLocalIP: process.env.MOCK_API === "1",
-    remotePatterns: imageHosts.flatMap((hostname) => [
-      { protocol: "https" as const, hostname },
-      { protocol: "http" as const, hostname },
-    ]),
+    // Bare hosts → https only; `http://…` entries are honored as written (port included).
+    remotePatterns: imageRemotePatterns(imageHosts),
   },
   async rewrites() {
     if (!wpOrigin) return [];

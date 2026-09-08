@@ -19,6 +19,7 @@ export function JsonLd({
       type="application/ld+json"
       id={id}
       nonce={nonce}
+      // html-sink: encoder — serializeJsonLd (JSON.stringify + `<` → \u003c, no script breakout)
       dangerouslySetInnerHTML={{ __html: serializeJsonLd(graph) }}
     />
   );

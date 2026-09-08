@@ -6,6 +6,8 @@ import { join, extname } from "node:path";
 import handler from "./api/index.mjs";
 
 const PORT = Number(process.env.PORT ?? 8787);
+// Snapshot URLs re-home to this origin (api/index.mjs publicOrigin); never to a request header.
+process.env.PUBLIC_ORIGIN ??= `http://127.0.0.1:${PORT}`;
 const PUBLIC = new URL("./public/", import.meta.url).pathname;
 const TYPES = {
   ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".svg": "image/svg+xml",

@@ -30,7 +30,11 @@ export function RootDocument({
     // (font-size, data-text-size, data-motion, .a11y-contrast) before React hydrates.
     <html lang={lang} suppressHydrationWarning>
       <head>
-        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: A11Y_BOOTSTRAP_SCRIPT }} />
+        <script
+          nonce={nonce}
+          // html-sink: static — A11Y_BOOTSTRAP_SCRIPT is a build-time constant, no request data
+          dangerouslySetInnerHTML={{ __html: A11Y_BOOTSTRAP_SCRIPT }}
+        />
       </head>
       <body data-testid="site-body">
         <A11yProvider>{children}</A11yProvider>

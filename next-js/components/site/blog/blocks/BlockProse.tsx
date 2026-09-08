@@ -5,6 +5,7 @@ export function BlockProse({ html }: { html: string }) {
     <div
       className="block-prose prose-chapter prose-post w-full"
       data-testid="block-prose"
+      // html-sink: kses — post/page content, sanitized server-side
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );

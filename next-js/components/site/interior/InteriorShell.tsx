@@ -127,6 +127,7 @@ export function Html({
       id={id}
       className={className}
       data-testid="interior-html"
+      // html-sink: kses — interior page fields, sanitized server-side
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );

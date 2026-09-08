@@ -1,6 +1,15 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createProxyManifest } from "@/lib/proxy-manifest";
-import { ERROR_RENDER_HEADER, NONCE_HEADER } from "@/lib/request-path";
+import {
+  ERROR_RENDER_HEADER,
+  INTERNAL_TOKEN,
+  INTERNAL_TOKEN_HEADER,
+  isTrustedInternal,
+  NONCE_HEADER,
+  NOT_FOUND_RENDER_HEADER,
+  PATHNAME_HEADER,
+  stripInternalHeaders,
+} from "@/lib/request-path";
 import {
   applySecurityHeaders,
   buildCsp,
@@ -34,8 +43,11 @@ import { upstreamHealth } from "@/lib/upstream-health";
  *     request's Content-Security-Policy header, which Next reads to stamp its
  *     own inline scripts. Internal 404/500 renders reuse the outer request's
  *     nonce so the HTML the proxy returns matches the header it sets.
- *     CSP_REPORT_ONLY=1 ships the policy as report-only for the rollout. */
-export const PATHNAME_HEADER = "x-pathname";
+ *     CSP_REPORT_ONLY=1 ships the policy as report-only for the rollout.
+ *  6. Trusts the internal headers (x-pathname, x-nonce, x-not-found-render,
+ *     x-error-render) only from its own render loop, which authenticates with
+ *     x-internal-token (lib/request-path; openspec next-edge-trust-boundaries).
+ *     A public request carrying them gets them stripped before any decision. */
 export const NOT_FOUND_PATH = "/_not-found-route/";
 export const ERROR_PATH = "/_error-route/";
 /** How long a recorded data-layer failure keeps the proxy probing before it trusts the cache again. */
@@ -55,7 +67,7 @@ function routes() {
   return manifest;
 }
 
-const RENDER_HEADER = "x-not-found-render";
+const RENDER_HEADER = NOT_FOUND_RENDER_HEADER;
 const REPORT_ONLY = process.env.CSP_REPORT_ONLY === "1";
 
 /** The policy for this request's nonce; hosts come from the same env next.config.ts reads. */
@@ -106,6 +118,7 @@ async function renderInternally(
         [RENDER_HEADER]: "1",
         [PATHNAME_HEADER]: pathname,
         [NONCE_HEADER]: nonce,
+        [INTERNAL_TOKEN_HEADER]: INTERNAL_TOKEN,
         "accept-language": request.headers.get("accept-language") ?? "",
         ...extraHeaders,
       },
@@ -129,12 +142,14 @@ async function renderInternally(
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const isRenderLoop = request.headers.has(RENDER_HEADER);
   const headers = new Headers(request.headers);
+  // Only the proxy's own render loop (x-internal-token) may steer the render; anyone
+  // else loses the internal headers here, before routing, status and CSP are decided.
+  if (!isTrustedInternal(request)) stripInternalHeaders(headers);
+  headers.delete(INTERNAL_TOKEN_HEADER);
+  const isRenderLoop = headers.has(RENDER_HEADER);
   // The internal 404/500 renders keep the visitor's original path (language, chrome).
   if (!isRenderLoop || !headers.get(PATHNAME_HEADER)) headers.set(PATHNAME_HEADER, pathname);
-  // Only the proxy's own render loop may ask the layout for the error document.
-  if (!isRenderLoop) headers.delete(ERROR_RENDER_HEADER);
   // One nonce per visitor request; the render loop inherits it so the internally
   // rendered HTML carries the same nonce the outer response advertises.
   const nonce = (isRenderLoop && headers.get(NONCE_HEADER)) || generateNonce();

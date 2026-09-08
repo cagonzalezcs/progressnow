@@ -27,6 +27,56 @@ const httpUrl = (name: string) =>
       { message: `${name} must use http or https` },
     );
 
+/** Bare host (`cdn.example.org`) or a scheme-qualified origin (`http://cms.local:8890`). */
+const IMAGE_HOST_ENTRY = /^(?:https?:\/\/)?[a-z0-9.-]+(?::\d{1,5})?$/i;
+
+const imageHosts = z
+  .string()
+  .optional()
+  .refine((v) => splitList(v).every((h) => IMAGE_HOST_ENTRY.test(h)), {
+    message:
+      "IMAGE_HOSTS entries must be bare hosts (https only) or http(s)://host[:port] origins, comma-separated",
+  });
+
+function splitList(value: string | undefined): string[] {
+  return (value ?? "")
+    .split(",")
+    .map((h) => h.trim())
+    .filter(Boolean);
+}
+
+export interface ImageRemotePattern {
+  protocol: "http" | "https";
+  hostname: string;
+  port?: string;
+}
+
+/** `next/image` remotePatterns for IMAGE_HOSTS entries (openspec
+ * next-edge-trust-boundaries § Image optimization uses HTTPS upstreams in
+ * production): a bare host allows https only; an entry that names its scheme
+ * (`http://cms.local:8890`) is honored as written, port included. */
+export function imageRemotePatterns(entries: readonly string[]): ImageRemotePattern[] {
+  const out: ImageRemotePattern[] = [];
+  const seen = new Set<string>();
+  for (const raw of entries) {
+    const entry = raw.trim();
+    if (!entry) continue;
+    let pattern: ImageRemotePattern;
+    if (entry.includes("://")) {
+      const url = new URL(entry);
+      pattern = { protocol: url.protocol === "http:" ? "http" : "https", hostname: url.hostname };
+      if (url.port) pattern.port = url.port;
+    } else {
+      pattern = { protocol: "https", hostname: entry.toLowerCase() };
+    }
+    const key = `${pattern.protocol}://${pattern.hostname}:${pattern.port ?? ""}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(pattern);
+  }
+  return out;
+}
+
 const schema = z.object({
   WP_API_BASE: httpUrl("WP_API_BASE").transform((u) => u.replace(/\/+$/, "")),
   WP_ORIGIN: httpUrl("WP_ORIGIN")
@@ -37,7 +87,7 @@ const schema = z.object({
     .string({ required_error: "CHAPTER_REBUILD_SECRET is required" })
     .min(16, { message: "CHAPTER_REBUILD_SECRET must be at least 16 characters" }),
   WP_BUILD_STATUS_URL: httpUrl("WP_BUILD_STATUS_URL").optional(),
-  IMAGE_HOSTS: z.string().optional(),
+  IMAGE_HOSTS: imageHosts,
   MOCK_API: z.enum(["1", "true", "0", "false", ""]).optional(),
 });
 
@@ -80,17 +130,16 @@ export function readEnv(source: Record<string, string | undefined>): Env {
   }
   const parsed = result.data;
   const wpOrigin = parsed.WP_ORIGIN ?? new URL(parsed.WP_API_BASE).origin;
-  const hosts = (parsed.IMAGE_HOSTS ?? "")
-    .split(",")
-    .map((h) => h.trim())
-    .filter(Boolean);
+  const hosts = splitList(parsed.IMAGE_HOSTS);
   return {
     WP_API_BASE: parsed.WP_API_BASE,
     WP_ORIGIN: wpOrigin,
     NEXT_PUBLIC_SITE_ORIGIN: parsed.NEXT_PUBLIC_SITE_ORIGIN,
     CHAPTER_REBUILD_SECRET: parsed.CHAPTER_REBUILD_SECRET,
     WP_BUILD_STATUS_URL: parsed.WP_BUILD_STATUS_URL,
-    IMAGE_HOSTS: hosts.length ? hosts : [new URL(wpOrigin).hostname],
+    // The default is the WordPress ORIGIN, scheme included: a production https WordPress is
+    // https-only for the optimizer; the http fixture mock (MOCK_API) keeps its loopback http.
+    IMAGE_HOSTS: hosts.length ? hosts : [wpOrigin],
     MOCK_API: mock,
   };
 }

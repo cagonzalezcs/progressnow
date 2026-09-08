@@ -112,8 +112,15 @@ test.describe.serial("POST /api/rebuild", () => {
       },
     });
     expect(wrong.status()).toBe(401);
-    const unsigned = await request.post("/api/rebuild", { data: body });
+    const unsigned = await request.post("/api/rebuild", {
+      data: Buffer.from(body, "utf8"),
+      headers: { "content-type": "application/json" },
+    });
     expect(unsigned.status()).toBe(401);
+    // Not JSON at all is refused before the signature is even looked at (openspec
+    // next-revalidation-receiver § Body size is enforced while streaming).
+    const textPlain = await request.post("/api/rebuild", { data: body });
+    expect(textPlain.status()).toBe(415);
 
     await page.goto(`/blog/${SLUG}/`);
     await expect(page.locator("h1")).not.toHaveText("Should not appear");

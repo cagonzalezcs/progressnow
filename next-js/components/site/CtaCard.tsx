@@ -39,6 +39,7 @@ export function CtaCard({
         <p
           className="m-0 text-[0.95rem] leading-[1.55] [&_a]:font-bold [&_a]:text-white [&_a]:underline lg:text-base"
           data-testid="cta-card-body"
+          // html-sink: kses — Chapter Settings CTA body, sanitized server-side
           dangerouslySetInnerHTML={{ __html: body }}
         />
       ) : null}

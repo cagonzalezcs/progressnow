@@ -42,6 +42,40 @@ function json(status: number, body: unknown): Response {
   return Response.json(body, { status, headers: { "cache-control": "no-store" } });
 }
 
+/** `application/json` (parameters ignored), the only media type the dispatcher sends. */
+export function isJsonContentType(value: string | null): boolean {
+  return (value ?? "").split(";")[0]!.trim().toLowerCase() === "application/json";
+}
+
+/** Reads at most `max` bytes of the body (openspec next-revalidation-receiver
+ * § Body size is enforced while streaming): the stream is cancelled the moment
+ * the ceiling is crossed, whatever Content-Length claimed, so an unsigned
+ * client can never make the receiver buffer more than the cap. */
+export async function readBodyBounded(
+  request: Request,
+  max: number,
+): Promise<{ ok: true; body: string } | { ok: false }> {
+  if (!request.body) return { ok: true, body: "" };
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let received = 0;
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      received += value.byteLength;
+      if (received > max) {
+        await reader.cancel("payload too large").catch(() => {});
+        return { ok: false };
+      }
+      chunks.push(value);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+  return { ok: true, body: Buffer.concat(chunks).toString("utf8") };
+}
+
 function parsePayload(text: string): RebuildPayload | null {
   let data: unknown;
   try {
@@ -67,16 +101,23 @@ function parsePayload(text: string): RebuildPayload | null {
 
 export async function handleRebuild(request: Request, deps: ReceiverDeps): Promise<Response> {
   const { logger } = deps;
+  if (!isJsonContentType(request.headers.get("content-type"))) {
+    logger.warn("receiver", { outcome: "rejected", reason: "content-type", status: 415 });
+    return json(415, { error: "expected content-type: application/json" });
+  }
+  // Fast path: an honest Content-Length above the cap is refused before a byte is read…
   const declared = Number(request.headers.get("content-length") ?? 0);
   if (declared > MAX_BODY_BYTES) {
     logger.warn("receiver", { outcome: "rejected", reason: "size", status: 413, declared });
     return json(413, { error: "payload too large" });
   }
-  const body = await request.text();
-  if (Buffer.byteLength(body, "utf8") > MAX_BODY_BYTES) {
+  // …and a missing or lying one is caught while streaming, never after buffering it all.
+  const read = await readBodyBounded(request, MAX_BODY_BYTES);
+  if (!read.ok) {
     logger.warn("receiver", { outcome: "rejected", reason: "size", status: 413 });
     return json(413, { error: "payload too large" });
   }
+  const body = read.body;
 
   const timestamp = request.headers.get("x-chapter-timestamp") ?? "";
   const signature = request.headers.get("x-chapter-signature") ?? "";

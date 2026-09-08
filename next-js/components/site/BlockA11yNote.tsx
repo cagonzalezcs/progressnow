@@ -22,6 +22,7 @@ export function BlockA11yNote({
       <div
         className="prose-chapter text-base leading-[1.65] text-text-body [&>*+*]:mt-3"
         data-testid="block-a11y-note-body"
+        // html-sink: kses — WordPress wysiwyg, sanitized server-side
         dangerouslySetInnerHTML={{ __html: html }}
       />
     </aside>

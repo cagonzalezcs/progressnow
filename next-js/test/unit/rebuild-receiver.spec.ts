@@ -89,7 +89,11 @@ describe("handleRebuild", () => {
   it("answers 401 for a missing, wrong, or stale signature and invalidates nothing", async () => {
     const body = JSON.stringify(payload);
     for (const req of [
-      new Request("http://app.test/api/rebuild", { method: "POST", body }),
+      new Request("http://app.test/api/rebuild", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body,
+      }),
       signedRequest(body, { secret: "not-the-shared-secret" }),
       signedRequest(body, { timestamp: "1788604400" }), // 410 s old
       signedRequest(body, { timestamp: "17886048" }),
@@ -110,6 +114,87 @@ describe("handleRebuild", () => {
     const res = await handleRebuild(signedRequest(big), d.deps);
     expect(res.status).toBe(413);
     expect(d.revalidate).not.toHaveBeenCalled();
+  });
+
+  it("answers 413 for a declared Content-Length above the cap without reading the body", async () => {
+    const d = deps();
+    let pulled = 0;
+    const req = new Request("http://app.test/api/rebuild", {
+      method: "POST",
+      headers: { "content-type": "application/json", "content-length": String(MAX_BODY_BYTES + 1) },
+      body: new ReadableStream<Uint8Array>({
+        pull(controller) {
+          pulled++;
+          controller.enqueue(new Uint8Array(1024));
+        },
+      }),
+      // @ts-expect-error -- Node's fetch requires `duplex` for stream bodies; not in lib.dom yet
+      duplex: "half",
+    });
+    expect((await handleRebuild(req, d.deps)).status).toBe(413);
+    // At most the stream's own construction-time read-ahead (highWaterMark 1); the receiver read nothing.
+    expect(pulled).toBeLessThanOrEqual(1);
+  });
+
+  /* openspec next-revalidation-receiver § Body size is enforced while streaming:
+   * a chunked (no Content-Length) 1 MB body is cut off at the cap — unsigned,
+   * so the 413 also proves the size check runs before the signature check. */
+  it("stops reading a chunked oversized body at the cap and answers 413 before the signature check", async () => {
+    const d = deps();
+    const CHUNK = 1024;
+    const TOTAL = 1024 * 1024;
+    let sent = 0;
+    let cancelled: unknown = null;
+    const req = new Request("http://app.test/api/rebuild", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: new ReadableStream<Uint8Array>({
+        pull(controller) {
+          if (sent >= TOTAL) return controller.close();
+          sent += CHUNK;
+          controller.enqueue(new Uint8Array(CHUNK).fill(0x78));
+        },
+        cancel(reason) {
+          cancelled = reason;
+        },
+      }),
+      // @ts-expect-error -- Node's fetch requires `duplex` for stream bodies; not in lib.dom yet
+      duplex: "half",
+    });
+    const res = await handleRebuild(req, d.deps);
+    expect(res.status).toBe(413);
+    expect(cancelled).toBe("payload too large");
+    // The producer was stopped shortly after the cap (a few chunks of read-ahead), never at 1 MB.
+    expect(sent).toBeGreaterThan(MAX_BODY_BYTES);
+    expect(sent).toBeLessThan(MAX_BODY_BYTES * 4);
+    expect(d.revalidate).not.toHaveBeenCalled();
+    expect(d.lines.join("\n")).toContain('"reason":"size"');
+  });
+
+  it("answers 415 for a signed request that is not application/json and invalidates nothing", async () => {
+    const body = JSON.stringify(payload);
+    for (const type of ["text/plain", "application/x-www-form-urlencoded", ""]) {
+      const d = deps();
+      const req = signedRequest(body);
+      const headers = new Headers(req.headers);
+      if (type) headers.set("content-type", type);
+      else headers.delete("content-type");
+      const res = await handleRebuild(
+        new Request(req.url, { method: "POST", headers, body }),
+        d.deps,
+      );
+      expect(res.status, type || "(none)").toBe(415);
+      expect(d.revalidate).not.toHaveBeenCalled();
+      expect(d.callback).not.toHaveBeenCalled();
+    }
+    // Parameters are fine: WordPress sends `application/json; charset=utf-8`.
+    const d = deps();
+    const req = signedRequest(body);
+    const headers = new Headers(req.headers);
+    headers.set("content-type", "application/json; charset=utf-8");
+    expect(
+      (await handleRebuild(new Request(req.url, { method: "POST", headers, body }), d.deps)).status,
+    ).toBe(202);
   });
 
   it("answers 400 for malformed JSON or a payload that is not a rebuild event", async () => {
