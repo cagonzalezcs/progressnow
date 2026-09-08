@@ -7,15 +7,15 @@
 
 ## 2. Hostile-content regression suite
 
-- [ ] 2.1 Add `tests/test-output-escaping.php`: seed hostile values into post title, dek, committee, event venue/city, Chapter Settings name/tagline/contact, menu label, attachment alt, category label
-- [ ] 2.2 Render front, posts index, single post, single event, calendar, about, get-involved, generic page, 404, search, author, ICS; assert no `<script`, `onerror=`, or unescaped `"` from the fixtures survives outside the JSON-LD/`__SHELL_DATA__` encoders
-- [ ] 2.3 Add single-escape assertions (`Tom & Jerry's "Quotes"` renders once-escaped) for every field family
+- [x] 2.1 Add `tests/test-output-escaping.php`: seed hostile values into post title, dek, committee, event venue/city, Chapter Settings name/tagline/contact, menu label, attachment alt, category label
+- [x] 2.2 Render front, posts index, single post, single event, calendar, about, get-involved, generic page, 404, search, author, ICS; assert no `<script`, `onerror=`, or unescaped `"` from the fixtures survives outside the JSON-LD/`__SHELL_DATA__` encoders
+- [x] 2.3 Add single-escape assertions (`Tom & Jerry's "Quotes"` renders once-escaped) for every field family
 
 ## 3. Autoescape
 
-- [ ] 3.1 Enable `autoescape => 'html'` in `StarterSite::update_twig_environment_options`
-- [ ] 3.2 Mark every existing `|raw` with `{# raw: kses #}` (24 sites in `views/`) and `{# raw: encoder #}` for `shell_data_json` / `html_data_attrs`
-- [ ] 3.3 Sweep context builders (`inc/options.php`, `inc/identity.php`, `inc/pages.php`, `inc/interior.php`, `inc/payloads.php`, `src/StarterSite.php`) for `esc_html`/`esc_attr` applied to Twig-bound values; remove or mark
+- [x] 3.1 Enable `autoescape => 'html'` in `StarterSite::update_twig_environment_options`
+- [x] 3.2 Mark every existing `|raw` with `{# raw: kses #}` (24 sites in `views/`) and `{# raw: encoder #}` for `shell_data_json` / `html_data_attrs`
+- [x] 3.3 Sweep context builders (`inc/options.php`, `inc/identity.php`, `inc/pages.php`, `inc/interior.php`, `inc/payloads.php`, `src/StarterSite.php`) for `esc_html`/`esc_attr` applied to Twig-bound values; remove or mark
 - [ ] 3.4 Run `composer test` until 2.x is green; manually load every template in EN and ES
 
 ## 4. Gate

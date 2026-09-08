@@ -35,11 +35,11 @@
 				<li aria-current="page" class="text-ink">{{ title }}</li>
 			</ol>
 		</nav>
-		{% if extra_before|default('') %}{{ extra_before|raw }}{% endif %}
+		{# raw: markup #}{% if extra_before|default('') %}{{ extra_before|raw }}{% endif %}
 		<h1 class="m-0 font-display font-normal {{ title_class }}">{{ title }}</h1>
 		{% if lede|default('') %}
 			<p class="m-0 max-w-[56ch] text-[1.05rem] font-semibold leading-[1.5] md:text-[1.12rem] xl:text-[1.25rem]">{{ lede }}</p>
 		{% endif %}
-		{% if extra|default('') %}{{ extra|raw }}{% endif %}
+		{# raw: markup #}{% if extra|default('') %}{{ extra|raw }}{% endif %}
 	</div>
 </section>

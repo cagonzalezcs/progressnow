@@ -321,6 +321,10 @@ class StarterSite extends Site {
 		 */
 		// $twig->addExtension( new Twig\Extension\StringLoaderExtension() );
 
+		// Render-time kses for editor HTML that is emitted |raw (the REST
+		// payloads apply the same wp_kses_post to page content, inc/payloads.php).
+		$twig->addFilter( new Twig\TwigFilter( 'kses_post', 'wp_kses_post' ) );
+
 		return $twig;
 	}
 
@@ -334,9 +338,13 @@ class StarterSite extends Site {
 	 * @return array
 	 */
 	function update_twig_environment_options( $options ) {
-	    // $options['autoescape'] = true;
+		// Every {{ … }} is HTML-escaped (openspec security-template-output-escaping).
+		// Trusted HTML opts out with |raw + a same-line marker naming its sanitizer
+		// ({# raw: kses #}, {# raw: encoder #}, {# raw: markup #}); bin/twig-audit.mjs
+		// and tests/test-twig-audit.php fail on an unmarked |raw.
+		$options['autoescape'] = 'html';
 
-	    return $options;
+		return $options;
 	}
 
     /**

@@ -94,7 +94,7 @@
 					{# Prose/a11y HTML is kses-sanitized at serialize time (inc/events.php). #}
 					{% for block in ev.blocks %}
 						{% if block.type == 'prose' %}
-							<div class="block-prose prose-chapter prose-post w-full">{{ block.html|raw }}</div>
+							{# raw: kses #}<div class="block-prose prose-chapter prose-post w-full">{{ block.html|raw }}</div>
 						{% elseif block.type == 'good_to_know' %}
 							<div class="block-good-to-know flex w-full flex-col gap-2.5 rounded-[16px] bg-alt px-[22px] py-5 md:gap-3 md:rounded-[20px] md:px-[30px] md:py-[26px]">
 								<div class="text-[0.92rem] font-extrabold uppercase tracking-[0.04em] text-brand md:text-base">{{ pll__('Good to know') }}</div>
@@ -117,7 +117,7 @@
 						{% elseif block.type == 'a11y_note' %}
 							<aside class="block-a11y-note flex w-full flex-col gap-2 rounded-[16px] border-l-[5px] border-brand bg-alt px-[22px] py-5 md:rounded-[20px] md:border-l-[6px] md:px-[30px] md:py-[26px]">
 								<div class="text-[0.92rem] font-extrabold uppercase tracking-[0.04em] text-brand md:text-base">{{ pll__('Accessibility & childcare') }}</div>
-								<div class="prose-chapter text-base leading-[1.65] text-text-body [&>*+*]:mt-3">{{ block.html|raw }}</div>
+								{# raw: kses #}<div class="prose-chapter text-base leading-[1.65] text-text-body [&>*+*]:mt-3">{{ block.html|raw }}</div>
 							</aside>
 						{% elseif block.type == 'map' %}
 							<p class="m-0 text-base leading-[1.65] text-text-body md:text-[1.05rem]">{{ block.address }}</p>

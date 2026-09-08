@@ -886,7 +886,7 @@ function progressnow_about_context( $post_id ) {
 	}
 
 	$identity            = progressnow_identity();
-	$short               = esc_html( $identity['short_name'] );
+	$short               = $identity['short_name']; // Twig autoescape / island props escape it.
 	$region              = $identity['region_label'];
 	$committees_link_url = progressnow_pages_text( $post_id, 'about_committees_link_url', '/get-involved/#committees' );
 
@@ -1058,7 +1058,7 @@ function progressnow_about_context( $post_id ) {
  */
 function progressnow_get_involved_context( $post_id, $join_url ) {
 	$identity = progressnow_identity();
-	$short    = esc_html( $identity['short_name'] );
+	$short    = $identity['short_name']; // Twig autoescape / island props escape it.
 
 	// No default profile: the Instagram channel card renders only when the
 	// chapter has configured the URL in Chapter Settings.
