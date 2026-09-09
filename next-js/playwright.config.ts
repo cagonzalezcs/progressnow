@@ -39,7 +39,10 @@ export default defineConfig({
     { name: "e2e", testMatch: /.*\.spec\.ts$/, testIgnore: /(a11y|failure)\// },
     { name: "a11y", testMatch: /a11y\/.*\.spec\.ts$/ },
     // Serial, mock-mutating scenarios (upstream failure, canonical origin): never overlap the
-    // other projects, nor each other — `npm run test:failure` passes --workers=1.
+    // other projects, nor each other — `npm run test:failure` passes --workers=1. The
+    // dependency orders an unfiltered `npx playwright test`; Playwright also runs it under
+    // --project=failure, so the script passes --no-deps (CI would otherwise re-run e2e + a11y
+    // on one worker first — openspec next-test-harness § Serial project isolation).
     {
       name: "failure",
       testMatch: /failure\/.*\.spec\.ts$/,
