@@ -102,7 +102,7 @@
 				<div class="flex flex-col items-center gap-1 rounded-[20px] border-2 border-dashed border-border-muted px-8 py-16 text-center md:col-span-2 md:row-start-2">
 					<div class="text-[1.25rem] font-bold">{{ pll__('No events on the books yet') }}</div>
 					<p class="m-0 max-w-[42ch] text-[1.25rem] font-medium leading-[1.45]">
-						{# raw: markup #}{{ pll__('New meetings and actions land on the %s first — subscribe there and never miss one.')|e|format('<a href="' ~ calendar_url|e('html_attr') ~ '" class="font-bold text-accent underline underline-offset-4 hover:text-brand-deep">' ~ pll__('calendar')|e ~ '</a>')|raw }}
+						{# raw: markup #}{{ pll__('New meetings and actions land on the %s first — subscribe there and never miss one.')|e('esc_html')|format('<a href="' ~ calendar_url|e('html_attr') ~ '" class="font-bold text-accent underline underline-offset-4 hover:text-brand-deep">' ~ pll__('calendar')|e('esc_html') ~ '</a>')|raw }}
 					</p>
 				</div>
 			{% else %}

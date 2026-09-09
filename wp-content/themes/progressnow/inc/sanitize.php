@@ -11,7 +11,27 @@
  * Public contract (other domains call these):
  * - progressnow_safe_url( $raw ): string — esc_url_raw() restricted to
  *   http/https/mailto/tel; '' when rejected so callers can omit the key.
+ * - progressnow_plain_text( $value ): string — trimmed, entity-decoded plain
+ *   text for a field that is rendered as text (Twig `{{ }}`, island props).
  */
+
+/**
+ * Plain text from kses-normalized storage. Every save runs through kses
+ * (inc/roles.php), which stores `&` as `&amp;` and stray `<` as `&lt;`; a
+ * value bound as *text* must carry the literal characters and be escaped
+ * once at render (Twig autoescape / Vue). Not for HTML-bearing fields —
+ * those keep their entities and go through wp_kses_post.
+ *
+ * @param mixed $value Stored value.
+ * @return string
+ */
+function progressnow_plain_text( $value ) {
+	if ( ! is_string( $value ) && ! is_numeric( $value ) ) {
+		return '';
+	}
+
+	return trim( html_entity_decode( (string) $value, ENT_QUOTES, 'UTF-8' ) );
+}
 
 /**
  * Allowed URL schemes for front-end link/src sinks.
@@ -34,7 +54,9 @@ function progressnow_safe_url( $raw ) {
 	if ( ! is_string( $raw ) && ! is_numeric( $raw ) ) {
 		return '';
 	}
-	$raw = trim( (string) $raw );
+	// kses-normalized storage (every role saves through kses, inc/roles.php)
+	// holds `?a=1&amp;b=2`; a bound :href/:src needs the literal `&`.
+	$raw = trim( html_entity_decode( (string) $raw, ENT_QUOTES, 'UTF-8' ) );
 	if ( '' === $raw ) {
 		return '';
 	}
