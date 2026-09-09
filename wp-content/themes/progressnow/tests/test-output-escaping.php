@@ -14,7 +14,9 @@
  * tests/test-shell.php); menus are terms, which WorDBless cannot store, so
  * the menu-derived context keys (`header_nav_items`, `header_about_items`,
  * `footer_columns`) are seeded directly with the shape StarterSite builds.
- * Roles with unfiltered_html store values verbatim — kses filters are off.
+ * The kses save filters are off so the hostile strings are stored verbatim
+ * (no role can do that in production — inc/roles.php — which makes this the
+ * worst case, not the expected one).
  */
 
 use WorDBless\BaseTestCase;

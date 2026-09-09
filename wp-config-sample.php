@@ -89,6 +89,13 @@ define( 'WP_DEBUG', false );
 
 /* Add any custom values between this line and the "stop editing" line. */
 
+/**
+ * No role may store executable markup: the theme already denies the
+ * `unfiltered_html` capability for everyone (inc/roles.php); this makes core
+ * deny it too, whatever theme is active. See docs/authoring-trust-model.md.
+ */
+define( 'DISALLOW_UNFILTERED_HTML', true );
+
 
 
 /* That's all, stop editing! Happy publishing. */

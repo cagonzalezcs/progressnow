@@ -15,6 +15,8 @@ class TestTwigAudit extends TestCase {
 	const ENCODED = array( 'shell_data_json' );
 	const MARKER  = '/\{#\s*raw:\s*(?:kses|encoder|markup)(?:\s*,\s*(?:kses|encoder|markup))*\s*#\}/';
 	const RAW     = '/\|\s*raw\b/';
+	/** `|e`, `|escape`, `|e()`, `|e('html')` — Twig's built-in double-encoding strategy. */
+	const BUILTIN_ESCAPE = '/\|\s*e(?:scape)?(?:\s*\(\s*(?:[\'"]html[\'"])?\s*\))?(?![\w(])/';
 
 	/**
 	 * Audit a Twig source.
@@ -44,6 +46,9 @@ class TestTwigAudit extends TestCase {
 
 			if ( preg_match( self::RAW, $code ) && ! preg_match( self::MARKER, $line ) ) {
 				$findings[] = "{$at} |raw without a {# raw: kses|encoder|markup #} marker";
+			}
+			if ( preg_match( self::BUILTIN_ESCAPE, $code ) ) {
+				$findings[] = "{$at} built-in |e double-encodes stored entities — use |e('esc_html')";
 			}
 
 			$from = 0;
@@ -120,7 +125,20 @@ class TestTwigAudit extends TestCase {
 	public function test_autoescape_is_enabled() {
 		$starter = file_get_contents( dirname( __DIR__ ) . '/src/StarterSite.php' );
 
-		$this->assertMatchesRegularExpression( "/^\s*\\\$options\['autoescape'\]\s*=\s*'html';/m", $starter, 'src/StarterSite.php must set $options[\'autoescape\'] = \'html\'' );
+		$this->assertMatchesRegularExpression( "/^\s*\\\$options\['autoescape'\]\s*=\s*'esc_html';/m", $starter, 'src/StarterSite.php must set $options[\'autoescape\'] = \'esc_html\'' );
+	}
+
+	public function test_builtin_escape_filter_is_a_finding() {
+		$this->assertSame( array(), self::audit_twig( "{{ a|e('esc_html') }} {{ b|e('html_attr') }} {{ c|e(\"html_attr\") }} {{ d|escape('esc_html') }} {{ e|e('d') }}", 'x.twig' ) );
+		foreach ( array( '{{ a|e }}', '{{ a | e }}', '{{ a|escape }}', '{{ a|e() }}', "{{ a|e('html') }}", '{{ a|e("html") }}', "'x' ~ a|e ~ 'y'" ) as $bad ) {
+			$this->assertSame(
+				array( "x.twig:1 built-in |e double-encodes stored entities — use |e('esc_html')" ),
+				self::audit_twig( $bad, 'x.twig' ),
+				$bad
+			);
+		}
+		// Prose in a Twig comment is not a finding.
+		$this->assertSame( array(), self::audit_twig( '{# use |e here #}', 'x.twig' ) );
 	}
 
 	public function test_every_raw_is_marked_and_scripts_inline_only_encoder_output() {

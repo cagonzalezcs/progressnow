@@ -32,7 +32,8 @@ function progressnow_pages_external( $url ) {
  * @param int    $post_id Post ID.
  * @param string $name    Field name.
  * @param string $default Design copy fallback.
- * @param bool   $kses    Run wp_kses_post (fields rendered unescaped w/ markup).
+ * @param bool   $kses    Run wp_kses_post (fields rendered unescaped w/ markup);
+ *                        otherwise the value is plain text (entity-decoded).
  * @return string
  */
 function progressnow_pages_text( $post_id, $name, $default, $kses = false ) {
@@ -45,9 +46,9 @@ function progressnow_pages_text( $post_id, $name, $default, $kses = false ) {
 		return $default;
 	}
 
-	$value = trim( $value );
-
-	return $kses ? wp_kses_post( $value ) : $value;
+	// Plain text is entity-decoded (kses-normalized storage, inc/sanitize.php);
+	// HTML keeps its entities and goes through kses.
+	return $kses ? wp_kses_post( trim( $value ) ) : progressnow_plain_text( $value );
 }
 
 /**

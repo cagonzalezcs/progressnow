@@ -277,7 +277,7 @@ function progressnow_front_hero( $front_id ) {
 	foreach ( array_keys( $defaults ) as $key ) {
 		$value = get_field( 'hero_' . $key, $front_id );
 		if ( is_string( $value ) && '' !== trim( $value ) ) {
-			$hero[ $key ] = trim( $value );
+			$hero[ $key ] = progressnow_plain_text( $value ); // text fields; URLs re-checked below
 		}
 	}
 	$hero['cta_primary_url']   = progressnow_safe_url( $hero['cta_primary_url'] );

@@ -298,10 +298,13 @@ function progressnow_blog_prose_heading_ids( $html ) {
 /**
  * Plain-text pass for captions, quotes, attributions, and callout fields:
  * strips all markup (the islands render these as escaped text, so this is
- * defense-in-depth + parity with the Gutenberg serializer).
+ * defense-in-depth + parity with the Gutenberg serializer), then decodes
+ * entities: every save now runs through kses (inc/roles.php), which
+ * normalizes `&` → `&amp;` and stray `<` → `&lt;` inside block attrs, and a
+ * value bound as text (`{{ }}`, Twig autoescape) must not carry them.
  */
 function progressnow_blog_kses_plain( $text ) {
-	return trim( wp_strip_all_tags( (string) $text ) );
+	return trim( html_entity_decode( wp_strip_all_tags( (string) $text ), ENT_QUOTES, 'UTF-8' ) );
 }
 
 /* -------------------------------------------------------------------------
