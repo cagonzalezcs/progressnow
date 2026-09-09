@@ -1,8 +1,10 @@
 <?php
 /**
  * WP-CLI: `wp chapter rebuild [--wait] [--timeout=<seconds>]` and
- * `wp chapter build-status [--format=<table|json>]` (openspec design D7).
- * Same code paths as the admin panel; nothing here runs a process.
+ * `wp chapter build-status [--format=<table|json>]` (openspec design D7),
+ * plus the read-only security audits `audit-urls`, `audit-roles` and
+ * `audit-markup`. Same code paths as the admin panel; nothing here runs a
+ * process.
  *
  * @package progressnow
  */
@@ -169,6 +171,101 @@ class Progressnow_CLI_Chapter {
 
 		\WP_CLI\Utils\format_items( 'table', $findings, array( 'where', 'id', 'field', 'value' ) );
 		WP_CLI::warning( count( $findings ) . ' unsafe URL value(s); fix them in wp-admin.' );
+	}
+
+	/**
+	 * Inventory users and roles for the least-privilege audit
+	 * (docs/authoring-trust-model.md): every user with their role(s), plus
+	 * whether they resolve `unfiltered_html` (always "no" with the theme
+	 * active) and any stored role that still lists the capability.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--format=<format>]
+	 * : table or json.
+	 * ---
+	 * default: table
+	 * options:
+	 *   - table
+	 *   - json
+	 * ---
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp chapter audit-roles
+	 *     wp chapter audit-roles --format=json
+	 *
+	 * @subcommand audit-roles
+	 *
+	 * @param array $args       Positional args.
+	 * @param array $assoc_args Flags.
+	 */
+	public function audit_roles( $args, $assoc_args ) {
+		$users  = progressnow_audit_users();
+		$roles  = progressnow_roles_with_unfiltered_html();
+		$format = \WP_CLI\Utils\get_flag_value( $assoc_args, 'format', 'table' );
+
+		if ( 'json' === $format ) {
+			WP_CLI::line( wp_json_encode( array( 'users' => $users, 'rolesWithUnfilteredHtml' => $roles ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
+			return;
+		}
+
+		\WP_CLI\Utils\format_items( 'table', $users, array( 'id', 'login', 'name', 'roles', 'unfilteredHtml' ) );
+
+		$admins = array_filter( $users, fn( $u ) => in_array( 'administrator', explode( ',', $u['roles'] ), true ) );
+		WP_CLI::log( sprintf( '%d user(s), %d Administrator(s). Administrator is for maintainers only; authors belong in Author/Editor (wp user set-role <login> <role>).', count( $users ), count( $admins ) ) );
+
+		$leak = array_filter( $users, fn( $u ) => 'YES' === $u['unfilteredHtml'] );
+		if ( $leak || $roles ) {
+			WP_CLI::error( sprintf( 'unfiltered_html is live: users [%s], stored roles [%s]. inc/roles.php must be active.', implode( ',', array_column( $leak, 'login' ) ), implode( ',', $roles ) ) );
+		}
+		WP_CLI::success( 'No user or role holds unfiltered_html.' );
+	}
+
+	/**
+	 * Report stored content that still carries executable markup (script,
+	 * iframe, object/embed, inline event handlers, javascript: URLs) that
+	 * wp_kses_post() strips on save — content persisted by an Administrator
+	 * before kses became unconditional. Read-only: clean the hits in wp-admin
+	 * (re-saving the post runs kses now).
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--format=<format>]
+	 * : table or json.
+	 * ---
+	 * default: table
+	 * options:
+	 *   - table
+	 *   - json
+	 * ---
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp chapter audit-markup
+	 *     wp chapter audit-markup --format=json
+	 *
+	 * @subcommand audit-markup
+	 *
+	 * @param array $args       Positional args.
+	 * @param array $assoc_args Flags.
+	 */
+	public function audit_markup( $args, $assoc_args ) {
+		$findings = progressnow_audit_stored_markup();
+		$format   = \WP_CLI\Utils\get_flag_value( $assoc_args, 'format', 'table' );
+
+		if ( 'json' === $format ) {
+			WP_CLI::line( wp_json_encode( $findings, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
+			return;
+		}
+
+		if ( ! $findings ) {
+			WP_CLI::success( 'No stored executable markup found.' );
+			return;
+		}
+
+		\WP_CLI\Utils\format_items( 'table', $findings, array( 'where', 'id', 'field', 'token' ) );
+		WP_CLI::warning( count( $findings ) . ' stored value(s) carry executable markup; clean them in wp-admin.' );
 	}
 }
 

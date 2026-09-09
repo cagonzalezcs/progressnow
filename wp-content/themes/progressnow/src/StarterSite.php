@@ -325,6 +325,10 @@ class StarterSite extends Site {
 		// payloads apply the same wp_kses_post to page content, inc/payloads.php).
 		$twig->addFilter( new Twig\TwigFilter( 'kses_post', 'wp_kses_post' ) );
 
+		// The autoescape strategy: esc_html semantics (no double-encoding of
+		// the entities kses/wptexturize store), inc/escaping.php.
+		$twig->getRuntime( Twig\Runtime\EscaperRuntime::class )->setEscaper( 'esc_html', 'progressnow_esc_html' );
+
 		return $twig;
 	}
 
@@ -338,11 +342,13 @@ class StarterSite extends Site {
 	 * @return array
 	 */
 	function update_twig_environment_options( $options ) {
-		// Every {{ … }} is HTML-escaped (openspec security-template-output-escaping).
-		// Trusted HTML opts out with |raw + a same-line marker naming its sanitizer
+		// Every {{ … }} is HTML-escaped (openspec security-template-output-escaping)
+		// with the `esc_html` strategy (progressnow_esc_html: no double-encoding
+		// of stored entities, since every role saves through kses). Trusted HTML
+		// opts out with |raw + a same-line marker naming its sanitizer
 		// ({# raw: kses #}, {# raw: encoder #}, {# raw: markup #}); bin/twig-audit.mjs
-		// and tests/test-twig-audit.php fail on an unmarked |raw.
-		$options['autoescape'] = 'html';
+		// and tests/test-twig-audit.php fail on an unmarked |raw or a bare |e.
+		$options['autoescape'] = 'esc_html';
 
 		return $options;
 	}

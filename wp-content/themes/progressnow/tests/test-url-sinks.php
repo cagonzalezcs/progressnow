@@ -26,9 +26,11 @@ class TestUrlSinks extends BaseTestCase {
 		do_action( 'init' );
 		$this->request_uri = $_SERVER['REQUEST_URI'] ?? null;
 
-		// The capability-less test user routes inserts through the kses save
-		// filters, which backslash-escape block comment JSON and break
-		// parse_blocks. Real editors have unfiltered_html; drop the filters.
+		// Fixtures are inserted unslashed, and the kses save filters
+		// (stripslashes → kses → addslashes) would leave the block comment
+		// JSON backslashed under WorDBless, breaking parse_blocks. Drop them
+		// here; the real save path (every role through kses, inc/roles.php)
+		// is exercised by tests/test-roles.php.
 		kses_remove_filters();
 
 		parent::set_up();

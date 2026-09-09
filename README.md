@@ -243,6 +243,7 @@ All operator settings are `wp-config.php` constants. Full reference: `docs/deplo
 | `CHAPTER_REBUILD_SECRET` | HMAC secret for the webhook and the `/build-status` callback |
 | `CHAPTER_REBUILD_DEBOUNCE` | Seconds to coalesce edits (default 90) |
 | `CHAPTER_CANONICAL_ORIGIN` | Origin used for canonical, `hreflang`, `og:url` and the core sitemap when a headless frontend is primary (default: site URL) |
+| `DISALLOW_UNFILTERED_HTML` | Set `true` (recommended): core denies `unfiltered_html` even when the theme is inactive. The theme denies it for every role regardless — see `docs/authoring-trust-model.md` for the role model and audits |
 
 Everything chapter-specific (name, short name, region label, headline, logos, hero photo, socials, newsletter URL, contact email, committees, footer tagline…) lives in **Chapter Settings** in wp-admin, with generic placeholder fallbacks. Social and newsletter URLs have *no* default; the UI that needs them renders only when they are set.
 

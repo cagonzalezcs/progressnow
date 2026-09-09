@@ -6,7 +6,12 @@
  * so `composer test` alone catches a regression.
  *
  * Rules:
- *  1. Autoescape is on: src/StarterSite.php sets `$options['autoescape'] = 'html';`.
+ *  1. Autoescape is on with the theme's strategy: src/StarterSite.php sets
+ *     `$options['autoescape'] = 'esc_html';` (progressnow_esc_html — esc_html
+ *     semantics, no double-encoding of kses-normalized storage). A bare `|e`
+ *     / `|escape` or `|e('html')` in views/ is Twig's double-encoding built-in
+ *     and is a finding: write `|e('esc_html')` (attribute/JSON contexts keep
+ *     `|e('html_attr')`).
  *  2. Every `|raw` in views/ carries a same-line marker naming its sanitizer:
  *     `{# raw: kses #}` (wp_kses'd editor HTML), `{# raw: encoder #}`
  *     (progressnow_json_for_script output), `{# raw: markup #}` (HTML authored
@@ -28,7 +33,9 @@ const ENCODED = ["shell_data_json"];
 const MARKER =
   /\{#\s*raw:\s*(?:kses|encoder|markup)(?:\s*,\s*(?:kses|encoder|markup))*\s*#\}/;
 const RAW = /\|\s*raw\b/;
-const AUTOESCAPE = /^\s*\$options\['autoescape'\]\s*=\s*'html';/m;
+const AUTOESCAPE = /^\s*\$options\['autoescape'\]\s*=\s*'esc_html';/m;
+// `|e`, `|escape`, `|e()`, `|e('html')` / `|e("html")` — Twig's built-in html strategy.
+const BUILTIN_ESCAPE = /\|\s*e(?:scape)?(?:\s*\(\s*(?:['"]html['"])?\s*\))?(?![\w(])/;
 
 function walk(dir, ext, out = []) {
   for (const entry of readdirSync(dir)) {
@@ -47,7 +54,7 @@ export function audit(root = ROOT) {
   const starter = readFileSync(join(root, "src/StarterSite.php"), "utf8");
   if (!AUTOESCAPE.test(starter)) {
     findings.push(
-      "src/StarterSite.php:1 Twig autoescape is not enabled ($options['autoescape'] = 'html')",
+      "src/StarterSite.php:1 Twig autoescape is not set to the theme strategy ($options['autoescape'] = 'esc_html')",
     );
   }
 
@@ -65,6 +72,11 @@ export function audit(root = ROOT) {
       if (RAW.test(code) && !MARKER.test(line)) {
         findings.push(
           `${at} |raw without a {# raw: kses|encoder|markup #} marker`,
+        );
+      }
+      if (BUILTIN_ESCAPE.test(code)) {
+        findings.push(
+          `${at} built-in |e double-encodes stored entities — use |e('esc_html')`,
         );
       }
       // <script> element bodies (open and close may share a line).

@@ -21,6 +21,7 @@ npm run typecheck  # vue-tsc only
 npm run lint       # eslint
 npm test           # vitest — category-token drift + contract fixtures
 composer test      # PHPUnit (WorDBless) — no DB needed
+wp chapter audit-roles | audit-markup | audit-urls   # on the host: read-only security audits (inc/cli.php)
 ```
 
 ## Chapter identity (`inc/identity.php`)
@@ -62,6 +63,8 @@ Twig renders page shells; Vue mounts on `[data-vue-island]` elements:
 
 | File | Owns |
 |---|---|
+| `inc/roles.php` | authoring least privilege: `unfiltered_html` denied for every role (`map_meta_cap`/`user_has_cap`) and stripped from stored roles on `init`; user/role and stored-markup audits behind `wp chapter audit-roles` / `audit-markup` |
+| `inc/sanitize.php` | `progressnow_safe_url()` scheme allow-list for every URL sink (entity-decodes kses-normalized storage first); `wp chapter audit-urls` |
 | `inc/identity.php` | Chapter Settings → Identity & brand: name/short name/region label, headline, brand media with placeholder fallbacks |
 | `inc/events.php` | `event` CPT, `event_category` taxonomy + color term meta, event ACF fields, ICS feed (`/feed/chapter-events/`; legacy slugs 301), ChapterEvent serialization |
 | `inc/blog.php` | category term colors, post settings (dek, byline mode, committee…), post_content block → BlogPost/SinglePostData serialization (`progressnow_blog_blocks_from_content`) |
@@ -109,12 +112,23 @@ The whole site reads one token set declared in `src/css/tailwind.css` (`@theme`,
 
 ### Output escaping
 
-Twig runs with **autoescape on** (`html` strategy, `StarterSite::update_twig_environment_options`): every `{{ … }}` is HTML-escaped, so context builders hand Twig **unescaped** values (no `esc_html()`/`esc_attr()` before the template — that would double-escape). Attribute JSON stays `|json_encode|e("html_attr")`.
+Twig runs with **autoescape on** (`esc_html` strategy, `StarterSite::update_twig_environment_options`): every `{{ … }}` is HTML-escaped, so context builders hand Twig **unescaped** values (no `esc_html()`/`esc_attr()` before the template — that would double-escape). Attribute JSON stays `|json_encode|e("html_attr")`.
+
+- **`esc_html` strategy, not Twig's `html`**: `progressnow_esc_html()` (`inc/escaping.php`) is `_wp_specialchars( …, double_encode: false )` — core's `esc_html()` semantics. Storage is entity-normalized (every role saves through kses, `inc/roles.php`, so `&` is stored as `&amp;`; wptexturize emits `&#038;`), and Twig's built-in strategy would render those as the literal text "&amp;". `<`, `>`, quotes and bare `&` are still escaped; an existing entity passes through once. A bare `|e`/`|escape` or `|e('html')` in a template is the double-encoding built-in and fails the audit — write `|e('esc_html')`. Plain-text values headed for island props/JSON (not Twig) decode at the serializer instead: `progressnow_plain_text()`, `progressnow_blog_kses_plain()`, `progressnow_safe_url()`.
 
 - **Trusted HTML opts out with `|raw` plus a same-line marker naming the sanitizer**: `{# raw: kses #}` (editor HTML through `wp_kses_post`, or `|kses_post` at render time), `{# raw: encoder #}` (`progressnow_json_for_script()` output), `{# raw: markup #}` (HTML authored by the theme/core whose interpolated values are escaped explicitly with `|e` / `|e("html_attr")`). Put the marker at the start of the line (Twig strips the newline after a trailing `#}`).
 - **Inline `<script>` JSON goes through one encoder**: `progressnow_json_for_script()` in `inc/escaping.php` (JSON-LD, `__SHELL_DATA__`, `__NUXT__.config`, the importmap, and anything new). It escapes `<`, `>`, `&`, quotes, `/` and U+2028/9 so a value can never close the element; never pass `JSON_UNESCAPED_SLASHES`. `next-js/lib/json-ld.ts` `serializeJsonLd` keeps parity.
-- **Gate**: `node bin/twig-audit.mjs` (also `npm run audit:twig`, and the `js` CI job) fails on an unmarked `|raw`, a `<script>` that interpolates anything but the encoder's output, `json_encode` concatenated into a `<script>` line, or autoescape switched off; `tests/test-twig-audit.php` runs the same rules under `composer test`.
+- **Gate**: `node bin/twig-audit.mjs` (also `npm run audit:twig`, and the `js` CI job) fails on an unmarked `|raw`, a bare/built-in `|e`, a `<script>` that interpolates anything but the encoder's output, `json_encode` concatenated into a `<script>` line, or autoescape not set to `esc_html`; `tests/test-twig-audit.php` runs the same rules under `composer test`.
 - **Regression suite**: `tests/test-output-escaping.php` seeds hostile strings into every editor field family and renders every public template (plus the JSON-LD head, the Nuxt shell payload and the ICS feed). A new template in `views/` must be added to its `COVERED` list (with a render) or to `NOT_A_SURFACE` with a reason.
+
+### Authoring least privilege (`inc/roles.php`)
+
+Every save runs through kses for **every role**: `unfiltered_html` resolves to `do_not_allow` via `map_meta_cap` (core's own `DISALLOW_UNFILTERED_HTML` mechanism), is dropped from `user_has_cap`, and is removed from any stored role on `init`, so a role editor or plugin that re-grants it is undone on the next request. Administrators therefore cannot persist `<script>`/`<iframe>`/inline handlers; links, headings, lists, images and block-comment JSON survive `wp_kses_post` (the editor `\uXXXX`-escapes `<>&"--` inside attrs).
+
+- kses normalizes `&` → `&amp;` (and stray `<` → `&lt;`) inside stored text and block attrs (core `filter_block_content`); ACF applies the same kses on save. Twig text renders it as typed via the `esc_html` autoescape strategy (above); plain-text island props decode at the serializer — `progressnow_plain_text()` (ACF text reads: `progressnow_pages_text`, identity options, hero copy), `progressnow_blog_kses_plain()`, `progressnow_safe_url()` — so `Arts & Culture` renders as typed. HTML-bearing fields (`|raw` / `v-html`) keep the entities, which is correct HTML.
+- `progressnow_blog_kses_prose()` is the only allow-list feeding `v-html` prose: `p h2 h3 h4 ul ol li a[href title rel target] strong em b i br blockquote cite code sub sup mark s`. No raw-embed allow-list exists (video goes through the `progressnow/video` block); extend a named list deliberately rather than re-granting the capability.
+- Role model, audit runbook and reassignment steps: `docs/authoring-trust-model.md`. `wp chapter audit-roles` (users/roles, exits non-zero if the capability is live) and `wp chapter audit-markup` (stored executable markup from before kses was unconditional) are read-only.
+- Guardrails: `tests/test-roles.php` runs the real save path (logged-in Administrator, `kses_init()`, slashed input) and asserts no stored role lists the capability, a re-grant is denied and stripped, script/iframe are dropped, rich content and block JSON survive. Hosts should also set `define( 'DISALLOW_UNFILTERED_HTML', true );`.
 
 ### REST API (`/wp-json/progressnow/v1`)
 
