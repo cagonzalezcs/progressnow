@@ -341,6 +341,12 @@ test("a hash link focuses its heading after client navigation without leaving a 
   await page.goto("/");
   await page.getByRole("contentinfo").getByRole("link", { name: "FAQ" }).click();
   await expect(page).toHaveURL(/\/about\/#faq$/);
+  // The route streams its content behind a Suspense boundary (app/[[...slug]]/
+  // page.tsx), so the URL can commit while <main> still holds the `route-pending`
+  // fallback and no #faq: FocusManager then lands on <main> and hands focus to the
+  // heading once it mounts. Whichever way the envelope races the commit, the
+  // heading ends up focused; the hand-off itself is pinned by
+  // test/component/focus-manager.test.tsx, where the streaming order is scripted.
   const heading = page.locator("#faq");
   await expect(heading).toBeFocused();
   // tabindex is lent for the focus and returned once focus moves on.
