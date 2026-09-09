@@ -129,6 +129,7 @@ Key properties:
 │   └── Dockerfile      standalone image (node:22-alpine, non-root, HEALTHCHECK)
 ├── docs/
 │   ├── deployment.md            operator guide: constants, GitHub config, same-host vs CDN, headless Next.js (§10), cutover, rollback
+│   ├── security-gates.md        CI security gates (PHPCS sniffs, gitleaks, artifact guard), the theme's headers + CSP rollout
 │   └── accessibility-statement.md  EN/ES base text for the public Accessibility page
 ├── infra/terraform/     reference S3 + CloudFront + GitHub OIDC module (optional)
 ├── openspec/            specs (current behavior) + changes (proposals, designs, tasks)
@@ -319,9 +320,15 @@ v4 "Progress Now" system, one token set in `src/css/tailwind.css` (Tailwind v4 `
 ```bash
 # theme
 cd wp-content/themes/progressnow
-composer test     # PHPUnit on WorDBless (no DB): contracts, REST, SEO, payloads, shell, rebuild, brand audit, sanitization…
+composer test     # PHPUnit on WorDBless (no DB): contracts, REST, SEO, payloads, shell, rebuild, brand audit, sanitization, security headers…
+composer lint     # PHPCS security sniffs over the theme (the php-sast CI gate)
 npm test          # vitest: category-token drift, contract fixtures, header/language-switcher behavior
 npm run typecheck && npm run lint
+
+# repo-wide security gates (docs/security-gates.md)
+.github/scripts/artifact-guard.sh                  # no archives, dumps, installers, wp-config.php or .env tracked
+gitleaks dir . --config .gitleaks.toml --redact    # secret scan (brew install gitleaks)
+git config core.hooksPath .githooks                # once per clone: pre-commit mirror of both
 
 # nuxt-js
 cd nuxt-js
@@ -384,7 +391,7 @@ Open changes in `openspec/changes/` (task counts at time of writing):
 | `security-authoring-least-privilege` | 0/11 | Drop `unfiltered_html` for all roles, documented role model |
 | `security-rest-cache-dos-hardening` | 0/11 | Pagination max, no negative/search transients, date-window clamps, ICS caching |
 | `security-runtime-hardening` | 0/15 | Production `wp-config` baseline, salts runbook, xmlrpc/user-enum off |
-| `security-headers-and-cicd-gates` | 0/14 | CSP (report-only first), HSTS and friends; PHPCS security sniffs, gitleaks, artifact guard in CI |
+| `security-headers-and-cicd-gates` | 11/14 | Done: nosniff/frame/referrer/permissions headers, HSTS, nonce CSP shipped report-only with a violation sink (`wp chapter csp-reports`), PHPCS security sniffs + gitleaks + artifact guard in CI and required for merge to `main`, `docs/security-gates.md`. Remaining: tune from real reports and flip `CHAPTER_CSP_MODE` to `enforce`, browser verification under enforcement, optional Psalm taint |
 | `security-dependency-lifecycle` | 0/14 | Composer/npm audits, Renovate, patch SLA |
 | `security-remove-duplicator-and-purge-artifacts` | 0/16 | Superseded by `open-source-release-readiness` |
 
@@ -408,6 +415,7 @@ What that means in practice:
 1. Say in the PR description whether the change was human-written, AI-written or mixed. Nobody will judge; it just tells the reviewer where to look harder.
 2. Include how you verified it (command you ran, page you loaded, test you added).
 3. Keep unrelated changes in separate PRs so a partial review can still merge something.
+4. Expect the security gates: PHPCS security sniffs over the theme, gitleaks and the artifact guard are required checks on `main`. [`docs/security-gates.md`](docs/security-gates.md) says how to run them locally and what to do when one fails (spoiler: fix the code; a bare `phpcs:ignore` or a directory-wide allowlist is a review blocker).
 
 **Add yourself to `humans.txt`.** Every site built from this repo ships [`wp-content/themes/progressnow/humans.txt`](wp-content/themes/progressnow/humans.txt). If you contribute, add your name and a link (GitHub, LinkedIn, personal site, whatever you like) under **Team** in the same PR. Being listed there is the only credit this project can offer, so take it.
 

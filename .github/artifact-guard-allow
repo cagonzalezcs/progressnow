@@ -1,0 +1,5 @@
+# artifact-guard exceptions — one POSIX ERE per line, matched against the
+# repo-relative path, with a reason. Keep this list short and honest.
+#
+# The sample config is the documented template, not a real wp-config.php.
+^wp-config-sample\.php$

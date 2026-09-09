@@ -343,8 +343,11 @@ function progressnow_seo_head() {
 		if ( '' === (string) $content ) {
 			continue;
 		}
-		$escaped = in_array( $property, array( 'og:url', 'og:image' ), true ) ? esc_url( $content ) : esc_attr( $content );
-		printf( '<meta property="%s" content="%s">' . "\n", esc_attr( $property ), $escaped );
+		printf(
+			'<meta property="%s" content="%s">' . "\n",
+			esc_attr( $property ),
+			in_array( $property, array( 'og:url', 'og:image' ), true ) ? esc_url( $content ) : esc_attr( $content )
+		);
 	}
 
 	// Per-content image → big card; chapter default / logo fallback → summary.
@@ -355,7 +358,7 @@ function progressnow_seo_head() {
 	// `</script>` can never terminate the block.
 	$json = progressnow_json_for_script( progressnow_seo_json_ld( $subject ) );
 	if ( '' !== $json ) {
-		echo '<script type="application/ld+json">' . $json . '</script>' . "\n";
+		echo '<script type="application/ld+json">' . $json . '</script>' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $json is progressnow_json_for_script() output (script-context encoder)
 	}
 }
 

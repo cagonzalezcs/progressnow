@@ -1,0 +1,47 @@
+# gitleaks configuration (openspec security-headers-and-cicd-gates § secret scanning).
+# CI: the `secrets` job in .github/workflows/ci.yml scans every commit on push
+# and pull_request. Locally: `gitleaks protect --staged` from the pre-commit
+# hook (.githooks/pre-commit) when gitleaks is installed.
+#
+# Extends the default ruleset; only allowlists below. Add an entry ONLY for a
+# value that is provably not a credential (a fixture, a documented placeholder)
+# and say why in a comment — an allowlisted real secret is worse than a noisy CI.
+
+title = "progressnow"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Fixtures, placeholders and generated assets that trip entropy/pattern rules"
+paths = [
+  # Lockfiles and built assets: integrity hashes, not secrets.
+  '''(^|/)package-lock\.json$''',
+  '''(^|/)composer\.lock$''',
+  '''(^|/)dist/''',
+  '''(^|/)\.output/''',
+  # Committed contract fixtures and the mock API: synthetic data only.
+  '''^wp-content/themes/progressnow/tests/fixtures/''',
+  '''^next-js/test/mock/''',
+  '''^nuxt-js/shared/mock/''',
+  '''^deploy/mock-api/''',
+]
+regexes = [
+  # Documented placeholders in wp-config-sample.php / docs (the WordPress salts
+  # template and the `put your unique phrase here` markers).
+  '''put your unique phrase here''',
+  # Test-only signing secrets used by the Playwright/PHPUnit suites (named as such).
+  '''playwright-test-secret''',
+  '''[A-Za-z0-9_-]*(test|mock|fixture|example)[A-Za-z0-9_-]*-secret''',
+  # next-js/test/unit/env.spec.ts: the counting-hex placeholder that stands in
+  # for CHAPTER_REBUILD_SECRET in the env-contract unit test.
+  '''0123456789abcdef0123456789abcdef''',
+  # openspec/changes/archive/2026-07-02-rest-data-layer/design.md: prose
+  # ("auth, SSR/hydration framework") that trips the generic-api-key rule.
+  '''SSR/hydration''',
+]
+stopwords = [
+  "example",
+  "fixture",
+  "placeholder",
+]

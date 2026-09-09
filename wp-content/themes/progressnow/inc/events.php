@@ -908,7 +908,7 @@ function progressnow_events_calendar_context( $context, $timber_post ) {
 
 	$context['calendar_api_base'] = rest_url( 'progressnow/v1' );
 	$context['calendar_ics_url']  = $ics_url;
-	$context['calendar_gcal_url'] = 'https://calendar.google.com/calendar/r?cid=' . urlencode( preg_replace( '#^https?://#', 'webcal://', $ics_url ) );
+	$context['calendar_gcal_url'] = 'https://calendar.google.com/calendar/r?cid=' . rawurlencode( preg_replace( '#^https?://#', 'webcal://', $ics_url ) );
 
 	// Server fallback list (crawlers, Nuxt shells): the next twelve months,
 	// same serializer as GET /events.
@@ -1008,7 +1008,7 @@ function progressnow_events_legacy_feed_slugs() {
  * 301 a legacy feed URL to the canonical ICS feed.
  */
 function progressnow_events_redirect_legacy_feed() {
-	wp_redirect( get_feed_link( 'chapter-events' ), 301 );
+	wp_safe_redirect( get_feed_link( 'chapter-events' ), 301 );
 	exit;
 }
 
@@ -1059,7 +1059,7 @@ function progressnow_events_render_ics() {
 	// Same policy as the REST layer: editors fresh, anonymous edge-cacheable.
 	header( 'Cache-Control: ' . ( is_user_logged_in() ? 'no-store' : 'public, max-age=300, stale-while-revalidate=3600' ) );
 
-	echo progressnow_events_cached_ics();
+	echo progressnow_events_cached_ics(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- text/calendar body; every field is RFC 5545-escaped by the ICS serializer (tests/test-output-escaping.php)
 }
 
 /**

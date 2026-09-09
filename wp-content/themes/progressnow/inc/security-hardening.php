@@ -155,7 +155,8 @@ function progressnow_hardening_is_author_id_probe() {
 	if ( ! isset( $_GET['author'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		return false;
 	}
-	$values = (array) $_GET['author']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	// Read-only probe detection (no nonce: this is a public GET); sanitize before the pattern check.
+	$values = array_map( 'sanitize_text_field', (array) wp_unslash( $_GET['author'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	foreach ( $values as $value ) {
 		if ( is_scalar( $value ) && preg_match( '/^\s*\d+\s*$/', (string) $value ) ) {
 			return true;

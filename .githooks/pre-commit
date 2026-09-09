@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Local mirror of the CI security gates (openspec security-headers-and-cicd-gates).
+# Enable once per clone:  git config core.hooksPath .githooks
+set -euo pipefail
+
+root=$(git rev-parse --show-toplevel)
+cd "$root"
+
+# 1. Artifact guard over the staged additions/renames.
+staged=$(git diff --cached --name-only --diff-filter=ACR)
+if [[ -n "$staged" ]]; then
+  # Reuse the guard's deny-list by feeding it a temp tree of the staged paths.
+  tmp=$(mktemp -d)
+  trap 'rm -rf "$tmp"' EXIT
+  while IFS= read -r f; do
+    mkdir -p "$tmp/$(dirname "$f")" && : > "$tmp/$f"
+  done <<< "$staged"
+  .github/scripts/artifact-guard.sh "$tmp"
+fi
+
+# 2. Secret scan of the staged diff (skipped with a warning when gitleaks is not installed).
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks protect --staged --redact --config .gitleaks.toml
+else
+  echo "pre-commit: gitleaks not installed — secret scan skipped locally (CI still runs it). brew install gitleaks" >&2
+fi

@@ -66,7 +66,7 @@ class StarterSite extends Site {
 		$context['menu'] = $primary ?: Timber::get_menu();
 		$context['site'] = $this;
 
-		$path                    = parse_url( $_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH );
+		$path                    = parse_url( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ?? '/' ) ), PHP_URL_PATH );
 		$context['current_path'] = is_string( $path ) ? $path : '';
 
 		// Identity (name, short name, region label, brand media) — inc/identity.php.

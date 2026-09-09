@@ -21,7 +21,9 @@
   },
   "require-dev": {
     "automattic/wordbless": "^0.4.2",
-    "yoast/wp-test-utils": "^1.0"
+    "yoast/wp-test-utils": "^1.0",
+    "wp-coding-standards/wpcs": "^3.2",
+    "dealerdirect/phpcodesniffer-composer-installer": "^1.1"
   },
   "extra": {
     "installer-paths": {
@@ -34,10 +36,13 @@
   "config": {
     "allow-plugins": {
       "roots/wordpress-core-installer": true,
-      "composer/installers": true
+      "composer/installers": true,
+      "dealerdirect/phpcodesniffer-composer-installer": true
     }
   },
   "scripts": {
-    "test": "phpunit"
+    "test": "phpunit",
+    "lint": "phpcs",
+    "lint:fix": "phpcbf"
   }
 }
