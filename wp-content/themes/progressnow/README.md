@@ -77,6 +77,7 @@ Twig renders page shells; Vue mounts on `[data-vue-island]` elements:
 | `inc/pages.php` | About + Get Involved page ACF groups (mission band, timeline, area cards, governance docs, FAQ repeaters, join steps, channels, sidebar cards) + their Twig contexts, defaulted in PHP to neutral copy |
 | `inc/seo.php` | head SEO output: meta description, canonical, robots, Open Graph/Twitter cards, JSON-LD (`wp_head` priority 5) |
 | `inc/i18n.php` | Polylang: `event` CPT translatable, language switcher context, registered UI strings ("Chapter" group), translated header menus |
+| `inc/security-hardening.php` | attack-surface hooks: xmlrpc off (flag + method table + `X-Pingback`), anonymous `wp/v2/users*` removed, `?author=N` → 404, users sitemap dropped, generator/RSD/WLW/shortlink/REST-link discovery removed, core `?ver=` stripped, debug-under-production admin notice — pairs with `config/wp-config-hardening.php` (repo root); see `docs/runtime-hardening.md` |
 
 Template routers (`front-page.php`, `page.php`, `index.php`, `single.php`, …) expose filters (`progressnow/context/front_page`, `…/page`, `…/blog_archive`, `…/single`) the domain files hook to inject island props.
 
@@ -128,7 +129,11 @@ Every save runs through kses for **every role**: `unfiltered_html` resolves to `
 - kses normalizes `&` → `&amp;` (and stray `<` → `&lt;`) inside stored text and block attrs (core `filter_block_content`); ACF applies the same kses on save. Twig text renders it as typed via the `esc_html` autoescape strategy (above); plain-text island props decode at the serializer — `progressnow_plain_text()` (ACF text reads: `progressnow_pages_text`, identity options, hero copy), `progressnow_blog_kses_plain()`, `progressnow_safe_url()` — so `Arts & Culture` renders as typed. HTML-bearing fields (`|raw` / `v-html`) keep the entities, which is correct HTML.
 - `progressnow_blog_kses_prose()` is the only allow-list feeding `v-html` prose: `p h2 h3 h4 ul ol li a[href title rel target] strong em b i br blockquote cite code sub sup mark s`. No raw-embed allow-list exists (video goes through the `progressnow/video` block); extend a named list deliberately rather than re-granting the capability.
 - Role model, audit runbook and reassignment steps: `docs/authoring-trust-model.md`. `wp chapter audit-roles` (users/roles, exits non-zero if the capability is live) and `wp chapter audit-markup` (stored executable markup from before kses was unconditional) are read-only.
-- Guardrails: `tests/test-roles.php` runs the real save path (logged-in Administrator, `kses_init()`, slashed input) and asserts no stored role lists the capability, a re-grant is denied and stripped, script/iframe are dropped, rich content and block JSON survive. Hosts should also set `define( 'DISALLOW_UNFILTERED_HTML', true );`.
+- Guardrails: `tests/test-roles.php` runs the real save path (logged-in Administrator, `kses_init()`, slashed input) and asserts no stored role lists the capability, a re-grant is denied and stripped, script/iframe are dropped, rich content and block JSON survive. `config/wp-config-hardening.php` (Runtime hardening, below) defines `DISALLOW_UNFILTERED_HTML` for hosts that require it.
+
+### Runtime hardening
+
+`inc/security-hardening.php` closes the default surface the site never uses (xmlrpc, anonymous user enumeration, discovery/version meta) and lives in the theme because `wp-content/mu-plugins/` is gitignored by policy. The wp-config side — `WP_ENVIRONMENT_TYPE`-driven debug policy, off-docroot debug log, `DISALLOW_FILE_EDIT`, `DISALLOW_UNFILTERED_HTML`, `FORCE_SSL_ADMIN`, auto-update policy, and a startup assertion that fails a production boot with `WP_DEBUG` on — is the committed include `config/wp-config-hardening.php` at the repo root, required from each environment's gitignored `wp-config.php`. Setup, salt rotation, Wordfence settings and the curl verification checklist: `docs/runtime-hardening.md`. Tests: `tests/test-security-hardening.php` (hooks) and `tests/test-config-hardening.php` (the include, per-environment PHP subprocesses).
 
 ### REST API (`/wp-json/progressnow/v1`)
 
