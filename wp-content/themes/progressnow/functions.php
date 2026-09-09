@@ -24,6 +24,7 @@ require_once __DIR__ . '/inc/security-hardening.php';
 
 // WP data wiring, one file per domain.
 require_once __DIR__ . '/inc/sanitize.php';
+require_once __DIR__ . '/inc/roles.php';
 require_once __DIR__ . '/inc/cache.php';
 require_once __DIR__ . '/inc/identity.php';
 require_once __DIR__ . '/inc/categories.php';

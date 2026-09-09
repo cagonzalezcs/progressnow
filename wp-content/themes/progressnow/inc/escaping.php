@@ -7,8 +7,8 @@
  * `__NUXT__.config` and the importmap in inc/shell.php, and any future
  * block) goes through progressnow_json_for_script() so an editor-controlled
  * string can never terminate the element or inject markup. HTML/attribute
- * contexts are Twig autoescape (src/StarterSite.php); see the theme README
- * "Output escaping".
+ * contexts are Twig autoescape (src/StarterSite.php) with the `esc_html`
+ * strategy below; see the theme README "Output escaping".
  *
  * Loaded first from functions.php so the other inc/ files can rely on it.
  */
@@ -24,6 +24,27 @@
  * @param int   $extra Extra json_encode flags (e.g. JSON_PRETTY_PRINT).
  * @return string JSON, or "" when the data cannot be encoded.
  */
+/**
+ * Twig `esc_html` escape strategy — the autoescape default.
+ *
+ * WordPress storage is entity-normalized: every save runs through kses
+ * (inc/roles.php), which turns `&` into `&amp;` and stray `<` into `&lt;`, and
+ * wptexturize emits `&#038;`. Core's esc_html()/esc_attr() therefore never
+ * double-encode an existing entity; Twig's built-in `html` strategy does,
+ * so `Arts &amp; Culture` would render as the literal text "&amp;". This
+ * strategy is _wp_specialchars() with double_encode = false: `<`, `>`, `"`,
+ * `'` and bare `&` are still escaped (markup can never survive), valid
+ * entities pass through once. Registered on Twig's EscaperRuntime by
+ * StarterSite::add_to_twig(); bin/twig-audit.mjs enforces the strategy.
+ *
+ * @param string $string  Value to escape.
+ * @param string $charset Twig passes the environment charset (unused: UTF-8).
+ * @return string
+ */
+function progressnow_esc_html( $string, $charset = 'UTF-8' ) {
+	return _wp_specialchars( (string) $string, ENT_QUOTES, 'UTF-8', false );
+}
+
 function progressnow_json_for_script( $data, $extra = 0 ) {
 	$flags  = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | (int) $extra;
 	$flags &= ~JSON_UNESCAPED_SLASHES;

@@ -44,7 +44,11 @@ function progressnow_identity_option( $name ) {
 		return null;
 	}
 
-	return get_field( $name, 'option' );
+	$value = get_field( $name, 'option' );
+
+	// Text options are rendered as text (Twig, island props, JSON-LD);
+	// decode kses-normalized storage once here (inc/sanitize.php).
+	return is_string( $value ) ? progressnow_plain_text( $value ) : $value;
 }
 
 /**
