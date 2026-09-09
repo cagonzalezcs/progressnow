@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 function progressnow_seed_log( $msg ) {
-	echo $msg . "\n";
+	fwrite( STDOUT, $msg . "\n" );
 }
 
 if ( ! function_exists( 'update_field' ) ) {

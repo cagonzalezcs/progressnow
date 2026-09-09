@@ -21,6 +21,7 @@ npm run typecheck  # vue-tsc only
 npm run lint       # eslint
 npm test           # vitest — category-token drift + contract fixtures
 composer test      # PHPUnit (WorDBless) — no DB needed
+composer lint      # PHPCS security sniffs (phpcs.xml.dist; the php-sast CI gate)
 ```
 
 ## Chapter identity (`inc/identity.php`)
@@ -116,6 +117,14 @@ Twig runs with **autoescape on** (`html` strategy, `StarterSite::update_twig_env
 - **Gate**: `node bin/twig-audit.mjs` (also `npm run audit:twig`, and the `js` CI job) fails on an unmarked `|raw`, a `<script>` that interpolates anything but the encoder's output, `json_encode` concatenated into a `<script>` line, or autoescape switched off; `tests/test-twig-audit.php` runs the same rules under `composer test`.
 - **Regression suite**: `tests/test-output-escaping.php` seeds hostile strings into every editor field family and renders every public template (plus the JSON-LD head, the Nuxt shell payload and the ICS feed). A new template in `views/` must be added to its `COVERED` list (with a render) or to `NOT_A_SURFACE` with a reason.
 
+### Security headers and CSP (`inc/security.php`)
+
+Every front-end response (`send_headers`) carries `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` and, over TLS, `Strict-Transport-Security` (one day to start; `progressnow/security/hsts_max_age` raises it). HTML responses add a **nonce CSP**: `script-src 'self' 'nonce-…'` with no `unsafe-inline`, `frame-src` limited to the video players, `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`, `frame-ancestors 'self'` (the Customizer frames the front end).
+
+- **Nonce plumbing**: `progressnow_csp_nonce()` is minted once per request; `wp_script_attributes` / `wp_inline_script_attributes` stamp it on every executable script core prints, `inc/shell.php` stamps the Nuxt app tags, Twig gets `{{ csp_nonce }}`. JSON data blocks (`application/json`, `application/ld+json`) are not executable and stay unstamped. `tests/test-security-headers.php` renders `wp_head`/`wp_footer` and fails on any executable `<script>` without the nonce.
+- **Rollout**: report-only by default (`Content-Security-Policy-Report-Only`), violations POSTed to `/wp-json/progressnow/v1/csp-report` and aggregated into a bounded option — `wp chapter csp-reports [--format=json] [--clear]`. `define( 'CHAPTER_CSP_MODE', 'enforce' )` flips it; `'off'` disables. Extra origins go through the `progressnow/security/csp` filter (the dev server from `dist/vite-dev-server.json` and a separate `CHAPTER_STATIC_ORIGIN` are added automatically). Full policy and the rollout checklist: `docs/security-gates.md`.
+- **Gate**: `composer lint` runs PHPCS with the security subset of WordPress Coding Standards (`phpcs.xml.dist`: escaping, sanitization, nonces, prepared SQL, forbidden functions) over the theme; the `php-sast` CI job requires it green.
+
 ### REST API (`/wp-json/progressnow/v1`)
 
 GET-only, public, publish-only; handlers reuse the domain serializers so REST shapes match the embedded contexts by construction. Additive changes stay on `/v1`; renames/removals go to `/v2`.
@@ -153,6 +162,7 @@ Hand-rolled head output (no SEO plugin) hooked once at `wp_head` priority 5; eve
 
 ```bash
 composer test   # PHPUnit via WorDBless (no DB/WP install needed)
+composer lint   # PHPCS security sniffs (WordPress.Security, prepared SQL, forbidden functions)
 npm test        # vitest — category-token drift + contract fixtures
 ```
 

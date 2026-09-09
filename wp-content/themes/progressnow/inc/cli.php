@@ -1,7 +1,8 @@
 <?php
 /**
  * WP-CLI: `wp chapter rebuild [--wait] [--timeout=<seconds>]` and
- * `wp chapter build-status [--format=<table|json>]` (openspec design D7).
+ * `wp chapter build-status [--format=<table|json>]` (openspec design D7),
+ * `wp chapter audit-urls` and `wp chapter csp-reports [--clear]` (inc/security.php).
  * Same code paths as the admin panel; nothing here runs a process.
  *
  * @package progressnow
@@ -169,6 +170,66 @@ class Progressnow_CLI_Chapter {
 
 		\WP_CLI\Utils\format_items( 'table', $findings, array( 'where', 'id', 'field', 'value' ) );
 		WP_CLI::warning( count( $findings ) . ' unsafe URL value(s); fix them in wp-admin.' );
+	}
+
+	/**
+	 * List the CSP violations the report sink has aggregated (inc/security.php).
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--format=<format>]
+	 * : table (default) or json.
+	 *
+	 * [--clear]
+	 * : Forget every recorded violation (after tuning the allow-list).
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp chapter csp-reports
+	 *     wp chapter csp-reports --format=json
+	 *     wp chapter csp-reports --clear
+	 *
+	 * @subcommand csp-reports
+	 *
+	 * @param array $args       Positional args.
+	 * @param array $assoc_args Flags.
+	 */
+	public function csp_reports( $args, $assoc_args ) {
+		if ( \WP_CLI\Utils\get_flag_value( $assoc_args, 'clear', false ) ) {
+			progressnow_csp_clear_reports();
+			WP_CLI::success( 'CSP reports cleared.' );
+			return;
+		}
+
+		$store  = progressnow_csp_reports();
+		$format = \WP_CLI\Utils\get_flag_value( $assoc_args, 'format', 'table' );
+		$rows   = array();
+		foreach ( $store['rows'] as $row ) {
+			$rows[] = array(
+				'directive' => $row['directive'],
+				'blocked'   => $row['blocked'] ?: '(inline)',
+				'document'  => $row['document'],
+				'source'    => $row['source'],
+				'count'     => (int) $row['count'],
+				'last'      => gmdate( 'Y-m-d H:i', (int) $row['last'] ),
+			);
+		}
+		usort( $rows, static fn ( $a, $b ) => $b['count'] <=> $a['count'] );
+
+		if ( 'json' === $format ) {
+			WP_CLI::line( wp_json_encode( array( 'mode' => progressnow_csp_mode(), 'rows' => $rows, 'dropped' => $store['dropped'] ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
+			return;
+		}
+
+		WP_CLI::line( 'CSP mode: ' . progressnow_csp_mode() );
+		if ( ! $rows ) {
+			WP_CLI::success( 'No CSP violations recorded.' );
+			return;
+		}
+		\WP_CLI\Utils\format_items( 'table', $rows, array( 'directive', 'blocked', 'document', 'source', 'count', 'last' ) );
+		if ( $store['dropped'] > 0 ) {
+			WP_CLI::warning( $store['dropped'] . ' further distinct signature(s) dropped (store full); clear after tuning.' );
+		}
 	}
 }
 

@@ -55,6 +55,11 @@ define( 'CHAPTER_GITHUB_TOKEN', 'github_pat_…' );          // fine-grained PAT
 define( 'CHAPTER_REBUILD_SECRET', 'long-random-string' );  // signs the webhook + the build-status callback
 // define( 'CHAPTER_REBUILD_DEBOUNCE', 90 );               // seconds
 
+// Content-Security-Policy delivery (inc/security.php; docs/security-gates.md):
+// 'report-only' (default — violations land in `wp chapter csp-reports`),
+// 'enforce' once the allow-list is tuned, 'off' only for debugging.
+// define( 'CHAPTER_CSP_MODE', 'enforce' );
+
 // WP-Cron drives the debounced dispatch. On real hosts disable the page-load
 // cron and hit wp-cron.php from the system cron every minute:
 define( 'DISABLE_WP_CRON', true );
@@ -63,6 +68,13 @@ define( 'DISABLE_WP_CRON', true );
 
 `CHAPTER_FRONTEND` can stay `islands` while everything else is set up; the
 rebuild pipeline and the static files are inert until the flag flips.
+
+The theme sends its own security headers on every front-end response
+(`nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy`,
+`Permissions-Policy`, HSTS over TLS) and a nonce CSP on HTML — see
+`docs/security-gates.md` for the header set and the report-only → enforce
+rollout. Do not add a second CSP at the proxy or CDN; a cache in front of
+WordPress must store headers and body together (origin caches and CDNs do).
 
 ## 3. GitHub repository configuration (transport `github`)
 

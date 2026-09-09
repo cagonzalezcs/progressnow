@@ -2,6 +2,10 @@
 # No job needs a WordPress instance: the theme runs PHPUnit on WorDBless,
 # nuxt-js generates against its nitro mock, next-js builds and tests against
 # test/mock/server.mjs — all backed by the theme's committed contract fixtures.
+#
+# Security gates (openspec security-headers-and-cicd-gates § CI security gates;
+# docs/security-gates.md): php-sast, secrets and artifact-guard are required
+# for merge to main. They fail on the defect classes the audit found, not style.
 name: CI
 
 on:
@@ -50,6 +54,49 @@ jobs:
         with:
           working-directory: wp-content/themes/progressnow
       - run: composer test
+
+  php-sast:
+    name: PHP security sniffs (PHPCS)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+      - uses: ramsey/composer-install@v3
+        with:
+          working-directory: wp-content/themes/progressnow
+      # phpcs.xml.dist: WordPress.Security + prepared SQL + forbidden functions
+      # over the custom theme only; fails on unescaped output, unsanitized input,
+      # missing nonce checks, unprepared SQL, eval/system families.
+      - run: composer lint
+
+  secrets:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    defaults:
+      run: { working-directory: . }
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # every commit in the push/PR is scanned, not just the tip
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # .gitleaks.toml at the repo root: default rules + a fixture/placeholder allowlist.
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"
+
+  artifact-guard:
+    name: Artifact guard (no archives, dumps, installers)
+    runs-on: ubuntu-latest
+    defaults:
+      run: { working-directory: . }
+    steps:
+      - uses: actions/checkout@v4
+      # Deny-list over git ls-files (.github/scripts/artifact-guard.sh); the same
+      # script takes a directory to vet a deploy bundle.
+      - run: bash .github/scripts/artifact-guard.sh
 
   nuxt-js:
     name: nuxt-js (lint, typecheck, test, generate:mock)

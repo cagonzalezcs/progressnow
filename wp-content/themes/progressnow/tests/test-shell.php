@@ -363,13 +363,13 @@ class TestShell extends BaseTestCase {
 		$html  = progressnow_shell_render_tags( $this->manifest() );
 		$lines = array_values( array_filter( explode( "\n", $html ) ) );
 
-		$this->assertStringStartsWith( '<script type="importmap">{"imports":{"#entry":"\\/_nuxt\\/entry.abc.js"}}</script>', $lines[0] );
+		$this->assertStringStartsWith( '<script type="importmap" nonce="' . progressnow_csp_nonce() . '">{"imports":{"#entry":"\\/_nuxt\\/entry.abc.js"}}</script>', $lines[0] );
 		$this->assertSame( '<link rel="stylesheet" href="/_nuxt/entry.abc.css" crossorigin>', $lines[1] );
 		$this->assertSame( '<link rel="modulepreload" as="script" crossorigin href="/_nuxt/entry.abc.js">', $lines[2] );
 		$this->assertSame( '<link rel="modulepreload" as="script" crossorigin href="/_nuxt/chunk.def.js">', $lines[3] );
-		$this->assertStringStartsWith( '<script>window.__NUXT__={};window.__NUXT__.config={"public":{"wpApiBase":"\\/wp-json\\/progressnow\\/v1"', $lines[4] );
+		$this->assertStringStartsWith( '<script nonce="' . progressnow_csp_nonce() . '">window.__NUXT__={};window.__NUXT__.config={"public":{"wpApiBase":"\\/wp-json\\/progressnow\\/v1"', $lines[4] );
 		$this->assertStringContainsString( '"app":{"baseURL":"\\/","buildId":"build-1"', $lines[4] );
-		$this->assertSame( '<script type="module" src="/_nuxt/entry.abc.js" crossorigin></script>', $lines[5] );
+		$this->assertSame( '<script type="module" src="/_nuxt/entry.abc.js" crossorigin nonce="' . progressnow_csp_nonce() . '"></script>', $lines[5] );
 		$this->assertSame( '<link rel="prefetch" as="script" crossorigin href="/_nuxt/route.ghi.js">', $lines[6] );
 		$this->assertStringNotContainsString( '__NUXT_DATA__', $html );
 	}

@@ -249,7 +249,7 @@ function progressnow_shell_render_tags( array $manifest ) {
 	$lines = array();
 
 	if ( ! empty( $manifest['importmap'] ) ) {
-		$lines[] = '<script type="importmap">' . progressnow_json_for_script( array( 'imports' => (object) $manifest['importmap'] ) ) . '</script>';
+		$lines[] = '<script type="importmap"' . progressnow_csp_nonce_attr() . '>' . progressnow_json_for_script( array( 'imports' => (object) $manifest['importmap'] ) ) . '</script>';
 	}
 	foreach ( $manifest['css'] as $href ) {
 		$lines[] = sprintf( '<link rel="stylesheet" href="%s" crossorigin>', esc_url( $href ) );
@@ -257,8 +257,8 @@ function progressnow_shell_render_tags( array $manifest ) {
 	foreach ( $manifest['modulepreload'] as $href ) {
 		$lines[] = sprintf( '<link rel="modulepreload" as="script" crossorigin href="%s">', esc_url( $href ) );
 	}
-	$lines[] = '<script>window.__NUXT__={};window.__NUXT__.config=' . progressnow_json_for_script( $manifest['runtimeConfig'] ) . '</script>';
-	$lines[] = sprintf( '<script type="module" src="%s" crossorigin></script>', esc_url( $manifest['entry'] ) );
+	$lines[] = '<script' . progressnow_csp_nonce_attr() . '>window.__NUXT__={};window.__NUXT__.config=' . progressnow_json_for_script( $manifest['runtimeConfig'] ) . '</script>';
+	$lines[] = sprintf( '<script type="module" src="%s" crossorigin%s></script>', esc_url( $manifest['entry'] ), progressnow_csp_nonce_attr() );
 	foreach ( $manifest['prefetch'] as $href ) {
 		$lines[] = sprintf( '<link rel="prefetch" as="script" crossorigin href="%s">', esc_url( $href ) );
 	}

@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 $progressnow_migrate_dry = ( isset( $args ) && in_array( 'dry', (array) $args, true ) ) || getenv( 'PROGRESSNOW_MIGRATE_DRY' );
 
 function progressnow_migrate_log( $msg ) {
-	echo $msg . "\n";
+	fwrite( STDOUT, $msg . "\n" );
 }
 
 if ( ! function_exists( 'get_field' ) ) {
