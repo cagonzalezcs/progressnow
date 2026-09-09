@@ -31,7 +31,7 @@
 
 - [x] 5.1 `docs/security-gates.md`: replace "The rest of CI (lint, typecheck, unit, e2e, a11y) stays as before" with the job list; gates unchanged and still the only required checks
 - [x] 5.2 `next-js/README.md`: pipeline shape, `PW_WORKERS`, `--no-deps` note, artifact reuse via `PW_SKIP_BUILD`
-- [ ] 5.3 Sync the `next-test-harness` delta into `openspec/specs/next-test-harness/spec.md` (`/opsx:sync` or at archive)
+- [x] 5.3 Sync the `next-test-harness` delta into `openspec/specs/next-test-harness/spec.md` (`/opsx:sync` or at archive)
 
 ## 6. Verification (PR 2)
 
