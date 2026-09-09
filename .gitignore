@@ -87,3 +87,6 @@ wp-config.php
 /node_modules/
 .vercel
 .env*
+
+# Stale pre-rename Nuxt build output (site/ became nuxt-js/)
+/site/
