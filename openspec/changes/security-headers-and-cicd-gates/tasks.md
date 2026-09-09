@@ -21,5 +21,5 @@
 
 ## 4. Enforcement
 
-- [ ] 4.1 Enable branch protection requiring SAST + secret-scan + artifact-guard green
+- [x] 4.1 Enable branch protection requiring SAST + secret-scan + artifact-guard green
 - [x] 4.2 Document the security-gate policy for contributors

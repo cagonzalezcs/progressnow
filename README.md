@@ -391,7 +391,7 @@ Open changes in `openspec/changes/` (task counts at time of writing):
 | `security-authoring-least-privilege` | 0/11 | Drop `unfiltered_html` for all roles, documented role model |
 | `security-rest-cache-dos-hardening` | 0/11 | Pagination max, no negative/search transients, date-window clamps, ICS caching |
 | `security-runtime-hardening` | 0/15 | Production `wp-config` baseline, salts runbook, xmlrpc/user-enum off |
-| `security-headers-and-cicd-gates` | 10/14 | Done: nosniff/frame/referrer/permissions headers, HSTS, nonce CSP shipped report-only with a violation sink (`wp chapter csp-reports`), PHPCS security sniffs + gitleaks + artifact guard in CI, `docs/security-gates.md`. Remaining: tune from real reports and flip `CHAPTER_CSP_MODE` to `enforce`, browser verification under enforcement, required-status-check rule on `main`, optional Psalm taint |
+| `security-headers-and-cicd-gates` | 11/14 | Done: nosniff/frame/referrer/permissions headers, HSTS, nonce CSP shipped report-only with a violation sink (`wp chapter csp-reports`), PHPCS security sniffs + gitleaks + artifact guard in CI and required for merge to `main`, `docs/security-gates.md`. Remaining: tune from real reports and flip `CHAPTER_CSP_MODE` to `enforce`, browser verification under enforcement, optional Psalm taint |
 | `security-dependency-lifecycle` | 0/14 | Composer/npm audits, Renovate, patch SLA |
 | `security-remove-duplicator-and-purge-artifacts` | 0/16 | Superseded by `open-source-release-readiness` |
 
