@@ -19,6 +19,9 @@ new StarterSite();
 // Output escaping first: every other domain file may serialize into a <script>.
 require_once __DIR__ . '/inc/escaping.php';
 
+// Attack-surface hardening (xmlrpc, user enumeration, discovery meta).
+require_once __DIR__ . '/inc/security-hardening.php';
+
 // WP data wiring, one file per domain.
 require_once __DIR__ . '/inc/sanitize.php';
 require_once __DIR__ . '/inc/cache.php';

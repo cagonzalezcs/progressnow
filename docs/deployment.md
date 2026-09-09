@@ -64,6 +64,12 @@ define( 'DISABLE_WP_CRON', true );
 `CHAPTER_FRONTEND` can stay `islands` while everything else is set up; the
 rebuild pipeline and the static files are inert until the flag flips.
 
+Every environment's `wp-config.php` also sets `WP_ENVIRONMENT_TYPE` and
+requires the committed hardening baseline (`config/wp-config-hardening.php`:
+debug policy, off-docroot log, `DISALLOW_FILE_EDIT`, `FORCE_SSL_ADMIN`,
+auto-update policy, startup assertion). Setup and the salt-rotation runbook:
+[runtime-hardening.md](runtime-hardening.md).
+
 ## 3. GitHub repository configuration (transport `github`)
 
 Settings → Secrets and variables → Actions:

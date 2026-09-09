@@ -64,6 +64,7 @@ wp-config.php
 /wp-admin
 /wp-includes
 /wp-content/uploads
+/wp-content/plugins
 
 # Nuxt build output
 /nuxt-js/dist/

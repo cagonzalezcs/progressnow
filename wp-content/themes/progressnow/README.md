@@ -74,6 +74,7 @@ Twig renders page shells; Vue mounts on `[data-vue-island]` elements:
 | `inc/pages.php` | About + Get Involved page ACF groups (mission band, timeline, area cards, governance docs, FAQ repeaters, join steps, channels, sidebar cards) + their Twig contexts, defaulted in PHP to neutral copy |
 | `inc/seo.php` | head SEO output: meta description, canonical, robots, Open Graph/Twitter cards, JSON-LD (`wp_head` priority 5) |
 | `inc/i18n.php` | Polylang: `event` CPT translatable, language switcher context, registered UI strings ("Chapter" group), translated header menus |
+| `inc/security-hardening.php` | attack-surface hooks: xmlrpc off (flag + method table + `X-Pingback`), anonymous `wp/v2/users*` removed, `?author=N` → 404, users sitemap dropped, generator/RSD/WLW/shortlink/REST-link discovery removed, core `?ver=` stripped, debug-under-production admin notice — pairs with `config/wp-config-hardening.php` (repo root); see `docs/runtime-hardening.md` |
 
 Template routers (`front-page.php`, `page.php`, `index.php`, `single.php`, …) expose filters (`progressnow/context/front_page`, `…/page`, `…/blog_archive`, `…/single`) the domain files hook to inject island props.
 
@@ -115,6 +116,10 @@ Twig runs with **autoescape on** (`html` strategy, `StarterSite::update_twig_env
 - **Inline `<script>` JSON goes through one encoder**: `progressnow_json_for_script()` in `inc/escaping.php` (JSON-LD, `__SHELL_DATA__`, `__NUXT__.config`, the importmap, and anything new). It escapes `<`, `>`, `&`, quotes, `/` and U+2028/9 so a value can never close the element; never pass `JSON_UNESCAPED_SLASHES`. `next-js/lib/json-ld.ts` `serializeJsonLd` keeps parity.
 - **Gate**: `node bin/twig-audit.mjs` (also `npm run audit:twig`, and the `js` CI job) fails on an unmarked `|raw`, a `<script>` that interpolates anything but the encoder's output, `json_encode` concatenated into a `<script>` line, or autoescape switched off; `tests/test-twig-audit.php` runs the same rules under `composer test`.
 - **Regression suite**: `tests/test-output-escaping.php` seeds hostile strings into every editor field family and renders every public template (plus the JSON-LD head, the Nuxt shell payload and the ICS feed). A new template in `views/` must be added to its `COVERED` list (with a render) or to `NOT_A_SURFACE` with a reason.
+
+### Runtime hardening
+
+`inc/security-hardening.php` closes the default surface the site never uses (xmlrpc, anonymous user enumeration, discovery/version meta) and lives in the theme because `wp-content/mu-plugins/` is gitignored by policy. The wp-config side — `WP_ENVIRONMENT_TYPE`-driven debug policy, off-docroot debug log, `DISALLOW_FILE_EDIT`, `FORCE_SSL_ADMIN`, auto-update policy, and a startup assertion that fails a production boot with `WP_DEBUG` on — is the committed include `config/wp-config-hardening.php` at the repo root, required from each environment's gitignored `wp-config.php`. Setup, salt rotation, Wordfence settings and the curl verification checklist: `docs/runtime-hardening.md`. Tests: `tests/test-security-hardening.php` (hooks) and `tests/test-config-hardening.php` (the include, per-environment PHP subprocesses).
 
 ### REST API (`/wp-json/progressnow/v1`)
 
