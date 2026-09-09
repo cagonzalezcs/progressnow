@@ -76,6 +76,12 @@ The theme sends its own security headers on every front-end response
 rollout. Do not add a second CSP at the proxy or CDN; a cache in front of
 WordPress must store headers and body together (origin caches and CDNs do).
 
+Every environment's `wp-config.php` also sets `WP_ENVIRONMENT_TYPE` and
+requires the committed hardening baseline (`config/wp-config-hardening.php`:
+debug policy, off-docroot log, `DISALLOW_FILE_EDIT`, `DISALLOW_UNFILTERED_HTML`, `FORCE_SSL_ADMIN`,
+auto-update policy, startup assertion). Setup and the salt-rotation runbook:
+[runtime-hardening.md](runtime-hardening.md).
+
 ## 3. GitHub repository configuration (transport `github`)
 
 Settings → Secrets and variables → Actions:

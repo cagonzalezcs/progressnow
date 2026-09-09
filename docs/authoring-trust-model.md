@@ -45,9 +45,11 @@ Consequences, all intended:
   `html_entity_decode( get_the_title() )` calls), so `Arts & Culture` renders
   as typed everywhere.
 
-Belt-and-braces for hosts: add `define( 'DISALLOW_UNFILTERED_HTML', true );`
-to `wp-config.php` (see `wp-config-sample.php`). Core then denies the
-capability even while another theme is active.
+Belt-and-braces for hosts: `DISALLOW_UNFILTERED_HTML` is defined by the
+committed hardening include (`config/wp-config-hardening.php`, see
+`docs/runtime-hardening.md` §2); a `wp-config.php` that does not require the
+include should define it directly (see `wp-config-sample.php`). Core then
+denies the capability even while another theme is active.
 
 ## 2. Least-privilege role model
 
