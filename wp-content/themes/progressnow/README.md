@@ -122,9 +122,9 @@ GET-only, public, publish-only; handlers reuse the domain serializers so REST sh
 
 | Route | Returns |
 |---|---|
-| `/posts?page&per_page&category&s&lang` | `{ posts: BlogPost[], page, perPage, total, totalPages }` |
+| `/posts?page&per_page&category&s&lang` | `{ posts: BlogPost[], page, perPage, total, totalPages }` (`page` ≤ 500, `per_page` ≤ 50; `s` responses are HTTP-cached only) |
 | `/posts/{slug}?lang` | `SinglePostData` + `readNext: BlogPost[]` + `languages` (404 `progressnow_post_not_found`) |
-| `/events?after&before&lang` | `{ events: ChapterEvent[], categories }` (default −1 → +12 months) |
+| `/events?after&before&lang` | `{ events: ChapterEvent[], categories }` (default −1 → +12 months; clamped to now −2y … +5y, reversed range swapped) |
 | `/categories` | `{ categories: EventCategory[] }` |
 
 Anonymous responses carry `Cache-Control: public, max-age=300, stale-while-revalidate=3600` + ETag/304; logged-in requests are `no-store`. Payloads are transient-cached via `progressnow_cache_remember()`.

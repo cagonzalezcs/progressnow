@@ -5,7 +5,9 @@
  * GET-only, public, publish-only. Handlers reuse the domain serializers and
  * the shared query/payload builders so REST shapes cannot drift from the
  * embedded Twig contexts. Payloads are transient-cached (content-version
- * invalidation); anonymous responses get Cache-Control + ETag/304.
+ * invalidation) except the unbounded-cardinality long tail — free-text `s`
+ * and unknown-slug 404s — which is computed per request and left to the
+ * HTTP layer; anonymous responses get Cache-Control + ETag/304.
  *
  * Routes:
  * - GET /posts            → { posts: BlogPost[], page, perPage, total, totalPages }
@@ -27,6 +29,13 @@
 
 add_action( 'rest_api_init', 'progressnow_rest_register_routes' );
 
+/** Upper bound for `/posts?page=` (core returns 400 above it). */
+const PROGRESSNOW_REST_MAX_PAGE = 500;
+
+/** `/events` window bounds relative to "now" (DateTime modifiers). */
+const PROGRESSNOW_REST_EVENTS_WINDOW_MIN = '-2 years';
+const PROGRESSNOW_REST_EVENTS_WINDOW_MAX = '+5 years';
+
 function progressnow_rest_register_routes() {
 	$lang_arg = array(
 		'type'              => 'string',
@@ -45,6 +54,9 @@ function progressnow_rest_register_routes() {
 					'type'    => 'integer',
 					'default' => 1,
 					'minimum' => 1,
+					// Hard cap: past any real archive depth, and it bounds both the
+					// OFFSET the query walks and the number of distinct cache keys.
+					'maximum' => PROGRESSNOW_REST_MAX_PAGE,
 				),
 				'per_page' => array(
 					'type'    => 'integer',
@@ -193,6 +205,31 @@ function progressnow_rest_validate_date( $value ) {
 }
 
 /**
+ * Clamp an `/events` window to `[now-2y, now+5y]` and normalize a reversed
+ * range (`after > before` → swapped). Bounds both the query scope and the
+ * cache-key cardinality; the calendar UI never asks outside this window.
+ *
+ * @param string            $after  `Y-m-d`.
+ * @param string            $before `Y-m-d`.
+ * @param DateTimeImmutable $now    Reference "now" (chapter timezone).
+ * @return string[] [ $after, $before ] — `Y-m-d`, ordered, in bounds.
+ */
+function progressnow_rest_clamp_event_window( $after, $before, DateTimeImmutable $now ) {
+	$min = $now->modify( PROGRESSNOW_REST_EVENTS_WINDOW_MIN )->format( 'Y-m-d' );
+	$max = $now->modify( PROGRESSNOW_REST_EVENTS_WINDOW_MAX )->format( 'Y-m-d' );
+
+	if ( $after > $before ) {
+		list( $after, $before ) = array( $before, $after );
+	}
+
+	// `Y-m-d` compares correctly as strings.
+	$after  = min( max( $after, $min ), $max );
+	$before = min( max( $before, $min ), $max );
+
+	return array( $after, $before );
+}
+
+/**
  * Page path sanitizer: slug segments only, no dots, no leading slash.
  */
 function progressnow_rest_sanitize_path( $value ) {
@@ -245,12 +282,19 @@ function progressnow_rest_posts( WP_REST_Request $request ) {
 	$search   = trim( (string) ( $request['s'] ?? '' ) );
 	$lang     = progressnow_rest_resolve_lang( $request );
 
-	$payload = progressnow_cache_remember(
-		'rest_posts_' . md5( wp_json_encode( array( $lang, $page, $per_page, $category, $search ) ) ),
-		static function () use ( $lang, $page, $per_page, $category, $search ) {
-			return progressnow_payload_posts( $lang, $page, $per_page, $category, $search );
-		}
-	);
+	$build = static function () use ( $lang, $page, $per_page, $category, $search ) {
+		return progressnow_payload_posts( $lang, $page, $per_page, $category, $search );
+	};
+
+	// Free-text search has unbounded key cardinality: persisting it lets a
+	// `?s=` flood fill wp_options for near-zero hit rate. Compute uncached;
+	// the HTTP cache headers still absorb honest repeats.
+	$payload = '' === $search
+		? progressnow_cache_remember(
+			'rest_posts_' . md5( wp_json_encode( array( $lang, $page, $per_page, $category ) ) ),
+			$build
+		)
+		: $build();
 
 	return rest_ensure_response( $payload );
 }
@@ -265,7 +309,7 @@ function progressnow_rest_single_post( WP_REST_Request $request ) {
 	$payload = progressnow_cache_remember(
 		'rest_single_' . md5( $lang . '|' . $slug ),
 		static function () use ( $lang, $slug ) {
-			return progressnow_payload_post( $slug, $lang ) ?: array();
+			return progressnow_payload_post( $slug, $lang ) ?: null; // null = 404, not persisted.
 		}
 	);
 
@@ -284,6 +328,8 @@ function progressnow_rest_events( WP_REST_Request $request ) {
 	$now    = new DateTimeImmutable( 'now', progressnow_events_timezone() );
 	$after  = (string) ( $request['after'] ?? $now->modify( '-1 month' )->format( 'Y-m-d' ) );
 	$before = (string) ( $request['before'] ?? $now->modify( '+12 months' )->format( 'Y-m-d' ) );
+
+	list( $after, $before ) = progressnow_rest_clamp_event_window( $after, $before, $now );
 
 	$payload = progressnow_cache_remember(
 		'rest_events_' . md5( $lang . '|' . $after . '|' . $before ),
@@ -322,7 +368,7 @@ function progressnow_rest_single_event( WP_REST_Request $request ) {
 	$payload = progressnow_cache_remember(
 		'rest_event_' . md5( $lang . '|' . $slug ),
 		static function () use ( $lang, $slug ) {
-			return progressnow_payload_event( $slug, $lang ) ?: array();
+			return progressnow_payload_event( $slug, $lang ) ?: null; // null = 404, not persisted.
 		}
 	);
 
@@ -391,7 +437,7 @@ function progressnow_rest_page( WP_REST_Request $request ) {
 	$payload = progressnow_cache_remember(
 		'rest_page_' . md5( $lang . '|' . $path ),
 		static function () use ( $lang, $path ) {
-			return progressnow_payload_page( $path, $lang ) ?: array();
+			return progressnow_payload_page( $path, $lang ) ?: null; // null = 404, not persisted.
 		}
 	);
 
@@ -412,7 +458,7 @@ function progressnow_rest_cache_headers( $result, $server, $request ) {
 	if ( 0 !== strpos( $request->get_route(), '/progressnow/v1' ) ) {
 		return $result;
 	}
-	if ( ! ( $result instanceof WP_REST_Response ) || $result->get_status() >= 400 ) {
+	if ( ! ( $result instanceof WP_REST_Response ) ) {
 		return $result;
 	}
 	if ( 'GET' !== $request->get_method() ) {
@@ -424,6 +470,17 @@ function progressnow_rest_cache_headers( $result, $server, $request ) {
 	// Editors always see fresh data.
 	if ( is_user_logged_in() ) {
 		$result->header( 'Cache-Control', 'no-store' );
+
+		return $result;
+	}
+
+	// Negative lookups are deliberately not transient-cached (unbounded slug
+	// cardinality), so let the edge/browser absorb repeats briefly instead.
+	// Other errors (400 invalid param, 5xx) stay uncached.
+	if ( $result->get_status() >= 400 ) {
+		if ( 404 === $result->get_status() ) {
+			$result->header( 'Cache-Control', 'public, max-age=60' );
+		}
 
 		return $result;
 	}
