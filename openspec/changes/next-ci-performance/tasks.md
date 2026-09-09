@@ -37,5 +37,5 @@
 
 - [x] 6.1 `gh run view <run> --json jobs` on the PR run: per-job table in the PR description next to the proposal's baseline; critical path (`build` + longest Playwright job) ≤ 6 min
 - [ ] 6.2 Scratch commits on the PR branch: theme `inc/` only → next-js jobs skipped, gates run; a fixture edit → full pipeline runs; revert both
-- [ ] 6.3 Re-run with an unchanged Playwright version: `actions/cache` reports a hit for `playwright-Linux-1.63.0` in all three Playwright jobs, no browser download, all green
+- [x] 6.3 Re-run with an unchanged Playwright version: `actions/cache` reports a hit for `playwright-Linux-1.63.0` in all three Playwright jobs, no browser download, all green
 - [ ] 6.4 Over the first ten runs after merge, check Playwright reports for retries; if any recur, set workers to 3 and record the decision in the design's open questions
