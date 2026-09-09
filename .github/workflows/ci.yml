@@ -315,26 +315,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - id: sha
-        run: echo "short=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
-      - uses: docker/setup-buildx-action@v3
-      # Layer cache in the Actions cache: the deps stage (npm ci in alpine) is a
-      # hit whenever package-lock.json is unchanged (§ Warm caches).
-      - name: Build the image
-        uses: docker/build-push-action@v6
-        with:
-          context: next-js
-          push: false
-          load: true
-          tags: progressnow-next:ci
-          build-args: |
-            WP_API_BASE=${{ env.WP_API_BASE }}
-            NEXT_PUBLIC_SITE_ORIGIN=${{ env.NEXT_PUBLIC_SITE_ORIGIN }}
-            NEXT_PUBLIC_BUILD_ID=${{ steps.sha.outputs.short }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-      - name: Smoke against the mock
+      # No layer cache on purpose: the deps stage is ~19 s in alpine, and a
+      # GHA cache export (type=gha,mode=max) measured 100 s per run — more than
+      # it can ever save (openspec next-ci-performance design D7).
+      - name: Build the image and smoke it against the mock
         run: |
+          docker build -t progressnow-next:ci \
+            --build-arg WP_API_BASE="$WP_API_BASE" \
+            --build-arg NEXT_PUBLIC_SITE_ORIGIN="$NEXT_PUBLIC_SITE_ORIGIN" \
+            --build-arg NEXT_PUBLIC_BUILD_ID="${GITHUB_SHA::7}" .
           node test/mock/server.mjs & echo $! > mock.pid
           docker run -d --name next --network host \
             -e MOCK_API=1 -e WP_API_BASE="$WP_API_BASE" \

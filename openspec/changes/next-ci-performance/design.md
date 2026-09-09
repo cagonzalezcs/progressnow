@@ -40,8 +40,8 @@ A first job (`fetch-depth: 0` only there) diffs the PR base or `github.event.bef
 **D6. Chromium: `--only-shell`, download cached, OS deps still installed.**
 `npx playwright install --with-deps --only-shell chromium` after restoring `~/.cache/ms-playwright` keyed on the `@playwright/test` version from `package-lock.json`. `--only-shell` skips the full Chrome build (headless tests use the headless shell since Playwright 1.49). `--with-deps` (apt) stays unconditional: it is ~10 s and skipping it on a cache hit would tie correctness to the runner image. Honest gain: ~10 s per Playwright job.
 
-**D7. Docker layer cache via `docker/setup-buildx-action` + `docker/build-push-action` (`push: false`, `load: true`, `cache-from/to: type=gha`).**
-The `deps` stage (`npm ci` in alpine, ~38 s) is a cache hit whenever `package-lock.json` is unchanged; the `build` stage always reruns (~31 s). The smoke (`docker run --network host` beside the mock, `scripts/smoke.mjs`) is unchanged. Alternative: raw `docker buildx build --cache-to type=gha` needs the runtime token exported by hand; the official actions do that. Both new `uses:` are Docker-maintained and will be SHA-pinned by the supply-chain change.
+**D7. No Docker layer cache — plain `docker build`, in its own parallel job.**
+Tried first as `docker/setup-buildx-action` + `docker/build-push-action` with `cache-from/to: type=gha,mode=max` (PR #25, run 34403647517): the image built in 65 s (deps `npm ci` 19 s in alpine, `next build` 29 s) and then the GHA cache export took 100.5 s — the job went from ~75 s to 190 s. The most a deps-stage hit can save is those 19 s, on a job that is not on the critical path. Reverted to the previous `docker build` block; the only change to the container smoke is that it runs beside the other jobs instead of after them. Two fewer `uses:` for the supply-chain change to pin.
 
 **D8. Report artifacts move with their producers.**
 `next-js-a11y` uploads `test-results/axe/**` + `playwright-report/**`; `next-js-e2e` uploads `test-results/styleguide/**` + `playwright-report/**`; `next-js-failure` uploads `playwright-report/**` on failure only. Artifact names are per job (`upload-artifact@v4` rejects duplicates). `next-js-build` uploads `next-build.tar` (1 day). Job `timeout-minutes` drops from 30 to 15.
@@ -55,7 +55,7 @@ PR 1: D1 only (one line, cuts ~6 min immediately, no structural risk). PR 2: D2�
 - [Artifact plumbing fails silently — e.g. standalone tar missing `server.js`] → `start-standalone.mjs` already exits 2 with a named error when `server.js` is absent; the Playwright `webServer` then fails the job within its timeout. Fallback is D2(a).
 - [Path scoping misses a dependency and a branch merges with untested next-js breakage] → `main` pushes are never scoped, so breakage surfaces on the next `main` run; the list is derived from grep of what next-js reads outside its directory, and `ci.yml` itself is in it. The cost of a miss is one red `main` run, not a silent gap.
 - [Five `npm ci` per run instead of one] → parallel, ~20 s each with the npm cache, free on a public repository; adds nothing to the critical path.
-- [GHA cache eviction (10 GB per repo, LRU) drops the Docker layers or the browser] → both paths fall back to a full download/build; correctness is unaffected, only time.
+- [GHA cache eviction (10 GB per repo, LRU) drops the browser download] → `playwright install` downloads it again; correctness is unaffected, only time.
 - [Build ID differs between the artifact and the container image] → `build:mock` derives it from `git rev-parse` and the container from `GITHUB_SHA::7`; both are the same commit. No test compares them.
 - [Skipped next-js jobs read as green on a PR that touched only PHP] → they render as "skipped", not "passed"; only the three gates are required, so the ruleset semantics are unchanged.
 
@@ -69,4 +69,5 @@ PR 1: D1 only (one line, cuts ~6 min immediately, no structural risk). PR 2: D2�
 
 - 4 workers or 3 on the first landing?
 - Path-scope branch pushes too, or PRs only (with branch pushes unconditional)?
-- Shard `next-js-e2e` 2-ways later if it becomes the long pole (~2 min → ~1.2 min)?
+- `next-js-e2e` is bounded by one test: `styleguide screenshots per section` takes 1.8 min at 2 and at 4 workers (60+ sections, scroll + screenshot each); every other e2e test was done 90 s earlier in run 34403647517. Move it to its own Playwright project / matrix entry (`next-js-screenshots`) so e2e finishes in ~60 s? That is a spec-level move (§ CI job names which job uploads the screenshots) — its own change.
+- Shard `next-js-e2e` 2-ways later if it becomes the long pole after that?

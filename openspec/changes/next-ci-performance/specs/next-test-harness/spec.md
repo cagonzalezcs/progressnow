@@ -48,15 +48,11 @@ Under `CI`, the `e2e` and `a11y` projects SHALL run with 4 Playwright workers â€
 - **THEN** the job is green and the uploaded Playwright report records the retry
 
 ### Requirement: Warm caches
-Playwright jobs SHALL install only the Chromium headless shell with its OS dependencies (`playwright install --with-deps --only-shell chromium`), restoring the browser download from the Actions cache keyed on the installed Playwright version; the `container` job SHALL restore Docker layer cache so the image's dependency stage is a hit whenever `next-js/package-lock.json` is unchanged. A cache miss SHALL cost time only, never correctness.
+Playwright jobs SHALL install only the Chromium headless shell with its OS dependencies (`playwright install --with-deps --only-shell chromium`), restoring the browser download from the Actions cache keyed on the installed Playwright version. A cache miss SHALL cost time only, never correctness.
 
 #### Scenario: Browser cache hit
 - **WHEN** the Playwright version matches a previous run's cache
 - **THEN** no browser is downloaded, and the OS dependency install still runs
-
-#### Scenario: Dependency layer hit
-- **WHEN** `next-js/package-lock.json` is unchanged since a cached run
-- **THEN** the image's `deps` stage is served from cache and only the `build` stage executes
 
 #### Scenario: Cache unavailable
 - **WHEN** the Actions cache is evicted or unreachable

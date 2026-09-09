@@ -17,7 +17,7 @@ The first row is a defect, not a cost: `playwright.config.ts` declares `dependen
 - **Fix the `failure` project re-running its dependencies.** `test:failure` passes `--no-deps` so CI runs only the 4 serial tests; the `dependencies` declaration stays for the local `npx playwright test` loop, where ordering is the point.
 - **Split the single `next-js` job into a fan-out pipeline.** `check` (lint, format, typecheck, unit) ∥ `build` (production build against the mock, uploads `.next/standalone` + `.next/static` as a workflow artifact) → `e2e`, `a11y`, `failure` in parallel, each downloading that one artifact and starting its own mock + standalone server ∥ `container` (image build + smoke, needs only the source). "Same built server" is kept by construction: every Playwright job tests the identical artifact.
 - **Use the runner's cores.** Playwright workers go to 4 (the runner has 4 vCPUs; the default is 50%) in CI for the `e2e` and `a11y` projects; `failure` stays at 1.
-- **Stop re-downloading.** Chromium is installed with `--only-shell` (headless shell only — what headless tests use) and `~/.cache/ms-playwright` is cached on the Playwright version; the container job restores Docker layer cache so the `deps` stage is a hit when the lockfile is unchanged.
+- **Stop re-downloading.** Chromium is installed with `--only-shell` (headless shell only — what headless tests use) and `~/.cache/ms-playwright` is cached on the Playwright version. (A Docker layer cache for the image was tried and dropped: its export costs more than the deps stage it saves — design D7.)
 - **Scope the next-js pipeline to next-js changes.** The next-js jobs are skipped when a push or PR touches none of `next-js/**`, the theme fixtures it consumes (`wp-content/themes/progressnow/tests/fixtures/**`), the shared-source drift inputs, or `ci.yml`. The three required security gates always run; the next-js jobs are not required checks, so a skipped job cannot block a merge.
 - **Docs follow.** `docs/security-gates.md` names the new job set; `next-js/README.md` documents the pipeline and the `PW_SKIP_BUILD` reuse contract.
 
@@ -29,7 +29,7 @@ Not in scope: pinning actions to SHAs, `permissions:` scoping, `--ignore-scripts
 - none
 
 ### Modified Capabilities
-- `next-test-harness`: the "CI job" requirement is rewritten from one serial `next-js` job to a fan-out pipeline that tests a single shared build artifact; a new requirement makes the serial mock-mutating `failure` project run in isolation (never re-running the projects it depends on in CI) and fixes CI worker counts; a new requirement scopes the pipeline to next-js-affecting paths while the security gates stay unconditional.
+- `next-test-harness`: the "CI job" requirement is rewritten from one serial `next-js` job to a fan-out pipeline that tests a single shared build artifact; new requirements make the serial mock-mutating `failure` project run in isolation (never re-running the projects it depends on in CI), fix CI worker counts, cache the browser download, and scope the pipeline to next-js-affecting paths while the security gates stay unconditional.
 
 ## Impact
 

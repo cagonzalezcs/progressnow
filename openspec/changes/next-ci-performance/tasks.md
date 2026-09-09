@@ -3,7 +3,7 @@
 - [x] 1.1 Test first: `next-js/test/unit/playwright-harness.spec.ts` — `package.json` `test:failure` contains `--project=failure`, `--workers=1`, `--no-deps`; the imported `playwright.config.ts` keeps `dependencies: ["e2e", "a11y"]` on the `failure` project
 - [x] 1.2 `next-js/package.json`: `test:failure` gains `--no-deps`; comment in `playwright.config.ts` says why `dependencies` stays
 - [x] 1.3 Local check: `PW_SKIP_BUILD=1 npm run test:failure` reports 4 tests on 1 worker; `npx playwright test --list` still lists e2e/a11y before failure
-- [ ] 1.4 Open PR 1; confirm the CI step logs "Running 4 tests using 1 worker" and finishes under 60 s
+- [x] 1.4 Open PR 1; confirm the CI step logs "Running 4 tests using 1 worker" and finishes under 60 s
 
 ## 2. Worker count (design D4)
 
@@ -23,9 +23,9 @@
 - [x] 4.3 `next-js-build`: `npm ci`, `npm run build:mock`, `tar -cf next-build.tar .next/standalone .next/static`, `upload-artifact` name `next-build`, `retention-days: 1`
 - [x] 4.4 `next-js-playwright` matrix over `project: [e2e, a11y, failure]` (`name: next-js-${{ matrix.project }}`), `needs: [build]`: `npm ci`; restore `~/.cache/ms-playwright` keyed on `runner.os` + the `@playwright/test` version read from `package-lock.json`; `npx playwright install --with-deps --only-shell chromium`; `download-artifact` + `tar -xf`; `PW_SKIP_BUILD=1 npm run test:${{ matrix.project }}`
 - [x] 4.5 Per-project uploads (`if: always()` for e2e/a11y, `if: failure()` for failure): a11y → `test-results/axe/**` + `playwright-report/**`; e2e → `test-results/styleguide/**` + `playwright-report/**`; failure → `playwright-report/**`; names `next-js-<project>-report`
-- [x] 4.6 `next-js-container`: `docker/setup-buildx-action`, `docker/build-push-action` (`push: false`, `load: true`, `cache-from: type=gha`, `cache-to: type=gha,mode=max`, same `build-args`, tag `progressnow-next:ci`), then the existing mock + `docker run --network host` + `scripts/smoke.mjs` block unchanged
+- [x] 4.6 `next-js-container`: the existing `docker build` + mock + `docker run --network host` + `scripts/smoke.mjs` block as its own parallel job. (GHA layer cache via buildx tried on run 34403647517: export 100 s vs a 19 s deps stage — removed, design D7.)
 - [x] 4.7 `if: github.ref == 'refs/heads/main' || needs.changes.outputs.next == 'true'` on every next-js job; `timeout-minutes: 15`; delete the old `next-js` job; header comment updated
-- [ ] 4.8 Sanity: `actionlint .github/workflows/ci.yml` locally (brew) — zero findings
+- [x] 4.8 Sanity: `actionlint .github/workflows/ci.yml` locally (brew) — zero findings
 
 ## 5. Docs and spec sync
 
@@ -35,7 +35,7 @@
 
 ## 6. Verification (PR 2)
 
-- [ ] 6.1 `gh run view <run> --json jobs` on the PR run: per-job table in the PR description next to the proposal's baseline; critical path (`build` + longest Playwright job) ≤ 6 min
+- [x] 6.1 `gh run view <run> --json jobs` on the PR run: per-job table in the PR description next to the proposal's baseline; critical path (`build` + longest Playwright job) ≤ 6 min
 - [ ] 6.2 Scratch commits on the PR branch: theme `inc/` only → next-js jobs skipped, gates run; a fixture edit → full pipeline runs; revert both
-- [ ] 6.3 Re-run with an unchanged lockfile: Docker `deps` stage `CACHED`, browser cache hit, all green
+- [ ] 6.3 Re-run with an unchanged Playwright version: `actions/cache` reports a hit for `playwright-Linux-1.63.0` in all three Playwright jobs, no browser download, all green
 - [ ] 6.4 Over the first ten runs after merge, check Playwright reports for retries; if any recur, set workers to 3 and record the decision in the design's open questions
