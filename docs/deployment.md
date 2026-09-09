@@ -66,7 +66,7 @@ rebuild pipeline and the static files are inert until the flag flips.
 
 Every environment's `wp-config.php` also sets `WP_ENVIRONMENT_TYPE` and
 requires the committed hardening baseline (`config/wp-config-hardening.php`:
-debug policy, off-docroot log, `DISALLOW_FILE_EDIT`, `FORCE_SSL_ADMIN`,
+debug policy, off-docroot log, `DISALLOW_FILE_EDIT`, `DISALLOW_UNFILTERED_HTML`, `FORCE_SSL_ADMIN`,
 auto-update policy, startup assertion). Setup and the salt-rotation runbook:
 [runtime-hardening.md](runtime-hardening.md).
 

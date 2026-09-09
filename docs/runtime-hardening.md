@@ -92,6 +92,7 @@ What it enforces:
 | `WP_DEBUG_DISPLAY` | `false` (prior `true` fails startup); `display_errors=0` | same | env decides |
 | `WP_DEBUG_LOG` | `false`, or `<PROGRESSNOW_DEBUG_LOG_DIR>/wp-debug.log` when set; a docroot path (or bare `true`) **fails startup** | log allowed, off-docroot only | defaults to `<parent of docroot>/logs/wp-debug.log` when `WP_DEBUG` is on; a docroot path is tolerated with an `error_log` warning |
 | `DISALLOW_FILE_EDIT` | `true` | `true` | `true` |
+| `DISALLOW_UNFILTERED_HTML` | `true` | `true` | `true` |
 | `DISALLOW_FILE_MODS` | only with `PROGRESSNOW_DISALLOW_FILE_MODS` | same | same |
 | `FORCE_SSL_ADMIN` | `true` | `true` | unset |
 | `WP_AUTO_UPDATE_CORE` | `'minor'` (security + minor releases) | same | same |
@@ -111,6 +112,10 @@ Rules of the include:
   above `config/`), so a log can never be a web-reachable `wp-content/debug.log`
   in staging or production. Create the directory and make it writable by the
   PHP user; the include only `mkdir`s it in development/local.
+- **`DISALLOW_UNFILTERED_HTML`** is the core-level twin of the theme's
+  `inc/roles.php` deny (`docs/authoring-trust-model.md`): no role stores
+  executable markup even while another theme is active. Defining it `false`
+  before the include is honoured but defeats the authoring trust model.
 - **`PROGRESSNOW_DISALLOW_FILE_MODS`** stays opt-in: `DISALLOW_FILE_MODS` also
   disables *automatic* updates, so turn it on only when
   `security-dependency-lifecycle` owns updates.

@@ -53,7 +53,7 @@ class TestConfigHardening extends TestCase {
 		}
 		$prelude .= 'require ' . var_export( self::$include, true ) . '; ';
 		$prelude .= 'echo json_encode( array( ';
-		foreach ( array( 'WP_ENVIRONMENT_TYPE', 'WP_DEBUG', 'WP_DEBUG_DISPLAY', 'WP_DEBUG_LOG', 'DISALLOW_FILE_EDIT', 'DISALLOW_FILE_MODS', 'FORCE_SSL_ADMIN', 'WP_AUTO_UPDATE_CORE', 'AUTOMATIC_UPDATER_DISABLED' ) as $c ) {
+		foreach ( array( 'WP_ENVIRONMENT_TYPE', 'WP_DEBUG', 'WP_DEBUG_DISPLAY', 'WP_DEBUG_LOG', 'DISALLOW_FILE_EDIT', 'DISALLOW_UNFILTERED_HTML', 'DISALLOW_FILE_MODS', 'FORCE_SSL_ADMIN', 'WP_AUTO_UPDATE_CORE', 'AUTOMATIC_UPDATER_DISABLED' ) as $c ) {
 			$prelude .= sprintf( "'%s' => defined( '%s' ) ? %s : 'undefined', ", $c, $c, $c );
 		}
 		$prelude .= "'display_errors' => ini_get( 'display_errors' ), 'https' => \$_SERVER['HTTPS'] ?? null ) );";
@@ -95,6 +95,7 @@ class TestConfigHardening extends TestCase {
 		$this->assertFalse( $r['out']['WP_DEBUG_DISPLAY'] );
 		$this->assertFalse( $r['out']['WP_DEBUG_LOG'] );
 		$this->assertTrue( $r['out']['DISALLOW_FILE_EDIT'] );
+		$this->assertTrue( $r['out']['DISALLOW_UNFILTERED_HTML'] );
 		$this->assertSame( 'undefined', $r['out']['DISALLOW_FILE_MODS'] );
 		$this->assertTrue( $r['out']['FORCE_SSL_ADMIN'] );
 		$this->assertSame( 'minor', $r['out']['WP_AUTO_UPDATE_CORE'] );
@@ -223,6 +224,7 @@ class TestConfigHardening extends TestCase {
 		$this->assertSame( 0, $r['code'], $r['err'] );
 		$this->assertSame( 'undefined', $r['out']['FORCE_SSL_ADMIN'] );
 		$this->assertTrue( $r['out']['DISALLOW_FILE_EDIT'] );
+		$this->assertTrue( $r['out']['DISALLOW_UNFILTERED_HTML'], 'every environment denies unfiltered_html' );
 		$this->assertSame( 'undefined', $r['out']['WP_DEBUG'], 'local decides its own debug flag' );
 	}
 
@@ -236,12 +238,13 @@ class TestConfigHardening extends TestCase {
 	}
 
 	public function test_environment_defined_policy_constants_win() {
-		$r = $this->run_include( array( 'WP_AUTO_UPDATE_CORE' => true, 'FORCE_SSL_ADMIN' => false, 'DISALLOW_FILE_EDIT' => false ) );
+		$r = $this->run_include( array( 'WP_AUTO_UPDATE_CORE' => true, 'FORCE_SSL_ADMIN' => false, 'DISALLOW_FILE_EDIT' => false, 'DISALLOW_UNFILTERED_HTML' => false ) );
 
 		$this->assertSame( 0, $r['code'], $r['err'] );
 		$this->assertTrue( $r['out']['WP_AUTO_UPDATE_CORE'] );
 		$this->assertFalse( $r['out']['FORCE_SSL_ADMIN'] );
 		$this->assertFalse( $r['out']['DISALLOW_FILE_EDIT'] );
+		$this->assertFalse( $r['out']['DISALLOW_UNFILTERED_HTML'] );
 	}
 
 	public function test_proxy_proto_is_only_trusted_when_opted_in() {

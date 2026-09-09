@@ -17,7 +17,9 @@
  *                FORCE_SSL_ADMIN; WP_AUTO_UPDATE_CORE='minor'.
  *   staging      same as production except WP_DEBUG may be on (log only, never display).
  *   development  / local: debug free, but a log still lands off-docroot.
- *   all          DISALLOW_FILE_EDIT; DISALLOW_FILE_MODS only when
+ *   all          DISALLOW_FILE_EDIT; DISALLOW_UNFILTERED_HTML (no role stores
+ *                executable markup — core-level twin of inc/roles.php, so it
+ *                holds whatever theme is active); DISALLOW_FILE_MODS only when
  *                PROGRESSNOW_DISALLOW_FILE_MODS is true (it also disables
  *                automatic updates — sequence with security-dependency-lifecycle).
  *
@@ -157,6 +159,13 @@ if ( defined( 'WP_DEBUG_LOG' ) ) {
 
 if ( ! defined( 'DISALLOW_FILE_EDIT' ) ) {
 	define( 'DISALLOW_FILE_EDIT', true );
+}
+
+// No role may store executable markup (docs/authoring-trust-model.md). The
+// theme denies `unfiltered_html` itself (inc/roles.php); this makes core deny
+// it too, independent of the active theme.
+if ( ! defined( 'DISALLOW_UNFILTERED_HTML' ) ) {
+	define( 'DISALLOW_UNFILTERED_HTML', true );
 }
 
 // Blocks plugin/theme installs AND automatic updates; opt in only once
