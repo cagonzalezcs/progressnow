@@ -3,9 +3,9 @@ import type { PlaywrightTestConfig } from "@playwright/test";
 import pkg from "@/package.json";
 
 /* Playwright harness contract (openspec next-test-harness § Serial project
- * isolation). The config reads process.env at import, so
+ * isolation, § CI worker count). The config reads process.env at import, so
  * each case loads a fresh module. */
-const ENV_KEYS = ["CI"] as const;
+const ENV_KEYS = ["CI", "PW_WORKERS"] as const;
 const saved: Record<string, string | undefined> = {};
 
 async function load(
@@ -42,5 +42,19 @@ describe("failure project isolation", () => {
     const config = await load({});
     const failure = config.projects?.find((p) => p.name === "failure");
     expect(failure?.dependencies).toEqual(["e2e", "a11y"]);
+  });
+});
+
+describe("CI worker count", () => {
+  it("uses the runner's four cores under CI", async () => {
+    expect((await load({ CI: "1" })).workers).toBe(4);
+  });
+
+  it("PW_WORKERS overrides for triage", async () => {
+    expect((await load({ CI: "1", PW_WORKERS: "2" })).workers).toBe(2);
+  });
+
+  it("leaves Playwright's default outside CI", async () => {
+    expect((await load({})).workers).toBeUndefined();
   });
 });

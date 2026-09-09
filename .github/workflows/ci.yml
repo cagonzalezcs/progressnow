@@ -2,6 +2,8 @@
 # No job needs a WordPress instance: the theme runs PHPUnit on WorDBless,
 # nuxt-js generates against its nitro mock, next-js builds and tests against
 # test/mock/server.mjs — all backed by the theme's committed contract fixtures.
+# next-js is a fan-out — check ∥ build → e2e / a11y / failure ∥ container — over
+# one build artifact, scoped to next-js-affecting paths on branches and PRs.
 #
 # Security gates (openspec security-headers-and-cicd-gates § CI security gates;
 # docs/security-gates.md): php-sast, secrets and artifact-guard are required
@@ -122,10 +124,44 @@ jobs:
           path: nuxt-js/.output/public
           retention-days: 3
 
-  next-js:
-    name: next-js (lint, typecheck, unit, build, e2e + budget, a11y)
+  # ---- next-js: fan-out pipeline (openspec next-test-harness § CI job) ----
+  # check ∥ build → e2e / a11y / failure (one build artifact) ∥ container.
+  # `changes` scopes all of it to next-js-affecting paths on branches and PRs
+  # (§ Change-scoped pipeline); main always runs in full; the gates above never
+  # consult it. Skipped jobs show as skipped, and none of them is a required check.
+  changes:
+    name: Changed paths (next-js scope)
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 5
+    defaults:
+      run: { working-directory: . }
+    outputs:
+      next: ${{ steps.next.outputs.next }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # the diff needs the merge-base with the PR base / previous push
+      - id: next
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        # .github/scripts/next-paths.mjs holds the path list. An unknown base
+        # (new branch, force-push, all-zero SHA) runs everything.
+        run: |
+          if [ -z "$BASE" ] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
+            echo "next=true" >> "$GITHUB_OUTPUT"
+            echo "diff base unknown → next=true"
+            exit 0
+          fi
+          next=$(git diff --name-only "$BASE...HEAD" | node .github/scripts/next-paths.mjs)
+          echo "next=$next" >> "$GITHUB_OUTPUT"
+          echo "next=$next (diff $BASE...HEAD)"
+
+  next-js-check:
+    name: next-js-check (lint, format, typecheck, unit)
+    needs: [changes]
+    if: github.ref == 'refs/heads/main' || needs.changes.outputs.next == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run: { working-directory: next-js }
     env:
@@ -143,35 +179,162 @@ jobs:
       - run: npm run format:check
       - run: npm run typecheck
       - run: npm run test:unit
-      # Build once with the same env Playwright uses, then reuse it for both
-      # Playwright projects (PW_SKIP_BUILD) so e2e and a11y test one artifact.
-      # The build itself needs no API (routes render per request); the fixture
-      # mock is started and stopped by the script for the standalone smoke.
+      - name: Path-scope script tests
+        working-directory: .
+        run: node --test ".github/scripts/*.test.mjs"
+
+  next-js-build:
+    name: next-js-build (standalone, mock API)
+    needs: [changes]
+    if: github.ref == 'refs/heads/main' || needs.changes.outputs.next == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run: { working-directory: next-js }
+    env:
+      CI: "1"
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: next-js/package-lock.json
+      - run: npm ci
+      # Built once with the same env Playwright uses, so the three Playwright
+      # jobs test one artifact. The build needs no API (routes render per
+      # request); the script starts and stops the fixture mock for the prerender.
       - name: Build (mock API)
         run: npm run build:mock
-      - name: Install Playwright Chromium
-        run: npx playwright install --with-deps chromium
-      - name: Functional e2e (production build + mock API)
-        run: npm run test:e2e
-        env: { PW_SKIP_BUILD: "1" }
-      - name: Accessibility gate (axe-core against the build)
-        run: npm run test:a11y
-        env: { PW_SKIP_BUILD: "1" }
-      - name: Upstream-failure e2e (serial, flips the mock)
-        run: npm run test:failure
-        env: { PW_SKIP_BUILD: "1" }
-      # Container smoke (openspec next-deployment § Container smoke): build the
-      # standalone image, run it on the host network next to the mock, and hit
-      # /api/health + / + /es/. Nothing is pushed.
-      - name: Container image + smoke against the mock
+      # tar, not the directories: upload-artifact@v4 keeps neither symlinks nor
+      # modes, and the traced standalone node_modules may hold both. .next/cache
+      # (hundreds of MB) stays out.
+      - name: Pack the standalone build
+        run: tar -cf next-build.tar .next/standalone .next/static
+      - uses: actions/upload-artifact@v4
+        with:
+          name: next-build
+          path: next-js/next-build.tar
+          retention-days: 1
+          if-no-files-found: error
+
+  next-js-playwright:
+    name: next-js-${{ matrix.project }}
+    needs: [changes, next-js-build]
+    if: github.ref == 'refs/heads/main' || needs.changes.outputs.next == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [e2e, a11y, failure]
+    defaults:
+      run: { working-directory: next-js }
+    env:
+      CI: "1"
+      NEXT_TELEMETRY_DISABLED: "1"
+      # The Playwright webServer starts the downloaded build; no job runs `next build`.
+      PW_SKIP_BUILD: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: next-js/package-lock.json
+      - run: npm ci
+      - name: Playwright version (browser cache key)
+        id: pw
+        run: echo "version=$(node -p "require('./package-lock.json').packages['node_modules/@playwright/test'].version")" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}
+      # Headless shell only (what headless tests run). OS deps install every
+      # time; the browser download comes from the cache (§ Warm caches).
+      - name: Install Playwright Chromium (headless shell)
+        run: npx playwright install --with-deps --only-shell chromium
+      - uses: actions/download-artifact@v4
+        with:
+          name: next-build
+          path: next-js
+      - name: Unpack the standalone build
+        run: tar -xf next-build.tar && rm next-build.tar
+      - name: Playwright project
         env:
-          WP_API_BASE: http://127.0.0.1:8787/wp-json/progressnow/v1
-          NEXT_PUBLIC_SITE_ORIGIN: http://127.0.0.1:3000
+          PROJECT: ${{ matrix.project }}
+        run: npm run "test:$PROJECT"
+      - name: Upload axe-core reports
+        if: always() && matrix.project == 'a11y'
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-js-a11y-report
+          path: |
+            next-js/test-results/axe/**
+            next-js/playwright-report/**
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Upload styleguide screenshots and report
+        if: always() && matrix.project == 'e2e'
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-js-e2e-report
+          path: |
+            next-js/test-results/styleguide/**
+            next-js/playwright-report/**
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Upload failure-project report
+        if: failure() && matrix.project == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-js-failure-report
+          path: next-js/playwright-report/**
+          if-no-files-found: ignore
+          retention-days: 14
+
+  # Container smoke (openspec next-deployment § Container smoke): build the
+  # standalone image, run it on the host network next to the mock, and hit
+  # /api/health + / + /es/. Nothing is pushed. Needs only the checkout, so it
+  # runs beside everything else.
+  next-js-container:
+    name: next-js-container (image + smoke)
+    needs: [changes]
+    if: github.ref == 'refs/heads/main' || needs.changes.outputs.next == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run: { working-directory: next-js }
+    env:
+      WP_API_BASE: http://127.0.0.1:8787/wp-json/progressnow/v1
+      NEXT_PUBLIC_SITE_ORIGIN: http://127.0.0.1:3000
+    steps:
+      - uses: actions/checkout@v4
+      # The mock and the smoke are dependency-free ESM: Node, no npm ci.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - id: sha
+        run: echo "short=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-buildx-action@v3
+      # Layer cache in the Actions cache: the deps stage (npm ci in alpine) is a
+      # hit whenever package-lock.json is unchanged (§ Warm caches).
+      - name: Build the image
+        uses: docker/build-push-action@v6
+        with:
+          context: next-js
+          push: false
+          load: true
+          tags: progressnow-next:ci
+          build-args: |
+            WP_API_BASE=${{ env.WP_API_BASE }}
+            NEXT_PUBLIC_SITE_ORIGIN=${{ env.NEXT_PUBLIC_SITE_ORIGIN }}
+            NEXT_PUBLIC_BUILD_ID=${{ steps.sha.outputs.short }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Smoke against the mock
         run: |
-          docker build -t progressnow-next:ci \
-            --build-arg WP_API_BASE="$WP_API_BASE" \
-            --build-arg NEXT_PUBLIC_SITE_ORIGIN="$NEXT_PUBLIC_SITE_ORIGIN" \
-            --build-arg NEXT_PUBLIC_BUILD_ID="${GITHUB_SHA::7}" .
           node test/mock/server.mjs & echo $! > mock.pid
           docker run -d --name next --network host \
             -e MOCK_API=1 -e WP_API_BASE="$WP_API_BASE" \
@@ -184,14 +347,3 @@ jobs:
           docker rm -f next >/dev/null
           kill "$(cat mock.pid)" || true
           exit $status
-      - name: Upload axe-core reports and screenshots
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: next-js-axe-and-screenshots
-          path: |
-            next-js/test-results/axe/**
-            next-js/test-results/styleguide/**
-            next-js/playwright-report/**
-          if-no-files-found: ignore
-          retention-days: 14
