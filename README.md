@@ -166,7 +166,7 @@ composer install
 npm install
 ```
 
-Activate the **Progress Now** theme, install/activate ACF Pro and Polylang Pro, configure Polylang (EN `en_US` default + ES `es_MX`; language in directory, default hidden), then seed:
+Activate the **Progress Now** theme, install/activate ACF Pro and Polylang Pro, configure Polylang (EN `en_US` default + ES `es_MX`; language in directory, default hidden), set **Settings → General → Timezone** to your city (event times, calendar links, and the ICS feed follow it — the theme has no built-in zone), then seed:
 
 ```bash
 wp eval-file wp-content/themes/progressnow/bin/seed.php
@@ -297,7 +297,7 @@ Rules that hold everywhere:
 | `/posts?page&per_page&category&s&lang` | `{ posts, page, perPage, total, totalPages }` |
 | `/posts/{slug}?lang` | `SinglePostData` + `readNext` + `languages` |
 | `/events?after&before&lang` | `{ events, categories }` (default window −1 → +12 months) |
-| `/categories` | `{ categories }` |
+| `/categories?lang` | `{ categories }` (names in `lang`, cached per language) |
 | `/site`, `/routes`, `/front`, `/page/…` | Shell / static-build payloads used by `nuxt generate` |
 | `POST /build-status` | HMAC-signed callback from the build |
 
@@ -375,25 +375,39 @@ Timeline reconstructed from the predecessor repo's git log and the archived Open
 | 2026-07-03 | `translations-layer` → `polylang-translations` → `interior-page-translations` | GTranslate approach superseded by Polylang Pro page pairs for home, then every interior page; translated menus and strings. |
 | 2026-08-27 | `home-v3-brand-refresh` | Designer's v3 red/orange system applied to Home. |
 | 2026-09-05 | `progress-now-v4-foundation-chrome`, `-home`, `-blog`, `-events`, `-interior-404` | v4 blue "Progress Now" design across every page, in both renderers; v3 scaffolding removed. |
-| 2026-09-05 | `nuxt4-static-platform` (51/59 tasks) | Theme renamed to Progress Now and made chapter-neutral; Nuxt 4 static rendition; PHP shell handoff; rebuild pipeline, Site build panel, WP-CLI, Terraform reference, deployment guide. |
+| 2026-09-07 | `nuxt4-static-platform` (58/59 tasks) | Theme renamed to Progress Now and made chapter-neutral; Nuxt 4 static rendition; PHP shell handoff; rebuild pipeline, Site build panel, WP-CLI, Terraform reference, deployment guide. The islands-removal task was dropped: the theme's Vite islands are permanent (PHP-only frontend). |
+| 2026-09-07 | `next-js-site-implementation` (57/57 tasks) | Headless Next.js frontend (`next-js/`): Tailwind v4 + shadcn/ui, SSR from `progressnow/v1`, signed-webhook revalidation, nonce CSP, axe-core gate against the build, View Transitions, Dockerfile; `site/` renamed to `nuxt-js/`; `CHAPTER_CANONICAL_ORIGIN`. |
+| 2026-09-09 | `security-rest-cache-dos-hardening` | Bounded REST inputs (`page` ≤ 500, `per_page` ≤ 50), no search/negative transients, date-window clamps, cached ICS, term create/delete invalidation (#19). |
+| 2026-09-09 | `security-authoring-least-privilege` | `unfiltered_html` denied for every role, `esc_html` Twig strategy, role and markup audits (#20). |
+| 2026-09-09 | `security-runtime-hardening` | xmlrpc / user-enumeration / discovery hooks off, `wp-config` baseline + startup assertion, salt runbook, Wordfence posture (#21). |
+| 2026-09-09 | `next-ci-performance` (22/24 tasks) | next-js CI from ~14 min to ~5 min: `--no-deps` fix, fan-out over one build artifact (#25). |
+| 2026-09-10 | `blog-grid-full-rows` | 25 posts per archive page and the featured card on every state, so the grid's last row is never short (#26). |
+| 2026-09-10 | `content-invalidation-completeness` (24/27 tasks) | Content version bumps on every public write, once per request (pages, menus, terms, attachments, strings); WordPress timezone replaces the built-in zone; `/categories?lang` (#28). Remaining: three local-site checks. |
 
 ## Roadmap
 
-Open changes in `openspec/changes/` (task counts at time of writing):
+Open changes in `openspec/changes/` (task counts as of 2026-09-10; archived changes move to History below):
 
 | Change | Status | Scope |
 |---|---|---|
-| `nuxt4-static-platform` | 51/59 | Remaining: remove the Vite islands after cutover verification (tasks 7.x), final cleanup |
-| `next-js-site-implementation` | 54/57 | Headless Next.js frontend (`next-js/`): Tailwind v4 + shadcn/ui, SSR from `progressnow/v1`, signed-webhook revalidation, nonce CSP, axe-core gate against the build, View Transitions, Dockerfile; `site/` renamed to `nuxt-js/`; `CHAPTER_CANONICAL_ORIGIN`. Remaining: kitchen-sink a11y burn-down, local end-to-end against a real WordPress, final gate |
-| `open-source-release-readiness` | partial | Plugins/backups untracked, MIT declared everywhere, `scrub-brand.sh` removed, dev origin neutralized (done in this repo's first commit). Remaining: plugin-missing admin notice, `CONTRIBUTING` / `CODE_OF_CONDUCT` / `SECURITY`, no-analytics policy, hygiene CI gate, release checklist |
-| `content-invalidation-completeness` | 0/27 | Bump content version on every public write (pages, menus, terms, attachments, strings), one bump per request, WP timezone, language-aware categories |
-| `security-sanitize-url-sinks` | 0/12 | `progressnow_safe_url()` scheme allow-list on every `:href`/`:src` sink |
-| `security-authoring-least-privilege` | 0/11 | Drop `unfiltered_html` for all roles, documented role model |
-| `security-rest-cache-dos-hardening` | 0/11 | Pagination max, no negative/search transients, date-window clamps, ICS caching |
-| `security-runtime-hardening` | 0/15 | Production `wp-config` baseline, salts runbook, xmlrpc/user-enum off |
+| `security-sanitize-url-sinks` | 12/12 | `progressnow_safe_url()` scheme allow-list on every `:href`/`:src` sink (#15). Ready to archive |
+| `security-template-output-escaping` | 14/15 | Twig autoescape on, one script-context JSON encoder, double-escape sweep, hostile-content regression suite, `\|raw` audit gate (#17). Remaining: manual EN/ES pass over every template |
+| `security-next-edge-trust-boundaries` | 13/14 | Next.js proxy render token, receiver streaming cap, HTTPS-only image hosts, sink allowlist lint, mock-API HMAC (#18). Remaining: label the Vercel demo backend as non-production and set its secret |
 | `security-headers-and-cicd-gates` | 11/14 | Done: nosniff/frame/referrer/permissions headers, HSTS, nonce CSP shipped report-only with a violation sink (`wp chapter csp-reports`), PHPCS security sniffs + gitleaks + artifact guard in CI and required for merge to `main`, `docs/security-gates.md`. Remaining: tune from real reports and flip `CHAPTER_CSP_MODE` to `enforce`, browser verification under enforcement, optional Psalm taint |
-| `security-dependency-lifecycle` | 0/14 | Composer/npm audits, Renovate, patch SLA |
+| `open-source-release-readiness` | 0/27 | Plugins/backups untracked, MIT declared everywhere, `scrub-brand.sh` removed, dev origin neutralized (done in this repo's first commit, before the tasks were written). Remaining: plugin-missing admin notice, `CONTRIBUTING` / `CODE_OF_CONDUCT` / `SECURITY`, no-analytics policy, hygiene CI gate, release checklist |
 | `security-remove-duplicator-and-purge-artifacts` | 0/16 | Superseded by `open-source-release-readiness` |
+| `security-dependency-lifecycle` | 0/14 | Composer/npm audits, Renovate, patch SLA |
+| `security-cicd-supply-chain-hardening` | 0/18 | Pin every GitHub Action to a SHA, route repository variables through `env:`, rsync host key, narrow the Terraform OIDC trust, pin Timber, `.nvmrc` + `engine-strict`, CI on every branch prefix in use |
+| `security-rebuild-transport-trust-boundary` | 0/16 | Webhook-first rebuild transport; the WordPress-held GitHub token scoped to an isolated dispatch repo; branch protection on `main`; secrets via `getenv()`; 32-character HMAC minimum |
+| `security-detection-and-response` | 0/18 | Second factor for privileged roles, audit trail for privileged theme actions, rebuild-failure alerts, CSP report sink, health monitoring, incident runbook |
+| `ops-backup-and-disaster-recovery` | 0/9 | Off-docroot DB + uploads backups, RPO/RTO defaults, restore runbook and a recorded restore drill |
+| `repo-structure-consolidation` | 0/15 | Fold `next-js/openspec/` into the root spec tree, drop `Claude outputs/`, `.gitignore` fixes, theme `composer.json` identity, Timber-starter leftovers, resolve the `deploy-pipeline` stub |
+| `workspace-toolchain-baseline` | 0/14 | Root `package.json` workspaces with fan-out scripts, shared ESLint/Prettier/vitest configs, `.editorconfig`, one major per tool across apps, PHP `>=8.1` declared |
+| `single-source-shared-ui` | 0/14 | `packages/contracts` + `packages/shared-ui` replace the ~400 byte-identical files copied between the theme, `nuxt-js`, and `next-js` |
+| `theme-integration-and-a11y-gate` | 0/17 | `wp-env` CI job, Playwright suite for the PHP theme, axe-core gate over every theme route × language × a11y mode, real-DB REST tests |
+| `test-credibility-coverage-and-mutation` | 0/14 | Coverage thresholds for every suite, deliberate fixture regeneration, mutation testing for the security-critical helpers |
+| `docs-accuracy-and-spec-governance` | 0/15 | One canonical doc per topic, README/roadmap accuracy as a CI check, `openspec/config.yaml` project context |
+| `deploy-pipeline` | — | Empty stub from 2026-07-03 (no artifacts); `repo-structure-consolidation` deletes it |
 
 Known items carried over from the theme README: Spanish home resolves at `/es/inicio/` (Polylang 301 from `/es/`); event teaser dates render in English (`wp_date()` switch pending); CI (`.github/workflows/ci.yml`) runs the theme and site lint/typecheck/test jobs plus a mock `generate` + `verify:output` smoke build.
 

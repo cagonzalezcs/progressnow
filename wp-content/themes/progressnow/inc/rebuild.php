@@ -206,8 +206,10 @@ function progressnow_rebuild_request( $reason = 'content-version', $immediate = 
 }
 
 /**
- * Content writes (posts, events, terms, Chapter Settings) all bump the
- * content version through inc/cache.php — hook the rebuild there.
+ * Every editor write that changes a public payload (posts, events, pages,
+ * terms, menus, Chapter Settings, attachment metadata, string translations)
+ * bumps the content version through inc/cache.php, once per request — hook
+ * the rebuild there.
  */
 add_action( 'progressnow/content_version_bumped', 'progressnow_rebuild_on_content_change' );
 function progressnow_rebuild_on_content_change() {

@@ -85,6 +85,12 @@ describe("json-ld", () => {
     });
     expect(zoneOffset("America/Chicago", new Date("2030-01-15T12:00:00Z"))).toBe("-06:00"); // CST
     expect(zoneOffset("UTC", new Date())).toBe("+00:00");
+    // A site set to a UTC offset (no named zone) sends UTC instants and no ctz.
+    expect(
+      gcalToIso(
+        "https://calendar.google.com/calendar/render?action=TEMPLATE&dates=20300704T230000Z%2F20300705T010000Z",
+      ),
+    ).toEqual({ start: "2030-07-04T23:00:00+00:00", end: "2030-07-05T01:00:00+00:00" });
     expect(gcalToIso("not a url")).toBeNull();
     const node = eventNode(
       { ...event, event: { ...event.event, rsvpUrl: "https://rsvp.example/x" } },

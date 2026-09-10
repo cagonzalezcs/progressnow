@@ -231,4 +231,34 @@ class TestCategories extends BaseTestCase {
 
 		$this->assertSame( 'mutual', progressnow_blog_post_cat( get_post( $post_id ) ) );
 	}
+
+	/** With a language, the term *in that language* supplies the label; the canonical id and the group's color are shared. */
+	public function test_categories_prefer_the_requested_language_term() {
+		progressnow_test_pll_configure( array( 'en', 'es' ), 'en' );
+		$en = $this->make_term( 11, 'mutual', 'Mutual Aid', 'category' );
+		$es = $this->make_term( 12, 'mutual-es', 'Ayuda Mutua', 'category' );
+		progressnow_test_pll_save_term_translations( array( 'en' => 11, 'es' => 12 ) );
+		$this->supply_terms( 'category', array( $es, $en ) ); // Spanish first: get_terms order must not decide.
+		add_filter(
+			'get_term_metadata',
+			function ( $value, $object_id, $meta_key ) {
+				return ( 11 === $object_id && 'color' === $meta_key ) ? '#123456' : $value;
+			},
+			10,
+			3
+		);
+
+		$english = array_column( progressnow_categories( 'category', 'en' ), null, 'id' );
+		$spanish = array_column( progressnow_categories( 'category', 'es' ), null, 'id' );
+		$any     = array_column( progressnow_categories( 'category' ), null, 'id' );
+		$french  = array_column( progressnow_categories( 'category', 'fr' ), null, 'id' );
+
+		$this->assertSame( 'Mutual Aid', $english['mutual']['label'] );
+		$this->assertSame( 'Ayuda Mutua', $spanish['mutual']['label'] );
+		$this->assertSame( 'Ayuda Mutua', $any['mutual']['label'], 'no language: first term in the group' );
+		$this->assertSame( 'Ayuda Mutua', $french['mutual']['label'], 'language without a term in the group: any term' );
+		$this->assertSame( '#123456', $spanish['mutual']['color'], 'color resolves across the translation group' );
+		$this->assertSame( self::CANONICAL, array_keys( $spanish ), 'canonical ids in registry order' );
+		$this->assertSame( 'Labor', $spanish['labor']['label'], 'slugs without a term keep the registry label' );
+	}
 }

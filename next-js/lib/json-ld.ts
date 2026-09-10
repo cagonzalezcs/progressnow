@@ -74,7 +74,9 @@ export function articleNode(post: SinglePostEnvelope, o: Origins): JsonLdNode {
 
 /** Google Calendar `dates=YYYYMMDDTHHMMSS/YYYYMMDDTHHMMSS&ctz=Zone` (built by
  * inc/events.php from the same start/end as the ICS feed) → ISO 8601 with the
- * chapter zone's offset, i.e. PHP's `format('c')`. */
+ * chapter zone's offset, i.e. PHP's `format('c')`. A site set to a UTC offset
+ * instead of a named zone sends UTC instants (`…Z`) and no `ctz`; those map to
+ * `+00:00`. */
 export function gcalToIso(gcalUrl: string): { start: string; end?: string } | null {
   let url: URL;
   try {
@@ -87,10 +89,13 @@ export function gcalToIso(gcalUrl: string): { start: string; end?: string } | nu
   if (!dates) return null;
   const [start, end] = dates.split("/");
   const iso = (compact: string | undefined) => {
-    const m = /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})$/.exec(compact ?? "");
+    const m = /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})(Z?)$/.exec(compact ?? "");
     if (!m) return undefined;
-    const [, y, mo, d, h, mi, s] = m;
-    return `${y}-${mo}-${d}T${h}:${mi}:${s}${zoneOffset(zone, new Date(Date.UTC(+y!, +mo! - 1, +d!, +h!, +mi!, +s!)))}`;
+    const [, y, mo, d, h, mi, s, utc] = m;
+    const offset = utc
+      ? "+00:00"
+      : zoneOffset(zone, new Date(Date.UTC(+y!, +mo! - 1, +d!, +h!, +mi!, +s!)));
+    return `${y}-${mo}-${d}T${h}:${mi}:${s}${offset}`;
   };
   const startIso = iso(start);
   if (!startIso) return null;

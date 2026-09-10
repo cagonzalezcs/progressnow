@@ -180,7 +180,10 @@ fits this contract; reporting back is the same signed `POST /build-status`
 
 ## 7. First build and cutover
 
-1. Merge, activate the **Progress Now** theme, run
+1. Merge, activate the **Progress Now** theme, set **Settings → General →
+   Timezone** to the chapter's city (event times, "Add to Google Calendar"
+   links, and the ICS feed follow it; a UTC offset works but carries no zone
+   name), then run
    `wp eval-file wp-content/themes/progressnow/bin/seed.php` on a fresh install
    (take a DB snapshot first on an existing site).
 2. Set the constants (§2) with `CHAPTER_FRONTEND` still `islands`; configure

@@ -8,8 +8,9 @@
  * per-block field groups live in inc/blocks.php).
  *
  * Public contract (other domains call these):
- * - progressnow_post_categories(): array — [{ id, label, color }] for the six
- *   canonical category slugs (term name/color when the term exists).
+ * - progressnow_post_categories( $lang = '' ): array — [{ id, label, color }]
+ *   for the six canonical category slugs (term name in $lang / color when the
+ *   term exists).
  * - progressnow_post_to_blog_post( $post ): array — BlogPost shape.
  * - progressnow_post_to_single( $post ): array — SinglePostData shape.
  */
@@ -33,9 +34,11 @@ function progressnow_blog_committees() {
  * [{ id: slug, label, color }] for the six canonical category slugs.
  * Term name/ACF color win when the term exists; the registry
  * (categories.json via inc/categories.php) is the fallback.
+ *
+ * @param string $lang Language slug whose term names to prefer ('' = current/any).
  */
-function progressnow_post_categories() {
-	return progressnow_categories( 'category' );
+function progressnow_post_categories( $lang = '' ) {
+	return progressnow_categories( 'category', $lang );
 }
 
 /* -------------------------------------------------------------------------

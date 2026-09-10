@@ -31,6 +31,8 @@ wp chapter audit-roles | audit-markup | audit-urls | csp-reports   # on the host
 
 Every default string in `inc/options.php`, `inc/pages.php`, and the Twig ledes is built from the identity, so an unconfigured install reads as a generic chapter and never as a specific place. `tests/test-brand-audit.php` scans the shipped files, the seed (EN + ES), the rendered contexts, the ICS feed, and the SEO head for regional tokens.
 
+**Timezone.** Event times, "Add to Google Calendar" links, the ICS feed, and event JSON-LD follow **Settings → General → Timezone** (`wp_timezone()`); the theme ships no built-in zone (`tests/test-events-timezone.php` scans for one). Pick a *city*, not a UTC offset: an offset has no name Google Calendar or ICS clients understand, so with one the gcal link omits `ctz` and sends UTC instants and the feed omits `X-WR-TIMEZONE` — still correct, just unlabelled.
+
 ## Architecture
 
 ### Frontend modes (`CHAPTER_FRONTEND`)
@@ -153,9 +155,9 @@ GET-only, public, publish-only; handlers reuse the domain serializers so REST sh
 | `/posts?page&per_page&category&s&lang` | `{ posts: BlogPost[], page, perPage, total, totalPages }` (`page` ≤ 500, `per_page` ≤ 50; `s` responses are HTTP-cached only) |
 | `/posts/{slug}?lang` | `SinglePostData` + `readNext: BlogPost[]` + `languages` (404 `progressnow_post_not_found`) |
 | `/events?after&before&lang` | `{ events: ChapterEvent[], categories }` (default −1 → +12 months; clamped to now −2y … +5y, reversed range swapped) |
-| `/categories` | `{ categories: EventCategory[] }` |
+| `/categories?lang` | `{ categories: EventCategory[] }` (term names in `lang`; cached per language) |
 
-Anonymous responses carry `Cache-Control: public, max-age=300, stale-while-revalidate=3600` + ETag/304; logged-in requests are `no-store`. Payloads are transient-cached via `progressnow_cache_remember()`.
+Anonymous responses carry `Cache-Control: public, max-age=300, stale-while-revalidate=3600` + ETag/304; logged-in requests are `no-store`. Payloads are transient-cached via `progressnow_cache_remember()`, keyed to a content version that every editor write affecting a public payload bumps once per request (`inc/cache.php`: post/event/page saves and deletions, category terms, nav menus and locations, Chapter Settings, attachment metadata, Polylang string translations); each bump also schedules the static rebuild.
 
 ### Contract governance
 

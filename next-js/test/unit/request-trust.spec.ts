@@ -54,9 +54,14 @@ describe("isTrustedInternal", () => {
         headers: new Headers({ [INTERNAL_TOKEN_HEADER]: INTERNAL_TOKEN.slice(1) }),
       }),
     ).toBe(false);
+    // Flip the last hex digit rather than hard-coding one: the token is random
+    // per process, so a fixed replacement matches the real token 1 run in 16.
+    const lastFlipped = INTERNAL_TOKEN.endsWith("0") ? "1" : "0";
     expect(
       isTrustedInternal({
-        headers: new Headers({ [INTERNAL_TOKEN_HEADER]: `${INTERNAL_TOKEN.slice(0, -1)}0` }),
+        headers: new Headers({
+          [INTERNAL_TOKEN_HEADER]: `${INTERNAL_TOKEN.slice(0, -1)}${lastFlipped}`,
+        }),
       }),
     ).toBe(false);
     // Same length, different bytes — the constant-time path, not the length short-circuit.

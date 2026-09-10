@@ -23,17 +23,35 @@ class TestBlogPerformance extends BaseTestCase {
 		require dirname( __DIR__ ) . '/functions.php';
 
 		add_action( 'save_post_post', 'progressnow_blog_store_read_minutes', 20 );
-		add_action( 'save_post_post', 'progressnow_cache_bump_version' );
-		add_action( 'save_post_event', 'progressnow_cache_bump_version' );
+		// The inc/cache.php hook set (keep in sync with that file).
+		add_action( 'save_post', 'progressnow_cache_bump_on_post_save', 20, 2 );
 		add_action( 'deleted_post', 'progressnow_cache_bump_on_post_delete', 10, 2 );
 		add_action( 'edited_term', 'progressnow_cache_bump_on_term_edit', 10, 3 );
 		add_action( 'created_term', 'progressnow_cache_bump_on_term_edit', 10, 3 );
 		add_action( 'delete_term', 'progressnow_cache_bump_on_term_edit', 10, 3 );
+		add_action( 'wp_update_nav_menu', 'progressnow_cache_bump_on_menu_change' );
+		add_action( 'delete_nav_menu', 'progressnow_cache_bump_on_menu_change' );
+		add_action( 'add_option_' . progressnow_cache_theme_mods_option(), 'progressnow_cache_bump_on_menu_change' );
+		add_action( 'update_option_' . progressnow_cache_theme_mods_option(), 'progressnow_cache_bump_on_menu_change' );
 		add_action( 'acf/save_post', 'progressnow_cache_bump_on_options_save' );
+		add_action( 'edit_attachment', 'progressnow_cache_bump_version' );
+		add_action( 'pll_save_strings_translations', 'progressnow_cache_bump_version' );
 
 		do_action( 'after_setup_theme' );
 
 		parent::set_up();
+	}
+
+	/** A WP_Post that never touched the store — enough for the save_post guard. */
+	private function fake_post( $post_type, $post_status = 'publish' ) {
+		return new WP_Post(
+			(object) array(
+				'ID'          => 777,
+				'post_type'   => $post_type,
+				'post_status' => $post_status,
+				'post_title'  => 'Fake',
+			)
+		);
 	}
 
 	public function tear_down() {
@@ -181,6 +199,7 @@ class TestBlogPerformance extends BaseTestCase {
 		do_action( 'edited_term', 5, 5, 'category' );
 		$this->assertSame( $before + 1, progressnow_content_version() );
 
+		progressnow_cache_reset_bump_guard(); // Next request.
 		do_action( 'edited_term', 6, 6, 'event_category' );
 		$this->assertSame( $before + 2, progressnow_content_version() );
 	}
@@ -195,6 +214,7 @@ class TestBlogPerformance extends BaseTestCase {
 		do_action( 'created_term', 8, 8, 'category' );
 		$this->assertSame( $before + 1, progressnow_content_version(), 'category create must bump' );
 
+		progressnow_cache_reset_bump_guard(); // Next request.
 		do_action( 'delete_term', 8, 8, 'event_category', (object) array(), array() );
 		$this->assertSame( $before + 2, progressnow_content_version(), 'event_category delete must bump' );
 	}
@@ -208,7 +228,8 @@ class TestBlogPerformance extends BaseTestCase {
 		$this->assertSame( $before, progressnow_content_version(), 'noise post types must not churn the version' );
 
 		$page = wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'publish', 'post_title' => 'P' ) );
-		$at   = progressnow_content_version();
+		progressnow_cache_reset_bump_guard(); // The insert bumped; the delete is a new request.
+		$at = progressnow_content_version();
 		wp_delete_post( $page, true );
 		$this->assertSame( $at + 1, progressnow_content_version(), 'page delete must bump' );
 	}
@@ -257,9 +278,111 @@ class TestBlogPerformance extends BaseTestCase {
 		$before = progressnow_content_version();
 
 		do_action( 'acf/save_post', 123 );
-		$this->assertSame( $before, progressnow_content_version(), 'post saves route through save_post_post instead' );
+		$this->assertSame( $before, progressnow_content_version(), 'post saves route through save_post instead' );
 
 		do_action( 'acf/save_post', 'options' );
 		$this->assertSame( $before + 1, progressnow_content_version() );
+	}
+
+	/* ---------------------------------------------------------------------
+	 * Complete write-path coverage + one bump per request.
+	 * ------------------------------------------------------------------ */
+
+	/** A page save bumps once and fires the action once, even when ACF's save_post fires alongside. */
+	public function test_page_save_bumps_once_per_request() {
+		$before = progressnow_content_version();
+		$fired  = 0;
+		add_action(
+			'progressnow/content_version_bumped',
+			function () use ( &$fired ) {
+				$fired++;
+			}
+		);
+
+		$page = wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'publish', 'post_title' => 'About' ) );
+		// The same request: ACF writes the section fields, then save_post fires again.
+		do_action( 'acf/save_post', 'options' );
+		do_action( 'save_post', $page, get_post( $page ), true );
+
+		$this->assertSame( $before + 1, progressnow_content_version(), 'exactly one increment per request' );
+		$this->assertSame( 1, $fired, 'exactly one progressnow/content_version_bumped per request' );
+
+		progressnow_cache_reset_bump_guard();
+		do_action( 'save_post', $page, get_post( $page ), true );
+		$this->assertSame( $before + 2, progressnow_content_version(), 'the next request bumps again' );
+		$this->assertSame( 2, $fired );
+	}
+
+	public function test_event_save_bumps() {
+		$before = progressnow_content_version();
+
+		wp_insert_post( array( 'post_type' => 'event', 'post_status' => 'publish', 'post_title' => 'Clinic' ) );
+
+		$this->assertSame( $before + 1, progressnow_content_version() );
+	}
+
+	/** Revisions, autosaves, auto-drafts, and non-public types never churn the version. */
+	public function test_noise_saves_do_not_bump() {
+		$before = progressnow_content_version();
+
+		wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'auto-draft', 'post_title' => 'Auto Draft' ) );
+		wp_insert_post( array( 'post_type' => 'nav_menu_item', 'post_status' => 'publish', 'post_title' => 'Item' ) );
+		$this->assertSame( $before, progressnow_content_version(), 'auto-draft and nav_menu_item saves must not bump' );
+
+		$post = $this->make_post(); // Bumps once.
+		progressnow_cache_reset_bump_guard();
+		$at = progressnow_content_version();
+
+		wp_insert_post( array( 'post_type' => 'revision', 'post_status' => 'inherit', 'post_parent' => $post, 'post_name' => $post . '-revision-v1', 'post_title' => 'Perf post' ) );
+		wp_insert_post( array( 'post_type' => 'revision', 'post_status' => 'inherit', 'post_parent' => $post, 'post_name' => $post . '-autosave-v1', 'post_title' => 'Perf post' ) );
+		do_action( 'save_post', 777, $this->fake_post( 'acf-field-group' ), true );
+		do_action( 'save_post', 777, $this->fake_post( 'attachment', 'inherit' ), true );
+		$this->assertSame( $at, progressnow_content_version(), 'revision / autosave / acf-field-group / attachment saves must not bump' );
+	}
+
+	public function test_public_post_types_are_filterable() {
+		add_filter(
+			'progressnow/cache/public_post_types',
+			static function ( $types ) {
+				return array_merge( $types, array( 'faq' ) );
+			}
+		);
+		$before = progressnow_content_version();
+
+		do_action( 'save_post', 777, $this->fake_post( 'faq' ), true );
+
+		$this->assertSame( array( 'post', 'event', 'page', 'faq' ), progressnow_cache_public_post_types() );
+		$this->assertSame( $before + 1, progressnow_content_version() );
+	}
+
+	/** Menu contents (wp_update_nav_menu) and menu locations (theme mods) both bump. */
+	public function test_menu_and_location_changes_bump() {
+		$before = progressnow_content_version();
+
+		do_action( 'wp_update_nav_menu', 7 );
+		$this->assertSame( $before + 1, progressnow_content_version(), 'menu save must bump' );
+
+		progressnow_cache_reset_bump_guard();
+		set_theme_mod( 'nav_menu_locations', array( 'primary' => 7 ) ); // First write: add_option.
+		$this->assertSame( $before + 2, progressnow_content_version(), 'menu location assignment must bump' );
+
+		progressnow_cache_reset_bump_guard();
+		set_theme_mod( 'nav_menu_locations', array( 'primary' => 8 ) ); // Later writes: update_option.
+		$this->assertSame( $before + 3, progressnow_content_version(), 'menu location reassignment must bump' );
+
+		progressnow_cache_reset_bump_guard();
+		do_action( 'delete_nav_menu', 7, 7, 7 );
+		$this->assertSame( $before + 4, progressnow_content_version(), 'menu deletion must bump' );
+	}
+
+	public function test_attachment_and_string_translation_edits_bump() {
+		$before = progressnow_content_version();
+
+		do_action( 'edit_attachment', 55 );
+		$this->assertSame( $before + 1, progressnow_content_version(), 'attachment metadata edit must bump' );
+
+		progressnow_cache_reset_bump_guard();
+		do_action( 'pll_save_strings_translations' );
+		$this->assertSame( $before + 2, progressnow_content_version(), 'Polylang string translation save must bump' );
 	}
 }

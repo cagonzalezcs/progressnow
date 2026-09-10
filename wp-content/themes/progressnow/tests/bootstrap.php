@@ -27,6 +27,26 @@ require_once dirname( __DIR__ ) . '/vendor/autoload.php';
 
 Load::load();
 
+// Polylang Pro is absent: load the minimal pll_* stub (unconfigured by
+// default, so behavior matches "no Polylang" until a test opts in).
+if ( ! function_exists( 'pll_current_language' ) ) {
+	require_once __DIR__ . '/polylang-stub.php';
+}
+
+// The content-version bump is idempotent per request (inc/cache.php) and
+// PHPUnit is one long request. Every suite's set_up() starts with
+// switch_theme(), so hook the per-test reset there. Added before the first
+// test, this hook is part of the WorDBless hook snapshot and survives the
+// per-test restore.
+add_action(
+	'switch_theme',
+	static function () {
+		if ( function_exists( 'progressnow_cache_reset_bump_guard' ) ) {
+			progressnow_cache_reset_bump_guard();
+		}
+	}
+);
+
 if ( ! function_exists( 'get_field' ) ) {
 	/**
 	 * Minimal ACF get_field() polyfill for WorDBless runs (ACF Pro is absent).

@@ -452,13 +452,14 @@ class TestSeo extends BaseTestCase {
 		update_post_meta( $post->ID, 'venue', 'Archer Park' );
 		update_post_meta( $post->ID, 'city', 'Springfield' );
 		update_post_meta( $post->ID, 'rsvp_url', 'https://example.org/rsvp' );
+		update_option( 'timezone_string', 'America/Chicago' ); // Settings → General → Timezone.
 
 		$data  = $this->json_ld( $this->head_output() );
 		$event = $data['@graph'][1];
 
 		$this->assertSame( 'Event', $event['@type'] );
 		$this->assertSame( 'Brake Light Clinic', $event['name'] );
-		// Chapter-tz ISO-8601 (America/Chicago is -05:00 in August).
+		// Site-timezone ISO-8601 (America/Chicago is -05:00 in August).
 		$this->assertSame( '2026-08-01T18:00:00-05:00', $event['startDate'] );
 		$this->assertSame( '2026-08-01T20:00:00-05:00', $event['endDate'] );
 		$this->assertSame( 'Place', $event['location']['@type'] );

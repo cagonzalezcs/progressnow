@@ -140,6 +140,7 @@ function progressnow_rest_register_routes() {
 			'methods'             => WP_REST_Server::READABLE,
 			'callback'            => 'progressnow_rest_categories',
 			'permission_callback' => '__return_true',
+			'args'                => array( 'lang' => $lang_arg ),
 		)
 	);
 
@@ -350,7 +351,7 @@ function progressnow_rest_events( WP_REST_Request $request ) {
 
 			return array(
 				'events'     => array_values( array_filter( array_map( 'progressnow_event_to_chapter_event', $posts ) ) ),
-				'categories' => progressnow_event_categories(),
+				'categories' => progressnow_event_categories( $lang ),
 			);
 		}
 	);
@@ -380,11 +381,21 @@ function progressnow_rest_single_event( WP_REST_Request $request ) {
 }
 
 /**
- * GET /categories — the six canonical blog categories.
+ * GET /categories — the six canonical blog categories, names in the
+ * requested language, cached per language.
  */
-function progressnow_rest_categories() {
+function progressnow_rest_categories( WP_REST_Request $request ) {
+	$lang = progressnow_rest_resolve_lang( $request );
+
 	return rest_ensure_response(
-		array( 'categories' => progressnow_cache_remember( 'rest_categories', 'progressnow_post_categories' ) )
+		array(
+			'categories' => progressnow_cache_remember(
+				'rest_categories_' . md5( $lang ),
+				static function () use ( $lang ) {
+					return progressnow_post_categories( $lang );
+				}
+			),
+		)
 	);
 }
 

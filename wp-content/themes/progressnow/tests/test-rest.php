@@ -241,6 +241,87 @@ class TestRest extends BaseTestCase {
 		$this->assertSame( 'chapter', $cats['categories'][0]['id'] );
 	}
 
+	/** Build a WP_Term and prime the `terms` cache so get_term() resolves it (WorDBless has no terms store). */
+	private function make_term( $term_id, $slug, $name, $taxonomy ) {
+		$term = new WP_Term(
+			(object) array(
+				'term_id'          => $term_id,
+				'name'             => $name,
+				'slug'             => $slug,
+				'taxonomy'         => $taxonomy,
+				'term_taxonomy_id' => $term_id,
+				'term_group'       => 0,
+				'parent'           => 0,
+				'description'      => '',
+				'count'            => 1,
+			)
+		);
+		wp_cache_set( $term_id, $term, 'terms' );
+
+		return $term;
+	}
+
+	/** Short-circuit WP_Term_Query for a taxonomy with the given terms. */
+	private function supply_terms( $taxonomy, array $terms ) {
+		add_filter(
+			'terms_pre_query',
+			static function ( $pre, $query ) use ( $taxonomy, $terms ) {
+				$queried = (array) ( $query->query_vars['taxonomy'] ?? array() );
+				if ( ! in_array( $taxonomy, $queried, true ) ) {
+					return $pre;
+				}
+				switch ( $query->query_vars['fields'] ?? 'all' ) {
+					case 'ids':
+						return array_map( static fn( $t ) => (int) $t->term_id, $terms );
+					case 'count':
+						return count( $terms );
+					default:
+						return $terms;
+				}
+			},
+			10,
+			2
+		);
+	}
+
+	/** /categories?lang=es serves the Spanish term names under a Spanish-specific cache key; /site?lang=es embeds the same rows. */
+	public function test_categories_are_language_aware_and_cached_per_language() {
+		progressnow_test_pll_configure( array( 'en', 'es' ), 'en' );
+		$en = $this->make_term( 11, 'mutual', 'Mutual Aid', 'category' );
+		$es = $this->make_term( 12, 'mutual-es', 'Ayuda Mutua', 'category' );
+		progressnow_test_pll_save_term_translations( array( 'en' => 11, 'es' => 12 ) );
+		$this->supply_terms( 'category', array( $en, $es ) );
+
+		$writes = $this->count_transient_writes( 'progressnow_rest_categories_' );
+
+		$default = $this->get_json( '/progressnow/v1/categories' )->get_data();
+		$spanish = $this->get_json( '/progressnow/v1/categories', array( 'lang' => 'es' ) )->get_data();
+
+		$this->assertSame( 'Mutual Aid', array_column( $default['categories'], 'label', 'id' )['mutual'], 'no lang → default language names' );
+		$this->assertSame( 'Ayuda Mutua', array_column( $spanish['categories'], 'label', 'id' )['mutual'] );
+		$this->assertSame( 'mutual', array_column( $spanish['categories'], 'id' )[2], 'canonical id, not the suffixed Spanish slug' );
+		$this->assertSame( array_column( $default['categories'], 'color' ), array_column( $spanish['categories'], 'color' ), 'shared colors' );
+
+		$this->assertSame( 2, $writes(), 'default and Spanish responses cache under distinct keys' );
+		$version = progressnow_content_version();
+		$this->assertNotFalse( get_transient( 'progressnow_rest_categories_' . md5( 'en' ) . '_' . $version ) );
+		$this->assertNotFalse( get_transient( 'progressnow_rest_categories_' . md5( 'es' ) . '_' . $version ) );
+
+		$site = $this->get_json( '/progressnow/v1/site', array( 'lang' => 'es' ) )->get_data();
+		$this->assertSame( 'es', $site['lang'] );
+		$this->assertSame( $spanish['categories'], $site['categories'], '/site embeds the same rows as /categories for its language' );
+	}
+
+	public function test_categories_lang_arg_is_normalized() {
+		progressnow_test_pll_configure( array( 'en', 'es' ), 'en' );
+		$writes = $this->count_transient_writes( 'progressnow_rest_categories_' );
+
+		$this->get_json( '/progressnow/v1/categories', array( 'lang' => 'fr' ) );
+		$this->get_json( '/progressnow/v1/categories' );
+
+		$this->assertSame( 1, $writes(), 'an unknown lang resolves to the default language and shares its cache key' );
+	}
+
 	/** Count transient writes whose name starts with a prefix (WP fires `setted_transient`). */
 	private function count_transient_writes( $prefix ) {
 		$counter = (object) array( 'n' => 0 );
