@@ -9,7 +9,7 @@ import { signatureHeader } from "../../../lib/signing";
  * layout cannot read /site → 500 + the global error surface (no fake content);
  * recover the upstream → the very next request is 200 again. */
 const MOCK = process.env.MOCK_ORIGIN ?? `http://127.0.0.1:${process.env.MOCK_PORT ?? 8787}`;
-const SECRET = "playwright-test-secret";
+const SECRET = "playwright-test-secret-not-for-production"; // = playwright.config.ts appEnv
 
 function signed(body: string) {
   const timestamp = String(Math.floor(Date.now() / 1000));

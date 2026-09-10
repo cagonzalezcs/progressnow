@@ -108,16 +108,8 @@ class Progressnow_CLI_Chapter {
 		$format   = \WP_CLI\Utils\get_flag_value( $assoc_args, 'format', 'table' );
 
 		if ( 'json' === $format ) {
-			WP_CLI::line(
-				wp_json_encode(
-					array(
-						'state'          => $state,
-						'contentVersion' => function_exists( 'progressnow_content_version' ) ? progressnow_content_version() : 0,
-						'manifest'       => $manifest,
-					),
-					JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
-				)
-			);
+			// Setting SOURCES only (env / constant / filter / unset); never a value.
+			WP_CLI::line( wp_json_encode( progressnow_admin_build_export( $state, $manifest ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
 
 			return;
 		}

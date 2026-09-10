@@ -3,13 +3,15 @@
  * Static-site rebuild (inc/rebuild.php): signing + verification, the signed
  * /build-status callback, coalesced scheduling, the github + webhook
  * transports (HTTP mocked via pre_http_request), retries → needs_attention,
- * and the lost-update re-dispatch.
+ * the lost-update re-dispatch, and the credential boundary (openspec
+ * rebuild-credential-boundary): env-first settings, the 32-character secret
+ * floor, split outbound/inbound secrets, and redaction of every output.
  */
 
 use WorDBless\BaseTestCase;
 
 if ( ! defined( 'CHAPTER_REBUILD_SECRET' ) ) {
-	define( 'CHAPTER_REBUILD_SECRET', 'test-secret' );
+	define( 'CHAPTER_REBUILD_SECRET', 'test-secret-0123456789abcdef0123456789' ); // ≥ 32 characters (PROGRESSNOW_REBUILD_SECRET_MIN)
 }
 if ( ! defined( 'CHAPTER_GITHUB_REPO' ) ) {
 	define( 'CHAPTER_GITHUB_REPO', 'example/site' );
@@ -26,6 +28,9 @@ class TestRebuild extends BaseTestCase {
 	/** Captured outbound requests: [ url, args ]. */
 	private $requests = array();
 
+	/** Error argument of the last progressnow/rebuild/failed action. */
+	private $last_failed_error = '';
+
 	public function set_up() {
 		switch_theme( basename( dirname( __DIR__ ) ) );
 
@@ -39,6 +44,13 @@ class TestRebuild extends BaseTestCase {
 		add_action( 'progressnow/content_version_bumped', 'progressnow_rebuild_on_content_change' );
 		add_action( PROGRESSNOW_REBUILD_CRON_HOOK, 'progressnow_rebuild_dispatch' );
 		add_filter( 'progressnow/rebuild/sleep', '__return_false' );
+		$this->last_failed_error = '';
+		add_action(
+			'progressnow/rebuild/failed',
+			function ( $error ) {
+				$this->last_failed_error = (string) $error;
+			}
+		);
 		$GLOBALS['wp_rest_server'] = null;
 
 		$this->requests = array();
@@ -80,6 +92,33 @@ class TestRebuild extends BaseTestCase {
 			10,
 			2
 		);
+	}
+
+	/** Panel rows keyed by label. */
+	private function rows() {
+		$rows = progressnow_admin_build_rows( progressnow_rebuild_state(), null );
+
+		return array_combine( array_column( $rows, 'label' ), array_column( $rows, 'value' ) );
+	}
+
+	/** Output of the theme's admin_notices callbacks as an Administrator. */
+	private function render_notices() {
+		$id = wp_insert_user(
+			array(
+				'user_login' => 'rebuild-admin-' . wp_rand( 1000, 999999 ),
+				'user_pass'  => wp_generate_password( 24 ),
+				'role'       => 'administrator',
+			)
+		);
+		$this->assertIsInt( $id );
+		wp_set_current_user( $id );
+		ob_start();
+		progressnow_rebuild_admin_notice();
+		progressnow_rebuild_secret_notice();
+		$html = (string) ob_get_clean();
+		wp_set_current_user( 0 );
+
+		return $html;
 	}
 
 	private function signed_status( array $body, $timestamp = null, $signature = null ) {
@@ -282,6 +321,205 @@ class TestRebuild extends BaseTestCase {
 
 		$this->assertSame( 'live', progressnow_rebuild_state()['status'] );
 		$this->assertFalse( wp_next_scheduled( PROGRESSNOW_REBUILD_CRON_HOOK ) );
+	}
+
+	/* ---- settings supply (§ Settings may be supplied by environment) ---- */
+
+	public function test_environment_wins_over_the_constant_and_an_empty_value_means_unset() {
+		$this->assertSame( 'example/site', progressnow_rebuild_setting( 'CHAPTER_GITHUB_REPO' ) );
+		$this->assertSame( 'constant', progressnow_rebuild_setting_source( 'CHAPTER_GITHUB_REPO' ) );
+		$this->assertSame( 'unset', progressnow_rebuild_setting_source( 'CHAPTER_REBUILD_SECRET_OUT' ) );
+
+		putenv( 'CHAPTER_GITHUB_REPO=owner/site-dispatch' );
+		putenv( 'CHAPTER_FRONTEND=nuxt' );
+		try {
+			$this->assertSame( 'owner/site-dispatch', progressnow_rebuild_setting( 'CHAPTER_GITHUB_REPO' ) );
+			$this->assertSame( 'env', progressnow_rebuild_setting_source( 'CHAPTER_GITHUB_REPO' ) );
+			$this->assertSame( 'nuxt', progressnow_shell_mode(), 'shell settings follow the same rule' );
+			$this->assertSame( 'env', progressnow_shell_setting_source( 'CHAPTER_FRONTEND' ) );
+
+			putenv( 'CHAPTER_GITHUB_REPO=' );
+			$this->assertSame( 'example/site', progressnow_rebuild_setting( 'CHAPTER_GITHUB_REPO' ), 'NAME= counts as unset, not as blank' );
+			$this->assertSame( 'constant', progressnow_rebuild_setting_source( 'CHAPTER_GITHUB_REPO' ) );
+		} finally {
+			putenv( 'CHAPTER_GITHUB_REPO' );
+			putenv( 'CHAPTER_FRONTEND' );
+		}
+
+		$this->assertSame( 'islands', progressnow_shell_mode() );
+	}
+
+	public function test_a_secret_injected_by_the_host_configures_the_webhook_transport() {
+		$this->use_transport( 'webhook' );
+		$secret = 'host-injected-secret-' . str_repeat( 'h', 24 );
+		putenv( 'CHAPTER_REBUILD_SECRET=' . $secret );
+		try {
+			$this->assertSame( 'webhook', progressnow_rebuild_transport() );
+			$this->assertSame( '', progressnow_rebuild_transport_problem() );
+			$this->assertSame( $secret, progressnow_rebuild_secret( 'out' ) );
+			$this->assertSame( $secret, progressnow_rebuild_secret( 'in' ), 'both directions fall back to the shared value' );
+
+			$export = progressnow_admin_build_export( progressnow_rebuild_state(), null );
+			$this->assertSame( 'webhook', $export['transport'] );
+			$this->assertSame( 'env', $export['settings']['CHAPTER_REBUILD_SECRET'] );
+			$this->assertSame( 'filter', $export['settings']['CHAPTER_REBUILD_TRANSPORT'] );
+			$this->assertSame( 'unset', $export['settings']['CHAPTER_REBUILD_SECRET_IN'] );
+			$this->assertStringNotContainsString( $secret, wp_json_encode( $export ) );
+		} finally {
+			putenv( 'CHAPTER_REBUILD_SECRET' );
+		}
+	}
+
+	/* ---- secret strength (§ Shared secrets meet a minimum strength) ---- */
+
+	public function test_a_short_secret_disables_the_webhook_transport_and_the_callback_and_names_the_constant() {
+		$this->use_transport( 'webhook' );
+		$this->mock_http( $this->http_response( 202, '{"buildId":"never"}' ) );
+		putenv( 'CHAPTER_REBUILD_SECRET=twenty-characters-xx' );
+		try {
+			$this->assertSame( 'none', progressnow_rebuild_transport() );
+			$this->assertSame( 'CHAPTER_REBUILD_SECRET is shorter than 32 characters', progressnow_rebuild_transport_problem() );
+			$this->assertSame( array( 'CHAPTER_REBUILD_SECRET' ), progressnow_rebuild_secret_problems() );
+
+			$this->assertSame( 'not_configured', progressnow_rebuild_request( 'admin', true )['status'] );
+			$this->assertSame( array(), $this->requests, 'nothing is dispatched' );
+
+			// The inbound side is off too: a short secret verifies nothing.
+			$this->assertSame( 401, $this->signed_status( array( 'buildId' => 'b1', 'status' => 'succeeded' ) )->get_status() );
+
+			$notices = $this->render_notices();
+			$this->assertStringContainsString( 'Rebuild secret too short', $notices );
+			$this->assertStringContainsString( 'CHAPTER_REBUILD_SECRET must be at least 32 characters', $notices );
+			$this->assertStringNotContainsString( 'twenty-characters-xx', $notices );
+			$this->assertStringContainsString( 'none — CHAPTER_REBUILD_SECRET is shorter than 32 characters', $this->rows()['Rebuild transport'] );
+		} finally {
+			putenv( 'CHAPTER_REBUILD_SECRET' );
+		}
+	}
+
+	public function test_a_secret_of_exactly_the_minimum_length_is_accepted() {
+		$this->use_transport( 'webhook' );
+		putenv( 'CHAPTER_REBUILD_SECRET=' . str_repeat( 'a', 32 ) );
+		try {
+			$this->assertSame( 'webhook', progressnow_rebuild_transport() );
+			$this->assertSame( array(), progressnow_rebuild_secret_problems() );
+			$this->assertSame( '', $this->render_notices() );
+		} finally {
+			putenv( 'CHAPTER_REBUILD_SECRET' );
+		}
+	}
+
+	/* ---- split secrets (design: optional outbound / inbound constants) ---- */
+
+	public function test_split_secrets_sign_outbound_and_verify_inbound_independently() {
+		$out = 'outbound-only-secret-' . str_repeat( 'o', 16 );
+		$in  = 'inbound-only-secret-' . str_repeat( 'i', 16 );
+		putenv( 'CHAPTER_REBUILD_SECRET_OUT=' . $out );
+		putenv( 'CHAPTER_REBUILD_SECRET_IN=' . $in );
+		try {
+			$this->use_transport( 'webhook' );
+			$this->mock_http( $this->http_response( 202, '{"buildId":"b-split"}' ) );
+			$this->assertSame( 'requested', progressnow_rebuild_request( 'cli', true )['status'] );
+
+			list( , $args ) = $this->requests[0];
+			$this->assertSame(
+				'sha256=' . hash_hmac( 'sha256', $args['headers']['X-Chapter-Timestamp'] . '.' . $args['body'], $out ),
+				$args['headers']['X-Chapter-Signature'],
+				'outbound: signed with _OUT'
+			);
+
+			$body = array( 'buildId' => 'b-split', 'status' => 'succeeded', 'contentVersion' => 3 );
+			$json = wp_json_encode( $body );
+			$ts   = (string) time();
+			$sig  = static fn( $secret ) => 'sha256=' . hash_hmac( 'sha256', $ts . '.' . $json, $secret );
+
+			$this->assertSame( 401, $this->signed_status( $body, $ts, $sig( CHAPTER_REBUILD_SECRET ) )->get_status(), 'the shared secret no longer verifies inbound' );
+			$this->assertSame( 401, $this->signed_status( $body, $ts, $sig( $out ) )->get_status(), 'the outbound secret never verifies inbound' );
+			$this->assertSame( 204, $this->signed_status( $body, $ts, $sig( $in ) )->get_status(), 'inbound: verified with _IN' );
+			$this->assertSame( 'live', progressnow_rebuild_state()['status'] );
+		} finally {
+			putenv( 'CHAPTER_REBUILD_SECRET_OUT' );
+			putenv( 'CHAPTER_REBUILD_SECRET_IN' );
+		}
+	}
+
+	public function test_a_short_split_secret_does_not_fall_back_to_the_shared_one() {
+		putenv( 'CHAPTER_REBUILD_SECRET_OUT=short-out' );
+		try {
+			$this->use_transport( 'webhook' );
+			$this->assertSame( '', progressnow_rebuild_secret( 'out' ) );
+			$this->assertSame( CHAPTER_REBUILD_SECRET, progressnow_rebuild_secret( 'in' ), 'the other direction still falls back' );
+			$this->assertSame( 'none', progressnow_rebuild_transport() );
+			$this->assertSame( 'CHAPTER_REBUILD_SECRET_OUT is shorter than 32 characters', progressnow_rebuild_transport_problem() );
+			$this->assertSame( array( 'CHAPTER_REBUILD_SECRET_OUT' ), progressnow_rebuild_secret_problems() );
+		} finally {
+			putenv( 'CHAPTER_REBUILD_SECRET_OUT' );
+		}
+	}
+
+	/* ---- secrets never appear in output (§ Secrets never appear in output) ---- */
+
+	public function test_upstream_error_bodies_are_redacted_and_truncated_in_every_output() {
+		$token  = 'github_pat_example_DISTINCTIVE_token_0000'; // gitleaks stopword "example": a fixture, not a credential
+		$secret = 'distinctive-shared-secret-3f9a2c1e7b5d4680';
+		putenv( 'CHAPTER_GITHUB_TOKEN=' . $token );
+		putenv( 'CHAPTER_REBUILD_SECRET=' . $secret );
+		try {
+			$body = '<p>Bad credentials for ' . $token . ' (secret=' . $secret . '; Authorization: Bearer ' . $token . ')</p>' . str_repeat( ' padding', 60 );
+			$this->mock_http( $this->http_response( 401, $body ) );
+
+			$state = progressnow_rebuild_request( 'admin', true );
+
+			$this->assertSame( 'needs_attention', $state['status'] );
+			$this->assertStringStartsWith( 'github: HTTP 401 Bad credentials for [redacted] (secret=[redacted]; Authorization: Bearer [redacted])', $state['lastError'] );
+			$this->assertLessThanOrEqual( PROGRESSNOW_REBUILD_ERROR_MAX + 3, mb_strlen( $state['lastError'] ), '200 characters then an ASCII ellipsis' );
+			$this->assertStringEndsWith( '...', $state['lastError'] );
+			$this->assertStringNotContainsString( '<p>', $state['lastError'] );
+
+			$notices = $this->render_notices();
+			$this->assertStringContainsString( 'Site build needs attention', $notices );
+			$this->assertStringContainsString( '[redacted]', $notices );
+
+			$outputs = array(
+				'chapter_build_state'   => wp_json_encode( get_option( PROGRESSNOW_REBUILD_STATE_KEY ) ),
+				'panel rows'            => wp_json_encode( progressnow_admin_build_rows( progressnow_rebuild_state(), null ) ),
+				'build-status json'     => wp_json_encode( progressnow_admin_build_export( progressnow_rebuild_state(), null ) ),
+				'admin notices'         => $notices,
+				'rebuild/failed action' => $this->last_failed_error,
+			);
+			foreach ( $outputs as $where => $text ) {
+				$this->assertIsString( $text, $where );
+				$this->assertStringNotContainsString( $token, $text, $where );
+				$this->assertStringNotContainsString( $secret, $text, $where );
+			}
+		} finally {
+			putenv( 'CHAPTER_GITHUB_TOKEN' );
+			putenv( 'CHAPTER_REBUILD_SECRET' );
+		}
+	}
+
+	public function test_a_state_stored_before_redaction_existed_is_redacted_on_read() {
+		$token = 'ghp_legacy_example_DISTINCTIVE_0000'; // gitleaks stopword "example": a fixture, not a credential
+		putenv( 'CHAPTER_GITHUB_TOKEN=' . $token );
+		try {
+			update_option( PROGRESSNOW_REBUILD_STATE_KEY, array( 'status' => 'needs_attention', 'lastError' => 'github: HTTP 401 ' . $token ) );
+			$this->assertSame( 'github: HTTP 401 [redacted]', progressnow_rebuild_state()['lastError'] );
+		} finally {
+			putenv( 'CHAPTER_GITHUB_TOKEN' );
+		}
+	}
+
+	public function test_a_failed_callback_error_is_redacted_before_it_is_stored() {
+		$secret = 'callback-secret-DISTINCTIVE-0123456789abcdef';
+		putenv( 'CHAPTER_REBUILD_SECRET=' . $secret );
+		try {
+			$response = $this->signed_status( array( 'buildId' => 'b7', 'status' => 'failed', 'error' => 'receiver rejected secret ' . $secret ) );
+			$this->assertSame( 204, $response->get_status() );
+			$this->assertSame( 'receiver rejected secret [redacted]', progressnow_rebuild_state()['lastError'] );
+			$this->assertStringNotContainsString( $secret, wp_json_encode( get_option( PROGRESSNOW_REBUILD_STATE_KEY ) ) );
+		} finally {
+			putenv( 'CHAPTER_REBUILD_SECRET' );
+		}
 	}
 
 	public function test_theme_never_spawns_processes() {

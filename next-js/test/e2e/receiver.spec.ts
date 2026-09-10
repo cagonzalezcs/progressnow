@@ -6,7 +6,7 @@ import { signatureHeader, verify } from "../../lib/signing";
  * a correctly signed webhook, and the very next request renders the change.
  * WP_BUILD_STATUS_URL points at the mock, which records the signed callback. */
 const MOCK = process.env.MOCK_ORIGIN ?? `http://127.0.0.1:${process.env.MOCK_PORT ?? 8787}`;
-const SECRET = "playwright-test-secret";
+const SECRET = "playwright-test-secret-not-for-production"; // = playwright.config.ts appEnv
 const SLUG = "contract-test-post";
 
 function signed(body: string, timestamp = String(Math.floor(Date.now() / 1000))) {

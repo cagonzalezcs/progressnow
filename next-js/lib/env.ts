@@ -83,9 +83,12 @@ const schema = z.object({
     .transform((u) => new URL(u).origin)
     .optional(),
   NEXT_PUBLIC_SITE_ORIGIN: httpUrl("NEXT_PUBLIC_SITE_ORIGIN").transform((u) => new URL(u).origin),
+  // 32 on both sides (openspec rebuild-credential-boundary § Shared secrets meet
+  // a minimum strength): an HMAC over a short shared secret is brute-forceable
+  // offline. The theme (inc/rebuild.php) refuses the same lengths.
   CHAPTER_REBUILD_SECRET: z
     .string({ required_error: "CHAPTER_REBUILD_SECRET is required" })
-    .min(16, { message: "CHAPTER_REBUILD_SECRET must be at least 16 characters" }),
+    .min(32, { message: "CHAPTER_REBUILD_SECRET must be at least 32 characters" }),
   WP_BUILD_STATUS_URL: httpUrl("WP_BUILD_STATUS_URL").optional(),
   IMAGE_HOSTS: imageHosts,
   MOCK_API: z.enum(["1", "true", "0", "false", ""]).optional(),

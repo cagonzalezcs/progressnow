@@ -139,7 +139,7 @@ missing or malformed variable fails the start naming it.
 | `WP_API_BASE`                       | yes         | `…/wp-json/progressnow/v1` (server-only)            |
 | `WP_ORIGIN`                         | derived     | media, the same-origin static proxy, link re-homing |
 | `NEXT_PUBLIC_SITE_ORIGIN`           | yes         | sitemap, robots, absolute OG URLs                   |
-| `CHAPTER_REBUILD_SECRET`            | yes         | shared with wp-config.php (≥ 16 chars)              |
+| `CHAPTER_REBUILD_SECRET`            | yes         | shared with wp-config.php (≥ 32 chars)              |
 | `WP_BUILD_STATUS_URL`               | recommended | the receiver reports the build live                 |
 | `IMAGE_HOSTS`                       | optional    | `next/image` allowlist; bare host = https-only      |
 | `CSP_REPORT_ONLY`, `CSP_REPORT_URI` | optional    | CSP rollout knobs                                   |

@@ -8,7 +8,9 @@
  * static build's `shell-manifest.json`. The Nuxt client mounts into `#__nuxt`
  * and takes over; the islands bundle is never enqueued in that mode.
  *
- * wp-config.php constants (all optional):
+ * Settings (all optional) — resolved from the process environment first
+ * (getenv), then the wp-config.php constant (inc/rebuild.php
+ * progressnow_setting_from_env_or_constant; openspec rebuild-credential-boundary):
  *
  *   CHAPTER_FRONTEND       'islands' (default) | 'nuxt'
  *   CHAPTER_STATIC_DIR     absolute path of the generated site
@@ -30,22 +32,40 @@ const PROGRESSNOW_SHELL_MANIFEST_TTL       = 60;
  * ---------------------------------------------------------------------- */
 
 /**
- * Read a shell constant ('' when undefined).
+ * Read a shell setting: environment first, then the wp-config.php constant,
+ * then the default ('' when nothing is set).
  *
- * @param string $name    Constant name.
+ * @param string $name    Setting name.
  * @param string $default Default.
  * @return string
  */
 function progressnow_shell_setting( $name, $default = '' ) {
-	$value = defined( $name ) ? (string) constant( $name ) : $default;
+	$value = progressnow_setting_from_env_or_constant( $name, $default );
 
 	/**
 	 * Override a shell setting (tests; hosts that inject config differently).
 	 *
-	 * @param string $value Constant value or default.
-	 * @param string $name  Constant name.
+	 * @param string $value Environment or constant value, or the default.
+	 * @param string $name  Setting name.
 	 */
 	return (string) apply_filters( 'progressnow/shell/setting', $value, $name );
+}
+
+/**
+ * env | constant | filter | unset for a shell setting (Site build panel).
+ * Never returns the value.
+ */
+function progressnow_shell_setting_source( $name ) {
+	return progressnow_setting_source( $name, 'progressnow/shell/setting' );
+}
+
+/**
+ * The shell settings the panel reports the source of, in display order.
+ *
+ * @return string[]
+ */
+function progressnow_shell_setting_names() {
+	return array( 'CHAPTER_FRONTEND', 'CHAPTER_STATIC_DIR', 'CHAPTER_STATIC_ORIGIN' );
 }
 
 /**

@@ -100,7 +100,7 @@ async function main() {
       MOCK_API: "1",
       WP_API_BASE: `${mockOrigin}/wp-json/progressnow/v1`,
       NEXT_PUBLIC_SITE_ORIGIN: nextOrigin,
-      CHAPTER_REBUILD_SECRET: "parity-screenshots-local-secret",
+      CHAPTER_REBUILD_SECRET: "parity-screenshots-local-secret-not-for-production",
       PORT: String(NEXT_PORT),
       HOSTNAME: "127.0.0.1",
     });

@@ -410,7 +410,7 @@ jobs:
           docker run -d --name next --network host \
             -e MOCK_API=1 -e WP_API_BASE="$WP_API_BASE" \
             -e NEXT_PUBLIC_SITE_ORIGIN="$NEXT_PUBLIC_SITE_ORIGIN" \
-            -e CHAPTER_REBUILD_SECRET=playwright-test-secret \
+            -e CHAPTER_REBUILD_SECRET=playwright-test-secret-not-for-production \
             progressnow-next:ci
           status=0
           node scripts/smoke.mjs http://127.0.0.1:3000 --timeout 60 || status=$?

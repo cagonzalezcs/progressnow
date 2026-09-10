@@ -24,7 +24,8 @@ theme active and `CHAPTER_REBUILD_TRANSPORT` left at `none`.
    `contentVersion` with the manifest's).
 3. **Content changes rebuild the static site.** Every content write bumps the
    content version; `inc/rebuild.php` debounces (90 s) and dispatches a rebuild
-   through a transport (GitHub `repository_dispatch` or a signed webhook). The
+   through a transport (a signed webhook, or GitHub `repository_dispatch`
+   through a dispatch repository — [rebuild-dispatch-repo.md](rebuild-dispatch-repo.md)). The
    build runs elsewhere (GitHub Actions by default), generates the site from
    `GET /wp-json/progressnow/v1/*`, and deploys the output. When WordPress sees
    a new `buildId` in the manifest it records the build live and purges its
@@ -47,12 +48,18 @@ define( 'CHAPTER_STATIC_DIR', ABSPATH . 'static-site' );
 // (defaults to the site URL, which is right behind CloudFront).
 // define( 'CHAPTER_STATIC_ORIGIN', 'https://example.org' );
 
-// Rebuild transport: github | webhook | none (default github; falls back to none when incomplete).
-define( 'CHAPTER_REBUILD_TRANSPORT', 'github' );
-define( 'CHAPTER_GITHUB_REPO', 'owner/repo' );
-define( 'CHAPTER_GITHUB_TOKEN', 'github_pat_…' );          // fine-grained PAT: Contents: read & write on that repo
-// define( 'CHAPTER_REBUILD_WEBHOOK_URL', 'https://…' );   // webhook transport
-define( 'CHAPTER_REBUILD_SECRET', 'long-random-string' );  // signs the webhook + the build-status callback
+// Rebuild transport — webhook first: WordPress then holds only an HMAC secret that
+// can request a build. `github` only through a dispatch repository
+// (rebuild-dispatch-repo.md); `none` leaves the freshness guard in charge.
+// Any CHAPTER_* value may come from the process environment instead of this
+// file — the environment wins (see "Precedence" below).
+define( 'CHAPTER_REBUILD_TRANSPORT', 'webhook' );
+define( 'CHAPTER_REBUILD_WEBHOOK_URL', 'https://…' );       // the receiver: <next-origin>/api/rebuild (§10) or §6
+define( 'CHAPTER_REBUILD_SECRET', '…' );                    // ≥ 32 characters (openssl rand -hex 32); signs the webhook + verifies /build-status
+// define( 'CHAPTER_REBUILD_SECRET_OUT', '…' );             // optional split: outbound webhook only (falls back to the shared value)
+// define( 'CHAPTER_REBUILD_SECRET_IN', '…' );              // optional split: inbound /build-status only
+// define( 'CHAPTER_GITHUB_REPO', 'owner/repo-dispatch' );  // github transport: the DISPATCH repository, never the code repository
+// define( 'CHAPTER_GITHUB_TOKEN', 'github_pat_…' );        // fine-grained PAT scoped to that repository alone (§3)
 // define( 'CHAPTER_REBUILD_DEBOUNCE', 90 );               // seconds
 
 // Content-Security-Policy delivery (inc/security.php; docs/security-gates.md):
@@ -69,6 +76,24 @@ define( 'DISABLE_WP_CRON', true );
 `CHAPTER_FRONTEND` can stay `islands` while everything else is set up; the
 rebuild pipeline and the static files are inert until the flag flips.
 
+**Precedence.** Every `CHAPTER_*` setting is read from the process
+environment first (`getenv()` — a `fastcgi_param`/`env[…]` in the PHP-FPM
+pool, `Environment=` in a systemd unit, `-e` on a container), then from the
+`wp-config.php` constant, then the default; an empty environment value counts
+as unset. A host with a secret manager therefore never writes a secret into a
+PHP file. The Site build panel and `wp chapter build-status --format=json`
+report the *source* of each setting — `env`, `constant`, `filter` or `unset` —
+and never a value; no token or secret appears in admin pages, notices, CLI
+output, `chapter_build_state` or logs (upstream error bodies are redacted and
+cut to 200 characters).
+
+**Secret strength.** `CHAPTER_REBUILD_SECRET` (and `_OUT` / `_IN`) must be at
+least 32 characters on both sides. A shorter value disables the webhook
+transport and rejects every `/build-status` callback, with an admin notice
+naming the constant — the site stays correct through the freshness guard. The
+Next receiver refuses to start on a shorter value (§10.2). Rotation, for every
+credential in this document: [secrets-rotation.md](secrets-rotation.md).
+
 The theme sends its own security headers on every front-end response
 (`nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy`,
 `Permissions-Policy`, HSTS over TLS) and a nonce CSP on HTML — see
@@ -84,7 +109,18 @@ auto-update policy, startup assertion). Setup and the salt-rotation runbook:
 
 ## 3. GitHub repository configuration (transport `github`)
 
-Settings → Secrets and variables → Actions:
+The `github` transport calls `POST /repos/{owner}/{repo}/dispatches`, and
+GitHub grants that endpoint only to a token with *Contents: read and write* —
+a token that can also push. **Never scope that token to this repository**: a
+WordPress compromise would become a push to `main`, which deploys. Production
+installs on `github` point `CHAPTER_GITHUB_REPO` at a separate *dispatch
+repository* whose only content is the rebuild workflow; that workflow checks
+this repository out read-only. Set-up, template and verification:
+[rebuild-dispatch-repo.md](rebuild-dispatch-repo.md). Installs with a
+receiver (§6, §10) use `webhook` and hold no GitHub token at all.
+
+Settings → Secrets and variables → Actions, in whichever repository runs the
+workflow (this one, or the dispatch repository):
 
 | Kind | Name | Value |
 | --- | --- | --- |
@@ -122,14 +158,43 @@ it before that run:
    `ref:refs/heads/main` and `environment:production` (§5).
 2. Optionally *Required reviewers*, for a human approval per deploy. The rest
    of the repository settings (branch protection, signed commits) are the
-   checklist in `security-rebuild-transport-trust-boundary`.
+   checklist below.
 3. The deploy secrets and variables (`RSYNC_SSH_KEY`, `AWS_ROLE_ARN`, …) may
    live at environment scope instead of repository scope; the jobs read both.
 
-The WordPress side needs a GitHub token that can call
-`POST /repos/{owner}/{repo}/dispatches` (fine-grained PAT, *Contents: read and
-write*). Test it from the Site build panel (Chapter Settings → Site build →
-"Rebuild now") or `wp chapter rebuild --wait`.
+**Branch protection on `main` (one-time checklist; the owner performs it in
+Settings → Rules → Rulesets).** This is the compensating control whatever the
+transport: a leaked token of any maintainer — the WordPress one, a laptop's —
+must not be able to change what deploys.
+
+1. *Require a pull request before merging*, at least one approval, dismiss
+   stale approvals, require approval of the most recent push, require
+   conversation resolution.
+2. *Require status checks to pass*: the three required CI jobs
+   (`docs/security-gates.md`) — PHP security sniffs (PHPCS), Secret scan
+   (gitleaks), Artifact guard (no archives, dumps, installers).
+3. *Require signed commits*.
+4. *Block force pushes* and *restrict deletions*.
+5. **No bypass**: the ruleset's *Bypass list* is empty — remove the
+   Repository admin entry; there is no "do not allow bypassing" flag on
+   rulesets, an empty list is that flag. (Classic branch protection: tick
+   *Do not allow bypassing the above settings*.)
+6. The `production` environment above; deploy jobs run only inside it.
+
+State on 2026-09-10 (`gh api repos/<owner>/<repo>/rulesets`): the ruleset
+"Protect main" enforces 1–4 (one approval, squash merges only, signatures,
+the three checks) and 6 exists; **5 is open** — the bypass list still
+contains the Repository admin role with mode *always*. Add the pointer to
+`docs/open-source-release.md` when `open-source-release-readiness` creates it.
+
+**The WordPress side** (`github` transport): `CHAPTER_GITHUB_REPO` names the
+dispatch repository and `CHAPTER_GITHUB_TOKEN` is a fine-grained PAT whose only
+repository is that one (Contents: read and write, Metadata: read, expiry ≤ 1
+year) — supplied as an environment variable or a constant (§2 *Precedence*).
+Test it from the Site build panel (Chapter Settings → Site build → "Rebuild
+now") or `wp chapter rebuild --wait`: the run appears in the dispatch
+repository. Rotation and the one-time migration off a token scoped to this
+repository: [secrets-rotation.md](secrets-rotation.md) §1.
 
 ## 4. Same-host mode (no CDN)
 
@@ -349,7 +414,7 @@ Design: `openspec/changes/next-js-site-implementation/design.md`.
 | `WP_API_BASE` | yes | `https://cms.example.org/wp-json/progressnow/v1` (server-only) |
 | `WP_ORIGIN` | derived | WordPress origin for media, the static proxy and link re-homing; from `WP_API_BASE` unless set |
 | `NEXT_PUBLIC_SITE_ORIGIN` | yes | public origin of the Next app: sitemap, robots, absolute Open Graph URLs |
-| `CHAPTER_REBUILD_SECRET` | yes | same value as wp-config.php; ≥ 16 characters |
+| `CHAPTER_REBUILD_SECRET` | yes | same value as wp-config.php (`openssl rand -hex 32`); ≥ 32 characters — both sides refuse shorter |
 | `WP_BUILD_STATUS_URL` | recommended | `https://cms.example.org/wp-json/progressnow/v1/build-status` — the receiver reports the build live |
 | `IMAGE_HOSTS` | optional | comma-separated upstreams `next/image` may optimize from (default: `WP_ORIGIN`). A bare host is **https-only**; write `http://host[:port]` to allow plain http for that host |
 | `CSP_REPORT_ONLY` | optional | `1` ships the Content-Security-Policy as report-only for the rollout window |
@@ -369,7 +434,7 @@ optimizer refuses private-IP upstreams.
 define( 'CHAPTER_FRONTEND', 'islands' );                 // the PHP theme keeps rendering the WordPress origin
 define( 'CHAPTER_REBUILD_TRANSPORT', 'webhook' );
 define( 'CHAPTER_REBUILD_WEBHOOK_URL', 'https://www.example.org/api/rebuild' );
-define( 'CHAPTER_REBUILD_SECRET', 'long-random-string' ); // = next-js CHAPTER_REBUILD_SECRET
+define( 'CHAPTER_REBUILD_SECRET', '…' );                  // = next-js CHAPTER_REBUILD_SECRET; ≥ 32 characters (openssl rand -hex 32)
 define( 'CHAPTER_CANONICAL_ORIGIN', 'https://www.example.org' );
 // define( 'CHAPTER_REBUILD_DEBOUNCE', 90 );
 define( 'DISABLE_WP_CRON', true );                        // system cron hits wp-cron.php every minute (§2)
@@ -378,6 +443,14 @@ define( 'DISABLE_WP_CRON', true );                        // system cron hits wp
 Leave `CHAPTER_STATIC_DIR` / `CHAPTER_STATIC_ORIGIN` / `CHAPTER_GITHUB_*`
 unset. WordPress needs outbound HTTPS to the Next origin; the Next host needs
 outbound HTTPS to WordPress.
+
+This is the webhook-first shape: the only rebuild credential on the WordPress
+host is the HMAC secret, which can request a build and acknowledge a build
+status and nothing else — no GitHub token, nothing that reaches the code or
+the Next deployment. Every constant may be supplied as an environment variable
+instead (§2 *Precedence*); the split `CHAPTER_REBUILD_SECRET_OUT` / `_IN`
+constants are for topologies where the two directions terminate at different
+systems. Rotation: [secrets-rotation.md](secrets-rotation.md) §2.
 
 ### 10.4 Hosting paths (same build, no code changes)
 

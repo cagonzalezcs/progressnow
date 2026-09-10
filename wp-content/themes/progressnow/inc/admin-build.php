@@ -5,6 +5,11 @@
  * button. Lives under Chapter Settings (ACF options page) or Tools when ACF
  * is absent. Admin notices (inc/rebuild.php) link here.
  *
+ * Settings are reported by SOURCE (env / constant / filter / unset), never by
+ * value — a token or secret never reaches the page or `wp chapter
+ * build-status` (openspec rebuild-credential-boundary § Settings may be
+ * supplied by environment, § Secrets never appear in output).
+ *
  * @package progressnow
  */
 
@@ -54,6 +59,62 @@ function progressnow_admin_build_status_labels() {
 }
 
 /**
+ * `NAME: source` for every rebuild + shell setting (pure). Values never.
+ *
+ * @return array<string,string>
+ */
+function progressnow_admin_build_setting_sources() {
+	$sources = array();
+	if ( function_exists( 'progressnow_rebuild_setting_names' ) ) {
+		foreach ( progressnow_rebuild_setting_names() as $name ) {
+			$sources[ $name ] = progressnow_rebuild_setting_source( $name );
+		}
+	}
+	if ( function_exists( 'progressnow_shell_setting_names' ) ) {
+		foreach ( progressnow_shell_setting_names() as $name ) {
+			$sources[ $name ] = progressnow_shell_setting_source( $name );
+		}
+	}
+
+	return $sources;
+}
+
+/**
+ * "NAME: source · NAME: source" for a subset of the sources map.
+ *
+ * @param array<string,string> $sources From progressnow_admin_build_setting_sources().
+ * @param string[]             $names   Which settings, in order.
+ * @return string
+ */
+function progressnow_admin_build_sources_line( array $sources, array $names ) {
+	$parts = array();
+	foreach ( $names as $name ) {
+		$parts[] = $name . ': ' . ( $sources[ $name ] ?? 'unset' );
+	}
+
+	return implode( ' · ', $parts );
+}
+
+/**
+ * What `wp chapter build-status --format=json` prints (pure, testable):
+ * the state (lastError already redacted), the content version, the live
+ * manifest and the setting SOURCES. No setting value is included.
+ *
+ * @param array      $state    Build state (inc/rebuild.php).
+ * @param array|null $manifest Live manifest (inc/shell.php) or null.
+ * @return array
+ */
+function progressnow_admin_build_export( array $state, $manifest ) {
+	return array(
+		'state'          => $state,
+		'contentVersion' => function_exists( 'progressnow_content_version' ) ? progressnow_content_version() : 0,
+		'manifest'       => $manifest,
+		'transport'      => function_exists( 'progressnow_rebuild_transport' ) ? progressnow_rebuild_transport() : 'none',
+		'settings'       => progressnow_admin_build_setting_sources(),
+	);
+}
+
+/**
  * The rows the panel shows (pure, testable).
  *
  * @param array      $state    Build state (inc/rebuild.php).
@@ -67,6 +128,8 @@ function progressnow_admin_build_rows( array $state, $manifest ) {
 	$transport       = function_exists( 'progressnow_rebuild_transport' ) ? progressnow_rebuild_transport() : 'none';
 	$frontend        = function_exists( 'progressnow_shell_mode' ) ? progressnow_shell_mode() : 'islands';
 	$static_dir      = function_exists( 'progressnow_shell_static_dir' ) ? progressnow_shell_static_dir() : '';
+	$sources         = progressnow_admin_build_setting_sources();
+	$problem         = function_exists( 'progressnow_rebuild_transport_problem' ) ? progressnow_rebuild_transport_problem() : '';
 
 	$rows = array(
 		array(
@@ -110,8 +173,17 @@ function progressnow_admin_build_rows( array $state, $manifest ) {
 			'label' => __( 'Rebuild transport', 'progressnow' ),
 			'value' => 'github' === $transport
 				? sprintf( 'github → %s (repository_dispatch: rebuild-site)', function_exists( 'progressnow_rebuild_setting' ) ? progressnow_rebuild_setting( 'CHAPTER_GITHUB_REPO' ) : '' )
-				: ( 'webhook' === $transport ? sprintf( 'webhook → %s', progressnow_rebuild_setting( 'CHAPTER_REBUILD_WEBHOOK_URL' ) ) : __( 'none (CHAPTER_REBUILD_TRANSPORT unset or incomplete)', 'progressnow' ) ),
+				: ( 'webhook' === $transport ? sprintf( 'webhook → %s', progressnow_rebuild_setting( 'CHAPTER_REBUILD_WEBHOOK_URL' ) ) : sprintf( 'none — %s', $problem ?: __( 'CHAPTER_REBUILD_TRANSPORT unset or incomplete', 'progressnow' ) ) ),
 			'tone'  => 'none' === $transport ? 'warning' : 'info',
+		),
+		array(
+			'label' => __( 'Rebuild settings', 'progressnow' ),
+			'value' => progressnow_admin_build_sources_line( $sources, function_exists( 'progressnow_rebuild_setting_names' ) ? progressnow_rebuild_setting_names() : array() ),
+			'tone'  => function_exists( 'progressnow_rebuild_secret_problems' ) && progressnow_rebuild_secret_problems() ? 'error' : 'info',
+		),
+		array(
+			'label' => __( 'Frontend settings', 'progressnow' ),
+			'value' => progressnow_admin_build_sources_line( $sources, function_exists( 'progressnow_shell_setting_names' ) ? progressnow_shell_setting_names() : array() ),
 		),
 		array(
 			'label' => __( 'Static files', 'progressnow' ),
@@ -174,6 +246,7 @@ function progressnow_admin_build_page() {
 	echo '</p>';
 
 	echo '<p class="description">' . esc_html__( 'Content changes request a rebuild automatically (debounced). "Rebuild now" dispatches immediately. WP-CLI: wp chapter rebuild [--wait], wp chapter build-status.', 'progressnow' ) . '</p>';
+	echo '<p class="description">' . esc_html__( 'Settings are listed by source only — env (process environment, wins), constant (wp-config.php), filter, or unset. Values, tokens and secrets are never shown here; see docs/deployment.md §2.', 'progressnow' ) . '</p>';
 	echo '</div>';
 }
 

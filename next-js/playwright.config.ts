@@ -19,7 +19,7 @@ const appEnv = {
   MOCK_API: "1",
   WP_API_BASE: `${MOCK_ORIGIN}/wp-json/progressnow/v1`,
   NEXT_PUBLIC_SITE_ORIGIN: APP_ORIGIN,
-  CHAPTER_REBUILD_SECRET: "playwright-test-secret",
+  CHAPTER_REBUILD_SECRET: "playwright-test-secret-not-for-production", // ≥ 32 characters (lib/env.ts)
   WP_BUILD_STATUS_URL: `${MOCK_ORIGIN}/wp-json/progressnow/v1/build-status`,
   NEXT_TELEMETRY_DISABLED: "1",
 };

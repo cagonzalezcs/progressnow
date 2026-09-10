@@ -54,6 +54,22 @@ describe("readEnv", () => {
     );
   });
 
+  /* openspec rebuild-credential-boundary § Shared secrets meet a minimum
+   * strength: 32 characters on both sides; the theme enforces the same floor. */
+  it("requires a rebuild secret of at least 32 characters", () => {
+    const thirtyOne = "a".repeat(31);
+    expect(() => readEnv({ ...valid, CHAPTER_REBUILD_SECRET: thirtyOne })).toThrow(
+      /CHAPTER_REBUILD_SECRET must be at least 32 characters/,
+    );
+    // The old 16-character minimum is no longer enough, even with MOCK_API set.
+    expect(() =>
+      readEnv({ ...valid, MOCK_API: "1", CHAPTER_REBUILD_SECRET: "a".repeat(16) }),
+    ).toThrow(/CHAPTER_REBUILD_SECRET/);
+    expect(
+      readEnv({ ...valid, CHAPTER_REBUILD_SECRET: "a".repeat(32) }).CHAPTER_REBUILD_SECRET,
+    ).toBe("a".repeat(32));
+  });
+
   it("MOCK_API=1 supplies the mock defaults and relaxes the secret", () => {
     const env = readEnv({ MOCK_API: "1" });
     expect(env.MOCK_API).toBe(true);
