@@ -16,6 +16,7 @@ Bilingual (EN at `/`, ES at `/es/…`), accessible (WCAG 2.2 AA target, built-in
 - [Frontends: pick one](#frontends-pick-one)
 - [Architecture](#architecture)
 - [Repository layout](#repository-layout)
+- [Documentation](#documentation)
 - [Requirements](#requirements)
 - [Local development](#local-development)
 - [Configuration](#configuration)
@@ -139,7 +140,22 @@ Key properties:
 
 WordPress core, `wp-config.php`, uploads, `wp-content/plugins/`, build output (`nuxt-js/dist`, `nuxt-js/.output`, theme `dist/`), `node_modules/`, `vendor/` and the synced `static-site/` are all git-ignored. Plugins are installed by the adopter, never vendored.
 
+## Documentation
+
+One document owns each topic. Every other document keeps at most a sentence and a link to the owner — never a copy of its paragraphs.
+
+| Topic | Owner |
+|---|---|
+| What the kit is, the map of the repository, quick start, architecture, history, roadmap | this README |
+| One app's commands, environment variables and directory layout | that app's README: [`wp-content/themes/progressnow/README.md`](wp-content/themes/progressnow/README.md), [`nuxt-js/README.md`](nuxt-js/README.md), [`next-js/README.md`](next-js/README.md) |
+| Operating a site: constants, deployment shapes, cutover and rollback, security gates, runtime hardening, authoring trust model, secrets rotation | [`docs/`](docs/) |
+| Why something is the way it is, and what is in flight | [`openspec/`](openspec/): `specs/` = current behavior, `changes/` = proposals, designs, tasks; `archive/` = history |
+| AI session handoffs and agent configuration | untracked — `.claude/` is gitignored, and nothing from a session is committed |
+
+The `docs` CI job (`.github/workflows/docs.yml`, `scripts/docs/`) keeps this honest: the Roadmap and Capabilities sections below are rendered from `openspec/` and fail when stale; every backticked repository path and every relative link in the README, `docs/`, the app READMEs and open change proposals must resolve; and a section duplicated across files fails.
+
 ## Requirements
+
 
 **WordPress host**
 
@@ -353,11 +369,22 @@ PROGRESSNOW_WRITE_FIXTURES=1 vendor/bin/phpunit --filter TestContracts
 
 ## OpenSpec workflow
 
-This project is spec-driven. `openspec/specs/<capability>/spec.md` describes current behavior; `openspec/changes/<name>/` holds a proposal, design, tasks and delta specs for in-flight work; completed changes are archived under `openspec/changes/archive/` and their deltas merged into the main specs.
+This project is spec-driven. `openspec/specs/<capability>/spec.md` describes current behavior; `openspec/changes/<name>/` holds a proposal, design, tasks and delta specs for in-flight work; completed changes are archived under `openspec/changes/archive/` and their deltas merged into the main specs. **There is one spec root**, `openspec/` at the repository root — never start another under an app (`next-js/openspec/` is a leftover that `repo-structure-consolidation` folds in). `openspec/config.yaml` carries the project context and the per-artifact rules every generated artifact is held to.
 
 Capabilities on file: block-serialization, blog-presentation, category-registry, chapter-content-model, chapter-editable-content, content-migration, content-performance, contract-governance, design-tokens, editable-page-sections, events-presentation, front-page, interior-presentation, internationalization, island-data-fetch, island-empty-states, photo-treatment, post-authoring, rest-api, seo-metadata, site-chrome, social-cards, structured-data.
 
-Slash commands (`.claude/commands/opsx/`): `/opsx:new`, `/opsx:continue`, `/opsx:apply`, `/opsx:verify`, `/opsx:archive`, `/opsx:propose`, `/opsx:ff`, `/opsx:explore`, `/opsx:sync`.
+The tooling is the [`openspec` CLI](https://github.com/Fission-AI/OpenSpec) (`npm install -g @fission-ai/openspec`):
+
+```bash
+openspec list                                 # open changes with task counts (--specs: the capabilities)
+openspec status --change <name>               # which artifacts a change has
+openspec instructions apply --change <name>   # context files + remaining tasks for an implementation session
+openspec validate --all                       # every spec and change parses
+openspec archive <name>                       # merge the deltas into openspec/specs/, move the change to archive/
+```
+
+The `/opsx:*` skills (`/opsx:new`, `/opsx:continue`, `/opsx:apply`, `/opsx:verify`, `/opsx:archive`, `/opsx:propose`, `/opsx:ff`, `/opsx:explore`, `/opsx:sync`) drive the same commands from an AI agent. `openspec init` / `openspec update` generate them for the agent you use into `.claude/`, which is gitignored — each clone generates its own; nothing agent-specific is tracked.
+
 
 ## History
 

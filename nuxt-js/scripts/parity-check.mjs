@@ -8,10 +8,13 @@
  *   node scripts/parity-check.mjs islands parity-islands.json   # CHAPTER_FRONTEND unset
  *   node scripts/parity-check.mjs nuxt    parity-nuxt.json      # CHAPTER_FRONTEND=nuxt + CHAPTER_STATIC_DIR
  *
- * Playwright is borrowed from ../next-js (its e2e dependency); set
- * NODE_TLS_REJECT_UNAUTHORIZED=0 for a self-signed MAMP certificate and
- * PARITY_ORIGIN to override the WordPress origin. Manual tool — not wired
- * into CI (it needs a live WordPress with seeded content). */
+ * Playwright is borrowed from ../next-js (its e2e dependency). For a
+ * self-signed MAMP certificate trust MAMP's CA through NODE_EXTRA_CA_CERTS
+ * (README § Local TLS) — the browser side already sets ignoreHTTPSErrors;
+ * never NODE_TLS_REJECT_UNAUTHORIZED=0. PARITY_ORIGIN overrides the
+ * WordPress origin. Manual tool — not wired into CI (it needs a live
+ * WordPress with seeded content). */
+
 import { createRequire } from "node:module";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";

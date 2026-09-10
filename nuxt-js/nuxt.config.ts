@@ -84,9 +84,14 @@ export default defineNuxtConfig({
           },
         ]
       : [],
+    // `nuxt dev` only: the proxy skips certificate checks against the local
+    // WordPress (a self-signed MAMP host). Nothing else relaxes TLS — `nuxt
+    // generate` verifies, so trust MAMP's CA through NODE_EXTRA_CA_CERTS
+    // (README § Local TLS), never NODE_TLS_REJECT_UNAUTHORIZED=0.
     devProxy: mock
       ? {}
       : {
+
           "/wp-json": { target: `${devOrigin}/wp-json`, changeOrigin: true, secure: false },
           "/wp-content": { target: `${devOrigin}/wp-content`, changeOrigin: true, secure: false },
         },

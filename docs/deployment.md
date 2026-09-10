@@ -360,8 +360,15 @@ fits this contract; reporting back is the same signed `POST /build-status`
   major stops with an engine error instead of drifting. `nvm use` / `fnm use`
   read the file.
 - `nuxt-js/.env`: `NUXT_DEV_WP_ORIGIN=https://chapter.test:8890`,
-  `NUXT_PUBLIC_WP_API_BASE=https://chapter.test:8890/wp-json/progressnow/v1`,
-  `NODE_TLS_REJECT_UNAUTHORIZED=0` for the MAMP certificate.
+  `NUXT_PUBLIC_WP_API_BASE=https://chapter.test:8890/wp-json/progressnow/v1`.
+- TLS against a local MAMP PRO site: trust MAMP's CA from the shell, the same
+  way `next-js` does (§10.8) —
+  `NODE_EXTRA_CA_CERTS=/Applications/MAMP/Library/OpenSSL/certs/MAMP_PRO_Root_CA.crt`
+  (fish `set -Ux`, bash/zsh `export`). Node reads it at process start, so a
+  `.env` entry is too late. Never `NODE_TLS_REJECT_UNAUTHORIZED=0`: it disables
+  verification outright and Node warns on every fetch. The dev proxy's
+  `secure: false` in `nuxt-js/nuxt.config.ts` relaxes only `nuxt dev`;
+  `nuxt generate` verifies.
 - `npm run dev` in `nuxt-js/` for component work (proxied `/wp-json` + `/wp-content`).
 - Full handoff locally: `npm run generate` in `nuxt-js/`, then in wp-config.php
   `define( 'CHAPTER_FRONTEND', 'nuxt' ); define( 'CHAPTER_STATIC_DIR', ABSPATH . 'nuxt-js/.output/public' );`
@@ -613,7 +620,9 @@ restart the instance (the cache is in-process).
 
 `next-js/.env.local` from `.env.example` (`WP_API_BASE` on the MAMP site,
 `NEXT_PUBLIC_SITE_ORIGIN=http://localhost:3000`, the secret from
-wp-config.php; trust MAMP's CA from the shell — see `next-js/README.md`).
+wp-config.php; trust MAMP's CA from the shell with `NODE_EXTRA_CA_CERTS` — the
+same guidance as §9, spelled out in `next-js/README.md`).
+
 `npm run dev` for the app; for the full loop set the constants of §10.3 in the
 local wp-config.php with `CHAPTER_REBUILD_WEBHOOK_URL=http://localhost:3000/api/rebuild`
 and `CHAPTER_CANONICAL_ORIGIN=http://localhost:3000`. No WordPress at all:

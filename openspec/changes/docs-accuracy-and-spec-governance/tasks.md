@@ -1,9 +1,9 @@
 ## 1. Correct known errors
 
-- [ ] 1.1 `docs/deployment.md` §9: replace `NODE_TLS_REJECT_UNAUTHORIZED=0` with the `NODE_EXTRA_CA_CERTS` guidance used by `next-js`; §10.8 cross-link
-- [ ] 1.2 `nuxt-js/nuxt.config.ts`: comment `secure: false` as dev-proxy only; `nuxt-js/README.md` mirrors §9
-- [ ] 1.3 README "OpenSpec workflow": remove the `.claude/commands/opsx/` claim; describe the `openspec` CLI and skills; note the single spec root
-- [ ] 1.4 README: add the canonical-ownership table (root README / app READMEs / `docs/` / `openspec/`); session handoffs are untracked
+- [x] 1.1 `docs/deployment.md` §9: replace `NODE_TLS_REJECT_UNAUTHORIZED=0` with the `NODE_EXTRA_CA_CERTS` guidance used by `next-js`; §10.8 cross-link
+- [x] 1.2 `nuxt-js/nuxt.config.ts`: comment `secure: false` as dev-proxy only; `nuxt-js/README.md` mirrors §9
+- [x] 1.3 README "OpenSpec workflow": remove the `.claude/commands/opsx/` claim; describe the `openspec` CLI and skills; note the single spec root
+- [x] 1.4 README: add the canonical-ownership table (root README / app READMEs / `docs/` / `openspec/`); session handoffs are untracked
 
 ## 2. Generated sections
 
