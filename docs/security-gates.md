@@ -91,7 +91,7 @@ first-party actions too).
 
 | Rule | Where | zizmor audit |
 |---|---|---|
-| Every `uses:` is a full commit SHA with the version as a comment: `actions/checkout@11d5960a… # v4.4.0` | all workflows | `unpinned-uses`, `impostor-commit`, `known-vulnerable-actions` |
+| Every `uses:` is a full commit SHA with the version as a comment: `actions/checkout@3d3c42e5… # v7.0.1` | all workflows | `unpinned-uses`, `impostor-commit`, `known-vulnerable-actions` |
 | `permissions: {}` at the workflow level; each job grants what it uses (`contents: read` to check out); `id-token: write` only on `deploy-s3` | all workflows | `excessive-permissions` |
 | `${{ }}` never appears inside `run:` text — `vars.*`, `secrets.*`, `github.event.*` and step outputs go through `env:` | all workflows | `template-injection` |
 | `actions/checkout` sets `persist-credentials: false` (no job pushes) | all workflows | `artipacked` |
@@ -117,8 +117,15 @@ its commit — for an annotated tag the peeled `^{}` line — and update the SHA
 the comment together:
 
 ```bash
-git ls-remote --tags https://github.com/actions/checkout 'v4.*' | sort -V -k2 | tail -2
+git ls-remote --tags https://github.com/actions/checkout 'v7.*' | sort -V -k2 | tail -2
 ```
+
+Moving to a new major is a separate, deliberate step: read every major's
+release notes between the two pins first (the Node 24 runtime needs runner
+≥ 2.327.1; `upload-artifact` and `download-artifact` move together; input
+defaults change — download-artifact v8 fails on a digest mismatch, setup-node
+v5+ auto-caches when a root `package.json` names a `packageManager`), bump one
+family per commit so a CI failure names its cause, and lint between commits.
 
 Then the tools in `workflow-lint.yml`: `ACTIONLINT_VERSION` /
 `ACTIONLINT_SHA256` (the `linux_amd64` line of actionlint's `checksums.txt`
