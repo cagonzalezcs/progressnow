@@ -8,7 +8,7 @@ import { signatureHeader } from "../../../lib/signing";
  * the mock switch is global and the cache must be expired with a signed
  * rebuild for the new envelopes to be read. */
 const MOCK = process.env.MOCK_ORIGIN ?? `http://127.0.0.1:${process.env.MOCK_PORT ?? 8787}`;
-const SECRET = "playwright-test-secret";
+const SECRET = "playwright-test-secret-not-for-production"; // = playwright.config.ts appEnv
 const CANONICAL = "https://canonical.example";
 
 function signed(body: string) {

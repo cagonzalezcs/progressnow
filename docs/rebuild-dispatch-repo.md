@@ -1,56 +1,125 @@
-# Static site rebuild (openspec design D7; pipeline hardening: openspec
-# security-cicd-supply-chain-hardening § Deploy credentials).
+# Rebuild dispatch repository
+
+How to run the `github` rebuild transport without giving WordPress a token
+that can change the code (openspec `security-rebuild-transport-trust-boundary`;
+capability `rebuild-credential-boundary`). Installs with a receiver — the
+Next.js app (`docs/deployment.md` §10) or a webhook receiver (§6) — do not
+need any of this: use `CHAPTER_REBUILD_TRANSPORT=webhook`, and WordPress holds
+only an HMAC secret.
+
+## Why a second repository
+
+`inc/rebuild.php` triggers the build with `POST /repos/{owner}/{repo}/dispatches`.
+GitHub grants that endpoint only to a token with **Contents: read and write**
+(fine-grained) or `repo` (classic) on the target repository — there is no
+"dispatch only" permission. A token with Contents: write can push to `main`;
+`rebuild-site.yml` deploys on pushes to `main`, and Vercel deploys `next-js/`
+from `main`. So a token scoped to this repository turns any WordPress
+compromise (plugin RCE, LFI, a leaked backup, a malicious Administrator — the
+token sits in `wp-config.php` or the PHP environment) into a code-supply-chain
+compromise of every frontend.
+
+The fix is to point the token at a repository that holds **nothing
+deployable**: an otherwise empty *dispatch repository* whose only file is a
+copy of the rebuild workflow. That workflow checks this repository out
+**read-only** and then does exactly what the in-repo workflow does — same
+variables, same secrets, same OIDC role, same `concurrency` group. A leaked
+`CHAPTER_GITHUB_TOKEN` can trigger a rebuild and push to the dispatch
+repository, which changes nothing that is deployed.
+
+Where the workflow lives (`RUNNER_REPO` in the header of
+`.github/workflows/rebuild-site.yml`):
+
+| Placement | When | What WordPress holds |
+| --- | --- | --- |
+| **in-repo** (`.github/workflows/rebuild-site.yml`) | transport `webhook`; or `github` from a host you would trust with write access to this repository (not production) | the HMAC secret only, or a token that *can* push — never on production |
+| **dispatch repository** `<owner>/<repo>-dispatch` | transport `github` on production | a token scoped to the dispatch repository alone |
+
+Both can coexist: the in-repo workflow keeps building on pushes to `main`
+touching `nuxt-js/` (code changes) and by hand; content-driven rebuilds arrive
+through the dispatch repository.
+
+## Set-up (one-time)
+
+1. **Create the repository** `<owner>/<repo>-dispatch` (private is fine),
+   default branch `main`, empty. Add the workflow below as
+   `.github/workflows/rebuild-site.yml` and nothing else. Protect its `main`
+   the same way as this repository's (PR + signed commits + no bypass).
+2. **Read-only access to the code.** Generate a dedicated key pair
+   (`ssh-keygen -t ed25519 -f source-readonly -C rebuild-dispatch -N ''`).
+   Add the public half to **this** repository as a deploy key
+   (Settings → Deploy keys) **without** "Allow write access". Store the private
+   half in the dispatch repository as the secret `SOURCE_SSH_KEY`. A
+   fine-grained PAT with Contents: **read** on this repository works too
+   (`token: ${{ secrets.SOURCE_TOKEN }}` instead of `ssh-key:`), but it is
+   tied to a user account and expires; prefer the deploy key.
+3. **Variables and secrets** in the dispatch repository: everything from
+   `docs/deployment.md` §3 under the same names, plus
+   `SOURCE_REPOSITORY = <owner>/<repo>`. Create the `production` environment
+   there with *Deployment branches* → `main` (§3), and move the deploy
+   credentials (`RSYNC_SSH_KEY`, `AWS_ROLE_ARN`, …) to it. Remove them from
+   this repository once the dispatch repository deploys — the in-repo workflow
+   then stops at the build artifact.
+4. **OIDC trust (S3 target only).** The AWS role trusts subjects by
+   repository. In `infra/terraform`, set `github_repository` to the dispatch
+   repository (or list both repositories' subjects in `github_oidc_subjects`)
+   and `terraform apply`; the trusted subjects become
+   `repo:<owner>/<repo>-dispatch:ref:refs/heads/main` and
+   `repo:<owner>/<repo>-dispatch:environment:production`.
+5. **WordPress.** Create a fine-grained PAT whose *only* repository is the
+   dispatch repository, permissions **Contents: read and write** and
+   **Metadata: read**, expiry ≤ 1 year. Supply it as the `CHAPTER_GITHUB_TOKEN`
+   environment variable (preferred — `docs/deployment.md` §2 *Precedence*) or
+   constant, with `CHAPTER_GITHUB_REPO=<owner>/<repo>-dispatch` and
+   `CHAPTER_REBUILD_TRANSPORT=github`. Then **revoke any PAT that was scoped
+   to this repository** (`docs/secrets-rotation.md` §1).
+6. **Verify end to end.** Site build → "Rebuild now" (or
+   `wp chapter rebuild --wait`): an Actions run appears in the dispatch
+   repository, the build job checks this repository out at `main`, the deploy
+   job runs inside `production`, and the panel moves `requested → building →
+   live` through the signed `/build-status` callback. Confirm the negative
+   too: with the WordPress token, `git push` to this repository is refused
+   (`curl -H "Authorization: Bearer $TOKEN" https://api.github.com/repos/<owner>/<repo>`
+   returns 404 for a token that cannot see the repository).
+
+## Keeping the copy in sync
+
+The template below is generated from this repository's
+`.github/workflows/rebuild-site.yml` and differs from it in three places
+only: the header comment, the `on:` block (no `push`), and the two checkout
+steps (`repository` / `ref` / `ssh-key`). When the in-repo workflow changes —
+a new pin after `docs/security-gates.md` § Bumping the pins, a new job —
+re-apply the same diff to the dispatch repository; `workflow-lint.yml` there
+(copy it too) keeps `${{ }}` out of `run:` text.
+
+## Template: `.github/workflows/rebuild-site.yml` in the dispatch repository
+
+```yaml
+# Rebuild site — DISPATCH REPOSITORY copy (source: docs/rebuild-dispatch-repo.md).
 #
-# Triggered by WordPress (inc/rebuild.php, transport `github`) through
-# repository_dispatch, by hand, or by a push to main touching nuxt-js/.
-# Three jobs:
-#   build         generates the Nuxt static rendition from the live WordPress
-#                 REST API with a read-only token (npm ci --ignore-scripts, then
-#                 nuxt prepare explicitly) and hands it over as a workflow
-#                 artifact. With STATIC_DEPLOY_TARGET unset or `artifact` that
-#                 artifact is the whole result (dry run / inspection).
-#   deploy-s3 /   exactly one runs, by STATIC_DEPLOY_TARGET, only from main and
-#   deploy-rsync  inside the `production` environment; they download the build
-#                 and are the only jobs holding a deploy credential. id-token:
-#                 write exists on deploy-s3 alone; deploy-rsync has no token
-#                 permissions at all. The AWS role's trust policy
-#                 (infra/terraform) and the environment's branch policy are the
-#                 second and third control (docs/deployment.md §3).
-#   report        posts the signed build status back to WordPress whatever
-#                 happened; a deploy that did not run counts as a failure unless
-#                 the target is `artifact`.
-# GitHub's concurrency group coalesces bursts: one run in progress, one queued,
-# later requests collapse into it.
+# This repository holds only this file. WordPress's CHAPTER_GITHUB_TOKEN is
+# scoped to THIS repository (GitHub needs Contents: write for repository_dispatch;
+# there is nothing narrower). The code repository is checked out READ-ONLY with
+# SOURCE_SSH_KEY, so the CMS-held token can never reach deployable code
+# (openspec rebuild-credential-boundary § CMS-held credentials cannot change
+# deployed code). Keep this file identical to the source repository's
+# .github/workflows/rebuild-site.yml apart from the `on:` block (no push) and
+# the two checkout steps; bump action pins together (docs/security-gates.md
+# § Bumping the pins).
 #
-# RUNNER_REPO — where this file runs (openspec security-rebuild-transport-trust-boundary):
-#   in-repo (here)        installs whose WordPress holds NO GitHub token: transport
-#                         `webhook`, or `github` only from a host you would trust
-#                         with Contents: write on this repository (never
-#                         production). push-to-main and workflow_dispatch builds
-#                         always run here.
-#   dispatch repository   the CMS-held token: a copy of this file in
-#                         <owner>/<repo>-dispatch (docs/rebuild-dispatch-repo.md)
-#                         checks this repository out READ-ONLY with a deploy key;
-#                         WordPress's CHAPTER_GITHUB_REPO names the dispatch repo
-#                         and its token cannot reach deployable code.
-#
-# Repository variables (Settings → Variables):
+# Repository variables (Settings → Variables) — same names as the source repo:
+#   SOURCE_REPOSITORY         owner/repo — the code repository              (required)
 #   WP_API_BASE               https://example.org/wp-json/progressnow/v1  (required)
 #   STATIC_DEPLOY_TARGET      s3 | rsync | artifact                        (default artifact)
-#   AWS_REGION                e.g. us-east-1                               (s3)
-#   AWS_ROLE_ARN              GitHub OIDC role from infra/terraform outputs (s3)
-#   S3_BUCKET                 bucket name from infra/terraform outputs      (s3)
-#   CLOUDFRONT_DISTRIBUTION_ID  optional; invalidates after upload          (s3)
-#   RSYNC_TARGET              deploy@host:/ — the rrsync-restricted key maps
-#                             `/` onto CHAPTER_STATIC_DIR (docs/deployment.md §4) (rsync)
-#   RSYNC_HOST_KEY            known_hosts line for the host — required; there
-#                             is no keyscan (trust-on-first-use) fallback      (rsync)
+#   AWS_REGION / AWS_ROLE_ARN / S3_BUCKET / CLOUDFRONT_DISTRIBUTION_ID    (s3)
+#   RSYNC_TARGET / RSYNC_HOST_KEY                                          (rsync)
 #   WP_BUILD_STATUS_URL       optional https://example.org/wp-json/progressnow/v1/build-status
 # Secrets:
+#   SOURCE_SSH_KEY            private half of a READ-ONLY deploy key on SOURCE_REPOSITORY (required)
 #   RSYNC_SSH_KEY             private key for the rsync target             (rsync)
-#   CHAPTER_REBUILD_SECRET    HMAC secret shared with wp-config.php         (build-status)
-# Every value reaches a shell step through env:; workflow-lint.yml rejects
-# `${{ }}` inside run: text.
+#   CHAPTER_REBUILD_SECRET    HMAC secret shared with WordPress (build-status; CHAPTER_REBUILD_SECRET_IN there when split)
+# The AWS role (infra/terraform in the source repository) must trust
+# repo:<owner>/<this repo>:ref:refs/heads/main and :environment:production.
 name: Rebuild site
 
 on:
@@ -62,11 +131,6 @@ on:
         description: Content version to stamp into shell-manifest.json (blank = from /routes)
         required: false
         default: ''
-  push:
-    branches: [main]
-    paths:
-      - 'nuxt-js/**'
-      - '.github/workflows/rebuild-site.yml'
 
 concurrency:
   group: rebuild-site
@@ -91,6 +155,9 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          repository: ${{ vars.SOURCE_REPOSITORY }} # owner/repo — the code repository
+          ref: main
+          ssh-key: ${{ secrets.SOURCE_SSH_KEY }} # READ-ONLY deploy key on that repository
           persist-credentials: false
 
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -264,6 +331,9 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          repository: ${{ vars.SOURCE_REPOSITORY }} # owner/repo — the code repository
+          ref: main
+          ssh-key: ${{ secrets.SOURCE_SSH_KEY }} # READ-ONLY deploy key on that repository
           persist-credentials: false
       # build-status.mjs is dependency-free ESM: Node, no npm ci.
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -283,3 +353,4 @@ jobs:
             node .github/scripts/build-status.mjs "$WP_BUILD_STATUS_URL" failed "run-$RUN_ID" "$REQUEST_ID" "$CHAPTER_CONTENT_VERSION" \
               "Workflow run $RUN_ID failed (build: $BUILD_RESULT, deploy[$DEPLOY_TARGET]: $deploy)" || true
           fi
+```

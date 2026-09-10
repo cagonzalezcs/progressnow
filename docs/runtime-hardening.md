@@ -172,7 +172,7 @@ exposure, when an administrator leaves, or after a compromise clean-up.
 
 Not covered by `shuffle-salts`: `WP_CACHE_KEY_SALT` (object-cache namespace,
 rotate it separately to flush a shared cache) and `CHAPTER_REBUILD_SECRET`
-(rotate together with the Next/Nuxt receiver — see `docs/deployment.md`).
+(rotate together with the receiver — `docs/secrets-rotation.md` §2).
 
 Runbook validation (2026-09-09): steps 3 ran against a copy of
 `wp-config-sample.php` (eight placeholders → eight 64-char values, a second

@@ -15,7 +15,8 @@ const env = {
   MOCK_ORIGIN: origin,
   WP_API_BASE: `${origin}/wp-json/progressnow/v1`,
   NEXT_PUBLIC_SITE_ORIGIN: process.env.NEXT_PUBLIC_SITE_ORIGIN ?? "http://127.0.0.1:3100",
-  CHAPTER_REBUILD_SECRET: process.env.CHAPTER_REBUILD_SECRET ?? "playwright-test-secret",
+  CHAPTER_REBUILD_SECRET:
+    process.env.CHAPTER_REBUILD_SECRET ?? "playwright-test-secret-not-for-production",
   WP_BUILD_STATUS_URL:
     process.env.WP_BUILD_STATUS_URL ?? `${origin}/wp-json/progressnow/v1/build-status`,
   NEXT_TELEMETRY_DISABLED: "1",

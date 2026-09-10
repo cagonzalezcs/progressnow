@@ -7,13 +7,29 @@
  * from the static build's shell-manifest.json (inc/shell.php) or an optional
  * signed status callback. No process is ever spawned on the host.
  *
- * Configuration (wp-config.php constants):
+ * Configuration. Every setting resolves from the process environment first
+ * (getenv( NAME ); an empty value counts as unset), then the wp-config.php
+ * constant, then the default, then the `progressnow/rebuild/setting` filter —
+ * so a host with a secret manager never writes a secret into a PHP file
+ * (openspec rebuild-credential-boundary § Settings may be supplied by
+ * environment). Precedence is documented in docs/deployment.md §2.
  * - CHAPTER_REBUILD_TRANSPORT   'github' (default) | 'webhook' | 'none'
- * - CHAPTER_GITHUB_REPO         'owner/repo'      (github transport)
- * - CHAPTER_GITHUB_TOKEN        fine-grained PAT, contents: write (github transport)
+ * - CHAPTER_GITHUB_REPO         'owner/repo' — the DISPATCH repository, never the
+ *                               code repository (docs/rebuild-dispatch-repo.md)
+ * - CHAPTER_GITHUB_TOKEN        fine-grained PAT, Contents: write on the dispatch
+ *                               repository only (github transport)
  * - CHAPTER_REBUILD_WEBHOOK_URL receiver URL      (webhook transport)
- * - CHAPTER_REBUILD_SECRET      HMAC shared secret (webhook transport + status callback)
+ * - CHAPTER_REBUILD_SECRET      HMAC shared secret, ≥ 32 characters (webhook
+ *                               transport + status callback)
+ * - CHAPTER_REBUILD_SECRET_OUT  optional: signs the outbound webhook only
+ * - CHAPTER_REBUILD_SECRET_IN   optional: verifies the inbound /build-status only
+ *                               (each falls back to CHAPTER_REBUILD_SECRET)
  * - CHAPTER_REBUILD_DEBOUNCE    seconds to coalesce automatic triggers (default 90)
+ *
+ * No secret or token value ever reaches an admin page, a notice, WP-CLI
+ * output, chapter_build_state or a log: upstream error bodies are redacted
+ * and truncated (progressnow_rebuild_redact) and the Site build panel shows
+ * only the SOURCE of each setting (env / constant / filter / unset).
  *
  * Public contract:
  * - progressnow_rebuild_request( $reason, $immediate = false ): array — record the
@@ -28,44 +44,222 @@
  * - progressnow_rebuild_verify( $body, $timestamp, $signature ): bool.
  */
 
-const PROGRESSNOW_REBUILD_CRON_HOOK = 'progressnow_rebuild_dispatch';
-const PROGRESSNOW_REBUILD_STATE_KEY = 'chapter_build_state';
+const PROGRESSNOW_REBUILD_CRON_HOOK  = 'progressnow_rebuild_dispatch';
+const PROGRESSNOW_REBUILD_STATE_KEY  = 'chapter_build_state';
+const PROGRESSNOW_REBUILD_SECRET_MIN = 32;
+const PROGRESSNOW_REBUILD_ERROR_MAX  = 200;
 
 /* -------------------------------------------------------------------------
  * Configuration.
  * ---------------------------------------------------------------------- */
 
 /**
- * Read a rebuild constant ('' when undefined).
+ * Resolve NAME from the process environment, then the constant, then the
+ * default. Shared by the rebuild settings here and the shell settings in
+ * inc/shell.php. An environment value of '' counts as unset (same rule as the
+ * Next receiver's contract), so `NAME=` in a unit file cannot blank a constant.
+ *
+ * @param string $name    Setting name (CHAPTER_*).
+ * @param string $default Default when neither is set.
+ * @return string
+ */
+function progressnow_setting_from_env_or_constant( $name, $default = '' ) {
+	$env = getenv( $name );
+	if ( false !== $env && '' !== $env ) {
+		return (string) $env;
+	}
+
+	return defined( $name ) ? (string) constant( $name ) : (string) $default;
+}
+
+/**
+ * Where a setting comes from — env | constant | filter | unset — never its
+ * value. `filter` means a `progressnow/<area>/setting` callback replaced what
+ * the environment / constant resolved to (tests; hosts wiring their own
+ * config store); `unset` means the default applies.
+ *
+ * @param string $name   Setting name.
+ * @param string $filter Filter hook that may override the setting.
+ * @return string
+ */
+function progressnow_setting_source( $name, $filter ) {
+	$raw   = progressnow_setting_from_env_or_constant( $name );
+	$value = (string) apply_filters( $filter, $raw, $name );
+	if ( $value !== $raw ) {
+		return 'filter';
+	}
+	if ( '' === $value ) {
+		return 'unset';
+	}
+	$env = getenv( $name );
+
+	return false !== $env && '' !== $env ? 'env' : 'constant';
+}
+
+/**
+ * Read a rebuild setting: environment first, then the wp-config.php
+ * constant, then the default ('' when nothing is set).
  */
 function progressnow_rebuild_setting( $name, $default = '' ) {
-	$value = defined( $name ) ? (string) constant( $name ) : $default;
+	$value = progressnow_setting_from_env_or_constant( $name, $default );
 
 	/**
 	 * Override a rebuild setting (tests; hosts that inject config differently).
 	 *
-	 * @param string $value Constant value or default.
-	 * @param string $name  Constant name.
+	 * @param string $value Environment or constant value, or the default.
+	 * @param string $name  Setting name.
 	 */
 	return (string) apply_filters( 'progressnow/rebuild/setting', $value, $name );
 }
 
 /**
- * The configured transport: github | webhook | none.
+ * env | constant | filter | unset for a rebuild setting (Site build panel,
+ * `wp chapter build-status`). Never returns the value.
+ */
+function progressnow_rebuild_setting_source( $name ) {
+	return progressnow_setting_source( $name, 'progressnow/rebuild/setting' );
+}
+
+/**
+ * The rebuild settings the panel reports the source of, in display order.
+ *
+ * @return string[]
+ */
+function progressnow_rebuild_setting_names() {
+	return array(
+		'CHAPTER_REBUILD_TRANSPORT',
+		'CHAPTER_GITHUB_REPO',
+		'CHAPTER_GITHUB_TOKEN',
+		'CHAPTER_REBUILD_WEBHOOK_URL',
+		'CHAPTER_REBUILD_SECRET',
+		'CHAPTER_REBUILD_SECRET_OUT',
+		'CHAPTER_REBUILD_SECRET_IN',
+		'CHAPTER_REBUILD_DEBOUNCE',
+	);
+}
+
+/**
+ * The HMAC secret for one direction: `out` signs the webhook dispatch, `in`
+ * verifies the /build-status callback. CHAPTER_REBUILD_SECRET_OUT / _IN win
+ * when set; each falls back to the shared CHAPTER_REBUILD_SECRET. A value
+ * shorter than PROGRESSNOW_REBUILD_SECRET_MIN bytes is treated as unset — an
+ * HMAC over a short secret is brute-forceable offline — and a short _OUT/_IN
+ * does not fall back to the shared value (the operator meant to split them).
+ * progressnow_rebuild_secret_problems() names the offending constant(s).
+ *
+ * @param string $direction out | in
+ * @return string '' when unset or too short.
+ */
+function progressnow_rebuild_secret( $direction = 'out' ) {
+	$secret = progressnow_rebuild_setting( 'in' === $direction ? 'CHAPTER_REBUILD_SECRET_IN' : 'CHAPTER_REBUILD_SECRET_OUT' );
+	if ( '' === $secret ) {
+		$secret = progressnow_rebuild_setting( 'CHAPTER_REBUILD_SECRET' );
+	}
+
+	return strlen( $secret ) >= PROGRESSNOW_REBUILD_SECRET_MIN ? $secret : '';
+}
+
+/**
+ * Names of the secret settings that are set but shorter than the minimum.
+ *
+ * @return string[]
+ */
+function progressnow_rebuild_secret_problems() {
+	$short = array();
+	foreach ( array( 'CHAPTER_REBUILD_SECRET', 'CHAPTER_REBUILD_SECRET_OUT', 'CHAPTER_REBUILD_SECRET_IN' ) as $name ) {
+		$value = progressnow_rebuild_setting( $name );
+		if ( '' !== $value && strlen( $value ) < PROGRESSNOW_REBUILD_SECRET_MIN ) {
+			$short[] = $name;
+		}
+	}
+
+	return $short;
+}
+
+/**
+ * Why the transport resolves to `none` — '' when it is usable. Names the
+ * setting at fault, never a value (panel row, CLI, notices).
+ *
+ * @return string
+ */
+function progressnow_rebuild_transport_problem() {
+	$transport = strtolower( progressnow_rebuild_setting( 'CHAPTER_REBUILD_TRANSPORT', 'github' ) );
+	if ( 'none' === $transport ) {
+		return 'CHAPTER_REBUILD_TRANSPORT is none';
+	}
+	if ( ! in_array( $transport, array( 'github', 'webhook' ), true ) ) {
+		return 'CHAPTER_REBUILD_TRANSPORT is not github, webhook or none';
+	}
+	if ( 'github' === $transport ) {
+		foreach ( array( 'CHAPTER_GITHUB_REPO', 'CHAPTER_GITHUB_TOKEN' ) as $name ) {
+			if ( '' === progressnow_rebuild_setting( $name ) ) {
+				return $name . ' is unset';
+			}
+		}
+
+		return '';
+	}
+	if ( '' === progressnow_rebuild_setting( 'CHAPTER_REBUILD_WEBHOOK_URL' ) ) {
+		return 'CHAPTER_REBUILD_WEBHOOK_URL is unset';
+	}
+	if ( '' === progressnow_rebuild_secret( 'out' ) ) {
+		$name = '' !== progressnow_rebuild_setting( 'CHAPTER_REBUILD_SECRET_OUT' ) ? 'CHAPTER_REBUILD_SECRET_OUT' : 'CHAPTER_REBUILD_SECRET';
+
+		return in_array( $name, progressnow_rebuild_secret_problems(), true )
+			? sprintf( '%s is shorter than %d characters', $name, PROGRESSNOW_REBUILD_SECRET_MIN )
+			: $name . ' is unset';
+	}
+
+	return '';
+}
+
+/**
+ * The configured transport: github | webhook | none. Incomplete configuration
+ * — including a webhook secret under the minimum length — degrades to `none`
+ * (the freshness guard keeps the site correct); progressnow_rebuild_transport_problem()
+ * says why.
  */
 function progressnow_rebuild_transport() {
-	$transport = strtolower( progressnow_rebuild_setting( 'CHAPTER_REBUILD_TRANSPORT', 'github' ) );
-	if ( ! in_array( $transport, array( 'github', 'webhook', 'none' ), true ) ) {
-		return 'none';
-	}
-	if ( 'github' === $transport && ( '' === progressnow_rebuild_setting( 'CHAPTER_GITHUB_REPO' ) || '' === progressnow_rebuild_setting( 'CHAPTER_GITHUB_TOKEN' ) ) ) {
-		return 'none';
-	}
-	if ( 'webhook' === $transport && ( '' === progressnow_rebuild_setting( 'CHAPTER_REBUILD_WEBHOOK_URL' ) || '' === progressnow_rebuild_setting( 'CHAPTER_REBUILD_SECRET' ) ) ) {
+	if ( '' !== progressnow_rebuild_transport_problem() ) {
 		return 'none';
 	}
 
-	return $transport;
+	return strtolower( progressnow_rebuild_setting( 'CHAPTER_REBUILD_TRANSPORT', 'github' ) );
+}
+
+/**
+ * Make an upstream error safe to store and show: every configured token or
+ * secret is replaced by [redacted] whatever its length (a short secret is
+ * still a secret), bearer credentials are masked, tags are stripped, and the
+ * text is cut to PROGRESSNOW_REBUILD_ERROR_MAX characters AFTER redaction so a
+ * truncated value can never survive. Idempotent.
+ *
+ * @param string $text Upstream message or response body.
+ * @return string
+ */
+function progressnow_rebuild_redact( $text ) {
+	$text   = wp_strip_all_tags( (string) $text );
+	$values = array();
+	foreach ( array( 'CHAPTER_GITHUB_TOKEN', 'CHAPTER_REBUILD_SECRET', 'CHAPTER_REBUILD_SECRET_OUT', 'CHAPTER_REBUILD_SECRET_IN' ) as $name ) {
+		$value = progressnow_rebuild_setting( $name );
+		if ( '' !== $value ) {
+			$values[] = $value;
+		}
+	}
+	if ( $values ) {
+		// Longest first, so a value that contains another is replaced whole.
+		usort( $values, static fn( $a, $b ) => strlen( $b ) <=> strlen( $a ) );
+		$text = str_replace( $values, '[redacted]', $text );
+	}
+	// Credential-shaped fragments a receiver might echo back: "Bearer xyz", token=xyz, "secret": "xyz".
+	$text = preg_replace( '/\bBearer\s+[A-Za-z0-9._~+\/=-]{8,}/i', 'Bearer [redacted]', $text );
+	$text = preg_replace( '/\b(token|secret)(["\']?\s*[:=]\s*["\']?)[A-Za-z0-9._~+\/=-]{8,}/i', '$1$2[redacted]', (string) $text );
+	$text = trim( preg_replace( '/\s+/', ' ', (string) $text ) );
+	if ( mb_strlen( $text ) > PROGRESSNOW_REBUILD_ERROR_MAX ) {
+		$text = mb_substr( $text, 0, PROGRESSNOW_REBUILD_ERROR_MAX ) . '...';
+	}
+
+	return $text;
 }
 
 /**
@@ -107,8 +301,11 @@ function progressnow_rebuild_state_defaults() {
  */
 function progressnow_rebuild_state() {
 	$state = get_option( PROGRESSNOW_REBUILD_STATE_KEY, array() );
+	$state = wp_parse_args( is_array( $state ) ? $state : array(), progressnow_rebuild_state_defaults() );
+	// Redacted on write too; the read covers a state stored before redaction existed.
+	$state['lastError'] = progressnow_rebuild_redact( $state['lastError'] );
 
-	return wp_parse_args( is_array( $state ) ? $state : array(), progressnow_rebuild_state_defaults() );
+	return $state;
 }
 
 /**
@@ -118,6 +315,9 @@ function progressnow_rebuild_state() {
  * @return array
  */
 function progressnow_rebuild_update_state( array $patch ) {
+	if ( array_key_exists( 'lastError', $patch ) ) {
+		$patch['lastError'] = progressnow_rebuild_redact( $patch['lastError'] );
+	}
 	$state              = array_merge( progressnow_rebuild_state(), $patch );
 	$state['updatedAt'] = gmdate( 'c' );
 	update_option( PROGRESSNOW_REBUILD_STATE_KEY, $state, false );
@@ -277,7 +477,7 @@ function progressnow_rebuild_dispatch() {
 			);
 		}
 
-		$error = (string) $result;
+		$error = progressnow_rebuild_redact( (string) $result );
 		progressnow_rebuild_update_state( array( 'attempts' => $attempt, 'lastError' => $error ) );
 
 		if ( $attempt < 3 ) {
@@ -325,11 +525,12 @@ function progressnow_rebuild_send_github( array $payload ) {
 	);
 
 	if ( is_wp_error( $response ) ) {
-		return 'github: ' . $response->get_error_message();
+		return 'github: ' . progressnow_rebuild_redact( $response->get_error_message() );
 	}
 	$code = (int) wp_remote_retrieve_response_code( $response );
 	if ( 204 !== $code ) {
-		return 'github: HTTP ' . $code . ' ' . wp_strip_all_tags( (string) wp_remote_retrieve_body( $response ) );
+		// Status first, then the redacted + truncated body (GitHub echoes request details on 401/422).
+		return 'github: HTTP ' . $code . ' ' . progressnow_rebuild_redact( wp_remote_retrieve_body( $response ) );
 	}
 
 	return true;
@@ -359,11 +560,11 @@ function progressnow_rebuild_send_webhook( array $payload ) {
 	);
 
 	if ( is_wp_error( $response ) ) {
-		return 'webhook: ' . $response->get_error_message();
+		return 'webhook: ' . progressnow_rebuild_redact( $response->get_error_message() );
 	}
 	$code = (int) wp_remote_retrieve_response_code( $response );
 	if ( 202 !== $code ) {
-		return 'webhook: HTTP ' . $code . ' ' . wp_strip_all_tags( (string) wp_remote_retrieve_body( $response ) );
+		return 'webhook: HTTP ' . $code . ' ' . progressnow_rebuild_redact( wp_remote_retrieve_body( $response ) );
 	}
 
 	$data = json_decode( (string) wp_remote_retrieve_body( $response ), true );
@@ -379,10 +580,11 @@ function progressnow_rebuild_send_webhook( array $payload ) {
  * ---------------------------------------------------------------------- */
 
 /**
- * HMAC-SHA256 over "timestamp.body" with the shared secret (hex).
+ * HMAC-SHA256 over "timestamp.body" (hex) with the OUTBOUND secret
+ * (CHAPTER_REBUILD_SECRET_OUT, else CHAPTER_REBUILD_SECRET) unless one is given.
  */
 function progressnow_rebuild_sign( $body, $timestamp, $secret = null ) {
-	$secret = null === $secret ? progressnow_rebuild_setting( 'CHAPTER_REBUILD_SECRET' ) : (string) $secret;
+	$secret = null === $secret ? progressnow_rebuild_secret( 'out' ) : (string) $secret;
 
 	return hash_hmac( 'sha256', $timestamp . '.' . $body, $secret );
 }
@@ -396,7 +598,9 @@ function progressnow_rebuild_sign( $body, $timestamp, $secret = null ) {
  * @return bool
  */
 function progressnow_rebuild_verify( $body, $timestamp, $signature ) {
-	$secret = progressnow_rebuild_setting( 'CHAPTER_REBUILD_SECRET' );
+	// INBOUND secret (CHAPTER_REBUILD_SECRET_IN, else the shared one); '' — unset
+	// or under the minimum length — rejects every callback.
+	$secret = progressnow_rebuild_secret( 'in' );
 	if ( '' === $secret || ! preg_match( '/^\d{9,11}$/', (string) $timestamp ) ) {
 		return false;
 	}
@@ -487,8 +691,35 @@ function progressnow_rebuild_admin_notice() {
 	printf(
 		'<div class="notice notice-error"><p><strong>%s</strong> %s <a href="%s">%s</a></p></div>',
 		esc_html__( 'Site build needs attention:', 'progressnow' ),
-		esc_html( $state['lastError'] ?: $state['status'] ),
+		esc_html( progressnow_rebuild_redact( $state['lastError'] ?: $state['status'] ) ),
 		esc_url( function_exists( 'progressnow_admin_build_url' ) ? progressnow_admin_build_url() : admin_url( 'admin.php?page=progressnow-site-build' ) ),
 		esc_html__( 'Open the Site build panel', 'progressnow' )
+	);
+}
+
+/**
+ * A secret under the minimum length: name the constant, never the value
+ * (openspec rebuild-credential-boundary § Shared secrets meet a minimum strength).
+ */
+add_action( 'admin_notices', 'progressnow_rebuild_secret_notice' );
+function progressnow_rebuild_secret_notice() {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
+	$short = progressnow_rebuild_secret_problems();
+	if ( ! $short ) {
+		return;
+	}
+	printf(
+		'<div class="notice notice-error"><p><strong>%s</strong> %s</p></div>',
+		esc_html__( 'Rebuild secret too short:', 'progressnow' ),
+		esc_html(
+			sprintf(
+				/* translators: 1: constant name(s), 2: minimum length */
+				__( '%1$s must be at least %2$d characters. Until it is replaced (docs/secrets-rotation.md) the webhook transport is disabled and every /build-status callback is rejected; the freshness guard keeps the site correct.', 'progressnow' ),
+				implode( ', ', $short ),
+				PROGRESSNOW_REBUILD_SECRET_MIN
+			)
+		)
 	);
 }

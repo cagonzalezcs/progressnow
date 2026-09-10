@@ -2,7 +2,8 @@ import { expect, test, type APIRequestContext, type Page } from "@playwright/tes
 import { signatureHeader } from "../../lib/signing";
 
 const MOCK = process.env.MOCK_ORIGIN ?? `http://127.0.0.1:${process.env.MOCK_PORT ?? 8787}`;
-const REBUILD_SECRET = process.env.CHAPTER_REBUILD_SECRET ?? "playwright-test-secret";
+const REBUILD_SECRET =
+  process.env.CHAPTER_REBUILD_SECRET ?? "playwright-test-secret-not-for-production";
 
 /* Site chrome in the production build (openspec next-accessibility § Landmarks
  * and skip link, § Focus and announcement, § Accessibility settings widget

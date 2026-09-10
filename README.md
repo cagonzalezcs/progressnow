@@ -55,7 +55,7 @@ Bilingual (EN at `/`, ES at `/es/…`), accessible (WCAG 2.2 AA target, built-in
 | Public origin | the WordPress domain | the WordPress domain | a separate origin (e.g. `app.<domain>`); the PHP theme keeps serving the WordPress domain |
 | Freshness | immediate | rebuild on content change (debounced), freshness guard in between | push revalidation on content change (signed webhook), no rebuild |
 | `CHAPTER_FRONTEND` | `islands` (default) | `nuxt` | `islands` (the PHP theme stays server-rendered) |
-| `CHAPTER_REBUILD_TRANSPORT` | `none` | `github` or `webhook` (+ `CHAPTER_STATIC_DIR` / `CHAPTER_STATIC_ORIGIN`) | `webhook` → `<next-origin>/api/rebuild` (+ `CHAPTER_REBUILD_SECRET`) |
+| `CHAPTER_REBUILD_TRANSPORT` | `none` | `webhook` (a §6 receiver) or `github` through a dispatch repository (+ `CHAPTER_STATIC_DIR` / `CHAPTER_STATIC_ORIGIN`) | `webhook` → `<next-origin>/api/rebuild` (+ `CHAPTER_REBUILD_SECRET`) |
 | `CHAPTER_CANONICAL_ORIGIN` | unset | unset | the Next origin, so canonical / `hreflang` / `og:url` / sitemap point at the public frontend |
 | Status | shipping | `nuxt4-static-platform` 57/59 tasks | shipping — `next-js-site-implementation` (see Roadmap) |
 
@@ -231,17 +231,17 @@ Working in a git worktree? `bin/worktree-bootstrap.sh /path/to/full-checkout` sy
 
 ## Configuration
 
-All operator settings are `wp-config.php` constants. Full reference: `docs/deployment.md` §2.
+All operator settings are `wp-config.php` constants — or environment variables of the same name, which win (an empty value counts as unset), so a host with a secret manager never writes a secret into a PHP file. The Site build panel reports each setting's *source*, never its value. Full reference: `docs/deployment.md` §2.
 
 | Constant | Purpose |
 |---|---|
 | `CHAPTER_FRONTEND` | `islands` (default) or `nuxt` |
 | `CHAPTER_STATIC_DIR` | Same-host mode: absolute path of the rsync'd build |
 | `CHAPTER_STATIC_ORIGIN` | CDN mode: origin to fetch `shell-manifest.json` from (defaults to site URL) |
-| `CHAPTER_REBUILD_TRANSPORT` | `github` \| `webhook` \| `none` |
-| `CHAPTER_GITHUB_REPO` / `CHAPTER_GITHUB_TOKEN` | Fine-grained PAT with *Contents: read & write* for `repository_dispatch` |
+| `CHAPTER_REBUILD_TRANSPORT` | `webhook` (recommended — WordPress holds only an HMAC secret) \| `github` (only through a dispatch repository) \| `none` |
+| `CHAPTER_GITHUB_REPO` / `CHAPTER_GITHUB_TOKEN` | The *dispatch* repository (`owner/repo-dispatch`, never this one) and a fine-grained PAT scoped to it alone — `docs/rebuild-dispatch-repo.md` |
 | `CHAPTER_REBUILD_WEBHOOK_URL` | Webhook transport target |
-| `CHAPTER_REBUILD_SECRET` | HMAC secret for the webhook and the `/build-status` callback |
+| `CHAPTER_REBUILD_SECRET` | HMAC secret (≥ 32 characters) for the webhook and the `/build-status` callback; optional `_OUT` / `_IN` split. Rotation: `docs/secrets-rotation.md` |
 | `CHAPTER_REBUILD_DEBOUNCE` | Seconds to coalesce edits (default 90) |
 | `CHAPTER_CANONICAL_ORIGIN` | Origin used for canonical, `hreflang`, `og:url` and the core sitemap when a headless frontend is primary (default: site URL) |
 | `DISALLOW_UNFILTERED_HTML` | Set `true` (recommended): core denies `unfiltered_html` even when the theme is inactive. The theme denies it for every role regardless — see `docs/authoring-trust-model.md` for the role model and audits |
@@ -257,7 +257,7 @@ Three supported shapes, all documented step by step in `docs/deployment.md`:
 3. **Webhook**: WordPress POSTs a signed `{ event: "rebuild", … }` to any receiver (e.g. API Gateway → CodeBuild) that runs `npm ci --ignore-scripts && npx nuxt prepare && npm run generate`, syncs, and reports back with the same signed `POST /build-status`.
 4. **Headless Next.js** (`next-js/`): deploy the standalone build (Vercel, the `Dockerfile`, or a VPS behind a reverse proxy) and point the same signed webhook at `<next-origin>/api/rebuild`; the receiver revalidates its cache and reports back with `POST /build-status`. Set `CHAPTER_CANONICAL_ORIGIN` to the Next origin. `docs/deployment.md` §10; `node scripts/smoke.mjs <origin>` after each deploy.
 
-The rebuild workflow (`.github/workflows/rebuild-site.yml`) listens for `repository_dispatch` (`rebuild-site`), `workflow_dispatch`, and pushes to `main` touching `nuxt-js/`, with `concurrency: rebuild-site` so bursts of edits collapse into one build. Repository variables/secrets: `WP_API_BASE`, `STATIC_DEPLOY_TARGET`, `WP_BUILD_STATUS_URL`, `CHAPTER_REBUILD_SECRET`, plus rsync or S3 credentials.
+The rebuild workflow (`.github/workflows/rebuild-site.yml`) listens for `repository_dispatch` (`rebuild-site`), `workflow_dispatch`, and pushes to `main` touching `nuxt-js/`, with `concurrency: rebuild-site` so bursts of edits collapse into one build. Repository variables/secrets: `WP_API_BASE`, `STATIC_DEPLOY_TARGET`, `WP_BUILD_STATUS_URL`, `CHAPTER_REBUILD_SECRET`, plus rsync or S3 credentials. Content-driven rebuilds reach it through the signed webhook or a *dispatch repository* that checks this one out read-only: the token WordPress holds never has write access here (`docs/rebuild-dispatch-repo.md`; rotation of every pipeline credential in `docs/secrets-rotation.md`).
 
 **Cutover** (§7): activate theme → seed → set constants with `CHAPTER_FRONTEND=islands` → trigger a build → verify `shell-manifest.json` → flip to `nuxt` → watch the Site build panel (`scheduled → requested → building → live`). **Rollback** (§8): flip `CHAPTER_FRONTEND` back, or restore a prior manifest from S3 versioning / re-run the workflow.
 
@@ -398,7 +398,7 @@ Open changes in `openspec/changes/` (task counts as of 2026-09-10; archived chan
 | `security-remove-duplicator-and-purge-artifacts` | 0/16 | Superseded by `open-source-release-readiness` |
 | `security-dependency-lifecycle` | 0/14 | Composer/npm audits, Renovate, patch SLA |
 | `security-cicd-supply-chain-hardening` | 0/18 | Pin every GitHub Action to a SHA, route repository variables through `env:`, rsync host key, narrow the Terraform OIDC trust, pin Timber, `.nvmrc` + `engine-strict`, CI on every branch prefix in use |
-| `security-rebuild-transport-trust-boundary` | 0/16 | Webhook-first rebuild transport; the WordPress-held GitHub token scoped to an isolated dispatch repo; branch protection on `main`; secrets via `getenv()`; 32-character HMAC minimum |
+| `security-rebuild-transport-trust-boundary` | 12/16 | Done: `CHAPTER_*` settings env-first with sources (never values) in the panel/CLI, 32-character HMAC floor on both sides, optional `_OUT`/`_IN` split, redacted upstream errors, `docs/rebuild-dispatch-repo.md` + template, `docs/secrets-rotation.md`, webhook-first docs. Remaining (owner): remove the ruleset's admin bypass, `production` branch rule, end-to-end run on a scratch dispatch repo, first rotation |
 | `security-detection-and-response` | 0/18 | Second factor for privileged roles, audit trail for privileged theme actions, rebuild-failure alerts, CSP report sink, health monitoring, incident runbook |
 | `ops-backup-and-disaster-recovery` | 0/9 | Off-docroot DB + uploads backups, RPO/RTO defaults, restore runbook and a recorded restore drill |
 | `repo-structure-consolidation` | 0/15 | Fold `next-js/openspec/` into the root spec tree, drop `Claude outputs/`, `.gitignore` fixes, theme `composer.json` identity, Timber-starter leftovers, resolve the `deploy-pipeline` stub |
