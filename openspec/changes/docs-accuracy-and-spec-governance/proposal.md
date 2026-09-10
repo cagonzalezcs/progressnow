@@ -12,7 +12,8 @@ The README's own warning — "the docs are aspirational … where the docs and t
 
 ## What Changes
 
-- **Generated sections.** `scripts/docs/render-readme-sections.mjs` writes the Roadmap and Capabilities tables into `README.md` between markers from `openspec list --json` / `openspec list --specs --json`; `--check` mode fails CI when the committed README is stale.
+- **Generated sections.** `scripts/docs/render-readme-sections.mjs` writes the Roadmap and Capabilities tables into `README.md` between markers from the `openspec/changes/` and `openspec/specs/` trees (the same data `openspec list` / `openspec list --specs` print; the CLI is not invoked); `--check` mode fails CI when the committed README is stale.
+
 - **Docs path lint.** `scripts/docs/check-paths.mjs` extracts backticked repository paths (`inc/rest.php`, `docs/…`, `scripts/…`) from `README.md`, `docs/**`, app READMEs, and open change proposals, and fails when a path does not exist — planned paths in *proposals* are allowed with a `(planned)` marker; a markdown link checker runs alongside.
 - **Canonical ownership.** A short table in the root README: root README = map + quick start; app READMEs = commands, env, layout; `docs/` = operator guides; `openspec/` = intent and history. Duplicated paragraphs are replaced by links. Session handoffs are untracked (`.claude/`) by policy.
 - **Fix the wrong guidance now.** `docs/deployment.md` §9 → `NODE_EXTRA_CA_CERTS` (mirroring `next-js`); `nuxt.config.ts` comment marks `secure: false` dev-only; the `.claude/commands` claim replaced by the `openspec` CLI/skills.

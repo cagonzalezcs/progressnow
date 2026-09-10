@@ -1,2 +1,3 @@
 schema: spec-driven
 created: 2026-09-07
+description: "One canonical doc per topic, README roadmap and capabilities rendered from `openspec/` and checked in CI, path + link + duplicate-section lint, `openspec/config.yaml` project context and artifact rules"

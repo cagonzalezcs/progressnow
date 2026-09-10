@@ -5,7 +5,7 @@ Chapter-neutral WordPress theme for a Progress Now chapter site. Everything that
 ## Stack
 
 - **WordPress + Timber 2** (Twig templates) — routing + content
-- **Vue 3** (Composition API, `<script setup lang="ts">`) — interactive islands (the PHP-only frontend; the same source is copied into the Nuxt 4 app in `nuxt-js/`, see `openspec/changes/nuxt4-static-platform`)
+- **Vue 3** (Composition API, `<script setup lang="ts">`) — interactive islands (the PHP-only frontend; the same source is copied into the Nuxt 4 app in `nuxt-js/`, see `openspec/changes/archive/2026-09-07-nuxt4-static-platform/`)
 - **Tailwind CSS v4** (CSS-first config in `src/css/tailwind.css`, no `tailwind.config.js`)
 - **shadcn-vue** — project-owned component library generated into `src/components/ui/`
 - **Vite 7** via `@kucrut/vite-for-wp` (npm) + `kucrut/vite-for-wp` (Composer) — dev server/HMR + production enqueue
@@ -181,13 +181,7 @@ Hand-rolled head output (no SEO plugin) hooked once at `wp_head` priority 5; eve
 
 ## Testing
 
-```bash
-composer test   # PHPUnit via WorDBless (no DB/WP install needed)
-composer lint   # PHPCS security sniffs (WordPress.Security, prepared SQL, forbidden functions)
-npm test        # vitest — category-token drift + contract fixtures
-```
-
-PHPUnit runs on [WorDBless](https://github.com/Automattic/wordbless): the first run creates a `wordpress/` directory in the theme (the WorDBless WP install + a symlink back to the theme). It is a test artifact — **untracked and expected**, not part of the theme. ACF Pro is absent under WorDBless, so `tests/bootstrap.php` polyfills `get_field()` (post meta / options / term meta backed).
+`composer test`, `composer lint` and `npm test` — see [Commands](#commands). PHPUnit runs on [WorDBless](https://github.com/Automattic/wordbless): the first run creates a `wordpress/` directory in the theme (the WorDBless WP install + a symlink back to the theme). It is a test artifact — **untracked and expected**, not part of the theme. ACF Pro is absent under WorDBless, so `tests/bootstrap.php` polyfills `get_field()` (post meta / options / term meta backed).
 
 ## Seeding demo content
 

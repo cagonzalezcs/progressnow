@@ -31,7 +31,7 @@ theme active and `CHAPTER_REBUILD_TRANSPORT` left at `none`.
    a new `buildId` in the manifest it records the build live and purges its
    page cache.
 
-Reference: `openspec/changes/nuxt4-static-platform/design.md`.
+Reference: `openspec/changes/archive/2026-09-07-nuxt4-static-platform/design.md`.
 
 ## 2. wp-config.php constants
 
@@ -185,7 +185,8 @@ State on 2026-09-10 (`gh api repos/<owner>/<repo>/rulesets`): the ruleset
 "Protect main" enforces 1–4 (one approval, squash merges only, signatures,
 the three checks) and 6 exists; **5 is open** — the bypass list still
 contains the Repository admin role with mode *always*. Add the pointer to
-`docs/open-source-release.md` when `open-source-release-readiness` creates it.
+the release checklist when `open-source-release-readiness` creates it.
+
 
 **The WordPress side** (`github` transport): `CHAPTER_GITHUB_REPO` names the
 dispatch repository and `CHAPTER_GITHUB_TOKEN` is a fine-grained PAT whose only
@@ -360,8 +361,15 @@ fits this contract; reporting back is the same signed `POST /build-status`
   major stops with an engine error instead of drifting. `nvm use` / `fnm use`
   read the file.
 - `nuxt-js/.env`: `NUXT_DEV_WP_ORIGIN=https://chapter.test:8890`,
-  `NUXT_PUBLIC_WP_API_BASE=https://chapter.test:8890/wp-json/progressnow/v1`,
-  `NODE_TLS_REJECT_UNAUTHORIZED=0` for the MAMP certificate.
+  `NUXT_PUBLIC_WP_API_BASE=https://chapter.test:8890/wp-json/progressnow/v1`.
+- TLS against a local MAMP PRO site: trust MAMP's CA from the shell, the same
+  way `next-js` does (§10.8) —
+  `NODE_EXTRA_CA_CERTS=/Applications/MAMP/Library/OpenSSL/certs/MAMP_PRO_Root_CA.crt`
+  (fish `set -Ux`, bash/zsh `export`). Node reads it at process start, so a
+  `.env` entry is too late. Never `NODE_TLS_REJECT_UNAUTHORIZED=0`: it disables
+  verification outright and Node warns on every fetch. The dev proxy's
+  `secure: false` in `nuxt-js/nuxt.config.ts` relaxes only `nuxt dev`;
+  `nuxt generate` verifies.
 - `npm run dev` in `nuxt-js/` for component work (proxied `/wp-json` + `/wp-content`).
 - Full handoff locally: `npm run generate` in `nuxt-js/`, then in wp-config.php
   `define( 'CHAPTER_FRONTEND', 'nuxt' ); define( 'CHAPTER_STATIC_DIR', ABSPATH . 'nuxt-js/.output/public' );`
@@ -375,7 +383,7 @@ The Next.js app is a separate origin (say `https://www.example.org`) that
 renders every public route server-side from `GET /wp-json/progressnow/v1/*`
 (the same API, contracts and fixtures the Nuxt rendition uses). WordPress stays
 on its own origin as CMS + API; nothing in the browser talks to WordPress.
-Design: `openspec/changes/next-js-site-implementation/design.md`.
+Design: `openspec/changes/archive/2026-09-07-next-js-site-implementation/design.md`.
 
 ### 10.1 How it works
 
@@ -613,7 +621,9 @@ restart the instance (the cache is in-process).
 
 `next-js/.env.local` from `.env.example` (`WP_API_BASE` on the MAMP site,
 `NEXT_PUBLIC_SITE_ORIGIN=http://localhost:3000`, the secret from
-wp-config.php; trust MAMP's CA from the shell — see `next-js/README.md`).
+wp-config.php; trust MAMP's CA from the shell with `NODE_EXTRA_CA_CERTS` — the
+same guidance as §9, spelled out in `next-js/README.md`).
+
 `npm run dev` for the app; for the full loop set the constants of §10.3 in the
 local wp-config.php with `CHAPTER_REBUILD_WEBHOOK_URL=http://localhost:3000/api/rebuild`
 and `CHAPTER_CANONICAL_ORIGIN=http://localhost:3000`. No WordPress at all:

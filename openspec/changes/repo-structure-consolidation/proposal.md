@@ -15,8 +15,8 @@ The repository carries leftovers from its AI-driven rename and re-platforming th
 ## What Changes
 
 - **Untrack and ignore `site/`** (`git rm -r --cached site`, `/site/` in `.gitignore`); delete the directory on disk after confirming nothing references it.
-- **Remove `Claude outputs/`** from the tree; keep session handoffs under `.claude/` (ignored) or in `docs/handoffs/` if they are meant to be shared — decision recorded in CONTRIBUTING.
-- **One OpenSpec root:** move `next-js/openspec/specs/calendar-route` → `openspec/specs/next-calendar-route` (or merge into `next-headless-site`), `next-js/openspec/changes/route-loading-footer-hold` → `openspec/changes/`, and its archive entry → `openspec/changes/archive/`; delete `next-js/openspec/`; `openspec validate --all` passes.
+- **Remove `Claude outputs/`** from the tree; keep session handoffs under `.claude/` (ignored) or in `docs/handoffs/` if they are meant to be shared — decision recorded in CONTRIBUTING. (planned)
+- **One OpenSpec root:** move `next-js/openspec/specs/calendar-route` → `openspec/specs/next-calendar-route` (or merge into `next-headless-site`), `next-js/openspec/changes/route-loading-footer-hold` → `openspec/changes/`, and its archive entry → `openspec/changes/archive/`; delete `next-js/openspec/`; `openspec validate --all` passes. (planned)
 - **Resolve the `deploy-pipeline` stub:** delete it and reword the two references (`security-remove-duplicator-and-purge-artifacts`, `security-dependency-lifecycle`) — or give it artifacts if the owner still wants it.
 - **`.gitignore` repair:** replace `.env*` with `.env` + `.env.*` and `!.env.example`; dedupe; add `/site/`.
 - **Theme identity and leftovers:** `composer.json` name `progressnow/theme`, authors = maintainer with Timber attribution kept in `description`; remove unreferenced starter templates and the starter test after a grep; move root `wp-config-sample.php` to `docs/` or delete once `security-runtime-hardening` ships its hardened template.
@@ -34,6 +34,6 @@ The repository carries leftovers from its AI-driven rename and re-platforming th
 
 - **Repo:** −924 tracked files (≈13 MB); `.gitignore`; `openspec/` gains one spec and two changes; `next-js/openspec/` removed; `Claude outputs/` removed.
 - **Theme:** `composer.json`, `views/` (≤5 files), `tests/` (1 file), `static/fonts/*/` (+2 licence files), `static/images/brand/README.md`.
-- **Docs:** `README.md` "Repository layout" and "OpenSpec workflow" (spec count, no `.claude/commands` claim), `CONTRIBUTING.md` (handoff policy) when it exists.
+- **Docs:** `README.md` "Repository layout" and "OpenSpec workflow" (spec count, no `.claude/commands` claim), `CONTRIBUTING.md` (handoff policy) when it exists. (planned)
 - **CI:** none; Vercel `.vercelignore` unchanged (never included `site/`).
 - **Coordinates with:** `open-source-release-readiness` (its `site/` paths should read `nuxt-js/`; hygiene gate), `security-runtime-hardening` (config template), `docs-accuracy-and-spec-governance` (README generation). Does not modify those changes.
