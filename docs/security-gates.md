@@ -120,6 +120,13 @@ the comment together:
 git ls-remote --tags https://github.com/actions/checkout 'v7.*' | sort -V -k2 | tail -2
 ```
 
+Moving to a new major is a separate, deliberate step: read every major's
+release notes between the two pins first (the Node 24 runtime needs runner
+≥ 2.327.1; `upload-artifact` and `download-artifact` move together; input
+defaults change — download-artifact v8 fails on a digest mismatch, setup-node
+v5+ auto-caches when a root `package.json` names a `packageManager`), bump one
+family per commit so a CI failure names its cause, and lint between commits.
+
 Then the tools in `workflow-lint.yml`: `ACTIONLINT_VERSION` /
 `ACTIONLINT_SHA256` (the `linux_amd64` line of actionlint's `checksums.txt`
 release asset) and `ZIZMOR_VERSION` / `ZIZMOR_SHA256` (`sha256sum` of the
