@@ -22,7 +22,9 @@ required status checks — `workflow-lint` is the newest; add it to the ruleset
 when it lands). The three ci.yml gates come from `.github/workflows/ci.yml`.
 The rest of CI is not required: the theme and nuxt-js jobs, `dependency-review`
 (pull requests only: fails on a high-severity vulnerability in a dependency the
-PR adds or bumps), and the next-js fan-out — `next-js-check`, `next-js-build`, then
+PR adds or bumps; it needs the repository's *Dependency graph* enabled under
+Settings → Code security and analysis, and fails with "not supported on this
+repository" until it is), and the next-js fan-out — `next-js-check`, `next-js-build`, then
 `next-js-e2e` / `next-js-a11y` / `next-js-failure` against that one build, and
 `next-js-container` beside them. On branches and pull requests the next-js jobs
 are skipped (shown as skipped, never as passed) when the change touches nothing

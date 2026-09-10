@@ -138,8 +138,10 @@ jobs:
       - run: bash .github/scripts/artifact-guard.sh
 
   # Licence and vulnerability diff of the dependencies a pull request adds or
-  # bumps (public repository: the dependency graph is on). Complements the
-  # audits planned in openspec security-dependency-lifecycle; never runs on
+  # bumps. Needs the repository's Dependency graph (Settings → Code security
+  # and analysis → Dependency graph: enable); until it is on, this job fails
+  # with "Dependency review is not supported on this repository". Complements
+  # the audits planned in openspec security-dependency-lifecycle; never runs on
   # pushes because it compares the PR's base and head.
   dependency-review:
     name: Dependency review (PR diff)
