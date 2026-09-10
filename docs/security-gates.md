@@ -91,7 +91,7 @@ first-party actions too).
 
 | Rule | Where | zizmor audit |
 |---|---|---|
-| Every `uses:` is a full commit SHA with the version as a comment: `actions/checkout@11d5960a… # v4.4.0` | all workflows | `unpinned-uses`, `impostor-commit`, `known-vulnerable-actions` |
+| Every `uses:` is a full commit SHA with the version as a comment: `actions/checkout@3d3c42e5… # v7.0.1` | all workflows | `unpinned-uses`, `impostor-commit`, `known-vulnerable-actions` |
 | `permissions: {}` at the workflow level; each job grants what it uses (`contents: read` to check out); `id-token: write` only on `deploy-s3` | all workflows | `excessive-permissions` |
 | `${{ }}` never appears inside `run:` text — `vars.*`, `secrets.*`, `github.event.*` and step outputs go through `env:` | all workflows | `template-injection` |
 | `actions/checkout` sets `persist-credentials: false` (no job pushes) | all workflows | `artipacked` |
@@ -117,7 +117,7 @@ its commit — for an annotated tag the peeled `^{}` line — and update the SHA
 the comment together:
 
 ```bash
-git ls-remote --tags https://github.com/actions/checkout 'v4.*' | sort -V -k2 | tail -2
+git ls-remote --tags https://github.com/actions/checkout 'v7.*' | sort -V -k2 | tail -2
 ```
 
 Then the tools in `workflow-lint.yml`: `ACTIONLINT_VERSION` /
