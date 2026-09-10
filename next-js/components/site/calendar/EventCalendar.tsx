@@ -1,75 +1,46 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
+import { DayAgenda } from "@/components/site/calendar/DayAgenda";
 import { EventDetailDialog } from "@/components/site/calendar/EventDetailDialog";
 import { EventListView } from "@/components/site/calendar/EventListView";
+import { DEFAULT_CALENDAR_LABELS, type CalendarLabels } from "@/components/site/calendar/labels";
 import { MonthGrid } from "@/components/site/calendar/MonthGrid";
 import {
   addMonths,
   calendarHref,
+  defaultSelectedDay,
   eventsInMonth,
   filterByCategory,
   monthBounds,
+  monthCells,
   monthInWindow,
   monthKey,
   monthLabel,
   monthOf,
+  nextEventDay,
   type EventWindow,
   type YearMonth,
 } from "@/lib/calendar";
 import { eventCategories } from "@/lib/categories";
+import { MONTH_NAMES } from "@/lib/events";
 import type { ChapterEvent, EventCategory } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 
 /* Calendar island (openspec progress-now-v4-events D1/D2/D5; next-headless-site
- * § Interactive archive and calendar). The server renders the requested month
- * from the REST window it fetched (−1 → +12 months) and hands it over as props;
- * the island owns month paging, the Month/List toggle, the category filter
- * chips (FILTER: All events / term chips with swatch dots, as on the reference
- * site) and the preview dialog.
+ * § Interactive archive and calendar; calendar-mobile-day-agenda). The server
+ * renders the requested month from the REST window it fetched (−1 → +12
+ * months) and hands it over as props; the island owns month paging, the
+ * Month/List toggle, the category filter chips (FILTER: All events / term
+ * chips with swatch dots, as on the reference site), the preview dialog, the
+ * compact day selection with its agenda panel, and the list's past toggle.
  * URL state (`?view=`, `?month=`, `?category=`) is written with
- * history.replaceState so a reload or a shared link lands on the same month.
+ * history.replaceState so a reload or a shared link lands on the same month;
+ * the selected day and the past toggle are not URL state and reset on month
+ * change (the selection also on category change).
  * Months outside the window load through the same-origin /api/events with a
  * live status; the failure state keeps the ICS feed reachable. */
-export interface CalendarLabels {
-  monthLabelText: string;
-  listLabelText: string;
-  viewGroupLabel: string;
-  filterLabel: string;
-  allEventsLabel: string;
-  prevLabel: string;
-  nextLabel: string;
-  viewLabel: string;
-  rsvpLabel: string;
-  closeLabel: string;
-  emptyTitle: string;
-  emptyBody: string;
-  loading: string;
-  errorTitle: string;
-  errorBody: string;
-  retry: string;
-  icsLabel: string;
-}
-
-export const DEFAULT_CALENDAR_LABELS: CalendarLabels = {
-  monthLabelText: "Month",
-  listLabelText: "List",
-  viewGroupLabel: "View",
-  filterLabel: "Filter:",
-  allEventsLabel: "All events",
-  prevLabel: "Previous month",
-  nextLabel: "Next month",
-  viewLabel: "View event",
-  rsvpLabel: "RSVP",
-  closeLabel: "Close",
-  emptyTitle: "Nothing scheduled this month",
-  emptyBody: "Check the next month or subscribe below and never miss one.",
-  loading: "Loading events…",
-  errorTitle: "We couldn’t load the calendar",
-  errorBody: "Try again in a moment — or subscribe with",
-  retry: "Retry",
-  icsLabel: "iCal / .ics",
-};
+export { DEFAULT_CALENDAR_LABELS, type CalendarLabels };
 
 const NAV_BTN =
   "inline-flex size-11 flex-none cursor-pointer items-center justify-center rounded-full border-2 border-control bg-white p-0 text-[1.1rem] font-extrabold text-ink transition-colors hover:border-accent hover:bg-accent hover:text-white";
@@ -130,6 +101,9 @@ export function EventCalendar({
   const [ym, setYm] = useState<YearMonth>(initialMonth ?? currentMonth);
   const [category, setCategory] = useState(initialCategory);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  /** compact day selection; null = the default day (today → first event day → the 1st) */
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [showPast, setShowPast] = useState(false);
   const palette = eventCategories(categories);
   const [extra, setExtra] = useState<Record<string, MonthState>>({});
   const [retryTick, setRetryTick] = useState(0);
@@ -201,10 +175,22 @@ export function EventCalendar({
     : (extra[key] ?? { status: "loading" });
   const pool = monthState.status === "ready" ? filterByCategory(monthState.events, category) : [];
   const monthEvents = eventsInMonth(pool, ym);
+  const cells = monthCells(ym, pool, todayISO);
+  const agendaDay = selectedDay ?? defaultSelectedDay(cells, todayISO);
+  const agendaCell = cells.find((c) => c.inMonth && c.key === agendaDay) ?? null;
+  const jumpTo = agendaCell ? nextEventDay(cells, agendaCell.key) : null;
   const selected =
     (monthState.status === "ready" ? monthState.events : events).find((e) => e.id === selectedId) ??
     null;
-  const changeMonth = (delta: number) => setYm((m) => addMonths(m, delta));
+  const changeMonth = (delta: number) => {
+    setYm((m) => addMonths(m, delta));
+    setSelectedDay(null);
+    setShowPast(false);
+  };
+  const changeCategory = (id: string) => {
+    setCategory(id);
+    setSelectedDay(null);
+  };
   const retry = () => {
     requested.current.delete(key);
     setExtra((s) => {
@@ -304,7 +290,7 @@ export function EventCalendar({
                 )}
                 data-testid="event-calendar-filter-option"
                 data-category={cat.id}
-                onClick={() => setCategory(cat.id)}
+                onClick={() => changeCategory(cat.id)}
               >
                 {showCategoryColors && cat.color ? (
                   <span
@@ -401,9 +387,25 @@ export function EventCalendar({
               categories={categories}
               showCategoryColors={showCategoryColors}
               labelledBy={headingId}
+              selectedDay={agendaDay}
+              hintCompact={L.tapDayHint}
               onSelect={select}
+              onDaySelect={setSelectedDay}
               onMonthChange={changeMonth}
             />
+            {agendaCell ? (
+              <DayAgenda
+                day={agendaCell}
+                jumpTo={jumpTo}
+                categories={categories}
+                showCategoryColors={showCategoryColors}
+                fallbackUrl={basePath}
+                labels={L}
+                onJump={setSelectedDay}
+                onSeeList={() => setView("list")}
+                wpOrigin={wpOrigin}
+              />
+            ) : null}
           </div>
         </section>
       ) : (
@@ -415,10 +417,17 @@ export function EventCalendar({
           <div className="mx-auto max-w-[900px]">
             <EventListView
               events={monthEvents}
+              todayISO={todayISO}
+              monthName={MONTH_NAMES[ym.month]!}
+              showPast={showPast}
+              onTogglePast={() => setShowPast((v) => !v)}
+              categories={categories}
+              showCategoryColors={showCategoryColors}
               fallbackUrl={basePath}
               viewLabel={L.viewLabel}
               emptyTitle={L.emptyTitle}
               emptyBody={L.emptyBody}
+              labels={L}
               wpOrigin={wpOrigin}
             />
           </div>

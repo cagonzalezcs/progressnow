@@ -36,7 +36,24 @@
 		allEventsText: pll__('All events'),
 		viewLabel: pll__('View event'),
 		emptyTitle: pll__('Nothing scheduled this month'),
-		emptyBody: pll__('Check the next month or subscribe below and never miss one.')
+		emptyBody: pll__('Check the next month or subscribe below and never miss one.'),
+		prevLabel: pll__('Previous month'),
+		nextLabel: pll__('Next month'),
+		loadingText: pll__('Loading events…'),
+		retryText: pll__('Retry'),
+		tapDayHint: pll__('Tap a day to see what’s happening.'),
+		dayRegionLabel: pll__('Events on selected day'),
+		noEventsText: pll__('No events'),
+		eventCountOne: pll__('{n} event'),
+		eventCountOther: pll__('{n} events'),
+		dayEmptyBody: pll__('Nothing scheduled on this day. Days with a ● have events.'),
+		jumpToNextText: pll__('Jump to next event · {date}'),
+		seeMonthListText: pll__('See the whole month as a list →'),
+		listSummaryOne: pll__('{n} event in {month}'),
+		listSummaryOther: pll__('{n} events in {month}'),
+		showPastText: pll__('Show {n} past'),
+		hidePastText: pll__('Hide past events'),
+		todayTag: pll__('TODAY')
 	} %}
 	<div data-vue-island="EventCalendar" data-props='{{ calendar_props|json_encode|e("html_attr") }}'>
 		<section class="bg-white px-6 pb-10 pt-7 md:pb-14 md:pt-10" data-tone="white">

@@ -131,6 +131,19 @@ export function calendarLabels(site: SiteEnvelope): Partial<CalendarLabels> {
     nextLabel: str("cal_next"),
     loading: str("cal_loading"),
     retry: str("cal_retry"),
+    tapDayHint: str("cal_tap_hint"),
+    dayRegionLabel: str("cal_day_region"),
+    noEvents: str("cal_no_events"),
+    eventCountOne: str("cal_event_count_one"),
+    eventCountOther: str("cal_event_count_other"),
+    dayEmptyBody: str("cal_day_empty"),
+    jumpToNext: str("cal_jump_next"),
+    seeMonthList: str("cal_see_month_list"),
+    listSummaryOne: str("cal_list_summary_one"),
+    listSummaryOther: str("cal_list_summary_other"),
+    showPast: str("cal_show_past"),
+    hidePast: str("cal_hide_past"),
+    todayTag: str("cal_today_tag"),
   };
 }
 

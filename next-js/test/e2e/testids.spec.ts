@@ -107,3 +107,31 @@ test("styleguide sections and kitchen-sink examples are addressable", async ({ p
     page.locator('[data-testid="styleguide-section"][data-styleguide-section="button"]'),
   ).toHaveCount(1);
 });
+
+test("calendar compact day picker and grouped list are addressable", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/calendar/?month=2026-07");
+  // The agenda follows the selected day; not the current month → the first event day.
+  await expect(page.getByTestId("day-agenda")).toHaveAttribute("data-date", "2026-07-04");
+  expect([35, 42]).toContain(await page.getByTestId("month-grid-day-button").count());
+  await expect(page.locator('[data-testid="month-grid-day"][data-selected="true"]')).toHaveCount(1);
+  await expect(page.getByTestId("day-agenda-heading")).toHaveCount(1);
+  await expect(page.getByTestId("day-agenda-count")).toHaveCount(1);
+  await expect(page.locator('[data-testid="event-card"][data-variant="agenda"]')).toHaveCount(1);
+
+  // Days are addressed by data-date, never by baking the date into the testid.
+  await page.locator('[data-testid="month-grid-day-button"][data-date="2026-07-06"]').click();
+  await expect(page.getByTestId("day-agenda-empty")).toBeVisible();
+  await expect(page.getByTestId("day-agenda-jump")).toHaveAttribute("data-date", "2026-07-04");
+  await page.getByTestId("day-agenda-see-list").click();
+
+  const list = page.getByTestId("event-list-view");
+  await expect(list).toHaveAttribute("data-show-past", "false");
+  await expect(page.getByTestId("event-list-summary")).toHaveCount(1);
+  await page.getByTestId("event-list-past-toggle").click();
+  await expect(list).toHaveAttribute("data-show-past", "true");
+  const day = page.locator('[data-testid="event-list-day"][data-date="2026-07-04"]');
+  await expect(day).toHaveAttribute("data-past", "true");
+  await expect(day.getByTestId("event-list-day-badge")).toHaveCount(1);
+  await expect(day.getByTestId("event-list-day-heading")).toHaveCount(1);
+});

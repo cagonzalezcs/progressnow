@@ -18,6 +18,7 @@ const PAIRS: { theme: string; app: string }[] = [
   { theme: "components/site", app: "components/site" },
   { theme: "composables/useA11ySettings.ts", app: "composables/useA11ySettings.ts" },
   { theme: "lib/schemas.ts", app: "lib/schemas.ts" },
+  { theme: "lib/calendar.ts", app: "lib/calendar.ts" },
   { theme: "css/tailwind.css", app: "assets/css/tailwind.css" },
 ];
 
@@ -31,7 +32,9 @@ function walk(dir: string): string[] {
 /** Files under a pair entry, as paths relative to that entry (a single file → [""]). */
 function entries(root: string): string[] {
   return statSync(root).isDirectory()
-    ? walk(root).map((f) => relative(root, f)).sort()
+    ? walk(root)
+        .map((f) => relative(root, f))
+        .sort()
     : [""];
 }
 

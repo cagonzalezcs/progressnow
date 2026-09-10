@@ -3,19 +3,24 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { monthCells, monthKey, WEEKDAYS_LONG, type YearMonth } from "@/lib/calendar";
 import { categoryById, eventCategories } from "@/lib/categories";
+import { useCompactCalendar } from "@/lib/compact-viewport";
 import { WEEKDAYS } from "@/lib/events";
 import type { ChapterEvent, EventCategory } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 
 /* Month grid (openspec progress-now-v4-events D2, spec "Month grid (v4)";
- * next-accessibility § Keyboard): radius-20 card with --color-line gaps, brand
- * weekday header (single letters under 700px), white in-month / alt
- * out-of-month cells, 28px numeral circle (yellow for today). Events are solid
- * chips from 700px, filled with the category term color (brand blue when
- * colors are off / unset), and one dot per event in the same color below.
- * Keyboard: one tab stop; arrows move between days (Home/End =
- * week edges, PageUp/PageDown = previous/next month), Enter/Space on a day
- * opens its event (or focuses its chips when there are several). */
+ * next-accessibility § Keyboard; calendar-mobile-day-agenda): radius-20 card
+ * with --color-line gaps, brand weekday header (single letters under 700px),
+ * white in-month / alt out-of-month cells, 28px numeral circle (yellow for
+ * today). Events are solid chips from 700px, filled with the category term
+ * color (brand blue when colors are off / unset), and one dot per event in
+ * the same color below.
+ * Every cell is `role="gridcell"` → a real day <button> (the roving tab stop:
+ * arrows move between days, Home/End = week edges, PageUp/PageDown = previous/
+ * next month) → the chips. Activating the day button opens its event (or
+ * focuses its chips) from 700px and, on compact viewports, selects the day
+ * for the agenda panel (`aria-pressed`); the selected cell fills brand blue.
+ * Padding cells are inert (`aria-disabled`) but stay in the arrow path. */
 export function MonthGrid({
   ym,
   events,
@@ -23,7 +28,10 @@ export function MonthGrid({
   categories,
   showCategoryColors = true,
   labelledBy,
+  selectedDay = null,
+  hintCompact = "Tap a day to see what’s happening.",
   onSelect,
+  onDaySelect,
   onMonthChange,
 }: {
   ym: YearMonth;
@@ -34,12 +42,17 @@ export function MonthGrid({
   showCategoryColors?: boolean;
   /** id of the visible month heading */
   labelledBy: string;
+  /** the agenda day (compact selection); null = none */
+  selectedDay?: string | null;
+  hintCompact?: string;
   onSelect: (id: string) => void;
+  onDaySelect?: (key: string) => void;
   onMonthChange: (delta: number) => void;
 }) {
   const cells = monthCells(ym, events, todayISO);
   const key = monthKey(ym);
   const palette = eventCategories(categories);
+  const compact = useCompactCalendar();
   const initialActive = () => {
     const today = cells.findIndex((c) => c.isToday && c.inMonth);
     return today >= 0 ? today : cells.findIndex((c) => c.inMonth);
@@ -47,7 +60,7 @@ export function MonthGrid({
   const [active, setActive] = useState(initialActive);
   const [shownMonth, setShownMonth] = useState(key);
   const pendingFocus = useRef(false);
-  const cellRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const dayRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const chipRefs = useRef(new Map<string, HTMLButtonElement>());
 
   // New month → active day resets (today when visible, else the 1st); keep focus in the grid.
@@ -58,7 +71,7 @@ export function MonthGrid({
   useEffect(() => {
     if (pendingFocus.current) {
       pendingFocus.current = false;
-      cellRefs.current[active]?.focus();
+      dayRefs.current[active]?.focus();
     }
   }, [active, key]);
 
@@ -68,8 +81,7 @@ export function MonthGrid({
     setActive(next);
   };
 
-  function onCellKey(e: KeyboardEvent<HTMLDivElement>) {
-    if (e.target !== e.currentTarget) return; // chips handle their own keys
+  function onDayKey(e: KeyboardEvent<HTMLButtonElement>) {
     const row = Math.floor(active / 7) * 7;
     const handlers: Record<string, () => void> = {
       ArrowRight: () => move(active + 1),
@@ -86,8 +98,6 @@ export function MonthGrid({
         pendingFocus.current = true;
         onMonthChange(1);
       },
-      Enter: () => open(active),
-      " ": () => open(active),
     };
     const handler = handlers[e.key];
     if (!handler) return;
@@ -95,9 +105,15 @@ export function MonthGrid({
     handler();
   }
 
-  function open(index: number) {
+  /** Day button activation (click, Enter, Space): select on compact, open from 700px. */
+  function activate(index: number) {
     const day = cells[index];
-    if (!day || day.events.length === 0) return;
+    if (!day || !day.inMonth) return;
+    if (compact) {
+      onDaySelect?.(day.key);
+      return;
+    }
+    if (day.events.length === 0) return;
     if (day.events.length === 1) onSelect(day.events[0]!.id);
     else chipRefs.current.get(day.events[0]!.id)?.focus();
   }
@@ -107,7 +123,7 @@ export function MonthGrid({
     if (e.key === "Escape") {
       e.preventDefault();
       e.stopPropagation();
-      cellRefs.current[cellIndex]?.focus();
+      dayRefs.current[cellIndex]?.focus();
     } else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
       e.preventDefault();
       const next = day.events[i + (e.key === "ArrowDown" ? 1 : -1)];
@@ -166,59 +182,86 @@ export function MonthGrid({
             {cells.slice(r * 7, r * 7 + 7).map((day, c) => {
               const index = r * 7 + c;
               const count = day.events.length;
+              const selected = day.inMonth && day.key === selectedDay;
+              const name = `${day.label}, ${count ? `${count} event${count === 1 ? "" : "s"}` : "no events"}${day.isToday ? ", today" : ""}`;
               return (
                 <div
                   key={day.key}
                   role="gridcell"
-                  ref={(el) => {
-                    cellRefs.current[index] = el;
-                  }}
-                  tabIndex={index === active ? 0 : -1}
-                  aria-label={`${day.label}${count ? `, ${count} event${count === 1 ? "" : "s"}` : ""}${day.isToday ? ", today" : ""}`}
                   aria-current={day.isToday ? "date" : undefined}
                   data-date={day.key}
                   data-testid="month-grid-day"
                   data-in-month={day.inMonth}
                   data-today={day.isToday}
+                  data-selected={selected}
                   data-event-count={count}
-                  onFocus={() => setActive(index)}
-                  onKeyDown={onCellKey}
                   className={cn(
-                    "flex min-h-11 min-w-0 flex-col items-start gap-1 px-1 py-1.5 outline-offset-[-3px] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-accent min-[700px]:min-h-[96px] min-[700px]:gap-1.5 min-[700px]:px-2.5 min-[700px]:pb-3 min-[700px]:pt-2.5",
-                    day.inMonth ? "bg-white" : "bg-alt",
+                    "flex min-h-[52px] min-w-0 flex-col outline-offset-[-3px] transition-colors has-[>button:focus-visible]:outline has-[>button:focus-visible]:outline-[3px] has-[>button:focus-visible]:outline-accent min-[700px]:min-h-[96px] min-[700px]:gap-1.5 min-[700px]:px-2.5 min-[700px]:pb-3 min-[700px]:pt-2.5",
+                    selected
+                      ? "bg-brand min-[700px]:bg-white"
+                      : day.inMonth
+                        ? "bg-white"
+                        : "bg-alt",
                   )}
                 >
-                  <span
-                    aria-hidden="true"
+                  <button
+                    type="button"
+                    ref={(el) => {
+                      dayRefs.current[index] = el;
+                    }}
+                    tabIndex={index === active ? 0 : -1}
+                    aria-label={name}
+                    aria-pressed={compact && day.inMonth ? selected : undefined}
+                    aria-disabled={day.inMonth ? undefined : true}
+                    data-testid="month-grid-day-button"
+                    data-date={day.key}
+                    onFocus={() => setActive(index)}
+                    onKeyDown={onDayKey}
+                    onClick={() => activate(index)}
                     className={cn(
-                      "inline-flex size-6 items-center justify-center rounded-full text-[0.78rem] font-extrabold min-[700px]:size-7 min-[700px]:text-[0.9rem]",
-                      day.isToday && "bg-yellow text-ink",
-                      day.inMonth ? "text-ink" : "text-muted", // 7.5:1 on alt; border-muted fails 4.5:1
+                      "flex w-full flex-1 flex-col items-center gap-1 border-none bg-transparent px-1 py-1.5 text-left outline-none min-[700px]:flex-none min-[700px]:items-start min-[700px]:p-0",
+                      day.inMonth ? "cursor-pointer" : "cursor-default",
                     )}
-                    data-testid="month-grid-day-number"
                   >
-                    {day.num}
-                  </span>
-                  {count ? (
                     <span
                       aria-hidden="true"
-                      className="flex flex-wrap gap-[3px] min-[700px]:hidden"
-                      data-testid="month-grid-day-dots"
+                      className={cn(
+                        "inline-flex size-[26px] items-center justify-center rounded-full text-[0.82rem] font-extrabold min-[700px]:size-7 min-[700px]:text-[0.9rem]",
+                        day.inMonth ? "text-ink" : "text-muted", // 7.5:1 on alt; border-muted fails 4.5:1
+                        day.isToday && !selected && "bg-yellow text-ink",
+                        day.isToday &&
+                          selected &&
+                          "border-2 border-yellow text-white min-[700px]:border-0 min-[700px]:bg-yellow min-[700px]:text-ink",
+                        !day.isToday && selected && "text-white min-[700px]:text-ink",
+                      )}
+                      data-testid="month-grid-day-number"
                     >
-                      {day.events.map((ev) => {
-                        const color = fill(ev);
-                        return (
-                          <span
-                            key={ev.id}
-                            className="block size-[7px] rounded-full bg-brand"
-                            style={color ? { backgroundColor: color } : undefined}
-                            data-testid="month-grid-day-dot"
-                            data-event-id={ev.id}
-                          />
-                        );
-                      })}
+                      {day.num}
                     </span>
-                  ) : null}
+                    {count ? (
+                      <span
+                        aria-hidden="true"
+                        className="flex min-h-[7px] flex-wrap justify-center gap-[3px] min-[700px]:hidden"
+                        data-testid="month-grid-day-dots"
+                      >
+                        {day.events.map((ev) => {
+                          const color = selected ? undefined : fill(ev);
+                          return (
+                            <span
+                              key={ev.id}
+                              className={cn(
+                                "block size-[7px] rounded-full",
+                                selected ? "bg-white" : "bg-brand",
+                              )}
+                              style={color ? { backgroundColor: color } : undefined}
+                              data-testid="month-grid-day-dot"
+                              data-event-id={ev.id}
+                            />
+                          );
+                        })}
+                      </span>
+                    ) : null}
+                  </button>
                   {count ? (
                     <div
                       className="hidden w-full flex-col gap-1 min-[700px]:flex"
@@ -260,7 +303,7 @@ export function MonthGrid({
         className="m-0 mt-3 px-1 text-[0.85rem] font-semibold text-muted min-[700px]:hidden"
         data-testid="month-grid-hint-compact"
       >
-        ● = event day — switch to List for details.
+        {hintCompact}
       </p>
       <p
         className="m-0 mt-3.5 hidden text-[0.9rem] font-medium text-muted min-[700px]:block"
