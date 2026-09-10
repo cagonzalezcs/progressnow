@@ -14,7 +14,7 @@ Prose HTML SHALL pass through a `wp_kses` allowlist (`progressnow_blog_kses_pros
 Read minutes SHALL be computed once on `save_post_post` into `_progressnow_read_minutes`; list serialization SHALL NOT load the flexible-content field per card.
 
 #### Scenario: Cheap card serialization
-- **WHEN** the blog archive serializes 24 cards
+- **WHEN** the blog archive serializes a page of 25 cards
 - **THEN** read time comes from primed post-meta cache with no per-card `post_blocks` reads
 
 ### Requirement: Primed list queries
