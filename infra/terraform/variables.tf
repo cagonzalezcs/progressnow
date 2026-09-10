@@ -45,9 +45,15 @@ variable "github_repository" {
 }
 
 variable "github_oidc_subjects" {
-  description = "Allowed OIDC subject claims. Default: any ref of the repository (workflow_dispatch/repository_dispatch run on the default branch)."
+  description = "Allowed OIDC subject claims (StringLike). Default: the repository's main branch (repo:<owner/repo>:ref:refs/heads/main) and its `production` environment (repo:<owner/repo>:environment:production) — what rebuild-site.yml's deploy jobs present. Widen only on purpose, e.g. with a staging environment subject."
   type        = list(string)
   default     = []
+}
+
+variable "force_destroy" {
+  description = "Let `terraform destroy` delete the site bucket with its objects and versions. Off by default: the bucket holds 30 days of rollback history."
+  type        = bool
+  default     = false
 }
 
 variable "create_github_oidc_provider" {

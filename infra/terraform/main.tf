@@ -13,7 +13,11 @@
 #     DNS for site_domain then points at the distribution.
 #
 # The GitHub OIDC role lets .github/workflows/rebuild-site.yml sync the bucket
-# and invalidate the distribution without long-lived keys.
+# and invalidate the distribution without long-lived keys. Defaults are the
+# safe ones (openspec security-cicd-supply-chain-hardening § Deploy
+# credentials): the role trusts only the repository's main branch and its
+# `production` environment, the bucket is encrypted at rest and is not
+# force-destroyable; loosen each deliberately through the variables.
 
 locals {
   static_path_patterns = ["/_nuxt/*", "/shell-manifest.json", "/_payload.json", "*/_payload.json"]
@@ -23,15 +27,33 @@ locals {
   cache_policy_use_origin_headers_qs = "4cc15a8a-d715-48a4-82b8-cc0b614638fe"
   origin_request_policy_all_viewer   = "216adef6-5c7f-47e4-b989-5492eafa07d3"
 
-  oidc_subjects = length(var.github_oidc_subjects) > 0 ? var.github_oidc_subjects : ["repo:${var.github_repository}:*"]
+  # Trust only main and the `production` environment by default. A job that
+  # declares `environment: production` presents the environment subject
+  # (whatever its ref), so the environment's deployment-branch policy must be
+  # "main only" as well (docs/deployment.md §3).
+  oidc_subjects = length(var.github_oidc_subjects) > 0 ? var.github_oidc_subjects : [
+    "repo:${var.github_repository}:ref:refs/heads/main",
+    "repo:${var.github_repository}:environment:production",
+  ]
 }
 
 # ---- S3: the generated site --------------------------------------------------
 
 resource "aws_s3_bucket" "site" {
   bucket        = var.name
-  force_destroy = true
+  force_destroy = var.force_destroy
   tags          = var.tags
+}
+
+# SSE-S3 at rest (no KMS cost); the objects are public site files, but an
+# unencrypted reference bucket is the wrong default for an adopter to copy.
+resource "aws_s3_bucket_server_side_encryption_configuration" "site" {
+  bucket = aws_s3_bucket.site.id
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
 }
 
 resource "aws_s3_bucket_public_access_block" "site" {

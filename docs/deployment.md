@@ -92,15 +92,39 @@ Settings → Secrets and variables → Actions:
 | variable | `STATIC_DEPLOY_TARGET` | `rsync` (same-host), `s3` (bucket/CDN) or `artifact` (dry run) |
 | variable | `WP_BUILD_STATUS_URL` | `https://example.org/wp-json/progressnow/v1/build-status` (optional but recommended) |
 | secret | `CHAPTER_REBUILD_SECRET` | same value as wp-config.php |
-| rsync | `RSYNC_TARGET` (var) `RSYNC_SSH_KEY` (secret) `RSYNC_HOST_KEY` (var, optional) | `deploy@example.org:/var/www/html/static-site`, the private key, a `known_hosts` line |
+| rsync | `RSYNC_TARGET` (var) `RSYNC_SSH_KEY` (secret) `RSYNC_HOST_KEY` (var, **required**) | `deploy@example.org:/` (the rrsync-restricted key maps `/` onto `CHAPTER_STATIC_DIR`, §4), that key's private half, the host's `known_hosts` line — there is no trust-on-first-use fallback |
 | s3 | `AWS_REGION` `AWS_ROLE_ARN` `S3_BUCKET` `CLOUDFRONT_DISTRIBUTION_ID` (vars) | from `terraform output github_variables` |
 
 The workflow is `.github/workflows/rebuild-site.yml`: `repository_dispatch`
 (`rebuild-site`), `workflow_dispatch`, and pushes to `main` touching `nuxt-js/`.
 `concurrency: rebuild-site` queues at most one extra run — bursts of edits
-collapse into one build. Each run: `npm ci` → `nuxt generate` against
-`WP_API_BASE` with `CHAPTER_CONTENT_VERSION` from the dispatch → verify →
-deploy (manifest uploaded **last**) → signed `POST /build-status`.
+collapse into one build. Three jobs: **build** (`npm ci --ignore-scripts`,
+`nuxt prepare`, `nuxt generate` against `WP_API_BASE` with
+`CHAPTER_CONTENT_VERSION` from the dispatch, verify, upload the output as a
+workflow artifact) runs with a read-only token; **deploy-s3** or
+**deploy-rsync** (by `STATIC_DEPLOY_TARGET`) downloads that artifact inside the
+`production` environment and deploys it, manifest uploaded **last** — these are
+the only jobs holding a deploy credential and they run only from `main`;
+**report** sends the signed `POST /build-status` whatever happened. With
+`STATIC_DEPLOY_TARGET=artifact` (the default) the build artifact is the result.
+The workflow files themselves are linted on every push (`workflow-lint.yml`;
+`docs/security-gates.md` § Pipeline supply chain).
+
+**`production` environment (one-time checklist).** Settings → Environments →
+`production`. GitHub creates it on the first deploy if it is missing; configure
+it before that run:
+
+1. *Deployment branches and tags* → **Selected branches** → `main`. A job that
+   runs in an environment presents `repo:<owner>/<repo>:environment:production`
+   to AWS whatever ref it started from; this rule is what ties that subject to
+   `main`. It is one of three independent controls: the deploy jobs also refuse
+   any ref but `main`, and the reference AWS role trusts only
+   `ref:refs/heads/main` and `environment:production` (§5).
+2. Optionally *Required reviewers*, for a human approval per deploy. The rest
+   of the repository settings (branch protection, signed commits) are the
+   checklist in `security-rebuild-transport-trust-boundary`.
+3. The deploy secrets and variables (`RSYNC_SSH_KEY`, `AWS_ROLE_ARN`, …) may
+   live at environment scope instead of repository scope; the jobs read both.
 
 The WordPress side needs a GitHub token that can call
 `POST /repos/{owner}/{repo}/dispatches` (fine-grained PAT, *Contents: read and
@@ -153,6 +177,49 @@ location ^~ /nuxt-js/ { return 404; }
 Note the `?_b=<buildId>` query string on payload requests — `try_files $uri`
 and `%{REQUEST_URI}` ignore it, as does the PHP passthrough.
 
+### Restricted deploy key (rrsync)
+
+The key in `RSYNC_SSH_KEY` should be able to do exactly one thing: write files
+into `CHAPTER_STATIC_DIR`. Generate a dedicated pair
+(`ssh-keygen -t ed25519 -f rebuild-site -C rebuild-site -N ''`) and restrict
+its public half in the deploy user's `~/.ssh/authorized_keys` with rrsync
+(part of rsync ≥ 3.2.4: `/usr/bin/rrsync` on Debian/Ubuntu):
+
+```
+restrict,command="rrsync -wo /var/www/html/static-site" ssh-ed25519 AAAA… rebuild-site
+```
+
+- `restrict` turns off port, agent and X11 forwarding and the PTY; `command=`
+  replaces whatever the client asks to run with rrsync, so the key cannot open
+  a shell or run anything else.
+- `-wo` allows uploads only — the workflow never reads from the host — and the
+  directory argument confines every path. With rrsync the paths in the rsync
+  command are relative to that directory, which is why `RSYNC_TARGET` is
+  `deploy@example.org:/` rather than the absolute path (the workflow strips a
+  trailing slash and adds its own). `--delete` stays allowed so stale files
+  disappear; add `-no-del` only if you would rather keep them.
+- The deploy user needs write access to that directory and nothing else; the
+  web server only reads it (rules above).
+- `RSYNC_HOST_KEY` is the host's `known_hosts` line — `example.org ssh-ed25519
+  AAAA…` — taken from a machine that already trusts the host
+  (`ssh-keyscan -t ed25519 example.org`) and compared with the host's own
+  `ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub` fingerprint. The workflow
+  fails before connecting when the variable is missing; it never keyscans.
+
+Verify from a machine holding the private key:
+
+```bash
+# 1. a sync works — write-only, into the directory
+rsync -avz --dry-run -e "ssh -i rebuild-site" nuxt-js/.output/public/ deploy@example.org:/
+# 2. a shell does not — rrsync rejects anything that is not an rsync server invocation
+ssh -i rebuild-site deploy@example.org id
+# 3. reading back does not either — -wo refuses the download direction
+rsync -e "ssh -i rebuild-site" deploy@example.org:/shell-manifest.json /tmp/
+```
+
+The first prints the file list and exits 0; the other two exit non-zero with an
+`rrsync error:` line and no `uid=` output.
+
 ## 5. CDN mode (CloudFront + S3)
 
 `infra/terraform/` provisions a private bucket, a CloudFront distribution and
@@ -164,6 +231,15 @@ from the site URL through CloudFront). Behaviours: static paths → S3, default
 manifest, payloads and `_nuxt/builds/*` after each upload (hashed chunks never
 change).
 
+The module's defaults are the safe ones: the deploy role trusts only
+`repo:<owner>/<repo>:ref:refs/heads/main` and
+`repo:<owner>/<repo>:environment:production` (override `github_oidc_subjects`
+to add a staging environment), the bucket has SSE-S3 default encryption, and
+`force_destroy` is `false` — `terraform destroy` keeps the bucket and its 30
+days of rollback history unless you set it. Run `terraform validate` after any
+change, and re-apply after upgrading from a module version that trusted
+`repo:<owner>/<repo>:*`.
+
 You can also use CloudFront in same-host mode simply as a cache in front of
 the host; nothing in the theme changes.
 
@@ -174,7 +250,7 @@ the host; nothing in the theme changes.
 to `CHAPTER_REBUILD_WEBHOOK_URL` with `X-Chapter-Timestamp` and
 `X-Chapter-Signature: sha256=HMAC_SHA256(secret, timestamp + "." + body)` and
 expects `202 { buildId, status }`. A Lambda/API Gateway receiver that starts
-a CodeBuild project running `npm ci && npm run generate` and syncing to S3
+a CodeBuild project running `npm ci --ignore-scripts && npx nuxt prepare && npm run generate` and syncing to S3
 fits this contract; reporting back is the same signed `POST /build-status`
 (`.github/scripts/build-status.mjs` shows the exact request).
 
@@ -211,6 +287,10 @@ fits this contract; reporting back is the same signed `POST /build-status`
 
 ## 9. Local development
 
+- Node: the root `.nvmrc` pins the major (22 — what CI and the Docker image
+  run); each app's `.npmrc` sets `engine-strict`, so `npm ci` under another
+  major stops with an engine error instead of drifting. `nvm use` / `fnm use`
+  read the file.
 - `nuxt-js/.env`: `NUXT_DEV_WP_ORIGIN=https://chapter.test:8890`,
   `NUXT_PUBLIC_WP_API_BASE=https://chapter.test:8890/wp-json/progressnow/v1`,
   `NODE_TLS_REJECT_UNAUTHORIZED=0` for the MAMP certificate.
@@ -323,7 +403,7 @@ node scripts/smoke.mjs http://127.0.0.1:3000     # /api/health, /, /es/
 smoke against the fixture mock on every push (`.github/workflows/ci.yml`);
 nothing is pushed to a registry.
 
-**VPS + reverse proxy.** `npm ci && npm run build`, then run
+**VPS + reverse proxy.** `npm ci --ignore-scripts && npm run build`, then run
 `node .next/standalone/server.js` (copy `.next/static` next to it —
 `scripts/start-standalone.mjs` does exactly that) under systemd with the
 environment file, and put nginx/Caddy in front for TLS:

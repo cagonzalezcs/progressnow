@@ -1,0 +1,70 @@
+# Lints the pipeline definitions like code (openspec
+# security-cicd-supply-chain-hardening § Workflow definitions;
+# docs/security-gates.md § Pipeline supply chain).
+#   actionlint  workflow syntax and types, expression checks, shellcheck over
+#               every run: script.
+#   zizmor      template injection (`${{ }}` inside run: text), unpinned or
+#               impostor actions, excessive permissions, persisted checkout
+#               credentials, cache poisoning, dangerous triggers. The online
+#               audits (known-vulnerable actions, ref confusion) read public
+#               advisories with the job token.
+# Both are release binaries verified against a pinned SHA-256 — no third-party
+# action sits between the lint and what it lints. Bump a version and its
+# checksum together (release notes → checksums file / sha256sum of the tarball).
+# ~20 s on every push and pull request; required for merge alongside the three
+# security gates.
+name: Workflow lint
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+concurrency:
+  group: workflow-lint-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  workflow-lint:
+    name: actionlint + zizmor
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    env:
+      ACTIONLINT_VERSION: 1.7.12
+      ACTIONLINT_SHA256: 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8 # actionlint_1.7.12_linux_amd64.tar.gz
+      ZIZMOR_VERSION: 1.30.1
+      ZIZMOR_SHA256: e65324f4430c2717591937edcec90ccbefaf14c174f8ec9415e03ca875b46e1a # zizmor-x86_64-unknown-linux-gnu.tar.gz
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - name: Install actionlint and zizmor (checksum-verified releases)
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP"
+          curl -sSfL -o actionlint.tar.gz \
+            "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
+          echo "${ACTIONLINT_SHA256}  actionlint.tar.gz" | sha256sum -c -
+          tar -xzf actionlint.tar.gz actionlint
+          curl -sSfL -o zizmor.tar.gz \
+            "https://github.com/zizmorcore/zizmor/releases/download/v${ZIZMOR_VERSION}/zizmor-x86_64-unknown-linux-gnu.tar.gz"
+          echo "${ZIZMOR_SHA256}  zizmor.tar.gz" | sha256sum -c -
+          tar -xzf zizmor.tar.gz zizmor
+          ./actionlint -version
+          ./zizmor --version
+
+      - name: actionlint
+        run: |
+          "$RUNNER_TEMP/actionlint" -color
+
+      # .github/zizmor.yml: every action must be hash-pinned, first-party ones included.
+      - name: zizmor
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          "$RUNNER_TEMP/zizmor" --persona regular --format github .

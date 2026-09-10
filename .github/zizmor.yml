@@ -1,0 +1,9 @@
+# zizmor configuration (workflow-lint.yml). The default policy lets first-party
+# actions (actions/*, github/*) float on tags; here every action must be pinned
+# to a commit hash — a tag is mutable whoever owns it (openspec
+# security-cicd-supply-chain-hardening § Actions are pinned by commit).
+rules:
+  unpinned-uses:
+    config:
+      policies:
+        "*": hash-pin

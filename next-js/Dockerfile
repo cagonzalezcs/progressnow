@@ -18,7 +18,9 @@
 FROM node:22-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci --no-audit --no-fund
+# --ignore-scripts: no dependency here needs a lifecycle script (the CI build
+# proves it); a compromised postinstall cannot run inside the image build.
+RUN npm ci --ignore-scripts --no-audit --no-fund
 
 # --- build --------------------------------------------------------------
 FROM node:22-alpine AS build

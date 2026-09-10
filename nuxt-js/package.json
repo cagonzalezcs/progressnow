@@ -6,7 +6,7 @@
   "type": "module",
   "description": "Nuxt 4 static rendition of the Progress Now WordPress theme (PHP shell first, Nuxt takes over).",
   "engines": {
-    "node": ">=22"
+    "node": "22.x"
   },
   "scripts": {
     "dev": "nuxt dev",

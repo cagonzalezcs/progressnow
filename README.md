@@ -143,7 +143,7 @@ WordPress core, `wp-config.php`, uploads, `wp-content/plugins/`, build output (`
 
 **WordPress host**
 
-- PHP 8.1+, WordPress 6.x, pretty permalinks enabled
+- PHP 8.2+ (Timber 2.5's floor; CI runs 8.2 and 8.4), WordPress 6.x, pretty permalinks enabled
 - Composer (for the theme's `vendor/`: Timber 2, `kucrut/vite-for-wp`)
 - Plugins: **ACF Pro** and **Polylang Pro** (required, licensed). Wordfence and WP Super Cache are optional. Duplicator must not be installed in production.
 - WP-CLI (seeding, `wp chapter …` commands)
@@ -151,7 +151,7 @@ WordPress core, `wp-config.php`, uploads, `wp-content/plugins/`, build output (`
 
 **Build**
 
-- Node 22+ and npm
+- Node 22 and npm — the root `.nvmrc` pins the major and every app's `.npmrc` sets `engine-strict`, so `npm ci` under another major fails with an engine error (`nvm use` / `fnm use` read the file)
 - A GitHub repository (default rebuild transport) or any HMAC-verified webhook receiver
 
 ## Local development
@@ -254,7 +254,7 @@ Three supported shapes, all documented step by step in `docs/deployment.md`:
 
 1. **Same-host** (`STATIC_DEPLOY_TARGET=rsync`): the workflow syncs the build into `CHAPTER_STATIC_DIR` on the WordPress host. Apache/nginx rules serve the static paths directly; PHP passthrough is the fallback.
 2. **CDN** (`STATIC_DEPLOY_TARGET=s3`): `infra/terraform/` provisions a private versioned bucket, a CloudFront distribution (static paths → S3, everything else → WordPress honoring origin cache headers, optional 5xx failover to prerendered HTML) and a GitHub OIDC role.
-3. **Webhook**: WordPress POSTs a signed `{ event: "rebuild", … }` to any receiver (e.g. API Gateway → CodeBuild) that runs `npm ci && npm run generate`, syncs, and reports back with the same signed `POST /build-status`.
+3. **Webhook**: WordPress POSTs a signed `{ event: "rebuild", … }` to any receiver (e.g. API Gateway → CodeBuild) that runs `npm ci --ignore-scripts && npx nuxt prepare && npm run generate`, syncs, and reports back with the same signed `POST /build-status`.
 4. **Headless Next.js** (`next-js/`): deploy the standalone build (Vercel, the `Dockerfile`, or a VPS behind a reverse proxy) and point the same signed webhook at `<next-origin>/api/rebuild`; the receiver revalidates its cache and reports back with `POST /build-status`. Set `CHAPTER_CANONICAL_ORIGIN` to the Next origin. `docs/deployment.md` §10; `node scripts/smoke.mjs <origin>` after each deploy.
 
 The rebuild workflow (`.github/workflows/rebuild-site.yml`) listens for `repository_dispatch` (`rebuild-site`), `workflow_dispatch`, and pushes to `main` touching `nuxt-js/`, with `concurrency: rebuild-site` so bursts of edits collapse into one build. Repository variables/secrets: `WP_API_BASE`, `STATIC_DEPLOY_TARGET`, `WP_BUILD_STATUS_URL`, `CHAPTER_REBUILD_SECRET`, plus rsync or S3 credentials.
