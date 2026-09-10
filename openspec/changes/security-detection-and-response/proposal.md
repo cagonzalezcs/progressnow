@@ -12,12 +12,12 @@ Every open `security-*` change is preventive. Nothing in the repository detects 
 ## What Changes
 
 - **Privileged-account policy:** two-factor authentication mandatory for Administrator and Editor, enforced by a mu-plugin gate (blocks wp-admin for un-enrolled privileged users after a grace period; plugin-agnostic via a filter, with Wordfence Login Security and the WebAuthn/TOTP core plugin as documented providers); application passwords disabled unless a use exists; login rate limiting recommended at WAF level.
-- **Audit log:** `inc/audit.php` records privileged events (rebuild requests and dispatch results, transport/setting source changes, Chapter Settings option writes, role changes, plugin/theme activation, user creation) as structured JSON lines with actor, IP, and object — dependency-free, `error_log`-backed, with an optional forward to a webhook.
+- **Audit log:** `inc/audit.php` records privileged events (rebuild requests and dispatch results, transport/setting source changes, Chapter Settings option writes, role changes, plugin/theme activation, user creation) as structured JSON lines with actor, IP, and object — dependency-free, `error_log`-backed, with an optional forward to a webhook. (planned)
 - **Structured PHP logging:** `progressnow_log( $event, $fields )` (JSON, redaction by key name, mirrors `next-js/lib/log.ts`) replaces the ad hoc `error_log` calls in `inc/rebuild.php`, `inc/shell.php`, `inc/rest.php`.
 - **Alerting:** subscribers for `progressnow/rebuild/failed`, `needs_attention`, and `progressnow/shell/manifest_missing` send a throttled email to the admin address and optionally a webhook (Slack-compatible); WP-CLI `wp chapter alerts test`.
 - **CSP report sink:** `POST /api/csp-report` on the Next app (size-capped, sampled, structured log) usable by both the Next CSP and the PHP theme's future CSP; documented alternative: a hosted report service.
-- **Health monitoring:** a scheduled `.github/workflows/uptime.yml` (every 15 min, optional, repository variable-gated) probing the three URLs and opening an issue on failure; documentation of external monitors.
-- **Incident runbook:** `docs/incident-response.md` — triage, containment (disable transport, rotate per `docs/secrets-rotation.md`, revoke sessions), evidence (which logs, where), recovery (restore per `ops-backup-and-disaster-recovery`, redeploy), post-incident template.
+- **Health monitoring:** a scheduled `.github/workflows/uptime.yml` (every 15 min, optional, repository variable-gated) probing the three URLs and opening an issue on failure; documentation of external monitors. (planned)
+- **Incident runbook:** `docs/incident-response.md` — triage, containment (disable transport, rotate per `docs/secrets-rotation.md`, revoke sessions), evidence (which logs, where), recovery (restore per `ops-backup-and-disaster-recovery`, redeploy), post-incident template. (planned)
 
 ## Capabilities
 
@@ -29,9 +29,9 @@ Every open `security-*` change is preventive. Nothing in the repository detects 
 
 ## Impact
 
-- **Theme PHP:** new `inc/audit.php`, `inc/log.php`, `inc/alerts.php`; edits in `inc/rebuild.php`, `inc/shell.php`, `inc/rest.php`, `inc/cli.php`; new `mu-plugins/progressnow-2fa-gate.php` shipped as a documented drop-in (mu-plugins are adopter-installed; the file lives under `wp-content/themes/progressnow/mu-plugins/` for copying).
-- **Next.js:** `app/api/csp-report/route.ts` + unit test; `lib/security-headers.ts` `report-uri` default when `CSP_REPORT_URI` is unset and the route is enabled.
-- **CI/Ops:** `.github/workflows/uptime.yml` (opt-in), `docs/incident-response.md`, `docs/deployment.md` monitoring section.
+- **Theme PHP:** new `inc/audit.php`, `inc/log.php`, `inc/alerts.php`; edits in `inc/rebuild.php`, `inc/shell.php`, `inc/rest.php`, `inc/cli.php`; new `mu-plugins/progressnow-2fa-gate.php` shipped as a documented drop-in (mu-plugins are adopter-installed; the file lives under `wp-content/themes/progressnow/mu-plugins/` for copying). (planned)
+- **Next.js:** `app/api/csp-report/route.ts` + unit test; `lib/security-headers.ts` `report-uri` default when `CSP_REPORT_URI` is unset and the route is enabled. (planned)
+- **CI/Ops:** `.github/workflows/uptime.yml` (opt-in), `docs/incident-response.md`, `docs/deployment.md` monitoring section. (planned)
 - **Tests:** PHPUnit for audit events, redaction, alert throttling, the 2FA gate's capability logic; vitest for the report endpoint.
 - **Behavior:** no visitor-facing change; admins without 2FA see a gated screen after the grace period.
 - **Coordinates with:** `security-authoring-least-privilege` (role model), `security-headers-and-cicd-gates` (needs a report sink), `security-runtime-hardening` (Wordfence), `ops-backup-and-disaster-recovery` (recovery step). Does not modify those changes.

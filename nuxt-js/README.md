@@ -5,7 +5,7 @@ every public URL first as a PHP shell — full SEO head, crawlable content, and 
 embedded `__SHELL_DATA__` payload — then this app mounts into `#__nuxt`, renders
 the landing route from that payload without a request, and handles every later
 navigation from the prerendered `_payload.json` files. See
-`openspec/changes/nuxt4-static-platform/design.md` (D1–D5) for the model.
+`openspec/changes/archive/2026-09-07-nuxt4-static-platform/design.md` (D1–D5) for the model.
 
 ## Commands
 

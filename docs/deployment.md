@@ -31,7 +31,7 @@ theme active and `CHAPTER_REBUILD_TRANSPORT` left at `none`.
    a new `buildId` in the manifest it records the build live and purges its
    page cache.
 
-Reference: `openspec/changes/nuxt4-static-platform/design.md`.
+Reference: `openspec/changes/archive/2026-09-07-nuxt4-static-platform/design.md`.
 
 ## 2. wp-config.php constants
 
@@ -185,7 +185,8 @@ State on 2026-09-10 (`gh api repos/<owner>/<repo>/rulesets`): the ruleset
 "Protect main" enforces 1–4 (one approval, squash merges only, signatures,
 the three checks) and 6 exists; **5 is open** — the bypass list still
 contains the Repository admin role with mode *always*. Add the pointer to
-`docs/open-source-release.md` when `open-source-release-readiness` creates it.
+the release checklist when `open-source-release-readiness` creates it.
+
 
 **The WordPress side** (`github` transport): `CHAPTER_GITHUB_REPO` names the
 dispatch repository and `CHAPTER_GITHUB_TOKEN` is a fine-grained PAT whose only
@@ -382,7 +383,7 @@ The Next.js app is a separate origin (say `https://www.example.org`) that
 renders every public route server-side from `GET /wp-json/progressnow/v1/*`
 (the same API, contracts and fixtures the Nuxt rendition uses). WordPress stays
 on its own origin as CMS + API; nothing in the browser talks to WordPress.
-Design: `openspec/changes/next-js-site-implementation/design.md`.
+Design: `openspec/changes/archive/2026-09-07-next-js-site-implementation/design.md`.
 
 ### 10.1 How it works
 

@@ -5,7 +5,7 @@ Chapter-neutral WordPress theme for a Progress Now chapter site. Everything that
 ## Stack
 
 - **WordPress + Timber 2** (Twig templates) — routing + content
-- **Vue 3** (Composition API, `<script setup lang="ts">`) — interactive islands (the PHP-only frontend; the same source is copied into the Nuxt 4 app in `nuxt-js/`, see `openspec/changes/nuxt4-static-platform`)
+- **Vue 3** (Composition API, `<script setup lang="ts">`) — interactive islands (the PHP-only frontend; the same source is copied into the Nuxt 4 app in `nuxt-js/`, see `openspec/changes/archive/2026-09-07-nuxt4-static-platform/`)
 - **Tailwind CSS v4** (CSS-first config in `src/css/tailwind.css`, no `tailwind.config.js`)
 - **shadcn-vue** — project-owned component library generated into `src/components/ui/`
 - **Vite 7** via `@kucrut/vite-for-wp` (npm) + `kucrut/vite-for-wp` (Composer) — dev server/HMR + production enqueue

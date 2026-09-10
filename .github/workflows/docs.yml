@@ -2,6 +2,11 @@
 # Dependency-free Node scripts under scripts/docs/ — no npm ci, ~10 s:
 #   render-readme-sections --check   the README's Roadmap and Capabilities are a
 #                                    fresh render of openspec/ (stale rows fail)
+#   check-paths                      every backticked repository path in the
+#                                    README, docs/, app READMEs and open
+#                                    proposals exists (`(planned)` in proposals,
+#                                    scripts/docs/paths-allowlist.txt otherwise)
+#   check-links                      relative links and anchors resolve
 # Runs on every push and pull request: ci.yml deliberately skips docs-only
 # pushes, and a docs-only push is exactly what this job is for.
 name: Docs
@@ -35,3 +40,8 @@ jobs:
         run: node --test "scripts/docs/*.test.mjs"
       - name: README generated sections are current
         run: node scripts/docs/render-readme-sections.mjs --check
+      - name: Documented paths exist
+        run: node scripts/docs/check-paths.mjs
+      - name: Relative links and anchors resolve
+        run: node scripts/docs/check-links.mjs
+

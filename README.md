@@ -150,7 +150,8 @@ One document owns each topic. Every other document keeps at most a sentence and 
 | What the kit is, the map of the repository, quick start, architecture, history, roadmap | this README |
 | One app's commands, environment variables and directory layout | that app's README: [`wp-content/themes/progressnow/README.md`](wp-content/themes/progressnow/README.md), [`nuxt-js/README.md`](nuxt-js/README.md), [`next-js/README.md`](next-js/README.md) |
 | Operating a site: constants, deployment shapes, cutover and rollback, security gates, runtime hardening, authoring trust model, secrets rotation | [`docs/`](docs/) |
-| Why something is the way it is, and what is in flight | [`openspec/`](openspec/): `specs/` = current behavior, `changes/` = proposals, designs, tasks; `archive/` = history |
+| Why something is the way it is, and what is in flight | [`openspec/`](openspec/): `openspec/specs/` = current behavior, `openspec/changes/` = proposals, designs, tasks; `openspec/changes/archive/` = history |
+
 | AI session handoffs and agent configuration | untracked — `.claude/` is gitignored, and nothing from a session is committed |
 
 The `docs` CI job (`.github/workflows/docs.yml`, `scripts/docs/`) keeps this honest: the Roadmap and Capabilities sections below are rendered from `openspec/` and fail when stale; every backticked repository path and every relative link in the README, `docs/`, the app READMEs and open change proposals must resolve; and a section duplicated across files fails.
@@ -423,7 +424,7 @@ Open changes in `openspec/changes/`, rendered by `scripts/docs/render-readme-sec
 | Change | Tasks | Scope |
 |---|---|---|
 | `deploy-pipeline` | — | Empty stub from 2026-07-03 (no artifacts); `repo-structure-consolidation` deletes it |
-| `docs-accuracy-and-spec-governance` | 7/15 | One canonical doc per topic, README roadmap and capabilities rendered from `openspec/` and checked in CI, path + link + duplicate-section lint, `openspec/config.yaml` project context and artifact rules |
+| `docs-accuracy-and-spec-governance` | 10/15 | One canonical doc per topic, README roadmap and capabilities rendered from `openspec/` and checked in CI, path + link + duplicate-section lint, `openspec/config.yaml` project context and artifact rules |
 | `open-source-release-readiness` | 0/27 | Plugin-missing admin notice, `CONTRIBUTING` / `CODE_OF_CONDUCT` / `SECURITY`, no-analytics policy, hygiene CI gate, release checklist (plugins and backups untracked, MIT declared and the dev origin neutralized already… |
 | `ops-backup-and-disaster-recovery` | 0/9 | Off-docroot DB + uploads backups, RPO/RTO defaults, restore runbook and a recorded restore drill |
 | `repo-structure-consolidation` | 0/15 | Fold `next-js/openspec/` into the root spec tree, drop `Claude outputs/`, `.gitignore` fixes, theme `composer.json` identity, Timber-starter leftovers, resolve the `deploy-pipeline` stub |

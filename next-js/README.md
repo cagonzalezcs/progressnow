@@ -3,7 +3,7 @@
 Server-rendered Next.js app for the Progress Now WordPress theme. WordPress is
 the CMS and the API (`GET /wp-json/progressnow/v1/*`); this app runs on its own
 origin and re-renders when WordPress posts its signed rebuild webhook. Design:
-`openspec/changes/next-js-site-implementation/design.md`.
+`openspec/changes/archive/2026-09-07-next-js-site-implementation/design.md`.
 
 ## See it running
 

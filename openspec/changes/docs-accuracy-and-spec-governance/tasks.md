@@ -13,9 +13,9 @@
 
 ## 3. Path and link lint
 
-- [ ] 3.1 `scripts/docs/check-paths.mjs` over `README.md`, `docs/*.md`, `*/README.md`, `openspec/changes/*/proposal.md`; `(planned)` marker; allowlist file; report `file:line path`
-- [ ] 3.2 Markdown link check (relative links + anchors) in the same job
-- [ ] 3.3 Run in warn mode for one merge, then fail; fix every finding (expect several in the theme README and archived proposals — archive is out of scope)
+- [x] 3.1 `scripts/docs/check-paths.mjs` over `README.md`, `docs/*.md`, `*/README.md`, `openspec/changes/*/proposal.md`; `(planned)` marker; allowlist file; report `file:line path`
+- [x] 3.2 Markdown link check (relative links + anchors) in the same job
+- [x] 3.3 Run in warn mode for one merge, then fail; fix every finding (expect several in the theme README and archived proposals — archive is out of scope) — every finding fixed locally (stale archive links in the deployment guide and three READMEs, a not-yet-existing `docs/` path, 55 `(planned)` markers across eight proposals, 60 allowlist entries); the full-tree run is clean, so the job ships failing (`--warn` remains on both scripts for a rollback)
 
 ## 4. OpenSpec configuration
 

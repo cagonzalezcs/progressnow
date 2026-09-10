@@ -9,8 +9,11 @@ export const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url
 
 /** The PHP theme: docs name its files by theme-relative path (`inc/rest.php`). */
 export const THEME_DIR = "wp-content/themes/progressnow";
-/** Roots a bare or relative path may be resolved against, besides the document's own directory. */
-export const APP_DIRS = [THEME_DIR, "nuxt-js", "next-js"];
+/** Roots a bare or relative path may be resolved against, besides the document's own
+ *  directory: the app roots, and the two shared-source roots the docs speak from
+ *  (`lib/schemas.ts`, `components/site/**`). */
+export const APP_DIRS = [THEME_DIR, "nuxt-js", "next-js", `${THEME_DIR}/src`, "nuxt-js/app"];
+
 
 const ROADMAP_MARK = "openspec";
 
