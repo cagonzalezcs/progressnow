@@ -16,7 +16,8 @@
     }
   ],
   "require": {
-    "timber/timber": "2.x-dev",
+    "php": ">=8.2",
+    "timber/timber": "^2.5",
     "kucrut/vite-for-wp": "^0.12.0"
   },
   "require-dev": {
@@ -34,6 +35,9 @@
     "wordpress-install-dir": "wordpress"
   },
   "config": {
+    "platform": {
+      "php": "8.2.0"
+    },
     "allow-plugins": {
       "roots/wordpress-core-installer": true,
       "composer/installers": true,

@@ -30,7 +30,8 @@ terraform output github_variables   # paste into Settings → Variables
 What it creates:
 
 - `aws_s3_bucket` — private (public access blocked, bucket-owner-enforced),
-  versioned, non-current builds expire after 30 days.
+  SSE-S3 encrypted, versioned, non-current builds expire after 30 days. Not
+  force-destroyable unless `force_destroy = true`.
 - `aws_cloudfront_distribution` (CDN mode) — `/_nuxt/*`, `/_payload.json`,
   `*/_payload.json`, `/shell-manifest.json` → the bucket via origin access
   control with the *CachingOptimized* policy (objects carry their own
@@ -39,9 +40,13 @@ What it creates:
   cookies, `Authorization` and query strings pass through and the shell's own
   cache headers rule. Optional origin-group failover serves the prerendered
   HTML when WordPress answers 5xx. HTTPS redirect, HTTP/2 + HTTP/3, compression.
-- `aws_iam_role` — trusted by GitHub's OIDC provider for `repo:<owner/repo>:*`
-  (narrow with `github_oidc_subjects`), allowed to sync the bucket and, in CDN
-  mode, create invalidations on this distribution only.
+- `aws_iam_role` — trusted by GitHub's OIDC provider only for
+  `repo:<owner/repo>:ref:refs/heads/main` and
+  `repo:<owner/repo>:environment:production`, the subjects the deploy jobs of
+  `rebuild-site.yml` present (set the `production` environment's
+  deployment-branch policy to `main`; widen with `github_oidc_subjects`),
+  allowed to sync the bucket and, in CDN mode, create invalidations on this
+  distribution only.
 
 Not created: DNS records (point `site_domain` at `cloudfront_domain_name`),
 the ACM certificate (request it in us-east-1), the WordPress host.

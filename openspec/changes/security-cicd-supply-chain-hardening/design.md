@@ -46,3 +46,15 @@ Two workflows: `ci.yml` (four jobs, top-level `permissions: contents: read`) and
 
 - CI on every branch push, or PR-only? (Recommend every branch: AI worktrees are where regressions appear first.)
 - Adopt `step-security/harden-runner` (egress audit) now or later? (Recommend audit mode now, block mode after one release.)
+
+## Implementation notes (2026-09-10)
+
+Deviations from the decisions above, found while applying:
+
+- **PHP floor is 8.2, not 8.1.** Every Timber tag from 2.4.0 requires `php ^8.2` (2.3.3 is the last 8.1 release), the previously locked `2.x-dev` commit already required 8.2, and PHP 8.1 left security support in December 2025. `composer.json` therefore declares `require.php >=8.2`, `config.platform.php 8.2.0`, `timber/timber ^2.5` (locked at v2.5.1, twig 3.28); the CI matrix is 8.2 + 8.4 and the README says 8.2+. The platform pin immediately paid for itself: the lock held `doctrine/instantiator 2.1.0` (`php ^8.4`), so the update had to include it (now 2.0.0).
+- **`rebuild-site.yml` is three stages, not one job.** `build` (read-only token, uploads the output as an artifact) → `deploy-s3` (`id-token: write`, the only such grant) / `deploy-rsync` (`permissions: {}`), both `environment: production` and `if: github.ref == 'refs/heads/main'` → `report` (`always()`, treats a skipped deploy as a failure unless the target is `artifact`). The artifact retention is 7 days for the artifact target and 1 day as a hand-off.
+- **Lint tools are checksum-verified release binaries**, not third-party actions, so nothing unpinned sits between the lint and what it lints; `.github/zizmor.yml` sets `unpinned-uses` to `hash-pin` for every action (zizmor's default lets `actions/*` float on tags, which the spec forbids). Verified locally: a planted `actions/checkout@v4` plus a `${{ vars.X }}` in `run:` exits zizmor with 14.
+- **`paths-ignore` applies to `push` only.** A docs-only pull request must still produce the required checks or it can never merge.
+- **Pins stay on the majors in use** (checkout/setup-node/upload/download/cache v4, composer-install 3, gitleaks v2, configure-aws-credentials v4, setup-php 2). Newer majors exist for all of them; bumping majors is Renovate's job (or the quarterly pass), not this change's.
+- **`step-security/harden-runner`** (open question) was not adopted; revisit with Renovate.
+- **Owner-side verifications left open:** the rrsync sync/no-shell check needs the production host (not reachable yet); the `main` vs non-`main` role-assumption check needs the pushed workflow and an applied trust policy. Both are annotated in `tasks.md`.

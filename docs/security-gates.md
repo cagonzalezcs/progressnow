@@ -8,17 +8,23 @@ sends are covered in the second half.
 The gates exist to make the security remediation self-enforcing: a fix that
 lands here cannot regress silently. They fail on defect classes, not style.
 
-## The three required jobs
+## The required jobs
 
-| Job (`.github/workflows/ci.yml`) | What it runs | Fails when |
+| Job | What it runs | Fails when |
 |---|---|---|
 | `php-sast` | `composer lint` → PHPCS with `wp-content/themes/progressnow/phpcs.xml.dist` | Custom theme PHP echoes unescaped output, reads unsanitized input, processes form data without a nonce check, builds SQL without `$wpdb->prepare()`, or calls `eval`/`system`/`unserialize`-family functions |
 | `secrets` | gitleaks over every commit in the push/PR (`.gitleaks.toml`) | A credential-shaped string (API key, token, private key, password assignment) is committed |
 | `artifact-guard` | `.github/scripts/artifact-guard.sh` over `git ls-files` | A backup, installer, archive, database dump, `wp-config.php` or `.env` file is tracked |
+| `workflow-lint` (`.github/workflows/workflow-lint.yml`) | actionlint + zizmor over the workflow files (§ Pipeline supply chain) | An action is not pinned to a commit, an expression appears inside `run:` text, a job asks for more token permissions than it uses, a checkout persists credentials, or a workflow has a syntax or shell error |
 
-Merges to `main` require all three green (repository ruleset "Protect main",
-required status checks). The rest of CI is not required: the theme and nuxt-js
-jobs, and the next-js fan-out — `next-js-check`, `next-js-build`, then
+Merges to `main` require all four green (repository ruleset "Protect main",
+required status checks — `workflow-lint` is the newest; add it to the ruleset
+when it lands). The three ci.yml gates come from `.github/workflows/ci.yml`.
+The rest of CI is not required: the theme and nuxt-js jobs, `dependency-review`
+(pull requests only: fails on a high-severity vulnerability in a dependency the
+PR adds or bumps; it needs the repository's *Dependency graph* enabled under
+Settings → Code security and analysis, and fails with "not supported on this
+repository" until it is), and the next-js fan-out — `next-js-check`, `next-js-build`, then
 `next-js-e2e` / `next-js-a11y` / `next-js-failure` against that one build, and
 `next-js-container` beside them. On branches and pull requests the next-js jobs
 are skipped (shown as skipped, never as passed) when the change touches nothing
@@ -31,6 +37,8 @@ run; the three gates run unconditionally.
 cd wp-content/themes/progressnow && composer lint          # PHPCS security sniffs (composer install first)
 .github/scripts/artifact-guard.sh                          # tracked-file artifact guard
 gitleaks dir . --config .gitleaks.toml --redact            # needs `brew install gitleaks`
+actionlint                                                 # brew install actionlint
+zizmor --persona regular .                                 # brew install zizmor (or pip install zizmor==1.30.1)
 ```
 
 Enable the pre-commit mirror once per clone:
@@ -69,6 +77,56 @@ purge it from history (`git filter-repo`) and rotate anything it contained. A
 genuine false positive (a documented template like `wp-config-sample.php`) goes
 in `.github/artifact-guard-allow` as a regex with a reason. The same script
 takes a directory argument to vet a deploy bundle before upload.
+
+## Pipeline supply chain
+
+Owned by openspec change `security-cicd-supply-chain-hardening`. The workflow
+definitions are code with a threat model: a compromised action tag, a
+malicious repository variable, a stray branch or a missing variable must not
+be able to deploy. `workflow-lint.yml` enforces the rules on every push and
+pull request with two release binaries verified against pinned SHA-256s —
+actionlint (syntax, expression types, shellcheck over every `run:` script) and
+zizmor (the audits below; `.github/zizmor.yml` makes hash-pinning mandatory for
+first-party actions too).
+
+| Rule | Where | zizmor audit |
+|---|---|---|
+| Every `uses:` is a full commit SHA with the version as a comment: `actions/checkout@11d5960a… # v4.4.0` | all workflows | `unpinned-uses`, `impostor-commit`, `known-vulnerable-actions` |
+| `permissions: {}` at the workflow level; each job grants what it uses (`contents: read` to check out); `id-token: write` only on `deploy-s3` | all workflows | `excessive-permissions` |
+| `${{ }}` never appears inside `run:` text — `vars.*`, `secrets.*`, `github.event.*` and step outputs go through `env:` | all workflows | `template-injection` |
+| `actions/checkout` sets `persist-credentials: false` (no job pushes) | all workflows | `artipacked` |
+| `npm ci --ignore-scripts` for the theme and next-js (CI and the Dockerfile); nuxt-js runs `nuxt prepare` explicitly after it (CI, `vercel.json`) | ci.yml, rebuild-site.yml, next-js/Dockerfile, nuxt-js/vercel.json | — |
+| Deploys run only from `main`, inside the `production` environment, from a build made with a read-only token; `RSYNC_HOST_KEY` is required and the key is rrsync-restricted (`docs/deployment.md` §3–4); the reference AWS role trusts only `main` and that environment | rebuild-site.yml, infra/terraform | — |
+| Toolchain pinned: `.nvmrc` = 22 with `engine-strict` in every app, Timber on a tagged release with `platform.php` declared, production Nuxt builds fail without `NUXT_PUBLIC_WP_API_BASE` | repo root, `.npmrc`, `composer.json`, `nuxt-js/scripts/vercel-build.mjs` | — |
+
+**When it fails.** `template-injection`: move the expression into the step's
+`env:` and reference the variable from the script. `unpinned-uses`: pin to the
+tag's commit (procedure below) and keep the `# vX.Y.Z` comment.
+`excessive-permissions`: the job asked for more than it uses — grant per job,
+never at the top. `artipacked`: add `persist-credentials: false`. actionlint
+names the line; a shellcheck finding is usually a real bug in the script —
+fix it rather than silence it.
+
+### Bumping the pins
+
+Until Renovate lands (openspec `security-dependency-lifecycle`; its
+`helpers:pinGitHubActionDigests` preset keeps SHA pins current automatically),
+bump the pins by hand **once a quarter** and whenever an advisory names an
+action in use. For each action take the newest tag of the major in use, resolve
+its commit — for an annotated tag the peeled `^{}` line — and update the SHA and
+the comment together:
+
+```bash
+git ls-remote --tags https://github.com/actions/checkout 'v4.*' | sort -V -k2 | tail -2
+```
+
+Then the tools in `workflow-lint.yml`: `ACTIONLINT_VERSION` /
+`ACTIONLINT_SHA256` (the `linux_amd64` line of actionlint's `checksums.txt`
+release asset) and `ZIZMOR_VERSION` / `ZIZMOR_SHA256` (`sha256sum` of the
+`zizmor-x86_64-unknown-linux-gnu.tar.gz` release asset), plus `.nvmrc` when
+Node's active LTS moves. Run `actionlint` and `zizmor .` locally, open a pull
+request titled `chore: quarterly action pin bump`, and let `workflow-lint`
+confirm.
 
 ## Response headers and the CSP (theme side)
 

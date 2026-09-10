@@ -8,19 +8,33 @@
 # Security gates (openspec security-headers-and-cicd-gates § CI security gates;
 # docs/security-gates.md): php-sast, secrets and artifact-guard are required
 # for merge to main. They fail on the defect classes the audit found, not style.
+#
+# Pipeline supply chain (openspec security-cicd-supply-chain-hardening;
+# docs/security-gates.md § Pipeline supply chain): every action is pinned to a
+# commit SHA with its version alongside, the workflow token starts with no
+# permissions and each job grants what it uses, values reach `run:` scripts
+# only through env: (never `${{ }}` inside shell text), checkouts keep no
+# credentials, and `npm ci --ignore-scripts` skips dependency lifecycle scripts.
+# workflow-lint.yml (actionlint + zizmor) fails a change that regresses any of
+# that. Runs on every branch push — worktree branches are where AI-authored
+# code lands first — and on every pull request; docs-only pushes are skipped,
+# pull requests never are (the gates must report on every PR).
 name: CI
 
 on:
   push:
-    branches: [main, 'cg/**', 'feat/**', 'feature/**']
+    branches: ['**']
+    paths-ignore:
+      - 'docs/**'
+      - 'openspec/**'
+      - '**.md'
   pull_request:
 
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
-permissions:
-  contents: read
+permissions: {}
 
 defaults:
   run:
@@ -30,29 +44,41 @@ jobs:
   js:
     name: Lint / typecheck / vitest / build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
-          node-version: 22
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
           cache: npm
           cache-dependency-path: wp-content/themes/progressnow/package-lock.json
-      - run: npm ci
+      - run: npm ci --ignore-scripts
       - run: npm run lint
       - run: node bin/twig-audit.mjs # autoescape on, every |raw marked, inline JSON via the encoder
       - run: npm test
       - run: npm run build # includes vue-tsc typecheck
 
   php:
-    name: PHPUnit (WorDBless)
+    name: PHPUnit (WorDBless, PHP ${{ matrix.php }})
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.2', '8.4'] # composer.json floor (Timber 2.5 needs 8.2) and current
     steps:
-      - uses: actions/checkout@v4
-      - uses: shivammathur/setup-php@v2
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
-          php-version: '8.4'
+          persist-credentials: false
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+        with:
+          php-version: ${{ matrix.php }}
           coverage: none
-      - uses: ramsey/composer-install@v3
+      - uses: ramsey/composer-install@a8d0d959dab41457692a5e2041bd9b757a119e3f # 3.2.1
         with:
           working-directory: wp-content/themes/progressnow
       - run: composer test
@@ -60,13 +86,17 @@ jobs:
   php-sast:
     name: PHP security sniffs (PHPCS)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v4
-      - uses: shivammathur/setup-php@v2
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
         with:
           php-version: '8.4'
           coverage: none
-      - uses: ramsey/composer-install@v3
+      - uses: ramsey/composer-install@a8d0d959dab41457692a5e2041bd9b757a119e3f # 3.2.1
         with:
           working-directory: wp-content/themes/progressnow
       # phpcs.xml.dist: WordPress.Security + prepared SQL + forbidden functions
@@ -77,13 +107,16 @@ jobs:
   secrets:
     name: Secret scan (gitleaks)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     defaults:
       run: { working-directory: . }
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           fetch-depth: 0 # every commit in the push/PR is scanned, not just the tip
-      - uses: gitleaks/gitleaks-action@v2
+          persist-credentials: false
+      - uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2.3.9
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # .gitleaks.toml at the repo root: default rules + a fixture/placeholder allowlist.
@@ -92,33 +125,63 @@ jobs:
   artifact-guard:
     name: Artifact guard (no archives, dumps, installers)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     defaults:
       run: { working-directory: . }
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
       # Deny-list over git ls-files (.github/scripts/artifact-guard.sh); the same
       # script takes a directory to vet a deploy bundle.
       - run: bash .github/scripts/artifact-guard.sh
 
+  # Licence and vulnerability diff of the dependencies a pull request adds or
+  # bumps. Needs the repository's Dependency graph (Settings → Code security
+  # and analysis → Dependency graph: enable); until it is on, this job fails
+  # with "Dependency review is not supported on this repository". Complements
+  # the audits planned in openspec security-dependency-lifecycle; never runs on
+  # pushes because it compares the PR's base and head.
+  dependency-review:
+    name: Dependency review (PR diff)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          fail-on-severity: high
+
   nuxt-js:
     name: nuxt-js (lint, typecheck, test, generate:mock)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     defaults:
       run: { working-directory: nuxt-js }
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
-          node-version: 22
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
           cache: npm
           cache-dependency-path: nuxt-js/package-lock.json
-      - run: npm ci
+      - run: npm ci --ignore-scripts
+      - run: npx nuxt prepare # the postinstall skipped above; writes .nuxt/ for typecheck
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
       - run: npm run generate:mock
       - run: npm run verify:output
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: nuxt-js-mock-output
           path: nuxt-js/.output/public
@@ -133,14 +196,17 @@ jobs:
     name: Changed paths (next-js scope)
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
     defaults:
       run: { working-directory: . }
     outputs:
       next: ${{ steps.next.outputs.next }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           fetch-depth: 0 # the diff needs the merge-base with the PR base / previous push
+          persist-credentials: false
       - id: next
         env:
           BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
@@ -162,19 +228,23 @@ jobs:
     if: github.ref == 'refs/heads/main' || needs.changes.outputs.next == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
     defaults:
       run: { working-directory: next-js }
     env:
       CI: "1"
       NEXT_TELEMETRY_DISABLED: "1"
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
-          node-version: 22
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
           cache: npm
           cache-dependency-path: next-js/package-lock.json
-      - run: npm ci
+      - run: npm ci --ignore-scripts
       - run: npm run lint
       - run: npm run format:check
       - run: npm run typecheck
@@ -189,19 +259,23 @@ jobs:
     if: github.ref == 'refs/heads/main' || needs.changes.outputs.next == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
     defaults:
       run: { working-directory: next-js }
     env:
       CI: "1"
       NEXT_TELEMETRY_DISABLED: "1"
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
-          node-version: 22
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
           cache: npm
           cache-dependency-path: next-js/package-lock.json
-      - run: npm ci
+      - run: npm ci --ignore-scripts
       # Built once with the same env Playwright uses, so the three Playwright
       # jobs test one artifact. The build needs no API (routes render per
       # request); the script starts and stops the fixture mock for the prerender.
@@ -212,7 +286,7 @@ jobs:
       # (hundreds of MB) stays out.
       - name: Pack the standalone build
         run: tar -cf next-build.tar .next/standalone .next/static
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: next-build
           path: next-js/next-build.tar
@@ -225,6 +299,8 @@ jobs:
     if: github.ref == 'refs/heads/main' || needs.changes.outputs.next == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -237,17 +313,19 @@ jobs:
       # The Playwright webServer starts the downloaded build; no job runs `next build`.
       PW_SKIP_BUILD: "1"
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
-          node-version: 22
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
           cache: npm
           cache-dependency-path: next-js/package-lock.json
-      - run: npm ci
+      - run: npm ci --ignore-scripts
       - name: Playwright version (browser cache key)
         id: pw
         run: echo "version=$(node -p "require('./package-lock.json').packages['node_modules/@playwright/test'].version")" >> "$GITHUB_OUTPUT"
-      - uses: actions/cache@v4
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}
@@ -255,7 +333,7 @@ jobs:
       # time; the browser download comes from the cache (§ Warm caches).
       - name: Install Playwright Chromium (headless shell)
         run: npx playwright install --with-deps --only-shell chromium
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: next-build
           path: next-js
@@ -267,7 +345,7 @@ jobs:
         run: npm run "test:$PROJECT"
       - name: Upload axe-core reports
         if: always() && matrix.project == 'a11y'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: next-js-a11y-report
           path: |
@@ -277,7 +355,7 @@ jobs:
           retention-days: 14
       - name: Upload styleguide screenshots and report
         if: always() && matrix.project == 'e2e'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: next-js-e2e-report
           path: |
@@ -287,7 +365,7 @@ jobs:
           retention-days: 14
       - name: Upload failure-project report
         if: failure() && matrix.project == 'failure'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: next-js-failure-report
           path: next-js/playwright-report/**
@@ -304,17 +382,21 @@ jobs:
     if: github.ref == 'refs/heads/main' || needs.changes.outputs.next == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
     defaults:
       run: { working-directory: next-js }
     env:
       WP_API_BASE: http://127.0.0.1:8787/wp-json/progressnow/v1
       NEXT_PUBLIC_SITE_ORIGIN: http://127.0.0.1:3000
     steps:
-      - uses: actions/checkout@v4
-      # The mock and the smoke are dependency-free ESM: Node, no npm ci.
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
-          node-version: 22
+          persist-credentials: false
+      # The mock and the smoke are dependency-free ESM: Node, no npm ci.
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
       # No layer cache on purpose: the deps stage is ~19 s in alpine, and a
       # GHA cache export (type=gha,mode=max) measured 100 s per run — more than
       # it can ever save (openspec next-ci-performance design D7).

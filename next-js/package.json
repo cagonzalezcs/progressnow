@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "description": "Headless Next.js frontend for the Progress Now WordPress theme (reads /wp-json/progressnow/v1).",
   "engines": {
-    "node": ">=22"
+    "node": "22.x"
   },
   "scripts": {
     "dev": "next dev",
