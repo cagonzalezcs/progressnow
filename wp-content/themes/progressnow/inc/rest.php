@@ -60,7 +60,7 @@ function progressnow_rest_register_routes() {
 				),
 				'per_page' => array(
 					'type'    => 'integer',
-					'default' => 24,
+					'default' => PROGRESSNOW_ARCHIVE_PER_PAGE,
 					'minimum' => 1,
 					'maximum' => 50,
 				),

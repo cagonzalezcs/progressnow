@@ -366,7 +366,7 @@ function progressnow_shell_data( $manifest = null ) {
 				if ( '' === $category && is_category() ) {
 					$category = (string) get_query_var( 'category_name' );
 				}
-				$data[ progressnow_payload_posts_key( $lang, $paged, $category ) ] = progressnow_payload_posts( $lang, $paged, 24, $category, '' );
+				$data[ progressnow_payload_posts_key( $lang, $paged, $category ) ] = progressnow_payload_posts( $lang, $paged, PROGRESSNOW_ARCHIVE_PER_PAGE, $category, '' );
 			}
 			break;
 

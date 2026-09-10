@@ -598,12 +598,12 @@ function progressnow_payload_post( $slug, $lang ) {
  *
  * @param string $lang     Language slug.
  * @param int    $page     1-based page.
- * @param int    $per_page Page size.
+ * @param int    $per_page Page size (PROGRESSNOW_ARCHIVE_PER_PAGE: featured card + a full grid).
  * @param string $category Category slug or ''.
  * @param string $search   Search query or ''.
  * @return array{posts:array,page:int,perPage:int,total:int,totalPages:int}
  */
-function progressnow_payload_posts( $lang, $page = 1, $per_page = 24, $category = '', $search = '' ) {
+function progressnow_payload_posts( $lang, $page = 1, $per_page = PROGRESSNOW_ARCHIVE_PER_PAGE, $category = '', $search = '' ) {
 	$lang     = progressnow_lang_normalize( $lang );
 	$page     = max( 1, (int) $page );
 	$per_page = max( 1, (int) $per_page );

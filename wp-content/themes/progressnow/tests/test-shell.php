@@ -456,7 +456,7 @@ class TestShell extends BaseTestCase {
 		$this->assertSame( 'posts_index', $data['routeKind'] );
 		$this->assertArrayHasKey( 'page::blog', $data['data'] );
 		$this->assertArrayHasKey( 'posts:', $data['data'] );
-		$this->assertEquals( progressnow_payload_posts( '', 1, 24 ), $data['data']['posts:'] );
+		$this->assertEquals( progressnow_payload_posts( '', 1, PROGRESSNOW_ARCHIVE_PER_PAGE ), $data['data']['posts:'] );
 		$this->assertSame( 'A post', $data['data']['posts:']['posts'][0]['title'] );
 
 		$this->go( '/?s=fridge', array( 'is_search' ), null, array( 's' => 'fridge' ) );

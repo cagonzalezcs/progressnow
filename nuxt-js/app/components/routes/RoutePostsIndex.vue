@@ -4,7 +4,7 @@ import BlogArchive from "@/components/site/blog/BlogArchive.vue";
 import FeaturedPostCard from "@/components/site/blog/FeaturedPostCard.vue";
 import PostCard from "@/components/site/blog/PostCard.vue";
 import PageHeader from "@/components/site/PageHeader.vue";
-import { fetchPage, fetchPosts } from "@/lib/api";
+import { fetchPage, fetchPosts, POSTS_PER_PAGE } from "@/lib/api";
 import { pageKey, postsKey } from "@/lib/chapter/keys";
 import { frontRoute, type ResolvedRoute } from "@/lib/chapter/routes";
 import { postCategoryById } from "@/lib/posts";
@@ -45,7 +45,9 @@ const pageData =
 const page = computed(() => pageData?.data.value ?? null);
 
 /* Browse data: page 1 is the shared `posts:{lang}` payload; `/page/N/` gets
- * its own (non-prerendered → REST). Search/filter states leave it to the island. */
+ * its own (non-prerendered → REST). Pages hold POSTS_PER_PAGE (the shell embeds
+ * the same size) so the grid keeps a full last row after the featured card.
+ * Search/filter states leave it to the island. */
 const postsData = isSearch
   ? null
   : await useChapterData<PostsEnvelope>(
@@ -55,6 +57,7 @@ const postsData = isSearch
           lang: lang.value,
           page: serverPage,
           category: props.resolved.category || undefined,
+          perPage: POSTS_PER_PAGE,
         }),
     );
 const posts = computed(() => postsData?.data.value ?? null);

@@ -16,6 +16,14 @@ test("browse page renders featured card server-side; chips and search drive the 
   await expect(page.getByRole("button", { name: "Labor" })).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator("[data-results-status]:visible")).toHaveText(/posts? in Labor/);
 
+  // Filtered states keep the featured card + grid (openspec blog-presentation
+  // § Filtered results mode); the fixture post is Chapter-Wide, so this chip has a result.
+  await page.getByRole("button", { name: "Chapter-Wide" }).click();
+  await expect(page).toHaveURL(/\/blog\/\?category=chapter$/);
+  await expect(page.locator("[data-results-status]:visible")).toHaveText(/posts? in Chapter-Wide/);
+  await expect(page.locator(".featured-post-card:visible")).toHaveCount(1);
+  await expect(page.locator("[data-archive='filtered']")).toHaveCount(1);
+
   const search = page.getByRole("searchbox", { name: /Search posts/ });
   await search.fill("zzz-no-match");
   await expect(page).toHaveURL(/s=zzz-no-match/);

@@ -70,17 +70,25 @@ function endpoint(apiBase: string, path: string, params: URLSearchParams): strin
   return `${apiBase.replace(/\/+$/, "")}${path}${qs ? `?${qs}` : ""}`;
 }
 
+/** Archive page size, mirroring inc/blog.php PROGRESSNOW_ARCHIVE_PER_PAGE (the
+ * endpoint's default): one featured card plus a grid of 24, which fills both the
+ * 3-column (≥1200px) and the 2-column (md) grid with no short last row. Sent
+ * explicitly so the grid stays full against a host whose default lags behind. */
+export const POSTS_PER_PAGE = 25;
+
 export interface FetchPostsParams {
   s?: string;
   category?: string;
   page?: number;
   /** Polylang language slug of the embedding page; scopes results to it. */
   lang?: string;
+  /** Page size (`per_page`, max 50); the archive always sends POSTS_PER_PAGE. */
+  perPage?: number;
 }
 
 export function fetchPosts(
   apiBase: string,
-  { s, category, page, lang }: FetchPostsParams = {},
+  { s, category, page, lang, perPage }: FetchPostsParams = {},
   signal?: AbortSignal,
 ): Promise<PostsEnvelope> {
   const params = new URLSearchParams();
@@ -88,6 +96,7 @@ export function fetchPosts(
   if (category && category !== "all") params.set("category", category);
   if (page && page > 1) params.set("page", String(page));
   if (lang) params.set("lang", lang);
+  if (perPage) params.set("per_page", String(perPage));
 
   return getJson(endpoint(apiBase, "/posts", params), signal).then((data) =>
     validate(postsEnvelopeSchema, data),
