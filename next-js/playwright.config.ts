@@ -6,8 +6,10 @@ import { defineConfig, devices } from "@playwright/test";
  * WP_API_BASE pointed at the fixture-backed mock server — no WordPress.
  *
  *   PW_SKIP_BUILD=1   reuse an existing `.next` build (developer loop)
- *   CI=1              no server reuse, retries, GitHub reporter */
+ *   CI=1              no server reuse, retries, GitHub reporter, 4 workers (the runner's cores)
+ *   PW_WORKERS=n      worker override for triage; `test:failure` pins 1 on the CLI */
 const CI = Boolean(process.env.CI);
+const WORKERS = process.env.PW_WORKERS ? Number(process.env.PW_WORKERS) : CI ? 4 : undefined;
 const MOCK_PORT = Number(process.env.MOCK_PORT ?? 8787);
 const APP_PORT = Number(process.env.PW_APP_PORT ?? 3100);
 const MOCK_ORIGIN = `http://127.0.0.1:${MOCK_PORT}`;
@@ -25,6 +27,7 @@ const appEnv = {
 export default defineConfig({
   testDir: "test/e2e",
   fullyParallel: true,
+  workers: WORKERS,
   forbidOnly: CI,
   retries: CI ? 1 : 0,
   reporter: CI
@@ -39,7 +42,10 @@ export default defineConfig({
     { name: "e2e", testMatch: /.*\.spec\.ts$/, testIgnore: /(a11y|failure)\// },
     { name: "a11y", testMatch: /a11y\/.*\.spec\.ts$/ },
     // Serial, mock-mutating scenarios (upstream failure, canonical origin): never overlap the
-    // other projects, nor each other — `npm run test:failure` passes --workers=1.
+    // other projects, nor each other — `npm run test:failure` passes --workers=1. The
+    // dependency orders an unfiltered `npx playwright test`; Playwright also runs it under
+    // --project=failure, so the script passes --no-deps (CI would otherwise re-run e2e + a11y
+    // on one worker first — openspec next-test-harness § Serial project isolation).
     {
       name: "failure",
       testMatch: /failure\/.*\.spec\.ts$/,

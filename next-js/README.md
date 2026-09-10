@@ -29,10 +29,24 @@ Node reads it at process start, so `.env.local` is too late. Never
 npm run lint && npm run typecheck && npm run test:unit
 npm run build:mock
 npm run test:e2e && npm run test:a11y         # Playwright against the standalone build + mock (PW_SKIP_BUILD=1 to reuse a build);
-npm run test:failure                          # serial (1 worker): mock-mutating scenarios — upstream failure → 500 + recovery, CHAPTER_CANONICAL_ORIGIN verbatim
+npm run test:failure                          # serial (1 worker, --no-deps): mock-mutating scenarios — upstream failure → 500 + recovery, CHAPTER_CANONICAL_ORIGIN verbatim
 npm run parity                                # Nuxt (nuxt-js/.output/public) vs Next screenshots → test-results/parity/index.html
                                               # test:e2e includes the front-page first-load JS budget (budget.json)
 ```
+
+`test:failure` passes `--no-deps` because Playwright runs a project's
+`dependencies` even under `--project`; the dependency stays in the config so a
+bare `npx playwright test` still runs e2e + a11y before the serial project. Under
+`CI=1` the config uses 4 workers (`PW_WORKERS=n` overrides; `test:failure` pins 1
+on the CLI).
+
+CI (`.github/workflows/ci.yml`) is a fan-out: `next-js-check` (lint, format,
+typecheck, unit) and `next-js-build` (`build:mock`, uploads `.next/standalone` +
+`.next/static` as one tarball) run in parallel; `next-js-e2e`, `next-js-a11y` and
+`next-js-failure` each download that tarball and run their project with
+`PW_SKIP_BUILD=1`; `next-js-container` builds the image and smokes it beside
+them. On branches and PRs the whole set is skipped when the change touches
+nothing next-js reads (`.github/scripts/next-paths.mjs`); `main` always runs it.
 
 `test:a11y` runs axe-core over every route × language × a11y mode. Our code and
 the styleguide's vendored shadcn registry examples are both held at zero

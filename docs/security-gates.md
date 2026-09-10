@@ -17,8 +17,13 @@ lands here cannot regress silently. They fail on defect classes, not style.
 | `artifact-guard` | `.github/scripts/artifact-guard.sh` over `git ls-files` | A backup, installer, archive, database dump, `wp-config.php` or `.env` file is tracked |
 
 Merges to `main` require all three green (repository ruleset "Protect main",
-required status checks). The rest of CI (lint, typecheck, unit, e2e, a11y)
-stays as before.
+required status checks). The rest of CI is not required: the theme and nuxt-js
+jobs, and the next-js fan-out — `next-js-check`, `next-js-build`, then
+`next-js-e2e` / `next-js-a11y` / `next-js-failure` against that one build, and
+`next-js-container` beside them. On branches and pull requests the next-js jobs
+are skipped (shown as skipped, never as passed) when the change touches nothing
+next-js depends on (`.github/scripts/next-paths.mjs`); on `main` they always
+run; the three gates run unconditionally.
 
 ### Run them locally
 
