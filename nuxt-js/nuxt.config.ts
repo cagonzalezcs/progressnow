@@ -20,10 +20,10 @@ import tailwindcss from "@tailwindcss/vite";
  *   NUXT_MOCK_ORIGIN         origin the mock mints its absolute URLs on
  *                            (default: the Vercel deploy host, else
  *                            https://mock.example)
- *   CHAPTER_CONTENT_VERSION  content version stamped into shell-manifest.json
+ *   CHAPTER_CONTENT_VERSION content version stamped into shell-manifest.json
  */
 const mock = process.env.NUXT_MOCK_API === "1";
-const devOrigin = process.env.NUXT_DEV_WP_ORIGIN || "https://chapter.test:8890";
+const devOrigin = process.env.NUXT_DEV_WP_ORIGIN || "https://localhost:8890";
 const apiBase =
   process.env.NUXT_PUBLIC_WP_API_BASE || (mock ? "/mock/v1" : `${devOrigin}/wp-json/progressnow/v1`);
 
