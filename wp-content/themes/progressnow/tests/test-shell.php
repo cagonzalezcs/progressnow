@@ -14,6 +14,10 @@ class TestShell extends BaseTestCase {
 	private $seam_ids = array();
 	private $settings = array();
 	private $static_dir = '';
+	private $islands_fixture = array();
+
+	/** Marks a dist/manifest.json this suite wrote (never a real build). */
+	const ISLANDS_FIXTURE_KEY = '_progressnow_test_fixture';
 
 	public function set_up() {
 		switch_theme( basename( dirname( __DIR__ ) ) );
@@ -78,9 +82,12 @@ class TestShell extends BaseTestCase {
 		update_option( 'blogname', 'Progress Now' );
 		kses_remove_filters();
 		$this->static_dir = '';
+		$this->reset_islands_bundle();
 	}
 
 	public function tear_down() {
+		$this->reset_islands_bundle();
+		$this->remove_islands_manifest_fixture();
 		if ( $this->static_dir && is_dir( $this->static_dir ) ) {
 			$this->rrmdir( $this->static_dir );
 		}
@@ -204,6 +211,85 @@ class TestShell extends BaseTestCase {
 	}
 
 	/**
+	 * $wp_scripts / $wp_styles outlive a test: WorDBless restores hooks, options
+	 * and posts between tests, not the dependency queues, so an earlier suite's
+	 * wp_head() (TestSecurityHeaders) leaves the islands bundle enqueued
+	 * whenever a built dist/ exists. Start and end each test without it so the
+	 * exclusivity assertions are about theme_enqueue_scripts(), not test order.
+	 */
+	private function reset_islands_bundle() {
+		wp_scripts()->dequeue( 'main-app-script' );
+		wp_scripts()->remove( 'main-app-script' );
+		foreach ( array_keys( wp_styles()->registered ) as $handle ) {
+			if ( 0 === strpos( $handle, 'main-app-script-' ) ) {
+				wp_styles()->dequeue( $handle );
+				wp_styles()->remove( $handle );
+			}
+		}
+	}
+
+	/**
+	 * The islands bundle's Vite manifest. theme_enqueue_scripts() reads it from
+	 * the theme's own dist/ (no seam), and without one Vite\enqueue_asset is a
+	 * no-op — "not enqueued" would then hold in every mode. A real build is used
+	 * as-is; otherwise a minimal, marked fixture is written there for the test
+	 * and removed in tear_down (a marked leftover from an aborted run is
+	 * reclaimed the same way, never mistaken for a build).
+	 *
+	 * @return string The entry's built file, relative to dist/.
+	 */
+	private function islands_manifest() {
+		$dir  = dirname( __DIR__ ) . '/dist';
+		$path = $dir . '/manifest.json';
+
+		if ( is_readable( $path ) ) {
+			$manifest = json_decode( (string) file_get_contents( $path ), true );
+			if ( empty( $manifest[ self::ISLANDS_FIXTURE_KEY ] ) ) {
+				$this->assertNotEmpty( $manifest['src/ts/app.ts']['file'] ?? '', 'dist/manifest.json has no src/ts/app.ts entry' );
+
+				return $manifest['src/ts/app.ts']['file'];
+			}
+		}
+
+		if ( ! is_dir( $dir ) ) {
+			mkdir( $dir );
+			$this->islands_fixture['dir'] = $dir;
+		}
+		file_put_contents(
+			$path,
+			wp_json_encode(
+				array(
+					self::ISLANDS_FIXTURE_KEY => 'written by tests/test-shell.php; safe to delete',
+					'src/ts/app.ts'           => array(
+						'file'    => 'assets/app-fixture.js',
+						'src'     => 'src/ts/app.ts',
+						'isEntry' => true,
+					),
+				)
+			)
+		);
+		$this->islands_fixture['file'] = $path;
+
+		return 'assets/app-fixture.js';
+	}
+
+	private function remove_islands_manifest_fixture() {
+		if ( empty( $this->islands_fixture['file'] ) ) {
+			return;
+		}
+		$file    = $this->islands_fixture['file'];
+		$written = is_readable( $file ) ? json_decode( (string) file_get_contents( $file ), true ) : array();
+		if ( ! empty( $written[ self::ISLANDS_FIXTURE_KEY ] ) ) { // still ours, not a build that landed meanwhile
+			unlink( $file );
+		}
+		$dir = $this->islands_fixture['dir'] ?? '';
+		if ( $dir && is_dir( $dir ) && 2 === count( scandir( $dir ) ) ) {
+			rmdir( $dir );
+		}
+		$this->islands_fixture = array();
+	}
+
+	/**
 	 * Fake the main query (no go_to() in WorDBless): is_* flags, queried
 	 * object, query vars, and the request path the shell reports.
 	 *
@@ -264,12 +350,21 @@ class TestShell extends BaseTestCase {
 
 	/* ---- islands exclusivity ---- */
 
+	/**
+	 * Spec "Flag flips the bundle": the two bundles never share a page. Both
+	 * tests run against a manifest (see islands_manifest()) so the nuxt-mode
+	 * "not enqueued" is the early return in theme_enqueue_scripts(), not a
+	 * missing dist/.
+	 */
 	public function test_islands_bundle_is_not_enqueued_in_nuxt_mode() {
 		$site = StarterSite::instance();
 		add_filter( 'show_admin_bar', '__return_false' );
+		$this->islands_manifest();
 
 		$this->settings['CHAPTER_FRONTEND'] = 'nuxt';
+		$this->assertTrue( progressnow_shell_is_nuxt() );
 		$site->theme_enqueue_scripts();
+		$this->assertFalse( wp_script_is( 'main-app-script', 'registered' ) );
 		$this->assertFalse( wp_script_is( 'main-app-script', 'enqueued' ) );
 
 		ob_start();
@@ -279,6 +374,22 @@ class TestShell extends BaseTestCase {
 		$this->assertStringContainsString( '/static/fonts/public-sans/PublicSans', $preloads );
 		$this->assertStringNotContainsString( 'manifold', $preloads );
 		$this->assertStringContainsString( 'rel="preload"', $preloads );
+	}
+
+	public function test_islands_bundle_is_enqueued_from_the_manifest_in_islands_mode() {
+		$site = StarterSite::instance();
+		add_filter( 'show_admin_bar', '__return_false' );
+		$entry = $this->islands_manifest();
+
+		$this->settings['CHAPTER_FRONTEND'] = 'islands';
+		$this->assertFalse( progressnow_shell_is_nuxt() );
+		$this->assertFalse( wp_script_is( 'main-app-script', 'enqueued' ), 'starts without the bundle' );
+
+		$site->theme_enqueue_scripts();
+
+		$this->assertTrue( wp_script_is( 'main-app-script', 'enqueued' ) );
+		$this->assertStringEndsWith( '/dist/' . $entry, wp_scripts()->registered['main-app-script']->src );
+		$this->assertSame( 1, wp_scripts()->get_data( 'main-app-script', 'group' ), 'in the footer' );
 	}
 
 	/* ---- manifest ---- */
