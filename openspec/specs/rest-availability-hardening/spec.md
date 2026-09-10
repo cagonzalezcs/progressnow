@@ -44,17 +44,3 @@ The events ICS feed SHALL serve a cached body invalidated on content change and 
 
 - **WHEN** the ICS feed is requested repeatedly with no intervening content edit
 - **THEN** the all-events query executes at most once per cache lifetime, not per request
-
-### Requirement: Cache invalidation covers terms and ignores noise
-
-Content-version invalidation SHALL bump on term create/delete and SHALL NOT bump for revisions, auto-drafts, or nav-menu items.
-
-#### Scenario: New category invalidates cache
-
-- **WHEN** a category term is created or deleted
-- **THEN** the content version bumps so category-dependent payloads refresh
-
-#### Scenario: Revision save does not churn the version
-
-- **WHEN** a post revision or nav-menu item is saved or deleted
-- **THEN** the content version does not bump

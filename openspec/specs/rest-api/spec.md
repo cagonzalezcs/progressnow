@@ -5,7 +5,7 @@ TBD - created by syncing change rest-data-layer. Update Purpose after archive.
 ## Requirements
 
 ### Requirement: Public read endpoints
-The theme SHALL expose `GET /progressnow/v1/posts` (paginated envelope with server-side search and category filter), `/posts/{slug}`, `/events` (date-windowed), and `/categories`, serving only published content, shaped exactly as the island contracts, reusing the domain serializers.
+The theme SHALL expose `GET /progressnow/v1/posts` (paginated envelope with server-side search and category filter), `/posts/{slug}`, `/events` (date-windowed), and `/categories`, serving only published content, shaped exactly as the island contracts, reusing the domain serializers. Every endpoint whose payload contains language-dependent text SHALL accept the optional `lang` argument, resolve it with the shared normalizer, and cache its response per language.
 
 #### Scenario: Paginated search
 - **WHEN** a client requests `/posts?s=valley&category=labor&page=2`
@@ -18,6 +18,14 @@ The theme SHALL expose `GET /progressnow/v1/posts` (paginated envelope with serv
 #### Scenario: Unknown slug
 - **WHEN** `/posts/{slug}` matches no published post
 - **THEN** the response is 404 `progressnow_post_not_found` in standard WP error shape
+
+#### Scenario: Categories in the requested language
+- **WHEN** a client requests `/categories?lang=es` on a site whose Spanish category terms are named differently from the English ones
+- **THEN** each category row carries the Spanish term name, the canonical `id` slug, and the shared color, and the response is cached under a Spanish-specific key
+
+#### Scenario: Categories default language
+- **WHEN** a client requests `/categories` without `lang`
+- **THEN** the response uses the default language's term names and is cached under the default-language key
 
 ### Requirement: Cacheable responses
 Anonymous responses SHALL carry `Cache-Control: public, max-age=300, stale-while-revalidate=3600` and an ETag honoring `If-None-Match` with 304; logged-in requests SHALL be `no-store`. Payloads SHALL be transient-cached with content-version invalidation.
