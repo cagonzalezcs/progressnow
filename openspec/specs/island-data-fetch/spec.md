@@ -7,7 +7,7 @@ TBD - created by syncing change rest-data-layer. Update Purpose after archive.
 `BlogArchive` SHALL fetch search/filter/pagination results from `/progressnow/v1/posts` (debounced, abortable, loading and error states), render its first browse page from embedded props without a fetch, sync state to URL params, and report counts from the response envelope. Client-side re-filtering of embedded posts SHALL be removed.
 
 #### Scenario: Search spans all posts
-- **WHEN** a visitor searches a term that matches a post beyond the first 24
+- **WHEN** a visitor searches a term that matches a post beyond the first page of 25
 - **THEN** the result appears and the count reflects the full corpus
 
 #### Scenario: Stale requests aborted
