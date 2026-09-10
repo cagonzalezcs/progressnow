@@ -45,4 +45,4 @@ Each content-version bump SHALL fire `progressnow/content_version_bumped` exactl
 
 #### Scenario: Page edit schedules a rebuild
 - **WHEN** an editor saves a page and the rebuild transport is configured
-- **THEN** the rebuild state becomes `requested` for the new content version within the same request
+- **THEN** within the same request the rebuild state becomes `scheduled` with `requestedVersion` equal to the new content version (the debounced dispatch then moves it to `requested`)

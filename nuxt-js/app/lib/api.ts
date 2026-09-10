@@ -237,8 +237,8 @@ export function fetchSingleEvent(
   );
 }
 
-export function fetchCategories(apiBase: string): Promise<CategoriesEnvelope> {
-  return getJson(endpoint(apiBase, "/categories")).then((data) =>
+export function fetchCategories(apiBase: string, lang?: string): Promise<CategoriesEnvelope> {
+  return getJson(endpoint(apiBase, "/categories", langParams(lang))).then((data) =>
     validate(categoriesEnvelopeSchema, data),
   );
 }

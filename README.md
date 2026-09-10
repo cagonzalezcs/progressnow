@@ -166,7 +166,7 @@ composer install
 npm install
 ```
 
-Activate the **Progress Now** theme, install/activate ACF Pro and Polylang Pro, configure Polylang (EN `en_US` default + ES `es_MX`; language in directory, default hidden), then seed:
+Activate the **Progress Now** theme, install/activate ACF Pro and Polylang Pro, configure Polylang (EN `en_US` default + ES `es_MX`; language in directory, default hidden), set **Settings → General → Timezone** to your city (event times, calendar links, and the ICS feed follow it — the theme has no built-in zone), then seed:
 
 ```bash
 wp eval-file wp-content/themes/progressnow/bin/seed.php
@@ -297,7 +297,7 @@ Rules that hold everywhere:
 | `/posts?page&per_page&category&s&lang` | `{ posts, page, perPage, total, totalPages }` |
 | `/posts/{slug}?lang` | `SinglePostData` + `readNext` + `languages` |
 | `/events?after&before&lang` | `{ events, categories }` (default window −1 → +12 months) |
-| `/categories` | `{ categories }` |
+| `/categories?lang` | `{ categories }` (names in `lang`, cached per language) |
 | `/site`, `/routes`, `/front`, `/page/…` | Shell / static-build payloads used by `nuxt generate` |
 | `POST /build-status` | HMAC-signed callback from the build |
 

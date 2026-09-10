@@ -11,8 +11,9 @@
  * Public contract (other domains call these):
  * - progressnow_category_registry(): array<slug, array{label, color}> — JSON
  *   defaults, static-cached.
- * - progressnow_categories( $taxonomy ): array — [{ id, label, color }] with the
- *   WP term name and ACF term-meta `color` merged over the defaults.
+ * - progressnow_categories( $taxonomy, $lang = '' ): array — [{ id, label, color }]
+ *   with the WP term name (in $lang under Polylang) and ACF term-meta `color`
+ *   merged over the defaults.
  */
 
 /**
@@ -107,13 +108,19 @@ function progressnow_category_term_ids( $slug, $taxonomy = 'category' ) {
  * The six canonical categories for a taxonomy, in registry order.
  * Term name and ACF term-meta `color` win when the term exists; the
  * registry is the fallback. Terms are matched through their Polylang
- * translation group, so on the front end the current-language term
- * (which Polylang leaves in get_terms) supplies the label.
+ * translation group. When $lang is given, the term *in that language*
+ * supplies the label (falling back to any term in the group, then the
+ * registry); the match is a post-filter on `pll_get_term_language()`, not a
+ * `lang` query arg, so it holds in every context — including a bare REST
+ * request, where Polylang's query integration is not active.
  *
  * @param string $taxonomy 'category' or 'event_category'.
+ * @param string $lang     Language slug whose term names to prefer ('' = current/any).
  * @return array [{ id: slug, label: string, color: hex }]
  */
-function progressnow_categories( $taxonomy = 'category' ) {
+function progressnow_categories( $taxonomy = 'category', $lang = '' ) {
+	$lang    = (string) $lang;
+	$by_lang = '' !== $lang && function_exists( 'pll_get_term_language' );
 	$by_slug = array();
 	$terms   = get_terms(
 		array(
@@ -124,11 +131,18 @@ function progressnow_categories( $taxonomy = 'category' ) {
 	if ( ! is_wp_error( $terms ) ) {
 		foreach ( $terms as $term ) {
 			$canonical = progressnow_canonical_term_slug( $term );
-			if ( '' !== $canonical && ! isset( $by_slug[ $canonical ] ) ) {
-				$by_slug[ $canonical ] = $term;
+			if ( '' === $canonical ) {
+				continue;
+			}
+			// First term per canonical slug wins, unless a later one is in the
+			// requested language and the current pick is not.
+			$in_lang = $by_lang && (string) pll_get_term_language( $term->term_id ) === $lang;
+			if ( ! isset( $by_slug[ $canonical ] ) || ( $in_lang && ! $by_slug[ $canonical ]['in_lang'] ) ) {
+				$by_slug[ $canonical ] = array( 'term' => $term, 'in_lang' => $in_lang );
 			}
 		}
 	}
+	$by_slug = array_map( static fn( $pick ) => $pick['term'], $by_slug );
 
 	$categories = array();
 	foreach ( progressnow_category_registry() as $slug => $fallback ) {

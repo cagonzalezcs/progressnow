@@ -183,6 +183,19 @@ class TestRebuild extends BaseTestCase {
 		$this->assertNotFalse( wp_next_scheduled( PROGRESSNOW_REBUILD_CRON_HOOK ) );
 	}
 
+	/** A page save (not only posts/events) schedules a rebuild at the new content version within the same request. */
+	public function test_page_save_schedules_a_rebuild_at_the_new_version() {
+		add_action( 'save_post', 'progressnow_cache_bump_on_post_save', 20, 2 );
+
+		wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'publish', 'post_title' => 'About' ) );
+
+		$state = progressnow_rebuild_state();
+		$this->assertSame( 'scheduled', $state['status'] );
+		$this->assertSame( 4, $state['requestedVersion'], 'requested at the bumped version' );
+		$this->assertSame( 4, progressnow_content_version() );
+		$this->assertNotFalse( wp_next_scheduled( PROGRESSNOW_REBUILD_CRON_HOOK ) );
+	}
+
 	public function test_transport_none_never_dispatches() {
 		$this->use_transport( 'none' );
 		$this->mock_http( $this->http_response( 500 ) );

@@ -304,9 +304,9 @@ function progressnow_payload_site( $lang ) {
 			'a11yLinkLabel' => (string) $t( 'tell us how we can do better.' ),
 		),
 		'strings'    => $strings,
-		// Same rows as GET /categories — the app seeds its palette from the site
-		// envelope instead of a second request.
-		'categories' => array_values( progressnow_post_categories() ),
+		// Same rows as GET /categories?lang=… — the app seeds its palette from
+		// the site envelope instead of a second request.
+		'categories' => array_values( progressnow_post_categories( $lang ) ),
 	);
 
 	progressnow_lang_restore( $previous );

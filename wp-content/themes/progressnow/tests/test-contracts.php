@@ -33,6 +33,10 @@ class TestContracts extends BaseTestCase {
 
 		kses_remove_filters();
 
+		// The fixtures pin gcal `ctz` + local `dates` to this zone (the theme
+		// itself reads Settings → General → Timezone; see inc/events.php).
+		update_option( 'timezone_string', 'America/Chicago' );
+
 		$this->fixture_dir = dirname( __DIR__ ) . '/tests/fixtures';
 		if ( ! is_dir( $this->fixture_dir ) ) {
 			mkdir( $this->fixture_dir, 0755, true );

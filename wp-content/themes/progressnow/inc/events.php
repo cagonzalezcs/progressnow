@@ -9,16 +9,41 @@
  * - progressnow_event_to_chapter_event( $post ): array — ChapterEvent shape
  *   { id, date (Y-m-d), time (display), cat (slug), title, location, desc,
  *     rsvpUrl?, gcalUrl? }.
- * - progressnow_event_categories(): array — [{ id, label, color }] from terms.
+ * - progressnow_event_categories( $lang = '' ): array — [{ id, label, color }]
+ *   from terms, names in $lang under Polylang.
+ * - progressnow_events_timezone(): DateTimeZone — the WordPress timezone;
+ *   progressnow_events_timezone_name(): string — its IANA name or ''.
  */
 
 /**
- * Chapter timezone for event display, gcal links, and the ICS feed.
+ * Chapter timezone for event display, gcal links, the ICS feed, and event
+ * structured data: Settings → General → Timezone (`wp_timezone()`). No
+ * built-in zone — the theme is chapter-neutral.
  *
  * @return DateTimeZone
  */
 function progressnow_events_timezone() {
-	return new DateTimeZone( 'America/Chicago' );
+	return wp_timezone();
+}
+
+/**
+ * The chapter timezone as an IANA identifier (a `Region/City` name, or
+ * `UTC`) for consumers that need a *named* zone: the gcal `ctz` parameter
+ * and the ICS `X-WR-TIMEZONE` header. Empty when the site is set to a UTC
+ * offset (`UTC-6`), which those consumers cannot express — they fall back
+ * to UTC instants. Event display is unaffected either way (`wp_timezone()`
+ * handles offsets).
+ *
+ * @return string IANA identifier, or '' for an offset-based site.
+ */
+function progressnow_events_timezone_name() {
+	$name = (string) wp_timezone_string();
+
+	if ( 'UTC' === $name || false !== strpos( $name, '/' ) ) {
+		return $name;
+	}
+
+	return '';
 }
 
 /**
@@ -508,20 +533,31 @@ function progressnow_event_to_chapter_event( $post ) {
 	}
 
 	if ( $start ) {
-		$gcal_end         = $end && $end > $start ? $end : $start->modify( '+1 hour' );
-		$event['gcalUrl'] = 'https://calendar.google.com/calendar/render?' . http_build_query(
-			array(
-				'action'   => 'TEMPLATE',
-				'text'     => $event['title'],
-				'dates'    => $start->format( 'Ymd\THis' ) . '/' . $gcal_end->format( 'Ymd\THis' ),
-				'details'  => $event['desc'],
-				'location' => $location,
-				'ctz'      => 'America/Chicago',
-			),
-			'',
-			'&',
-			PHP_QUERY_RFC3986
+		$gcal_end = $end && $end > $start ? $end : $start->modify( '+1 hour' );
+		$zone     = progressnow_events_timezone_name();
+
+		// Named zone: local wall times + `ctz`, so Google shows the chapter's
+		// clock. Offset-based site: no zone name Google understands — send
+		// UTC instants (`Z` suffix) instead, which are correct in any zone.
+		if ( '' !== $zone ) {
+			$dates = $start->format( 'Ymd\THis' ) . '/' . $gcal_end->format( 'Ymd\THis' );
+		} else {
+			$utc   = new DateTimeZone( 'UTC' );
+			$dates = $start->setTimezone( $utc )->format( 'Ymd\THis\Z' ) . '/' . $gcal_end->setTimezone( $utc )->format( 'Ymd\THis\Z' );
+		}
+
+		$query = array(
+			'action'   => 'TEMPLATE',
+			'text'     => $event['title'],
+			'dates'    => $dates,
+			'details'  => $event['desc'],
+			'location' => $location,
 		);
+		if ( '' !== $zone ) {
+			$query['ctz'] = $zone;
+		}
+
+		$event['gcalUrl'] = 'https://calendar.google.com/calendar/render?' . http_build_query( $query, '', '&', PHP_QUERY_RFC3986 );
 	}
 
 	return $event;
@@ -532,10 +568,11 @@ function progressnow_event_to_chapter_event( $post ) {
  * Label from the term when it exists, color from the term's ACF "color"
  * field; both fall back to the registry (categories.json) pre-seed.
  *
+ * @param string $lang Language slug whose term names to prefer ('' = current/any).
  * @return array [{ id: slug, label: string, color: hex }]
  */
-function progressnow_event_categories() {
-	return progressnow_categories( 'event_category' );
+function progressnow_event_categories( $lang = '' ) {
+	return progressnow_categories( 'event_category', $lang );
 }
 
 /**
@@ -1050,8 +1087,9 @@ function progressnow_events_ics_fold( $line ) {
 }
 
 /**
- * Render the VCALENDAR. Datetimes are chapter-local (America/Chicago)
- * converted to UTC so no VTIMEZONE block is needed.
+ * Render the VCALENDAR. Datetimes are chapter-local (the WordPress timezone
+ * setting) converted to UTC so no VTIMEZONE block is needed; `X-WR-TIMEZONE`
+ * names the zone only when the site uses an IANA identifier.
  */
 function progressnow_events_render_ics() {
 	header( 'Content-Type: text/calendar; charset=utf-8' );
@@ -1092,8 +1130,14 @@ function progressnow_events_build_ics() {
 		'CALSCALE:GREGORIAN',
 		'METHOD:PUBLISH',
 		'X-WR-CALNAME:' . progressnow_events_ics_escape( $name . ' Events' ),
-		'X-WR-TIMEZONE:America/Chicago',
 	);
+
+	// A hint for calendar clients; only meaningful as an IANA name (an
+	// offset-based site emits none — DTSTART/DTEND are UTC regardless).
+	$zone = progressnow_events_timezone_name();
+	if ( '' !== $zone ) {
+		$lines[] = 'X-WR-TIMEZONE:' . $zone;
+	}
 
 	foreach ( progressnow_events_query() as $event_post ) {
 		$start = progressnow_events_parse_datetime( progressnow_events_get_field( $event_post->ID, 'start_datetime' ) );
