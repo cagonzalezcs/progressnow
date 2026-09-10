@@ -24,7 +24,9 @@ const lang = computed(() => props.resolved.lang);
 const uri = payloadSlug(props.resolved.route!);
 const api = useChapterApi();
 const { data: site } = await useChapterSite(lang.value);
-const { data: page } = await useChapterData(pageKey(lang.value, uri), () => fetchPage(api, uri, lang.value));
+const { data: page } = await useChapterData(pageKey(lang.value, uri), () =>
+  fetchPage(api, uri, lang.value),
+);
 
 provideRouteLanguages(computed(() => page.value?.languages));
 useRouteSeo(
@@ -37,7 +39,10 @@ const home = computed(() => frontRoute(routes.value, lang.value)?.path ?? "/");
 const str = (key: string, fallback: string) => site.value?.strings[key] || fallback;
 const labels = computed(() => ({
   subscribeTitle: str("cal_subscribe_h", "Subscribe to the calendar"),
-  subscribeLede: str("cal_subscribe_p", "Add every meeting and action to your own calendar automatically."),
+  subscribeLede: str(
+    "cal_subscribe_p",
+    "Add every meeting and action to your own calendar automatically.",
+  ),
   googleLabel: str("cal_google", "Google Calendar"),
   icsLabel: str("cal_ics", "iCal / .ics"),
   monthLabelText: str("cal_month", "Month"),
@@ -45,6 +50,25 @@ const labels = computed(() => ({
   viewLabel: str("home_view_event", "View event"),
   emptyTitle: str("cal_empty_h", "Nothing scheduled this month"),
   emptyBody: str("cal_empty_p", "Check the next month or subscribe below and never miss one."),
+  filterLabelText: str("cal_filter", "Filter:"),
+  allEventsText: str("cal_all_events", "All events"),
+  prevLabel: str("cal_prev", "Previous month"),
+  nextLabel: str("cal_next", "Next month"),
+  loadingText: str("cal_loading", "Loading events…"),
+  retryText: str("cal_retry", "Retry"),
+  tapDayHint: str("cal_tap_hint", "Tap a day to see what’s happening."),
+  dayRegionLabel: str("cal_day_region", "Events on selected day"),
+  noEventsText: str("cal_no_events", "No events"),
+  eventCountOne: str("cal_event_count_one", "{n} event"),
+  eventCountOther: str("cal_event_count_other", "{n} events"),
+  dayEmptyBody: str("cal_day_empty", "Nothing scheduled on this day. Days with a ● have events."),
+  jumpToNextText: str("cal_jump_next", "Jump to next event · {date}"),
+  seeMonthListText: str("cal_see_month_list", "See the whole month as a list →"),
+  listSummaryOne: str("cal_list_summary_one", "{n} event in {month}"),
+  listSummaryOther: str("cal_list_summary_other", "{n} events in {month}"),
+  showPastText: str("cal_show_past", "Show {n} past"),
+  hidePastText: str("cal_hide_past", "Hide past events"),
+  todayTag: str("cal_today_tag", "TODAY"),
 }));
 const lede = computed(
   () =>
@@ -55,7 +79,12 @@ const lede = computed(
 
 <template>
   <div v-if="page" class="route-calendar contents">
-    <PageHeader :title="page.title || str('cal_title', 'Event calendar')" :lede="lede" :crumbs="[{ label: str('blog_crumb_home', 'Home'), href: home }]" wide />
+    <PageHeader
+      :title="page.title || str('cal_title', 'Event calendar')"
+      :lede="lede"
+      :crumbs="[{ label: str('blog_crumb_home', 'Home'), href: home }]"
+      wide
+    />
     <ClientOnly>
       <EventCalendar
         :api-base="api"
@@ -69,7 +98,10 @@ const lede = computed(
       />
       <template #fallback>
         <section class="bg-white px-6 py-10 md:py-14" data-tone="white" aria-busy="true">
-          <div class="mx-auto max-w-[1200px] animate-pulse rounded-[20px] bg-alt" style="min-height: 520px" />
+          <div
+            class="mx-auto max-w-[1200px] animate-pulse rounded-[20px] bg-alt"
+            style="min-height: 520px"
+          />
         </section>
       </template>
     </ClientOnly>

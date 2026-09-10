@@ -1,14 +1,4 @@
-# island-empty-states Specification
-
-## Purpose
-TBD - created by syncing change rest-data-layer. Update Purpose after archive.
-## Requirements
-### Requirement: No production fixtures
-Sample/lorem datasets SHALL NOT be reachable from production islands: fixtures live in `src/lib/fixtures/` imported only by the styleguide, islands have no fixture prop defaults, and PHP contexts always set their keys (possibly null/empty).
-
-#### Scenario: Empty site is honest
-- **WHEN** the site renders with zero published posts and events
-- **THEN** every surface shows a designed empty state and no lorem content appears outside `/styleguide`
+## MODIFIED Requirements
 
 ### Requirement: Designed empty states
 Each list island SHALL render an intentional empty state — archive "No posts yet"; calendar "No events scheduled" with subscribe link; and, under 700px in month view, a day-level "Nothing scheduled on this day. Days with a ● have events." note that offers "Jump to next event · <Mon d>" whenever the month has an event in the active filter and always offers "See the whole month as a list →" — rather than an empty region or fixtures.
@@ -24,10 +14,3 @@ Each list island SHALL render an intentional empty state — archive "No posts y
 #### Scenario: Empty day in an empty month
 - **WHEN** the selected day and the whole month have no events in the active filter
 - **THEN** the day-level note renders without a jump button, the list link remains, and list view shows the month-level empty state
-
-### Requirement: Styleguide retains fixtures
-The styleguide page SHALL continue rendering all components from fixtures as the visual-regression surface.
-
-#### Scenario: Styleguide unaffected
-- **WHEN** `/styleguide` renders on an empty database
-- **THEN** every component displays with fixture data

@@ -4,7 +4,10 @@ import type { ChapterEvent } from "@/lib/schemas";
 /* Pure calendar helpers (openspec next-headless-site § Interactive archive and
  * calendar; twin of the computed values in the Nuxt EventCalendar/MonthGrid).
  * Month math is local-time and framework-free so the server can render the
- * requested month and the client can page through it without re-deriving. */
+ * requested month and the client can page through it without re-deriving.
+ * The compact day picker / day agenda / grouped list (openspec
+ * calendar-mobile-day-agenda) add `defaultSelectedDay`, `nextEventDay`,
+ * `groupByDay` and the label formatters below. */
 
 export interface YearMonth {
   year: number;
@@ -86,11 +89,13 @@ export function monthInWindow(ym: YearMonth, window: EventWindow): boolean {
   return b.from >= window.from && b.to <= window.to;
 }
 
+function byDateTime(a: ChapterEvent, b: ChapterEvent): number {
+  return a.date.localeCompare(b.date) || a.time.localeCompare(b.time);
+}
+
 export function eventsInMonth(events: ChapterEvent[], ym: YearMonth): ChapterEvent[] {
   const key = monthKey(ym);
-  return events
-    .filter((e) => e.date.startsWith(key))
-    .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
+  return events.filter((e) => e.date.startsWith(key)).sort(byDateTime);
 }
 
 export function filterByCategory(events: ChapterEvent[], category: string): ChapterEvent[] {
@@ -105,7 +110,13 @@ export interface DayCell {
   isToday: boolean;
   /** "Tuesday, September 8" */
   label: string;
+  /** in-month days only — padding cells never carry events */
   events: ChapterEvent[];
+}
+
+/** "Tuesday, September 8" */
+function dayLabel(d: Date): string {
+  return `${WEEKDAYS_LONG[d.getDay()]}, ${MONTH_NAMES[d.getMonth()]} ${d.getDate()}`;
 }
 
 /** The 5–6 week grid, Sunday-first, padded with out-of-month days. */
@@ -119,22 +130,95 @@ export function monthCells(ym: YearMonth, events: ChapterEvent[], todayISO: stri
   for (let i = 0; i < total; i++) {
     const d = new Date(ym.year, ym.month, i - firstDow + 1);
     const key = toISODate(d);
+    const inMonth = d.getMonth() === ym.month;
     out.push({
       key,
       num: d.getDate(),
-      inMonth: d.getMonth() === ym.month,
+      inMonth,
       isToday: key === todayISO,
-      label: `${WEEKDAYS_LONG[d.getDay()]}, ${MONTH_NAMES[d.getMonth()]} ${d.getDate()}`,
-      events: byDate.get(key) ?? [],
+      label: dayLabel(d),
+      events: inMonth ? [...(byDate.get(key) ?? [])].sort(byDateTime) : [],
     });
   }
   return out;
 }
 
+/** Compact default day: today when the visible month is the current month, else the
+ * first in-month day with an event, else the 1st; null only for an empty grid. */
+export function defaultSelectedDay(cells: DayCell[], todayISO: string): string | null {
+  const inMonth = cells.filter((c) => c.inMonth);
+  const today = inMonth.find((c) => c.key === todayISO);
+  if (today) return today.key;
+  return (inMonth.find((c) => c.events.length > 0) ?? inMonth[0])?.key ?? null;
+}
+
+/** First in-month event day after `afterKey`, wrapping to the month's first event day;
+ * null when the month has no events. */
+export function nextEventDay(cells: DayCell[], afterKey: string): string | null {
+  const days = cells.filter((c) => c.inMonth && c.events.length > 0).map((c) => c.key);
+  if (days.length === 0) return null;
+  return days.find((k) => k > afterKey) ?? days[0]!;
+}
+
+export interface DayGroup {
+  /** ISO yyyy-mm-dd */
+  key: string;
+  /** "Saturday, September 12" */
+  label: string;
+  /** "SAT" */
+  dow: string;
+  num: number;
+  isToday: boolean;
+  /** strictly before today */
+  isPast: boolean;
+  events: ChapterEvent[];
+}
+
+/** Events → one group per day, date-sorted, for the day-grouped list view. */
+export function groupByDay(events: ChapterEvent[], todayISO: string): DayGroup[] {
+  const groups = new Map<string, DayGroup>();
+  for (const ev of [...events].sort(byDateTime)) {
+    let group = groups.get(ev.date);
+    if (!group) {
+      const d = parseISODate(ev.date);
+      group = {
+        key: ev.date,
+        label: dayLabel(d),
+        dow: WEEKDAYS[d.getDay()]!.toUpperCase(),
+        num: d.getDate(),
+        isToday: ev.date === todayISO,
+        isPast: ev.date < todayISO,
+        events: [],
+      };
+      groups.set(ev.date, group);
+    }
+    group.events.push(ev);
+  }
+  return [...groups.values()];
+}
+
+/** "Saturday, Sep 12" (day agenda heading) */
+export function dayHeading(iso: string): string {
+  const d = parseISODate(iso);
+  return `${WEEKDAYS_LONG[d.getDay()]}, ${MONTH_SHORTS[d.getMonth()]} ${d.getDate()}`;
+}
+
+/** "Sep 8" (jump-to-next-event pill) */
+export function shortDate(iso: string): string {
+  const d = parseISODate(iso);
+  return `${MONTH_SHORTS[d.getMonth()]} ${d.getDate()}`;
+}
+
+/** `{name}` placeholder substitution for translated labels ("{n} events in {month}"). */
+export function formatLabel(template: string, vars: Record<string, string | number>): string {
+  return template.replace(/\{(\w+)\}/g, (match, key: string) =>
+    key in vars ? String(vars[key]) : match,
+  );
+}
+
 /** "Tuesday, September 8 · 7:00–8:30 PM" */
 export function eventWhen(event: Pick<ChapterEvent, "date" | "time">): string {
-  const d = parseISODate(event.date);
-  const base = `${WEEKDAYS_LONG[d.getDay()]}, ${MONTH_NAMES[d.getMonth()]} ${d.getDate()}`;
+  const base = dayLabel(parseISODate(event.date));
   return event.time ? `${base} · ${event.time}` : base;
 }
 

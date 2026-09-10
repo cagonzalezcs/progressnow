@@ -201,6 +201,7 @@ class TestPayloads extends BaseTestCase {
 		$this->assertSame( '', $data['chapter']['newsletter_url'] );
 		$this->assertNull( $data['footer']['columns'] );
 		$this->assertSame( 'Upcoming events', $data['strings']['home_events_head'] );
+		$this->assertSame( 'Show {n} past', $data['strings']['cal_show_past'] );
 		$this->assertSame( array(), $data['languages'] );
 	}
 

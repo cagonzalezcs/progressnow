@@ -66,11 +66,15 @@ test("chrome interactive states: mobile nav open, a11y popover open", async ({
   expect(out.errors, formatViolations(out.errors)).toEqual([]);
 });
 
-test("calendar interactive states: list view, event dialog open", async ({ page }, testInfo) => {
+test("calendar interactive states: list view (past shown), event dialog open, compact day agenda", async ({
+  page,
+}, testInfo) => {
   await page.goto("/calendar/?month=2026-07&view=list");
-  await expect(page.getByRole("link", { name: /View event: / })).toBeVisible(); // out-of-window fetch done
+  await expect(page.getByTestId("event-list-summary")).toHaveText("1 event in July"); // out-of-window fetch done
+  await page.getByRole("button", { name: "Show 1 past" }).click();
+  await expect(page.getByRole("link", { name: /View event: / })).toBeVisible();
   await settle(page);
-  let out = await scan(page, testInfo, "state-calendar-list");
+  let out = await scan(page, testInfo, "state-calendar-list-past-shown");
   expect(out.errors, formatViolations(out.errors)).toEqual([]);
 
   await page.goto("/calendar/?month=2026-07");
@@ -78,6 +82,32 @@ test("calendar interactive states: list view, event dialog open", async ({ page 
   await expect(page.getByRole("dialog")).toBeVisible();
   await settle(page);
   out = await scan(page, testInfo, "state-calendar-dialog-open");
+  expect(out.errors, formatViolations(out.errors)).toEqual([]);
+
+  // 390px (openspec calendar-mobile-day-agenda): day agenda with cards, an empty day with the
+  // jump pill, and the grouped list with past-day cards shown.
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/calendar/?month=2026-07");
+  const agenda = page.getByRole("region", { name: "Events on selected day" });
+  await expect(agenda.getByRole("link", { name: /View event: / })).toBeVisible();
+  await settle(page);
+  out = await scan(page, testInfo, "state-calendar-day-agenda-390");
+  expect(out.errors, formatViolations(out.errors)).toEqual([]);
+
+  await page
+    .locator("[role='grid']:visible")
+    .getByRole("button", { name: "Monday, July 6, no events" })
+    .click();
+  await expect(page.getByRole("button", { name: /Jump to next event/ })).toBeVisible();
+  await settle(page);
+  out = await scan(page, testInfo, "state-calendar-day-empty-390");
+  expect(out.errors, formatViolations(out.errors)).toEqual([]);
+
+  await page.goto("/calendar/?month=2026-07&view=list");
+  await page.getByRole("button", { name: "Show 1 past" }).click();
+  await expect(page.getByRole("link", { name: /View event: / })).toBeVisible();
+  await settle(page);
+  out = await scan(page, testInfo, "state-calendar-list-past-390");
   expect(out.errors, formatViolations(out.errors)).toEqual([]);
 });
 
