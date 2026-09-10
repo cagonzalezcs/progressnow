@@ -383,6 +383,7 @@ Timeline reconstructed from the predecessor repo's git log and the archived Open
 | 2026-09-09 | `next-ci-performance` (22/24 tasks) | next-js CI from ~14 min to ~5 min: `--no-deps` fix, fan-out over one build artifact (#25). |
 | 2026-09-10 | `blog-grid-full-rows` | 25 posts per archive page and the featured card on every state, so the grid's last row is never short (#26). |
 | 2026-09-10 | `content-invalidation-completeness` (24/27 tasks) | Content version bumps on every public write, once per request (pages, menus, terms, attachments, strings); WordPress timezone replaces the built-in zone; `/categories?lang` (#28). Remaining: three local-site checks. |
+| 2026-09-10 | `security-rebuild-transport-trust-boundary` (12/16 tasks) | Env-first `CHAPTER_*` settings with sources (never values) in the panel/CLI, 32-character HMAC floor on both sides, optional `_OUT`/`_IN` split, redacted upstream errors, dispatch-repository pattern + template (`docs/rebuild-dispatch-repo.md`), `docs/secrets-rotation.md`, webhook-first docs (#33). Remaining (owner): ruleset admin bypass, `production` branch rule, scratch dispatch-repo run, first rotation. |
 
 ## Roadmap
 
@@ -398,7 +399,6 @@ Open changes in `openspec/changes/` (task counts as of 2026-09-10; archived chan
 | `security-remove-duplicator-and-purge-artifacts` | 0/16 | Superseded by `open-source-release-readiness` |
 | `security-dependency-lifecycle` | 0/14 | Composer/npm audits, Renovate, patch SLA |
 | `security-cicd-supply-chain-hardening` | 0/18 | Pin every GitHub Action to a SHA, route repository variables through `env:`, rsync host key, narrow the Terraform OIDC trust, pin Timber, `.nvmrc` + `engine-strict`, CI on every branch prefix in use |
-| `security-rebuild-transport-trust-boundary` | 12/16 | Done: `CHAPTER_*` settings env-first with sources (never values) in the panel/CLI, 32-character HMAC floor on both sides, optional `_OUT`/`_IN` split, redacted upstream errors, `docs/rebuild-dispatch-repo.md` + template, `docs/secrets-rotation.md`, webhook-first docs. Remaining (owner): remove the ruleset's admin bypass, `production` branch rule, end-to-end run on a scratch dispatch repo, first rotation |
 | `security-detection-and-response` | 0/18 | Second factor for privileged roles, audit trail for privileged theme actions, rebuild-failure alerts, CSP report sink, health monitoring, incident runbook |
 | `ops-backup-and-disaster-recovery` | 0/9 | Off-docroot DB + uploads backups, RPO/RTO defaults, restore runbook and a recorded restore drill |
 | `repo-structure-consolidation` | 0/15 | Fold `next-js/openspec/` into the root spec tree, drop `Claude outputs/`, `.gitignore` fixes, theme `composer.json` identity, Timber-starter leftovers, resolve the `deploy-pipeline` stub |
