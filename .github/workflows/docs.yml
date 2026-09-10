@@ -1,0 +1,37 @@
+# Documentation accuracy (openspec documentation-accuracy; README § Documentation).
+# Dependency-free Node scripts under scripts/docs/ — no npm ci, ~10 s:
+#   render-readme-sections --check   the README's Roadmap and Capabilities are a
+#                                    fresh render of openspec/ (stale rows fail)
+# Runs on every push and pull request: ci.yml deliberately skips docs-only
+# pushes, and a docs-only push is exactly what this job is for.
+name: Docs
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  docs:
+    name: docs (generated sections, paths, links, duplicate sections)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+      - name: Script tests
+        run: node --test "scripts/docs/*.test.mjs"
+      - name: README generated sections are current
+        run: node scripts/docs/render-readme-sections.mjs --check

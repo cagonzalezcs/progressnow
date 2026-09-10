@@ -58,7 +58,8 @@ Bilingual (EN at `/`, ES at `/es/…`), accessible (WCAG 2.2 AA target, built-in
 | `CHAPTER_FRONTEND` | `islands` (default) | `nuxt` | `islands` (the PHP theme stays server-rendered) |
 | `CHAPTER_REBUILD_TRANSPORT` | `none` | `webhook` (a §6 receiver) or `github` through a dispatch repository (+ `CHAPTER_STATIC_DIR` / `CHAPTER_STATIC_ORIGIN`) | `webhook` → `<next-origin>/api/rebuild` (+ `CHAPTER_REBUILD_SECRET`) |
 | `CHAPTER_CANONICAL_ORIGIN` | unset | unset | the Next origin, so canonical / `hreflang` / `og:url` / sitemap point at the public frontend |
-| Status | shipping | `nuxt4-static-platform` 57/59 tasks | shipping — `next-js-site-implementation` (see Roadmap) |
+| Status | shipping | shipping (`nuxt4-static-platform`, see [History](#history)) | shipping (`next-js-site-implementation`, see [History](#history)) |
+
 
 Run one JS frontend per install. Both JS apps read `GET /wp-json/progressnow/v1/*`, share the theme's zod contracts, Tailwind tokens and category registry by drift test, and reproduce every route in both languages.
 
@@ -371,7 +372,9 @@ PROGRESSNOW_WRITE_FIXTURES=1 vendor/bin/phpunit --filter TestContracts
 
 This project is spec-driven. `openspec/specs/<capability>/spec.md` describes current behavior; `openspec/changes/<name>/` holds a proposal, design, tasks and delta specs for in-flight work; completed changes are archived under `openspec/changes/archive/` and their deltas merged into the main specs. **There is one spec root**, `openspec/` at the repository root — never start another under an app (`next-js/openspec/` is a leftover that `repo-structure-consolidation` folds in). `openspec/config.yaml` carries the project context and the per-artifact rules every generated artifact is held to.
 
-Capabilities on file: block-serialization, blog-presentation, category-registry, chapter-content-model, chapter-editable-content, content-migration, content-performance, contract-governance, design-tokens, editable-page-sections, events-presentation, front-page, interior-presentation, internationalization, island-data-fetch, island-empty-states, photo-treatment, post-authoring, rest-api, seo-metadata, site-chrome, social-cards, structured-data.
+<!-- openspec:capabilities:start -->
+Capabilities on file — 39 specs, 237 requirements (count in parentheses): `authoring-least-privilege` (3), `block-serialization` (3), `blog-presentation` (10), `category-registry` (3), `chapter-content-model` (5), `chapter-editable-content` (3), `chapter-neutral-branding` (8), `chapter-timezone` (1), `content-migration` (2), `content-performance` (6), `contract-governance` (3), `design-tokens` (5), `editable-page-sections` (6), `events-presentation` (12), `front-page` (8), `interior-presentation` (7), `internationalization` (8), `island-data-fetch` (3), `island-empty-states` (3), `next-accessibility` (10), `next-deployment` (8), `next-design-system` (9), `next-headless-site` (13), `next-revalidation-receiver` (8), `next-test-harness` (13), `nuxt-static-site` (9), `photo-treatment` (3), `php-shell-handoff` (8), `post-authoring` (2), `rebuild-credential-boundary` (5), `rest-api` (9), `rest-availability-hardening` (4), `runtime-hardening` (6), `seo-metadata` (4), `site-chrome` (8), `social-cards` (2), `static-asset-serving` (4), `static-rebuild-pipeline` (10), `structured-data` (3).
+<!-- openspec:capabilities:end -->
 
 The tooling is the [`openspec` CLI](https://github.com/Fission-AI/OpenSpec) (`npm install -g @fission-ai/openspec`):
 
@@ -414,27 +417,29 @@ Timeline reconstructed from the predecessor repo's git log and the archived Open
 
 ## Roadmap
 
-Open changes in `openspec/changes/` (task counts as of 2026-09-10; archived changes move to History below):
+Open changes in `openspec/changes/`, rendered by `scripts/docs/render-readme-sections.mjs` from each change's `tasks.md` and its one-line scope (`.openspec.yaml` `description`, else the proposal's first "What Changes" bullet). The `docs` CI job fails when this table is stale; archived changes move to [History](#history).
 
-| Change | Status | Scope |
+<!-- openspec:roadmap:start -->
+| Change | Tasks | Scope |
 |---|---|---|
-| `security-sanitize-url-sinks` | 12/12 | `progressnow_safe_url()` scheme allow-list on every `:href`/`:src` sink (#15). Ready to archive |
-| `security-template-output-escaping` | 14/15 | Twig autoescape on, one script-context JSON encoder, double-escape sweep, hostile-content regression suite, `\|raw` audit gate (#17). Remaining: manual EN/ES pass over every template |
-| `security-next-edge-trust-boundaries` | 13/14 | Next.js proxy render token, receiver streaming cap, HTTPS-only image hosts, sink allowlist lint, mock-API HMAC (#18). Remaining: label the Vercel demo backend as non-production and set its secret |
-| `security-headers-and-cicd-gates` | 11/14 | Done: nosniff/frame/referrer/permissions headers, HSTS, nonce CSP shipped report-only with a violation sink (`wp chapter csp-reports`), PHPCS security sniffs + gitleaks + artifact guard in CI and required for merge to `main`, `docs/security-gates.md`. Remaining: tune from real reports and flip `CHAPTER_CSP_MODE` to `enforce`, browser verification under enforcement, optional Psalm taint |
-| `open-source-release-readiness` | 0/27 | Plugins/backups untracked, MIT declared everywhere, `scrub-brand.sh` removed, dev origin neutralized (done in this repo's first commit, before the tasks were written). Remaining: plugin-missing admin notice, `CONTRIBUTING` / `CODE_OF_CONDUCT` / `SECURITY`, no-analytics policy, hygiene CI gate, release checklist |
-| `security-remove-duplicator-and-purge-artifacts` | 0/16 | Superseded by `open-source-release-readiness` |
-| `security-dependency-lifecycle` | 0/14 | Composer/npm audits, Renovate, patch SLA |
-| `security-cicd-supply-chain-hardening` | 0/18 | Pin every GitHub Action to a SHA, route repository variables through `env:`, rsync host key, narrow the Terraform OIDC trust, pin Timber, `.nvmrc` + `engine-strict`, CI on every branch prefix in use |
-| `security-detection-and-response` | 0/18 | Second factor for privileged roles, audit trail for privileged theme actions, rebuild-failure alerts, CSP report sink, health monitoring, incident runbook |
+| `deploy-pipeline` | — | Empty stub from 2026-07-03 (no artifacts); `repo-structure-consolidation` deletes it |
+| `docs-accuracy-and-spec-governance` | 7/15 | One canonical doc per topic, README roadmap and capabilities rendered from `openspec/` and checked in CI, path + link + duplicate-section lint, `openspec/config.yaml` project context and artifact rules |
+| `open-source-release-readiness` | 0/27 | Plugin-missing admin notice, `CONTRIBUTING` / `CODE_OF_CONDUCT` / `SECURITY`, no-analytics policy, hygiene CI gate, release checklist (plugins and backups untracked, MIT declared and the dev origin neutralized already… |
 | `ops-backup-and-disaster-recovery` | 0/9 | Off-docroot DB + uploads backups, RPO/RTO defaults, restore runbook and a recorded restore drill |
 | `repo-structure-consolidation` | 0/15 | Fold `next-js/openspec/` into the root spec tree, drop `Claude outputs/`, `.gitignore` fixes, theme `composer.json` identity, Timber-starter leftovers, resolve the `deploy-pipeline` stub |
-| `workspace-toolchain-baseline` | 0/14 | Root `package.json` workspaces with fan-out scripts, shared ESLint/Prettier/vitest configs, `.editorconfig`, one major per tool across apps, PHP `>=8.1` declared |
+| `security-cicd-supply-chain-hardening` | 16/18 | Every GitHub Action pinned to a SHA, repository variables through `env:`, rsync host key, narrowed Terraform OIDC trust, Timber pinned, `.nvmrc` + `engine-strict`, CI on every branch prefix in use |
+| `security-dependency-lifecycle` | 0/14 | Composer/npm audits, Renovate, patch SLA |
+| `security-detection-and-response` | 0/18 | Second factor for privileged roles, audit trail for privileged theme actions, rebuild-failure alerts, CSP report sink, health monitoring, incident runbook |
+| `security-headers-and-cicd-gates` | 11/14 | nosniff/frame/referrer/permissions headers, HSTS, nonce CSP (report-only → enforce) with a violation sink, PHPCS security sniffs + gitleaks + artifact guard required for merge, `docs/security-gates.md` |
+| `security-next-edge-trust-boundaries` | 13/14 | Next.js proxy render token, receiver streaming cap, HTTPS-only image hosts, sink allowlist lint, mock-API HMAC (#18) |
+| `security-remove-duplicator-and-purge-artifacts` | 0/16 | Superseded by `open-source-release-readiness` |
+| `security-sanitize-url-sinks` | 12/12 ✓ | `progressnow_safe_url()` scheme allow-list on every `:href`/`:src` sink (#15) |
+| `security-template-output-escaping` | 14/15 | Twig autoescape on, one script-context JSON encoder, double-escape sweep, hostile-content regression suite, `\|raw` audit gate (#17) |
 | `single-source-shared-ui` | 0/14 | `packages/contracts` + `packages/shared-ui` replace the ~400 byte-identical files copied between the theme, `nuxt-js`, and `next-js` |
-| `theme-integration-and-a11y-gate` | 0/17 | `wp-env` CI job, Playwright suite for the PHP theme, axe-core gate over every theme route × language × a11y mode, real-DB REST tests |
 | `test-credibility-coverage-and-mutation` | 0/14 | Coverage thresholds for every suite, deliberate fixture regeneration, mutation testing for the security-critical helpers |
-| `docs-accuracy-and-spec-governance` | 0/15 | One canonical doc per topic, README/roadmap accuracy as a CI check, `openspec/config.yaml` project context |
-| `deploy-pipeline` | — | Empty stub from 2026-07-03 (no artifacts); `repo-structure-consolidation` deletes it |
+| `theme-integration-and-a11y-gate` | 0/17 | `wp-env` CI job, Playwright suite for the PHP theme, axe-core gate over every theme route × language × a11y mode, real-DB REST tests |
+| `workspace-toolchain-baseline` | 0/14 | Root `package.json` workspaces with fan-out scripts, shared ESLint/Prettier/vitest configs, `.editorconfig`, one major per tool across apps, the PHP floor declared once |
+<!-- openspec:roadmap:end -->
 
 Known items carried over from the theme README: Spanish home resolves at `/es/inicio/` (Polylang 301 from `/es/`); event teaser dates render in English (`wp_date()` switch pending); CI (`.github/workflows/ci.yml`) runs the theme and site lint/typecheck/test jobs plus a mock `generate` + `verify:output` smoke build.
 

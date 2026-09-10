@@ -1,2 +1,3 @@
 schema: spec-driven
 created: 2026-09-07
+description: "`wp-env` CI job, Playwright suite for the PHP theme, axe-core gate over every theme route × language × a11y mode, real-DB REST tests"

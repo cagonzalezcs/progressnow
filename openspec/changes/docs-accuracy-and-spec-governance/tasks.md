@@ -7,9 +7,9 @@
 
 ## 2. Generated sections
 
-- [ ] 2.1 `scripts/docs/render-readme-sections.mjs`: Roadmap (open changes: name, tasks done/total, one-line scope from the proposal's first "What Changes" bullet or `.openspec.yaml` `description` if present) and Capabilities (from `openspec list --specs --json`) between markers; `--check` exits non-zero on drift
-- [ ] 2.2 Insert markers in `README.md`; run the renderer; commit
-- [ ] 2.3 CI `docs` job runs `--check`
+- [x] 2.1 `scripts/docs/render-readme-sections.mjs`: Roadmap (open changes: name, tasks done/total, one-line scope from the proposal's first "What Changes" bullet or `.openspec.yaml` `description` if present) and Capabilities (from `openspec list --specs --json`) between markers; `--check` exits non-zero on drift
+- [x] 2.2 Insert markers in `README.md`; run the renderer; commit
+- [x] 2.3 CI `docs` job runs `--check`
 
 ## 3. Path and link lint
 
