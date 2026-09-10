@@ -1,27 +1,60 @@
 schema: spec-driven
 
-# Project context (shown to AI when creating artifacts).
+# Project context, prepended to every artifact prompt the OpenSpec tooling
+# builds (docs-accuracy-and-spec-governance). Short and prescriptive: length is
+# cost on every draft. Owners of the detail: README.md, docs/, the app READMEs.
 context: |
-  Theme (wp-content/themes/progressnow): Timber/Twig on WordPress, Vue islands; headless
-  frontends next-js/ and nuxt-js/ consume the theme's REST contract.
+  Progress Now — a chapter-neutral organizing-site kit. One WordPress theme
+  (wp-content/themes/progressnow: Timber 2/Twig, ACF Pro, Polylang Pro, Vue 3
+  islands built by Vite) owns content, SEO and editing. Three interchangeable
+  public frontends read the same REST contract, GET /wp-json/progressnow/v1/*:
+  the PHP theme itself (CHAPTER_FRONTEND=islands, the default), nuxt-js/ (Nuxt 4
+  static rendition mounting into the theme's PHP shell, CHAPTER_FRONTEND=nuxt),
+  and next-js/ (headless Next.js on its own origin, signed-webhook
+  revalidation). Bilingual: EN at /, ES at /es/…. WCAG 2.2 AA target. No
+  analytics, no third-party trackers. Everything chapter-specific is data in
+  wp-admin; everything shipped is a generic placeholder.
 
-  Output escaping (security-template-output-escaping):
-  - Twig autoescape is ON (html). Context builders hand Twig unescaped values; never
-    esc_html()/esc_attr() a value bound for a template (double escaping).
-  - Every |raw carries a same-line marker naming its sanitizer: {# raw: kses #},
-    {# raw: encoder #} or {# raw: markup #}. bin/twig-audit.mjs and
-    tests/test-twig-audit.php fail the build otherwise.
-  - Anything serialized into an inline <script> uses progressnow_json_for_script()
-    (inc/escaping.php); never json_encode into a <script> directly.
-  - New public templates need a hostile-content case in tests/test-output-escaping.php
-    (COVERED) or an exclusion reason (NOT_A_SURFACE).
+  Layout: docs/ = operator guides; openspec/ at the repository root is the ONLY
+  spec root; scripts/docs/ = documentation checks (CI job `docs`);
+  .github/workflows/ = CI with SHA-pinned actions and least-privilege tokens;
+  infra/terraform/ = optional S3 + CloudFront reference. Contracts:
+  src/lib/schemas.ts (zod) with tests/fixtures/*.json asserted from PHP and TS;
+  categories.json is the canonical category registry — slugs are load-bearing,
+  never renamed.
 
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+  Shared-source rule: the theme's src/components/site/**, src/components/ui/**,
+  src/composables/useA11ySettings.ts, src/lib/schemas.ts and src/css/tailwind.css
+  are copied verbatim into nuxt-js/app/ (drift test), and schemas.ts,
+  tailwind.css and categories.json into next-js/. Edit the theme copy and
+  re-copy; never fork a copy or add a third.
+
+  Security invariants every change keeps:
+  - Every new sink (URL, HTML, inline script, response header, REST input) ships
+    with a hostile-input test beside the code.
+  - Twig autoescape is ON (esc_html strategy); context builders hand Twig
+    unescaped values. Every |raw carries a same-line marker naming its
+    sanitizer — {# raw: kses #}, {# raw: encoder #} or {# raw: markup #} — and
+    inline <script> JSON goes only through progressnow_json_for_script()
+    (bin/twig-audit.mjs and tests/test-twig-audit.php fail the build otherwise).
+  - No secret in any output: admin pages, CLI, logs, build state, fixtures,
+    docs. CHAPTER_* settings are read env-first, then the wp-config.php
+    constant; only a setting's *source* is ever reported, never its value.
+  - No copy of shared source, no second spec root, no documented path that does
+    not exist (scripts/docs/check-paths.mjs), one owner per documentation topic
+    (README § Documentation) — other documents link.
+
+# Per-artifact rules, keyed by the schema's artifact ids.
+rules:
+  proposal:
+    - List every open change under openspec/changes/ that this proposal overlaps, and state that it does not modify them (changes are additive; never rewrite an existing change).
+    - The "Impact" section names the tests — files or suites — that will prove the change, not only the code it touches.
+    - A path that does not exist yet carries "(planned)" on the same line; scripts/docs/check-paths.mjs fails on any other unresolved path.
+  design:
+    - Every decision names the alternative that was rejected and why.
+    - A decision that relaxes a security invariant from the context is not a decision; it is an open question for the owner.
+  specs:
+    - Requirements use SHALL; every scenario is a WHEN/THEN pair and nothing else — no prose scenarios, no implementation detail.
+  tasks:
+    - Every requirement in the delta specs maps to at least one task, and that task names the test that proves it (file or suite).
+    - A task that needs something this repository cannot reach — the production host, a licensed plugin, an owner decision — says so on the task line, so it is never mistaken for a blocker of the rest.

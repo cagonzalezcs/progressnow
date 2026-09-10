@@ -424,7 +424,7 @@ Open changes in `openspec/changes/`, rendered by `scripts/docs/render-readme-sec
 | Change | Tasks | Scope |
 |---|---|---|
 | `deploy-pipeline` | — | Empty stub from 2026-07-03 (no artifacts); `repo-structure-consolidation` deletes it |
-| `docs-accuracy-and-spec-governance` | 10/15 | One canonical doc per topic, README roadmap and capabilities rendered from `openspec/` and checked in CI, path + link + duplicate-section lint, `openspec/config.yaml` project context and artifact rules |
+| `docs-accuracy-and-spec-governance` | 13/15 | One canonical doc per topic, README roadmap and capabilities rendered from `openspec/` and checked in CI, path + link + duplicate-section lint, `openspec/config.yaml` project context and artifact rules |
 | `open-source-release-readiness` | 0/27 | Plugin-missing admin notice, `CONTRIBUTING` / `CODE_OF_CONDUCT` / `SECURITY`, no-analytics policy, hygiene CI gate, release checklist (plugins and backups untracked, MIT declared and the dev origin neutralized already… |
 | `ops-backup-and-disaster-recovery` | 0/9 | Off-docroot DB + uploads backups, RPO/RTO defaults, restore runbook and a recorded restore drill |
 | `repo-structure-consolidation` | 0/15 | Fold `next-js/openspec/` into the root spec tree, drop `Claude outputs/`, `.gitignore` fixes, theme `composer.json` identity, Timber-starter leftovers, resolve the `deploy-pipeline` stub |
