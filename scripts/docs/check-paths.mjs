@@ -10,7 +10,8 @@
 // A token counts as a path when it has no URL/glob/placeholder characters and
 // either contains "/" or looks like a file name (known extension, or a dotfile).
 // It resolves when it exists — per `git ls-files`, so the check is case-exact
-// and ignores what happens to be built locally — relative to the document's
+// and ignores what happens to be built locally (stage a new file before
+// documenting it) — relative to the document's
 // directory, the repository root, or one of the app roots (the docs name theme
 // files as `inc/rest.php`); a bare file name resolves when any tracked file has
 // that name. Proposals may mark a line `(planned)`; README.md's generated
@@ -105,7 +106,10 @@ export function main(argv = process.argv.slice(2), root = REPO_ROOT) {
     console.log(summary);
     return 0;
   }
-  console.log(`${summary} — fix the reference, mark the line "(planned)" in a proposal, or list the token in ${ALLOWLIST_FILE}`);
+  console.log(
+    `${summary} — fix the reference, mark the line "(planned)" in a proposal, or list the token in ${ALLOWLIST_FILE} (a new file counts once it is staged: git ls-files)`,
+  );
+
   return warn ? 0 : 1;
 }
 

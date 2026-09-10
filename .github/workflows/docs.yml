@@ -7,6 +7,8 @@
 #                                    proposals exists (`(planned)` in proposals,
 #                                    scripts/docs/paths-allowlist.txt otherwise)
 #   check-links                      relative links and anchors resolve
+#   check-duplicate-sections         no H2 section duplicated across files
+#                                    (> 80 % identical body): one owner per topic
 # Runs on every push and pull request: ci.yml deliberately skips docs-only
 # pushes, and a docs-only push is exactly what this job is for.
 name: Docs
@@ -44,4 +46,7 @@ jobs:
         run: node scripts/docs/check-paths.mjs
       - name: Relative links and anchors resolve
         run: node scripts/docs/check-links.mjs
+      - name: One owner per topic (no duplicated sections)
+        run: node scripts/docs/check-duplicate-sections.mjs
+
 

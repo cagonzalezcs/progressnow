@@ -25,5 +25,5 @@
 
 ## 5. De-duplication
 
-- [ ] 5.1 Reduce duplicated "Testing", "Local development", "Configuration" sections in the theme and app READMEs to what is unique plus a link to the owner
-- [ ] 5.2 Add a duplicated-heading check to the docs job (same H2 text with >80 % identical body across files fails)
+- [x] 5.1 Reduce duplicated "Testing", "Local development", "Configuration" sections in the theme and app READMEs to what is unique plus a link to the owner
+- [x] 5.2 Add a duplicated-heading check to the docs job (same H2 text with >80 % identical body across files fails) — `scripts/docs/check-duplicate-sections.mjs` (+ test), in `docs.yml`
