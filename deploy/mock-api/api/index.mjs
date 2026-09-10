@@ -14,7 +14,11 @@ import { readFileSync } from "node:fs";
 
 const SNAPSHOT = JSON.parse(readFileSync(new URL("../snapshot.json", import.meta.url), "utf8"));
 const ENTRIES = SNAPSHOT.entries;
-const PER_PAGE = 24;
+/* /posts page size, mirroring inc/blog.php PROGRESSNOW_ARCHIVE_PER_PAGE (one
+ * featured card + a 24-card grid); `per_page` is honoured up to the real
+ * endpoint's cap of 50. */
+const PER_PAGE = 25;
+const MAX_PER_PAGE = 50;
 
 function key(path, query) {
   const qs = Object.entries(query)
@@ -50,14 +54,15 @@ export function resolve(path, query) {
         (!s || `${p.title} ${p.excerpt} ${p.author ?? ""}`.toLowerCase().includes(s)),
     );
     const page = Math.max(1, Number(query.page) || 1);
+    const perPage = Math.min(MAX_PER_PAGE, Math.max(1, Number(query.per_page) || PER_PAGE));
     return {
       status: 200,
       body: {
-        posts: posts.slice((page - 1) * PER_PAGE, page * PER_PAGE),
+        posts: posts.slice((page - 1) * perPage, page * perPage),
         page,
-        perPage: PER_PAGE,
+        perPage,
         total: posts.length,
-        totalPages: Math.max(1, Math.ceil(posts.length / PER_PAGE)),
+        totalPages: Math.max(1, Math.ceil(posts.length / perPage)),
       },
     };
   }

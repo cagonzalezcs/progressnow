@@ -100,8 +100,9 @@ export interface PostsParams {
   category?: string;
   page?: number;
   lang?: string;
-  /** Overrides the endpoint's default of 24 (max 50). Browse pages ask for 25 so the
-   * grid still holds a full 24 after the featured card takes one — see PER_PAGE_BROWSE. */
+  /** Page size (`per_page`, max 50). The archive sends 25 for every state so the grid
+   * still holds a full 24 after the featured card takes one — see RoutePostsIndex
+   * PER_PAGE; the endpoint defaults to the same (inc/blog.php PROGRESSNOW_ARCHIVE_PER_PAGE). */
   perPage?: number;
 }
 

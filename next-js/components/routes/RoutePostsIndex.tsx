@@ -22,12 +22,21 @@ import type { PostsEnvelope, SiteEnvelope } from "@/lib/schemas";
 const STRIPE =
   "flex flex-col items-center gap-1 rounded-[16px] border-2 border-dashed border-border-muted px-6 py-11 text-center md:rounded-[20px] md:px-8 md:py-14";
 
-/* Browse mode lifts one post out of the page into the featured card, so asking the
- * endpoint for its default 24 leaves 23 in the grid — a ragged last row at every
- * breakpoint (3 columns ≥1200px, 2 at md). Ask for one more so the grid always gets
- * 24, which divides evenly by both. Filtered mode has no featured card and stays on
- * the default. */
-const PER_PAGE_BROWSE = 25;
+/* Every archive state lifts one post out of the page into the featured card, so a
+ * page of 24 would leave 23 in the grid — a ragged last row at every breakpoint
+ * (3 columns ≥1200px, 2 at md). Ask for 25 so the grid always gets 24, which divides
+ * evenly by both. Mirrors inc/blog.php PROGRESSNOW_ARCHIVE_PER_PAGE (the endpoint's
+ * default), sent explicitly so the grid stays full against a host that lags. */
+const PER_PAGE = 25;
+
+const GRID =
+  "flex flex-col gap-3 md:grid md:gap-7 md:[grid-template-columns:repeat(auto-fill,minmax(300px,1fr))]";
+
+/* A sticky post on the page wins the featured slot, else the first; the rest grid. */
+function splitFeatured(posts: PostsEnvelope) {
+  const featured = posts.posts.find((p) => p.featured) ?? posts.posts[0];
+  return { featured, grid: posts.posts.filter((p) => p.id !== featured?.id) };
+}
 
 export async function RoutePostsIndex({ resolved, searchParams }: RouteProps) {
   const [site, manifest, page] = await Promise.all([
@@ -127,7 +136,7 @@ async function ArchiveWithQuery({
     s: s || undefined,
     category: category || undefined,
     page,
-    perPage: browse ? PER_PAGE_BROWSE : undefined,
+    perPage: PER_PAGE,
   });
   const strings = site.strings as Record<string, string>;
 
@@ -167,8 +176,7 @@ function Browse({
   wpOrigin: string;
 }) {
   const s = site.strings as Record<string, string>;
-  const featured = posts.posts.find((p) => p.featured) ?? posts.posts[0];
-  const grid = posts.posts.filter((p) => p.id !== featured?.id);
+  const { featured, grid } = splitFeatured(posts);
   if (posts.posts.length === 0) {
     return (
       <section
@@ -221,7 +229,7 @@ function Browse({
       >
         <div className="mx-auto flex max-w-[1200px] flex-col">
           <div
-            className="flex flex-col gap-3 md:grid md:gap-7 md:[grid-template-columns:repeat(auto-fill,minmax(300px,1fr))]"
+            className={GRID}
             data-archive="browse"
             data-page={page}
             data-testid="archive-browse-grid"
@@ -256,12 +264,14 @@ function Filtered({
   state: { s: string; category: string; page: number };
   wpOrigin: string;
 }) {
+  const s = site.strings as Record<string, string>;
   const categories = postCategories(site.categories);
   const cat =
     state.category && state.category !== "all"
       ? ` in ${categoryById(state.category, categories).label}`
       : "";
   const line = `${posts.total} ${posts.total === 1 ? "post" : "posts"}${cat}${state.s ? ` matching “${state.s}”` : ""}`;
+  const { featured, grid } = splitFeatured(posts);
   return (
     <section
       className="scroll-mt-20 bg-white px-6 pb-14 pt-6 md:pb-[72px] md:pt-8"
@@ -280,25 +290,36 @@ function Filtered({
           </div>
         </div>
         {posts.posts.length > 0 ? (
-          <div
-            className="flex flex-col gap-3 md:grid md:gap-6 md:[grid-template-columns:repeat(auto-fill,minmax(260px,1fr))]"
-            data-archive="filtered"
-            data-category={state.category || "all"}
-            data-search={state.s}
-            data-page={state.page}
-            data-testid="archive-filtered-grid"
-          >
-            {posts.posts.map((post) => (
-              <PostCard
-                key={post.id}
-                post={post}
-                variant="compact"
-                readTime
-                categories={site.categories}
+          /* Same featured card + grid as browse: one of the page's 25 results is the
+           * featured card, the other 24 fill the grid's rows. */
+          <>
+            {featured ? (
+              <FeaturedPostCard
+                post={featured}
+                featuredLabel={s.blog_featured}
+                readLabel={s.home_blog_read}
                 wpOrigin={wpOrigin}
               />
-            ))}
-          </div>
+            ) : null}
+            <div
+              className={`${GRID} pt-2.5 md:pt-[22px]`}
+              data-archive="filtered"
+              data-category={state.category || "all"}
+              data-search={state.s}
+              data-page={state.page}
+              data-testid="archive-filtered-grid"
+            >
+              {grid.map((post) => (
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  variant="grid"
+                  categories={site.categories}
+                  wpOrigin={wpOrigin}
+                />
+              ))}
+            </div>
+          </>
         ) : (
           <div className={STRIPE} data-empty="filtered" data-testid="archive-filtered-empty">
             <div

@@ -110,7 +110,7 @@ class TestRest extends BaseTestCase {
 				}
 
 				$posts = array_values( $posts );
-				$per   = (int) $query->get( 'posts_per_page' ) ?: 24;
+				$per   = (int) $query->get( 'posts_per_page' ) ?: PROGRESSNOW_ARCHIVE_PER_PAGE;
 				$paged = max( 1, (int) $query->get( 'paged' ) );
 
 				$query->found_posts   = count( $posts );
@@ -138,7 +138,10 @@ class TestRest extends BaseTestCase {
 		return apply_filters( 'rest_post_dispatch', rest_do_request( $request ), rest_get_server(), $request );
 	}
 
-	/** 30 posts → total 30 / 2 pages of 24; page 2 has the remaining 6. */
+	/**
+	 * 30 posts → total 30 / 2 pages of 25 (the featured card + a 24-card grid,
+	 * PROGRESSNOW_ARCHIVE_PER_PAGE); page 2 has the remaining 5.
+	 */
 	public function test_posts_pagination_math() {
 		for ( $i = 1; $i <= 30; $i++ ) {
 			$this->make_post( "Post {$i}" );
@@ -147,14 +150,14 @@ class TestRest extends BaseTestCase {
 		$page1 = $this->get_json( '/progressnow/v1/posts' );
 		$data1 = $page1->get_data();
 		$this->assertSame( 200, $page1->get_status() );
-		$this->assertCount( 24, $data1['posts'] );
+		$this->assertCount( 25, $data1['posts'] );
 		$this->assertSame( 30, $data1['total'] );
 		$this->assertSame( 2, $data1['totalPages'] );
 		$this->assertSame( 1, $data1['page'] );
-		$this->assertSame( 24, $data1['perPage'] );
+		$this->assertSame( 25, $data1['perPage'] );
 
 		$page2 = $this->get_json( '/progressnow/v1/posts', array( 'page' => 2 ) );
-		$this->assertCount( 6, $page2->get_data()['posts'] );
+		$this->assertCount( 5, $page2->get_data()['posts'] );
 	}
 
 	/** Non-canonical category slugs are rejected by the core arg schema. */

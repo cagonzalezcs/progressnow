@@ -2,15 +2,16 @@
 /* Blog archive island (openspec progress-now-v4-blog D3, specs "Blog
  * toolbar" … "Blog subscribe strip"). Presentation only changed in v4: URL
  * state, debounced abortable fetches and the browse/filter split are the
- * island-data-fetch contract. Browse mode (no query, "All") = featured card
- * + auto-fill grid + round pagination, on any page; a query or category
- * swaps in the filtered results section. */
+ * island-data-fetch contract. Every state is featured card + auto-fill grid
+ * + round pagination — pages hold POSTS_PER_PAGE (1 + 24) so the grid's last
+ * row is always full; a query or category adds the results header row above
+ * them (the same layout index.twig paints first for ?s= / ?category=). */
 import { useDebounceFn } from "@vueuse/core";
 import { computed, nextTick, onMounted, ref, watch } from "vue";
 import EmailSubscribeStrip from "@/components/site/blog/EmailSubscribeStrip.vue";
 import FeaturedPostCard from "@/components/site/blog/FeaturedPostCard.vue";
 import PostCard from "@/components/site/blog/PostCard.vue";
-import { fetchPosts, isAbortError } from "@/lib/api";
+import { fetchPosts, isAbortError, POSTS_PER_PAGE } from "@/lib/api";
 import { type EventCategory, setCategories } from "@/lib/events";
 import { POST_CATEGORIES, postCategoryById } from "@/lib/posts";
 import type { BlogPost, PostsEnvelope } from "@/lib/schemas";
@@ -97,7 +98,13 @@ async function runFetch() {
   try {
     const envelope = await fetchPosts(
       props.apiBase,
-      { s: query.value, category: activeCat.value, page: page.value, lang: props.lang },
+      {
+        s: query.value,
+        category: activeCat.value,
+        page: page.value,
+        lang: props.lang,
+        perPage: POSTS_PER_PAGE,
+      },
       ctl.signal,
     );
     if (ctl !== controller) return;
@@ -207,14 +214,13 @@ function pagedUrl(n: number): string {
   return `${n <= 1 ? base : `${base}page/${n}/`}${qs ? `?${qs}` : ""}`;
 }
 
-/* ---- browse-state data: embedded page 1, fetched page N ---- */
+/* ---- page data: browse = embedded page 1 / fetched page N; filtered = fetched ---- */
 const browsePosts = computed(() => (page.value === 1 ? props.initialPosts : results.value));
-const featuredPost = computed(
-  () => browsePosts.value.find((p) => p.featured) ?? browsePosts.value[0],
-);
-const gridPosts = computed(() =>
-  browsePosts.value.filter((p) => p.id !== featuredPost.value?.id),
-);
+const pagePosts = computed(() => (isBrowsing.value ? browsePosts.value : results.value));
+/* Every state lifts one post into the featured card (a sticky post on the page
+ * wins, else the first) and grids the other 24. */
+const featuredPost = computed(() => pagePosts.value.find((p) => p.featured) ?? pagePosts.value[0]);
+const gridPosts = computed(() => pagePosts.value.filter((p) => p.id !== featuredPost.value?.id));
 const showBrowseSkeleton = computed(() => isBrowsing.value && page.value > 1 && loading.value);
 
 /* class recipes shared by both pagination navs */
@@ -353,8 +359,11 @@ const PAGE_BTN =
         <!-- Loading skeleton: only when there are no previous results to keep
              on screen (first filter from browse). Otherwise the stale grid stays
              put and dims until the new envelope lands. -->
-        <div v-if="loading && !fetched" aria-hidden="true" class="flex flex-col gap-3 md:grid md:gap-6 md:[grid-template-columns:repeat(auto-fill,minmax(260px,1fr))]">
-          <div v-for="n in 4" :key="n" class="h-24 animate-pulse rounded-[16px] bg-alt md:h-[260px] md:rounded-[20px]"></div>
+        <div v-if="loading && !fetched" aria-hidden="true" class="flex flex-col gap-6 md:gap-10">
+          <div class="h-[300px] animate-pulse rounded-[24px] bg-alt"></div>
+          <div class="flex flex-col gap-3 md:grid md:gap-7 md:[grid-template-columns:repeat(auto-fill,minmax(300px,1fr))]">
+            <div v-for="n in 3" :key="n" class="h-24 animate-pulse rounded-[16px] bg-alt md:h-[300px] md:rounded-[24px]"></div>
+          </div>
         </div>
 
         <!-- Error state -->
@@ -365,9 +374,14 @@ const PAGE_BTN =
         </div>
 
         <div v-else :aria-busy="loading || undefined" :class="['flex flex-col gap-3.5 transition-opacity md:gap-[18px]', loading && 'opacity-70']">
-          <div v-if="results.length > 0" class="flex flex-col gap-3 md:grid md:gap-6 md:[grid-template-columns:repeat(auto-fill,minmax(260px,1fr))]">
-            <PostCard v-for="post in results" :key="post.id" :post="post" variant="compact" read-time />
-          </div>
+          <!-- Same featured card + grid as browse: one of the page's 25 results is
+               the featured card, the other 24 fill the grid's rows. -->
+          <template v-if="results.length > 0">
+            <FeaturedPostCard v-if="featuredPost" :post="featuredPost" />
+            <div class="flex flex-col gap-3 pt-2.5 md:grid md:gap-7 md:pt-[22px] md:[grid-template-columns:repeat(auto-fill,minmax(300px,1fr))]">
+              <PostCard v-for="post in gridPosts" :key="post.id" :post="post" variant="grid" />
+            </div>
+          </template>
 
           <div v-else class="flex flex-col items-center gap-1 rounded-[16px] border-2 border-dashed border-border-muted px-6 py-11 text-center md:rounded-[20px] md:px-8 md:py-14">
             <div class="text-[1.05rem] font-extrabold md:text-[1.2rem] md:font-bold">No posts match</div>

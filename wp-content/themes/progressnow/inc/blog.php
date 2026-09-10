@@ -809,6 +809,16 @@ function progressnow_blog_posts_query( $args = array() ) {
 	return $query;
 }
 
+/**
+ * Archive page size, shared by the Twig first paint, the shell's embedded
+ * `posts:{lang}` payload and the `/posts` REST default: one featured card
+ * plus a grid of 24, which fills both the 3-column (≥1200px) and the
+ * 2-column (md) grid with no short last row. Every consumer — the Twig twin
+ * in index.twig, BlogArchive.vue, nuxt-js RoutePostsIndex.vue, next-js
+ * RoutePostsIndex.tsx — is sized to this number; change them together.
+ */
+const PROGRESSNOW_ARCHIVE_PER_PAGE = 25;
+
 // Blog archive / posts page / search — the BlogArchive island payload.
 add_filter( 'progressnow/context/blog_archive', 'progressnow_blog_archive_context' );
 
@@ -833,7 +843,7 @@ function progressnow_blog_archive_context( $context ) {
 	$paged = max( 1, (int) get_query_var( 'paged' ) );
 
 	$args = array(
-		'posts_per_page' => 24,
+		'posts_per_page' => PROGRESSNOW_ARCHIVE_PER_PAGE,
 		'paged'          => $paged,
 	);
 
