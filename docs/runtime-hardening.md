@@ -117,8 +117,9 @@ Rules of the include:
   executable markup even while another theme is active. Defining it `false`
   before the include is honoured but defeats the authoring trust model.
 - **`PROGRESSNOW_DISALLOW_FILE_MODS`** stays opt-in: `DISALLOW_FILE_MODS` also
-  disables *automatic* updates, so turn it on only when
-  `security-dependency-lifecycle` owns updates.
+  disables *automatic* updates, so turn it on only on an environment that is
+  installed and updated from the pins
+  ([dependency-lifecycle.md](dependency-lifecycle.md) §2).
 - **Proxies.** Behind a TLS-terminating proxy `FORCE_SSL_ADMIN` would loop;
   set `PROGRESSNOW_TRUST_PROXY_PROTO` so `X-Forwarded-Proto: https` marks the
   request secure. Never set it when PHP is reachable without the proxy.
@@ -181,9 +182,12 @@ once the host is reachable.
 
 ## 4. Wordfence posture
 
-Wordfence (`wordfence`, `wordfence-login-security`) is adopter-installed, not
-vendored, and its configuration lives in the database (`wp_wfconfig`), so it
-is not reproducible from the repo. Intended settings, to reapply after a
+Wordfence (`wordfence`) is installed from the pinned manifest
+([dependency-lifecycle.md](dependency-lifecycle.md)), not vendored, and its
+configuration lives in the database (`wp_wfconfig`), so it is not reproducible
+from the repo. The standalone `wordfence-login-security` plugin was closed on
+wordpress.org on 2026-08-17 and must be removed; the same Login Security
+module ships inside Wordfence. Intended settings, to reapply after a
 reinstall or on a new environment:
 
 **Firewall**
@@ -232,7 +236,7 @@ reinstall or on a new environment:
   `WP_AUTO_UPDATE_CORE`; with `DISALLOW_FILE_MODS` it cannot — another reason
   that constant stays opt-in).
 
-**Login Security** (`wordfence-login-security`): two-factor **required** for
+**Login Security** (Wordfence → Login Security): two-factor **required** for
 administrators and editors, grace period 10 days for new accounts;
 reCAPTCHA v3 on `wp-login.php` optional; XML-RPC 2FA irrelevant once the
 file is denied.
@@ -241,7 +245,7 @@ Export/import: Tools → Import/Export Options gives a token that carries every
 setting between sites — take an export after the settings above are applied
 and keep it with the environment's secrets (it is not repo material).
 
-Status: neither Wordfence plugin is active on the local checkout (no
+Status: Wordfence is not active on the local checkout (no
 `wp_wfconfig` rows), and the production host is not yet reachable from this
 repo, so §4 is the intended state, not a captured one. Confirming Extended
 Protection on production is an owner action.

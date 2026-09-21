@@ -1,0 +1,52 @@
+{
+  "name": "progressnow/site",
+  "description": "Pinned WordPress core and plugins for a progressnow site (docs/dependency-lifecycle.md). The theme keeps its own manifest in wp-content/themes/progressnow.",
+  "type": "project",
+  "license": "MIT",
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://wpackagist.org",
+      "only": [
+        "wpackagist-plugin/*"
+      ]
+    },
+    {
+      "type": "composer",
+      "url": "https://connect.advancedcustomfields.com",
+      "only": [
+        "wpengine/advanced-custom-fields-pro"
+      ]
+    }
+  ],
+  "require": {
+    "php": ">=8.2",
+    "composer/installers": "^2.3",
+    "roots/wordpress": "7.1.1",
+    "wpackagist-plugin/wordfence": "9.0.1",
+    "wpackagist-plugin/wp-super-cache": "3.1.3",
+    "wpengine/advanced-custom-fields-pro": "6.8.10"
+  },
+  "extra": {
+    "installer-paths": {
+      "wp-content/plugins/{$name}/": [
+        "type:wordpress-plugin"
+      ]
+    },
+    "wordpress-install-dir": ".wp-core"
+  },
+  "config": {
+    "platform": {
+      "php": "8.2.0"
+    },
+    "allow-plugins": {
+      "composer/installers": true,
+      "roots/wordpress-core-installer": true
+    },
+    "sort-packages": true
+  },
+  "scripts": {
+    "deps:verify": "node scripts/deps/verify-pins.mjs",
+    "deps:feed": "node scripts/deps/check-vuln-feed.mjs"
+  }
+}

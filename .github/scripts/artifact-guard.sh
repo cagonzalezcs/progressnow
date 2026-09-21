@@ -28,6 +28,7 @@ deny=(
   '(^|/)wp-content/(backups?|ai1wm-backups|updraft|backwpup-[^/]+)(/|$)'
   '_archive\.(zip|daf)$'
   '(^|/)wp-config\.php$'
+  '(^|/)auth\.json$'
   '(^|/)\.env$'
   '(^|/)\.env\.(local|development|dev|staging|production|prod|test)$'
 )

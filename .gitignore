@@ -49,9 +49,16 @@ wp-config.php
 # htaccess
 /.htaccess
 
-# Plugins are never vendored (ACF Pro + Polylang Pro are adopter-installed)
+# Plugins are never vendored: the root composer.json / dependency-pins.json pin
+# them and `composer install` puts them here (docs/dependency-lifecycle.md)
 /wp-content/plugins/
 /wp-content/mu-plugins/
+
+# Root Composer install: tooling, the pinned core download, and the licence
+# credentials file — auth.json holds the ACF Pro key and is never committed
+/vendor/
+/.wp-core/
+auth.json
 
 # All themes
 #

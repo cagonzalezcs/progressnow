@@ -38,6 +38,8 @@ _payload.json
 nuxt-js/.env
 next-js/.env.local
 .claude/*
+.wp-core/            # root composer install: the pinned core download
+auth.json            # Composer credentials (ACF Pro key) — never tracked
 
 # Removed from the tree; the README History and the proposals that removed
 # them still name them.
@@ -63,6 +65,8 @@ owner/repo-dispatch
 next/image
 react/no-danger
 infection/infection
+roots/wordpress
+guzzlehttp/guzzle
 application/*
 text/calendar
 width/height/alt
