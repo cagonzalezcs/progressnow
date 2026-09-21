@@ -16,7 +16,7 @@
 - [x] 3.1 Enable `autoescape => 'html'` in `StarterSite::update_twig_environment_options`
 - [x] 3.2 Mark every existing `|raw` with `{# raw: kses #}` (24 sites in `views/`) and `{# raw: encoder #}` for `shell_data_json` / `html_data_attrs`
 - [x] 3.3 Sweep context builders (`inc/options.php`, `inc/identity.php`, `inc/pages.php`, `inc/interior.php`, `inc/payloads.php`, `src/StarterSite.php`) for `esc_html`/`esc_attr` applied to Twig-bound values; remove or mark
-- [ ] 3.4 Run `composer test` until 2.x is green; manually load every template in EN and ES
+- [x] 3.4 Run `composer test` until 2.x is green; manually load every template in EN and ES — done 2026-09-21: `composer test` green (299 tests); every routable template loaded EN + ES from a worktree docroot against the MAMP DB (front, page, about, get-involved, calendar, posts index + page 2, single, single-event, category/date archive, author, search incl. a hostile query, 404), `page-styleguide.twig` / `single-password.twig` compiled via wp-cli (no such page in the DB); text-node scan for `&lt;tag` leaks, double-escaped entities and PHP notices → one regression: the author archive printed Timber's read-more anchor as text (`tease.twig` / `tease-post.twig` autoescaped `post.excerpt`). Fixed with `|kses_post|raw` + `{# raw: kses #}`; `tests/test-output-escaping.php` now seeds `posts` into the author case and asserts the link is markup
 
 ## 4. Gate
 
