@@ -69,8 +69,8 @@ class TestOutputEscaping extends BaseTestCase {
 		'html-header.twig'     => 'layout — rendered by every covered template',
 		'comment.twig'         => 'comments are disabled (starter-theme leftover)',
 		'comment-form.twig'    => 'comments are disabled (starter-theme leftover)',
-		'tease.twig'           => 'starter-theme leftover, unused by the archive templates',
-		'tease-post.twig'      => 'starter-theme leftover, unused by the archive templates',
+		'tease.twig'           => 'partial — rendered by author.twig (its case seeds `posts`)',
+		'tease-post.twig'      => 'partial — rendered by author.twig (its case seeds `posts`)',
 		'page-plugin.twig'     => 'plugin output passthrough (header.php/footer.php buffer)',
 		'page-styleguide.twig' => 'developer styleguide, static copy only',
 	);
@@ -439,7 +439,7 @@ class TestOutputEscaping extends BaseTestCase {
 			'index.twig'             => $this->render( 'index.twig', '/blog/', array( 'is_home' ), 0, 'progressnow/context/blog_archive', array(), $label ),
 			'archive.twig'           => $this->render( 'archive.twig', '/category/chapter/', array( 'is_archive', 'is_category' ), 0, 'progressnow/context/blog_archive', array( 'title' => $label ), $label ),
 			'search.twig'            => $this->render( 'search.twig', '/?s=' . rawurlencode( $label ), array( 'is_search' ), 0, 'progressnow/context/blog_archive', array( 'title' => 'Search results for ' . $label ), $label ),
-			'author.twig'            => $this->render( 'author.twig', '/author/x/', array( 'is_archive', 'is_author' ), 0, 'progressnow/context/blog_archive', array( 'title' => 'Author Archives: ' . $label ), $label ),
+			'author.twig'            => $this->render( 'author.twig', '/author/x/', array( 'is_archive', 'is_author' ), 0, 'progressnow/context/blog_archive', array( 'title' => 'Author Archives: ' . $label, 'posts' => array( Timber\Timber::get_post( $ids['post'] ) ) ), $label ),
 			'single.twig'            => $this->render( 'single.twig', '/blog/seeded-post/', array( 'is_singular', 'is_single' ), $ids['post'], 'progressnow/context/single', array(), $label ),
 			'single-event.twig'      => $this->render( 'single-event.twig', '/events/seeded-event/', array( 'is_singular', 'is_single' ), $ids['event'], 'progressnow/context/single', array(), $label ),
 			'single-password.twig'   => $this->render( 'single-password.twig', '/blog/seeded-post/', array( 'is_singular', 'is_single' ), $ids['post'], 'progressnow/context/single', array(), $label ),
@@ -594,6 +594,22 @@ class TestOutputEscaping extends BaseTestCase {
 				$this->assertStringContainsString( 'Tom & Jerry', wp_json_encode( $data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ), "{$surface}: inline JSON carries the raw value" );
 			}
 		}
+	}
+
+	/**
+	 * Timber's excerpt is HTML (kses'd text + its own read-more anchor), so the
+	 * tease partials emit it `|kses_post|raw`: autoescaping it printed the
+	 * anchor as text on the author archive.
+	 */
+	public function test_author_archive_tease_excerpt_keeps_its_read_more_link() {
+		$ids   = $this->seed( self::BENIGN );
+		$pages = $this->render_all( $ids, self::BENIGN );
+
+		list( $markup ) = $this->split_encoded_blocks( $pages['author.twig'] );
+
+		$this->assert_present( 'class="tease tease-post"', $markup, 'author.twig: the tease partial rendered' );
+		$this->assertMatchesRegularExpression( '#<a href="[^"]+" class="read-more">Keep reading</a>#', $markup, 'author.twig: read-more link is markup' );
+		$this->assert_absent( '&lt;a href', $markup, 'author.twig: read-more link escaped into text' );
 	}
 
 	public function test_chapter_name_renders_once_escaped_in_head_and_chrome() {
