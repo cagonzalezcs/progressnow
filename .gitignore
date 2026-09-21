@@ -32,11 +32,19 @@ wp-config.php
 # Log files
 *.log
 
-# Backups / migration artifacts / upgrade temp
-/wp-content/backups-dup-lite/
+# Backups / migration artifacts / upgrade temp — first line of defence only;
+# .github/scripts/artifact-guard.sh is what fails CI and the deploy bundle.
+**/backups-dup-*/
+**/dup-installer/
+**/installer*.php
 /wp-content/upgrade/
 /wp-content/upgrade-temp-backup/
 *.zip
+*.tar
+*.tgz
+*.tar.gz
+*.sql
+*.sql.gz
 
 # htaccess
 /.htaccess
