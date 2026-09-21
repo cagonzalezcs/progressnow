@@ -38,3 +38,18 @@ The theme already uses Composer (`timber/timber`, `kucrut/vite-for-wp`) and npm 
 
 - Do the ACF Pro / Polylang Pro licenses permit authenticated Composer installs in CI, or must they stay vendored-and-pinned?
 - Adopt Bedrock-style layout now or keep the current docroot and only manage dependencies? (Recommend: manage deps first, defer layout.)
+
+
+## Implementation notes
+
+What changed between this design and what landed (2026-09-21):
+
+- **The premise moved.** By the time this was applied, `open-source-release-readiness` had already taken plugins and core out of git ("adopter-installed, never vendored"). So this change adds the *pins* and the tooling around them, not a removal. Versions had also moved on from the proposal's list (ACF Pro 6.8.10, Polylang Pro 3.8.9, Wordfence 9.0.1, WP Super Cache 3.1.3, core 7.1.1).
+- **Root manifest, layout unchanged.** A root `composer.json` manages plugins into `wp-content/plugins/`. `roots/wordpress-core-installer` refuses the project root as an install directory, so core is pinned in the same lock, downloaded to a git-ignored `.wp-core/` as the reference copy, and applied in place with `wp core update --version`. Bedrock-style layout stays deferred.
+- **ACF Pro: authenticated endpoint. Polylang Pro: controlled-vendor** — Polylang has no Composer repository. Its pin lives in `dependency-pins.json` rather than `composer.json` `extra`, because `extra` is part of the lock's content hash and neither a person nor Renovate's regex manager should have to re-lock to move it. Renovate tracks the free `polylang` release (same version numbers) as the update signal.
+- **No CI secret for ACF.** The ACF repository's metadata is public: locking, `composer validate` and `composer audit --locked` need no key. Only a real install does, and no CI job installs plugins yet (`deploy-pipeline` is a stub). The key path (`auth.json` / `COMPOSER_AUTH`) is documented for hosts and a future deploy job.
+- **Wordfence Login Security retired.** The standalone plugin was closed on wordpress.org on 2026-08-17 and is not on wpackagist; Wordfence bundles the same module. It joins Duplicator on the must-not-install list, and `verify-pins.mjs` fails on any installed plugin that is not pinned.
+- **Vulnerability feed: Wordfence Intelligence v3**, not WPScan/Patchstack. All three now require an API key; Wordfence's is free for commercial use, carries CVSS ratings, and the site already runs Wordfence. Without the secret the job warns and passes, so forks are not red by default. Findings can be accepted until a date (`dependency-pins.json` `vuln-accepted`) — needed because the feed includes unpatched records.
+- **Audits in their own workflow** (`dependency-audit.yml`) rather than `ci.yml`, so they can also run on a daily schedule. `npm audit` gates the full tree at high+ (owner's choice over the `--production` mitigation above): the build tooling produces what ships. `composer audit` fails on any advisory; abandoned packages are reported, not failed.
+- **Patch SLA split in two.** An MIT-licensed kit does not owe its users an SLA; a deployed site's operator does. The runbook keeps the design's windows (7 / 30 days) as the default for deployed sites with adopter-assigned owners, and records the kit maintainer's monthly review as a best-effort maintenance target.
+- **Parity was verified locally**, not on staging — no host is reachable yet.

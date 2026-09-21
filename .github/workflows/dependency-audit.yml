@@ -1,0 +1,142 @@
+# Known-vulnerable dependencies fail CI (openspec dependency-lifecycle;
+# docs/dependency-lifecycle.md § Audit gates).
+#   composer-audit  composer audit over both lockfiles — the root manifest
+#                   (WordPress core + plugins) and the theme. Reads the lock
+#                   only: no install, so no ACF Pro key is needed here.
+#   npm-audit       npm audit --audit-level=high over the three npm lockfiles,
+#                   devDependencies included (the build tooling produces what
+#                   ships). Reads the lock only: no npm ci.
+#   wp-vuln-feed    the pinned core and plugin versions against the Wordfence
+#                   Intelligence feed — the advisories composer/npm audit never
+#                   see. Scheduled, on main, and on demand; opens or refreshes
+#                   one alert issue and closes it when the pins are clean again.
+# The daily schedule is what catches a vulnerability disclosed *after* a version
+# was pinned; pushes and pull requests catch one that is already known. Pull
+# requests are never path-filtered — both audits are meant to be required checks
+# and must report on every PR.
+name: Dependency audit
+
+on:
+  push:
+    branches: ['**']
+    paths-ignore:
+      - 'docs/**'
+      - 'openspec/**'
+      - '**.md'
+  pull_request:
+  schedule:
+    - cron: '23 6 * * *' # daily, 06:23 UTC
+  workflow_dispatch:
+
+concurrency:
+  group: dependency-audit-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  composer-audit:
+    name: composer-audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+        with:
+          php-version: '8.4'
+          coverage: none
+          tools: composer:v2
+      # Fails on a schema error or a lock that no longer matches composer.json.
+      # The "exact version constraints" warnings it prints are the point of this
+      # manifest, which is why this is not --strict.
+      - name: Root manifest is valid and locked
+        run: composer validate --no-check-publish
+      # --abandoned=report: an abandoned package is listed, not a build failure;
+      # any advisory, of any severity, is.
+      - name: composer audit (core + plugins)
+        if: ${{ !cancelled() }}
+        run: composer audit --locked --abandoned=report
+      - name: composer audit (theme)
+        if: ${{ !cancelled() }}
+        working-directory: wp-content/themes/progressnow
+        run: composer audit --locked --abandoned=report
+
+  npm-audit:
+    name: npm-audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+      - name: Dependency script tests
+        run: node --test "scripts/deps/*.test.mjs"
+      - name: npm audit (theme)
+        if: ${{ !cancelled() }}
+        working-directory: wp-content/themes/progressnow
+        run: npm audit --audit-level=high
+      - name: npm audit (nuxt-js)
+        if: ${{ !cancelled() }}
+        working-directory: nuxt-js
+        run: npm audit --audit-level=high
+      - name: npm audit (next-js)
+        if: ${{ !cancelled() }}
+        working-directory: next-js
+        run: npm audit --audit-level=high
+
+  wp-vuln-feed:
+    name: wp-vuln-feed (Wordfence Intelligence)
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write # the alert issue
+    env:
+      ALERT_TITLE: 'Vulnerability feed: a pinned WordPress dependency is affected'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+      # Without the secret (a fork, an adopter who has not created one) the
+      # script warns and passes — see its header.
+      - name: Pinned versions against the feed
+        id: feed
+        env:
+          WORDFENCE_INTEL_API_KEY: ${{ secrets.WORDFENCE_INTEL_API_KEY }}
+        run: node scripts/deps/check-vuln-feed.mjs --report "$RUNNER_TEMP/vuln-report.md"
+      - name: Open or refresh the alert issue
+        if: ${{ failure() && steps.feed.conclusion == 'failure' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          [ -s "$RUNNER_TEMP/vuln-report.md" ] || exit 0 # the script failed before it matched anything (network, key)
+          number=$(gh issue list --state open --search "in:title \"$ALERT_TITLE\"" --json number --jq '.[0].number // empty')
+          if [ -n "$number" ]; then
+            gh issue edit "$number" --body-file "$RUNNER_TEMP/vuln-report.md"
+          else
+            gh issue create --title "$ALERT_TITLE" --body-file "$RUNNER_TEMP/vuln-report.md"
+          fi
+      - name: Close the alert issue when the pins are clean
+        if: ${{ success() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          HAS_KEY: ${{ secrets.WORDFENCE_INTEL_API_KEY != '' }}
+        run: |
+          [ "$HAS_KEY" = "true" ] || exit 0 # a skipped check proves nothing
+          number=$(gh issue list --state open --search "in:title \"$ALERT_TITLE\"" --json number --jq '.[0].number // empty')
+          [ -z "$number" ] || gh issue close "$number" --comment "The scheduled feed check is clean for the current pins."

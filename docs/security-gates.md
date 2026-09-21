@@ -20,6 +20,10 @@ lands here cannot regress silently. They fail on defect classes, not style.
 Merges to `main` require all four green (repository ruleset "Protect main",
 required status checks — `workflow-lint` is the newest; add it to the ruleset
 when it lands). The three ci.yml gates come from `.github/workflows/ci.yml`.
+`composer-audit` and `npm-audit` (`.github/workflows/dependency-audit.yml`:
+known-vulnerable Composer and npm packages) are built to be required too — add
+them to the ruleset; they are owned by
+[dependency-lifecycle.md](dependency-lifecycle.md) §6.
 The rest of CI is not required: the theme and nuxt-js jobs, `dependency-review`
 (pull requests only: fails on a high-severity vulnerability in a dependency the
 PR adds or bumps; it needs the repository's *Dependency graph* enabled under
@@ -111,10 +115,13 @@ fix it rather than silence it.
 
 ### Bumping the pins
 
-Until Renovate lands (openspec `security-dependency-lifecycle`; its
-`helpers:pinGitHubActionDigests` preset keeps SHA pins current automatically),
-bump the pins by hand **once a quarter** and whenever an advisory names an
-action in use. For each action take the newest tag of the major in use, resolve
+Renovate keeps the SHA pins current (`.github/renovate.json5`, preset
+`helpers:pinGitHubActionDigests`; [dependency-lifecycle.md](dependency-lifecycle.md)
+§5) once its GitHub App is installed on the repository: digests and
+minor/patch tags arrive as one grouped pull request, a new major as its own.
+Without the app — or for the tools below, which Renovate cannot re-checksum —
+bump by hand **once a quarter** and whenever an advisory names an action in
+use. For each action take the newest tag of the major in use, resolve
 its commit — for an annotated tag the peeled `^{}` line — and update the SHA and
 the comment together:
 

@@ -12,6 +12,16 @@ title = "progressnow"
 [extend]
 useDefault = true
 
+# Licensed-plugin credentials (openspec dependency-lifecycle § License keys are
+# never committed). An ACF Pro key is base64 of "order_id=…|type=…|date=…", so
+# it always starts with the same twelve characters; it is the Composer username
+# for connect.advancedcustomfields.com and belongs in auth.json / COMPOSER_AUTH.
+[[rules]]
+id = "acf-pro-license-key"
+description = "ACF Pro licence key"
+regex = '''b3JkZXJfaWQ9[A-Za-z0-9+/]{20,}={0,2}'''
+keywords = ["b3jkzxjfawq9"]
+
 [allowlist]
 description = "Fixtures, placeholders and generated assets that trip entropy/pattern rules"
 paths = [

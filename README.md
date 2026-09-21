@@ -132,14 +132,17 @@ Key properties:
 ├── docs/
 │   ├── deployment.md            operator guide: constants, GitHub config, same-host vs CDN, headless Next.js (§10), cutover, rollback
 │   ├── security-gates.md        CI security gates (PHPCS sniffs, gitleaks, artifact guard), the theme's headers + CSP rollout
+│   ├── dependency-lifecycle.md  pinned core + plugins, Renovate, audit gates, vulnerability feed, patch SLA
 │   └── accessibility-statement.md  EN/ES base text for the public Accessibility page
 ├── infra/terraform/     reference S3 + CloudFront + GitHub OIDC module (optional)
 ├── openspec/            specs (current behavior) + changes (proposals, designs, tasks)
+├── scripts/             dependency-free Node: docs/ (README + docs lint), deps/ (pin parity, vulnerability feed)
+├── composer.json        pinned WordPress core + plugins (composer.lock; dependency-pins.json for Polylang Pro)
 ├── LICENSE
 └── wp-config-sample.php
 ```
 
-WordPress core, `wp-config.php`, uploads, `wp-content/plugins/`, build output (`nuxt-js/dist`, `nuxt-js/.output`, theme `dist/`), `node_modules/`, `vendor/` and the synced `static-site/` are all git-ignored. Plugins are installed by the adopter, never vendored.
+WordPress core, `wp-config.php`, uploads, `wp-content/plugins/`, build output (`nuxt-js/dist`, `nuxt-js/.output`, theme `dist/`), `node_modules/`, `vendor/` and the synced `static-site/` are all git-ignored. Plugins are never vendored: the root `composer.json` and `dependency-pins.json` pin them (and core), and the adopter installs from those pins with their own licence keys — [`docs/dependency-lifecycle.md`](docs/dependency-lifecycle.md).
 
 ## Documentation
 
@@ -149,7 +152,7 @@ One document owns each topic. Every other document keeps at most a sentence and 
 |---|---|
 | What the kit is, the map of the repository, quick start, architecture, history, roadmap | this README |
 | One app's commands, environment variables and directory layout | that app's README: [`wp-content/themes/progressnow/README.md`](wp-content/themes/progressnow/README.md), [`nuxt-js/README.md`](nuxt-js/README.md), [`next-js/README.md`](next-js/README.md) |
-| Operating a site: constants, deployment shapes, cutover and rollback, security gates, runtime hardening, authoring trust model, secrets rotation | [`docs/`](docs/) |
+| Operating a site: constants, deployment shapes, cutover and rollback, security gates, runtime hardening, authoring trust model, secrets rotation, dependency pins, updates and the patch SLA | [`docs/`](docs/) |
 | Why something is the way it is, and what is in flight | [`openspec/`](openspec/): `openspec/specs/` = current behavior, `openspec/changes/` = proposals, designs, tasks; `openspec/changes/archive/` = history |
 
 | AI session handoffs and agent configuration | untracked — `.claude/` is gitignored, and nothing from a session is committed |
@@ -163,7 +166,7 @@ The `docs` CI job (`.github/workflows/docs.yml`, `scripts/docs/`) keeps this hon
 
 - PHP 8.2+ (Timber 2.5's floor; CI runs 8.2 and 8.4), WordPress 6.x, pretty permalinks enabled
 - Composer (for the theme's `vendor/`: Timber 2, `kucrut/vite-for-wp`)
-- Plugins: **ACF Pro** and **Polylang Pro** (required, licensed). Wordfence and WP Super Cache are optional. Duplicator must not be installed in production.
+- Plugins: **ACF Pro** and **Polylang Pro** (required, licensed). Wordfence and WP Super Cache are optional. Duplicator and the standalone Wordfence Login Security plugin (closed upstream) must not be installed. Versions are pinned — [`docs/dependency-lifecycle.md`](docs/dependency-lifecycle.md)
 - WP-CLI (seeding, `wp chapter …` commands)
 - System cron hitting `wp-cron.php` every minute (`DISABLE_WP_CRON` on)
 
@@ -184,7 +187,7 @@ composer install
 npm install
 ```
 
-Activate the **Progress Now** theme, install/activate ACF Pro and Polylang Pro, configure Polylang (EN `en_US` default + ES `es_MX`; language in directory, default hidden), set **Settings → General → Timezone** to your city (event times, calendar links, and the ICS feed follow it — the theme has no built-in zone), then seed:
+Activate the **Progress Now** theme, install/activate ACF Pro and Polylang Pro at the pinned versions (`composer install` at the repository root with your ACF key, Polylang Pro from its ZIP — [`docs/dependency-lifecycle.md`](docs/dependency-lifecycle.md) §2–4), configure Polylang (EN `en_US` default + ES `es_MX`; language in directory, default hidden), set **Settings → General → Timezone** to your city (event times, calendar links, and the ICS feed follow it — the theme has no built-in zone), then seed:
 
 ```bash
 wp eval-file wp-content/themes/progressnow/bin/seed.php
@@ -347,7 +350,7 @@ Open changes in `openspec/changes/`, rendered by `scripts/docs/render-readme-sec
 | `ops-backup-and-disaster-recovery` | 0/9 | Off-docroot DB + uploads backups, RPO/RTO defaults, restore runbook and a recorded restore drill |
 | `repo-structure-consolidation` | 0/15 | Fold `next-js/openspec/` into the root spec tree, drop `Claude outputs/`, `.gitignore` fixes, theme `composer.json` identity, Timber-starter leftovers, resolve the `deploy-pipeline` stub |
 | `security-cicd-supply-chain-hardening` | 16/18 | Every GitHub Action pinned to a SHA, repository variables through `env:`, rsync host key, narrowed Terraform OIDC trust, Timber pinned, `.nvmrc` + `engine-strict`, CI on every branch prefix in use |
-| `security-dependency-lifecycle` | 0/14 | Composer/npm audits, Renovate, patch SLA |
+| `security-dependency-lifecycle` | 14/14 ✓ | Composer/npm audits, Renovate, patch SLA |
 | `security-detection-and-response` | 0/18 | Second factor for privileged roles, audit trail for privileged theme actions, rebuild-failure alerts, CSP report sink, health monitoring, incident runbook |
 | `security-headers-and-cicd-gates` | 11/14 | nosniff/frame/referrer/permissions headers, HSTS, nonce CSP (report-only → enforce) with a violation sink, PHPCS security sniffs + gitleaks + artifact guard required for merge, `docs/security-gates.md` |
 | `security-next-edge-trust-boundaries` | 13/14 | Next.js proxy render token, receiver streaming cap, HTTPS-only image hosts, sink allowlist lint, mock-API HMAC (#18) |

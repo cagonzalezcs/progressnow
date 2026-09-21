@@ -1,0 +1,121 @@
+// Automated update pull requests (openspec dependency-lifecycle § Automated
+// update PRs; docs/dependency-lifecycle.md § Renovate). One config for Composer
+// (the root manifest = WordPress core + plugins, and the theme), npm (theme,
+// nuxt-js, next-js), GitHub Actions digests, the next-js base image, and the
+// one plugin Composer cannot install. Nothing auto-merges: every update is a
+// pull request that CI runs against and a person merges.
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  extends: [
+    "config:recommended",
+    // Keeps the commit-SHA pins in .github/workflows current, version comment
+    // included (docs/security-gates.md § Bumping the pins).
+    "helpers:pinGitHubActionDigests",
+  ],
+  enabledManagers: ["composer", "npm", "github-actions", "dockerfile", "custom.regex"],
+  labels: ["dependencies"],
+
+  // Routine updates arrive together on Monday morning (UTC); security updates
+  // ignore the schedule (vulnerabilityAlerts below).
+  schedule: ["before 6am on monday"],
+  prConcurrentLimit: 8,
+
+  // A release must be three days old before it is proposed: most hijacked npm
+  // releases are pulled within that window. Security updates skip the wait.
+  minimumReleaseAge: "3 days",
+  internalChecksFilter: "strict",
+
+  // Patched releases of vulnerable packages, outside the schedule. OSV needs no
+  // repository setting; vulnerabilityAlerts also reads GitHub's Dependabot
+  // alerts when the owner has enabled them.
+  osvVulnerabilityAlerts: true,
+  vulnerabilityAlerts: {
+    labels: ["dependencies", "security"],
+  },
+
+  // Monthly re-resolve of every lockfile: picks up patched *transitive*
+  // packages that no manifest line names — what `npm audit` usually flags.
+  lockFileMaintenance: {
+    enabled: true,
+    schedule: ["before 6am on the first day of the month"],
+  },
+
+  // Honour composer.json config.platform.php (8.2) when re-locking; only
+  // extension requirements are ignored, since Renovate's image lacks them.
+  composerIgnorePlatformReqs: ["ext-*", "lib-*"],
+
+  customManagers: [
+    {
+      // Polylang Pro has no Composer endpoint, so its pin lives in
+      // dependency-pins.json. Pro and the free plugin release in step; a new
+      // free release on wpackagist is the signal to fetch the Pro ZIP
+      // (docs/dependency-lifecycle.md § Polylang Pro).
+      customType: "regex",
+      managerFilePatterns: ["/^dependency-pins\\.json$/"],
+      matchStrings: [
+        "\"(?<depName>polylang-pro)\":\\s*\\{\\s*\"version\":\\s*\"(?<currentValue>[^\"]+)\"",
+      ],
+      packageNameTemplate: "wpackagist-plugin/polylang",
+      datasourceTemplate: "packagist",
+      registryUrlTemplate: "https://wpackagist.org",
+      versioningTemplate: "loose",
+    },
+  ],
+
+  packageRules: [
+    {
+      description: "WordPress core and plugins: one pull request each, so each is applied and verified on the host on its own",
+      matchFileNames: ["composer.json", "dependency-pins.json"],
+      addLabels: ["wordpress"],
+      minimumReleaseAge: null,
+    },
+    {
+      description: "The core metapackage and its payload move together",
+      matchPackageNames: ["roots/wordpress", "roots/wordpress-no-content"],
+      groupName: "WordPress core",
+    },
+    {
+      description: "Polylang Pro is controlled-vendor: merging the pin is step one, installing the ZIP is step two",
+      matchPackageNames: ["wpackagist-plugin/polylang"],
+      matchFileNames: ["dependency-pins.json"],
+      prBodyNotes: [
+        "Controlled-vendor plugin: download this version from the Polylang account, install it on every environment (`wp plugin install <zip> --force`), then run `node scripts/deps/verify-pins.mjs`. See docs/dependency-lifecycle.md § Polylang Pro.",
+      ],
+    },
+    {
+      description: "Theme PHP libraries: minor and patch in one pull request",
+      matchFileNames: ["wp-content/themes/progressnow/composer.json"],
+      matchUpdateTypes: ["minor", "patch"],
+      groupName: "theme composer (non-major)",
+    },
+    {
+      description: "One non-major npm pull request per app",
+      matchFileNames: ["wp-content/themes/progressnow/package.json"],
+      matchUpdateTypes: ["minor", "patch"],
+      groupName: "theme npm (non-major)",
+    },
+    {
+      matchFileNames: ["nuxt-js/package.json"],
+      matchUpdateTypes: ["minor", "patch"],
+      groupName: "nuxt-js npm (non-major)",
+    },
+    {
+      matchFileNames: ["next-js/package.json"],
+      matchUpdateTypes: ["minor", "patch"],
+      groupName: "next-js npm (non-major)",
+    },
+    {
+      description: "Action digests and minor/patch tags together; a new major stays its own pull request (docs/security-gates.md § Bumping the pins)",
+      matchManagers: ["github-actions"],
+      matchUpdateTypes: ["minor", "patch", "digest", "pin", "pinDigest"],
+      groupName: "GitHub Actions (non-major)",
+      minimumReleaseAge: null,
+    },
+    {
+      description: "The Node major is a repo-wide decision (.nvmrc, engines, the next-js image, CI) — never a bot pull request",
+      matchPackageNames: ["node", "@types/node"],
+      matchUpdateTypes: ["major"],
+      enabled: false,
+    },
+  ],
+}

@@ -1,0 +1,10 @@
+{
+  "controlled-vendor": {
+    "polylang-pro": {
+      "version": "3.8.9",
+      "source": "https://polylang.pro/account/",
+      "tracks": "wpackagist-plugin/polylang"
+    }
+  },
+  "vuln-accepted": {}
+}
