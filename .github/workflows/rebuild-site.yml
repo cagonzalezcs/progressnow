@@ -134,6 +134,12 @@ jobs:
           echo "buildId=$(node -p 'require("./.output/public/shell-manifest.json").buildId')" >> "$GITHUB_OUTPUT"
           echo "contentVersion=$(node -p 'require("./.output/public/shell-manifest.json").contentVersion')" >> "$GITHUB_OUTPUT"
 
+      # Same deny-list as CI's artifact-guard, over the bundle instead of
+      # `git ls-files`: no archive, dump, installer, wp-config.php or .env
+      # reaches a docroot through a deploy.
+      - name: Artifact guard (deploy bundle)
+        run: bash .github/scripts/artifact-guard.sh nuxt-js/.output/public
+
       # Handed to the deploy job; with the artifact target it is the result and
       # is kept a week for inspection, otherwise a day.
       - name: Upload the build

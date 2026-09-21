@@ -76,7 +76,9 @@ allowlist a value you cannot prove is synthetic.
 purge it from history (`git filter-repo`) and rotate anything it contained. A
 genuine false positive (a documented template like `wp-config-sample.php`) goes
 in `.github/artifact-guard-allow` as a regex with a reason. The same script
-takes a directory argument to vet a deploy bundle before upload.
+takes a directory argument to vet a deploy bundle: `rebuild-site.yml` runs it
+over the generated `.output/public` before the build is uploaded, so nothing on the
+deny-list reaches a docroot through a deploy either.
 
 ## Pipeline supply chain
 
