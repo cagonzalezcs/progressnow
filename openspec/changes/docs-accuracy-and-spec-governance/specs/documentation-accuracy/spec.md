@@ -1,7 +1,8 @@
 ## ADDED Requirements
 
 ### Requirement: Status sections are generated from OpenSpec
-The root README's roadmap and capabilities sections SHALL be rendered from the OpenSpec CLI's change and spec listings between marker comments, and CI SHALL fail when the committed README differs from a fresh render.
+The root README's roadmap and capabilities sections SHALL be rendered from the OpenSpec change and spec trees (`openspec/changes/*/tasks.md` task lines and `openspec/specs/*/spec.md` requirements, counted the way `openspec list` counts them) between marker comments, and CI SHALL fail when the committed README differs from a fresh render.
+
 
 #### Scenario: Change archived
 - **WHEN** a change is archived and the README is not regenerated

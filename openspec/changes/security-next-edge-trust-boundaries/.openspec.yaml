@@ -1,2 +1,3 @@
 schema: spec-driven
 created: 2026-09-07
+description: "Next.js proxy render token, receiver streaming cap, HTTPS-only image hosts, sink allowlist lint, mock-API HMAC (#18)"

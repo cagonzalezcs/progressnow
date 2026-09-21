@@ -1,2 +1,3 @@
 schema: spec-driven
 created: 2026-07-05
+description: "`progressnow_safe_url()` scheme allow-list on every `:href`/`:src` sink (#15)"

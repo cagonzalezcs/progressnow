@@ -5,7 +5,7 @@ every public URL first as a PHP shell — full SEO head, crawlable content, and 
 embedded `__SHELL_DATA__` payload — then this app mounts into `#__nuxt`, renders
 the landing route from that payload without a request, and handles every later
 navigation from the prerendered `_payload.json` files. See
-`openspec/changes/nuxt4-static-platform/design.md` (D1–D5) for the model.
+`openspec/changes/archive/2026-09-07-nuxt4-static-platform/design.md` (D1–D5) for the model.
 
 ## Commands
 
@@ -20,6 +20,18 @@ navigation from the prerendered `_payload.json` files. See
 Copy `.env.example` to `.env`. `NUXT_PUBLIC_WP_API_BASE` must be the absolute
 `…/wp-json/progressnow/v1` of the WordPress that generate reads from; the
 rebuild workflow sets it from a repository variable.
+
+## Local TLS
+
+TLS against a local MAMP PRO site: trust MAMP's CA from the shell, the same way
+`next-js` does
+(`set -Ux NODE_EXTRA_CA_CERTS /Applications/MAMP/Library/OpenSSL/certs/MAMP_PRO_Root_CA.crt`;
+bash/zsh: `export …`). Node reads it at process start, so `.env` is too late.
+Never `NODE_TLS_REJECT_UNAUTHORIZED=0`: it disables verification outright and
+Node warns on every fetch. The `secure: false` on the dev proxy in
+`nuxt.config.ts` relaxes only `nuxt dev`; `nuxt generate` verifies. Operator
+view of the same rule: `docs/deployment.md` §9.
+
 
 ## Vercel
 

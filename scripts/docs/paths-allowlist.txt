@@ -1,0 +1,75 @@
+# Tokens scripts/docs/check-paths.mjs must not try to resolve. One per line;
+# `prefix/*` matches every token that starts with `prefix/`; `#` starts a
+# comment. Keep each entry under a heading that says why it is here — an entry
+# is a claim that the token is not a repository path, not a way to silence a
+# stale reference (fix those in the document).
+
+# Runtime files and build output: exist on a host or after a build, never
+# tracked (.gitignore).
+wp-config.php
+wp-cron.php
+wp-settings.php
+wp-login.php
+xmlrpc.php
+readme.html
+wp-content/plugins/*
+wp-content/mu-plugins/
+wp-content/uploads
+wp-content/debug.log
+wordfence-waf.php
+.user.ini
+wordpress/
+vendor/
+node_modules/
+dist/
+dist/vite-dev-server.json
+nuxt-js/dist
+nuxt-js/.output
+.output/public
+.next/static
+.next/standalone
+.vercel/output
+static-site/
+shell-manifest.json
+_payload.json
+.env
+.env.local
+.env.production
+nuxt-js/.env
+next-js/.env.local
+.claude/*
+
+# Removed from the tree; the README History and the proposals that removed
+# them still name them.
+site/
+site/.env.example
+bin/scrub-brand.sh
+wp-content/themes/legacytheme/
+wp-content/backups-dup-lite/
+wp-content/themes/progressnow.zip
+installer.php
+dup-installer/
+.zip
+
+# Not repository paths: hook, block, REST and package namespaces, MIME types,
+# composer config keys, CSS classes.
+progressnow/*
+timber/*
+core/*
+actions/*
+kucrut/vite-for-wp
+upstatement/timber-starter-theme
+owner/repo-dispatch
+next/image
+react/no-danger
+infection/infection
+application/*
+text/calendar
+width/height/alt
+platform.php
+config.platform.php
+require.php
+checksums.txt
+.duotone
+tailwind.config.js   # named as deliberately absent (Tailwind v4 CSS-first config)
+specs/calendar-route # next-js/openspec/specs/…, folded into the root spec tree by repo-structure-consolidation

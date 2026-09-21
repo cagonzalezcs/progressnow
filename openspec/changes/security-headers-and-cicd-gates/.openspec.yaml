@@ -1,2 +1,3 @@
 schema: spec-driven
 created: 2026-07-05
+description: "nosniff/frame/referrer/permissions headers, HSTS, nonce CSP (report-only → enforce) with a violation sink, PHPCS security sniffs + gitleaks + artifact guard required for merge, `docs/security-gates.md`"

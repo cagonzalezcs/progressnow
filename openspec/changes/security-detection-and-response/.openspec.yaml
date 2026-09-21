@@ -1,2 +1,3 @@
 schema: spec-driven
 created: 2026-09-07
+description: "Second factor for privileged roles, audit trail for privileged theme actions, rebuild-failure alerts, CSP report sink, health monitoring, incident runbook"

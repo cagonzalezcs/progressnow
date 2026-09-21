@@ -1,2 +1,3 @@
 schema: spec-driven
 created: 2026-09-07
+description: "Every GitHub Action pinned to a SHA, repository variables through `env:`, rsync host key, narrowed Terraform OIDC trust, Timber pinned, `.nvmrc` + `engine-strict`, CI on every branch prefix in use"

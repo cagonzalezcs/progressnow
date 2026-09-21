@@ -1,2 +1,3 @@
 schema: spec-driven
 created: 2026-09-07
+description: "Fold `next-js/openspec/` into the root spec tree, drop `Claude outputs/`, `.gitignore` fixes, theme `composer.json` identity, Timber-starter leftovers, resolve the `deploy-pipeline` stub"
