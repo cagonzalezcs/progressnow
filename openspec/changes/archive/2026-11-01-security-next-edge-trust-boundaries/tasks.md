@@ -25,4 +25,4 @@
 
 - [x] 5.1 Document `/api/events` abuse posture (cache profile, upstream timeout, 503) and edge rate-limit recipes (Vercel firewall rule, nginx `limit_req`) in `docs/deployment.md` §10.5
 - [x] 5.2 `deploy/mock-api/api/index.mjs`: verify HMAC on `POST /build-status` (401 otherwise); re-home origins from `VERCEL_URL`/configured origin only
-- [ ] 5.3 `deploy/mock-api/README.md` + Vercel project name: "demo backend, not production"; set the secret env var
+- [ ] 5.3 `deploy/mock-api/README.md` + Vercel project name: "demo backend, not production"; set the secret env var — partly done (November 1, 2026): `deploy/mock-api/README.md` opens with "Demo backend, not production"; the Vercel project description and the secret env var are the owner's

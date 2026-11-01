@@ -72,4 +72,13 @@ require.php
 checksums.txt
 .duotone
 tailwind.config.js   # named as deliberately absent (Tailwind v4 CSS-first config)
-specs/calendar-route # next-js/openspec/specs/…, folded into the root spec tree by repo-structure-consolidation
+
+# Named as deliberately absent: retired or deleted by a change, kept in its
+# proposal as the record of what went.
+next-js/openspec/                       # second spec root, folded into openspec/ on 2026-11-01 (repo-structure-consolidation)
+components/nav/RoutePending.tsx         # deleted by route-loading-footer-hold
+test/component/route-pending.test.tsx   # deleted by route-loading-footer-hold
+app/route-loading.css                   # renamed to app/footer-anchor.css by route-loading-footer-hold
+
+# CSS class names that look like dotfiles.
+.site-main

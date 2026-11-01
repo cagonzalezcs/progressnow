@@ -27,7 +27,7 @@ Tracked text files — including seed content, test fixtures, both fixture libra
 - **THEN** no seeded string or fixture value names a messaging platform, a private address, a real person, or a region, in either language
 
 #### Scenario: Committed development defaults are neutral
-- **WHEN** `site/nuxt.config.ts`, `site/.env.example`, and `docs/deployment.md` are read
+- **WHEN** `nuxt-js/nuxt.config.ts`, `nuxt-js/.env.example`, and `docs/deployment.md` are read
 - **THEN** the default WordPress origin is a neutral host (`chapter.test`) and no chapter-specific host or storage key appears in shipped code
 
 #### Scenario: Reviewed exception is explicit

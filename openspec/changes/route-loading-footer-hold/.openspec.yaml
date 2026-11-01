@@ -1,0 +1,3 @@
+schema: spec-driven
+created: 2026-09-05
+description: "next-js: the footer stays below the fold by layout (`min-height` on `.site-main`) instead of being hidden during route loads; one Vercel preview check remains"

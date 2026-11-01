@@ -16,10 +16,10 @@
 
 - [ ] 3.1 Align ESLint, TypeScript, vitest, Prettier, `@types/node` majors across apps (check `eslint-config-next` support first); lint/typecheck/test green everywhere
 - [ ] 3.2 Normalize script names in each `package.json`
-- [ ] 3.3 Theme `composer.json`: `require.php >=8.1`, `config.platform.php`, `scripts.lint` placeholder; `composer validate`
+- [x] 3.3 Theme `composer.json`: `require.php >=8.2`, `config.platform.php`, `scripts.lint` placeholder; `composer validate` — done (November 1, 2026): `php: ">=8.2"`, `config.platform.php` `8.2.0` (Timber 2.5 floor; 8.1 is end-of-life), `scripts.lint` = phpcs
 
 ## 4. CI and docs
 
-- [ ] 4.1 `ci.yml`: jobs call root scripts per workspace; cache on the root lockfile; PHP matrix 8.1 + 8.4
+- [ ] 4.1 `ci.yml`: jobs call root scripts per workspace; cache on the root lockfile; PHP matrix 8.2 + 8.4 — partly done (November 1, 2026): the matrix already runs 8.2 and 8.4; root scripts and the root lockfile cache wait on task 1.1
 - [ ] 4.2 README "Local development": root quick start (`npm install && npm run ci`); per-app sections shrink to what is unique
 - [ ] 4.3 Pointer in `openspec/config.yaml` project context to the root scripts (content owned by `docs-accuracy-and-spec-governance`)

@@ -26,7 +26,7 @@ The measurement that settles it, front → `/blog/` with the `posts` envelope he
 
 ### Modified Capabilities
 
-None in this root. `openspec/specs/` here holds only `calendar-route`, whose requirements are unaffected. The root project's `openspec/changes/next-js-site-implementation/specs/next-headless-site` § Client navigation and design D6 describe the transition this sits inside; they gain a pointer, not a requirement change.
+None. `openspec/specs/next-calendar-route` (this change's former sibling under the retired `next-js/openspec/` root, folded into the repository root on November 1, 2026) is unaffected. `openspec/specs/next-headless-site` § Client navigation and the archived `next-js-site-implementation` design D6 describe the transition this sits inside; they gain a pointer, not a requirement change.
 
 ## Impact
 
