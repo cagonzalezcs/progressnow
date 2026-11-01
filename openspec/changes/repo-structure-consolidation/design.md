@@ -33,7 +33,7 @@
 ## Migration Plan
 
 1. `site/` untrack + ignore; `Claude outputs/` removal; `.gitignore` repair (one PR).
-2. OpenSpec merge + `deploy-pipeline` decision (one PR).
+2. OpenSpec merge + `deploy-pipeline` decision (one PR). Done November 1, 2026: merged into the root, stub deleted.
 3. Theme identity, leftovers, asset provenance (one PR).
 4. README layout/spec-count updates (or defer to the generated README in `docs-accuracy-and-spec-governance`).
 

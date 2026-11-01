@@ -1,11 +1,13 @@
+> **Progress (November 1, 2026):** `site/` is gone (PR #23), `next-js/openspec/` is folded into the root spec tree and the `deploy-pipeline` stub is deleted (openspec cleanup PR). The file counts below describe the tree as inventoried on September 7, 2026 and are kept as the record of why; remaining work is `Claude outputs/`, the `.gitignore` repairs, the theme identity and starter leftovers, and asset provenance.
+
 ## Why
 
 The repository carries leftovers from its AI-driven rename and re-platforming that make it harder to navigate and cheaper to get wrong:
 
 - `site/` still tracks **924 files / 13 MB** of Nuxt build output (`site/.output/server/node_modules/**`, `site/.output/public/_nuxt/**`, `site/.nuxt/dev/**`) although the app moved to `nuxt-js/` (commit `dc6a868c Rename site/ to nuxt-js/`). It is the largest thing in the tree, it is stale, and it contains vendored `node_modules` the hygiene gate will reject.
 - `Claude outputs/` at the root tracks an AI session handoff (`progressnow-HANDOFF.md`) and an `apply.sh`; its own text says it belongs in the gitignored `.claude/`.
-- `next-js/openspec/` is a **second OpenSpec root** — its own `specs/calendar-route`, an open change (`route-loading-footer-hold`, 23/24 tasks) and an archived one — invisible to `openspec list` at the repository root and to the README's roadmap.
-- `openspec/changes/deploy-pipeline/` is an empty stub (only `.openspec.yaml`) still referenced by two other proposals.
+- `next-js/openspec/` is a **second OpenSpec root** — its own `calendar-route` spec (now `openspec/specs/next-calendar-route`), an open change (`route-loading-footer-hold`, 23/24 tasks) and an archived one — invisible to `openspec list` at the repository root and to the README's roadmap.
+- The `deploy-pipeline` change directory is an empty stub (only `.openspec.yaml`) still referenced by two other proposals.
 - `.gitignore` ends with `.env*` (hides any new `.env.example`), lists `/nuxt-js/dist` twice, and never mentions `/site/`.
 - The theme `composer.json` still identifies as `upstatement/timber-starter-theme` by `jarednova`; Timber-starter leftovers remain (`views/comment-form.twig`, `comment.twig`, `page-plugin.twig`, `single-password.twig`, `tease.twig`, `tests/test-timber-starter-theme.php`); WordPress core's `wp-config-sample.php` sits at the root.
 - Two of the three self-hosted fonts (Bowlby One, Special Season Brush) ship without a licence file in an MIT repository; the brand README documents overrides but not provenance.

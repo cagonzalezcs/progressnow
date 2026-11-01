@@ -1,0 +1,3 @@
+schema: spec-driven
+created: 2026-07-05
+description: "Artifact purge + `.gitignore` patterns + CI/bundle artifact guard landed (PR #22, PR #38); backup runbook moved to `ops-backup-and-disaster-recovery`, host-side checks are the owner's"

@@ -2,9 +2,7 @@
 
 ## Purpose
 Contract for the Next.js app's `POST /api/rebuild` receiver: HMAC-signed request verification byte-compatible with the theme's dispatcher, cache-tag invalidation on acceptance, replay rejection, the optional build-status callback, and the health endpoint.
-
 ## Requirements
-
 ### Requirement: Signed request verification
 `POST /api/rebuild` SHALL accept only requests carrying `X-Chapter-Timestamp` (9–11 digit Unix seconds within ±300 s of server time) and `X-Chapter-Signature` (`sha256=` + lowercase hex HMAC-SHA256 of `"<timestamp>.<raw body>"` with `CHAPTER_REBUILD_SECRET`), compared in constant time. Missing or invalid headers SHALL answer 401 with no cache side effects. The scheme SHALL be byte-compatible with the theme's `progressnow_rebuild_sign()` / `progressnow_rebuild_verify()`.
 
@@ -76,3 +74,15 @@ Unit tests SHALL include signing vectors reproduced from the PHP implementation 
 #### Scenario: Cross-implementation vector
 - **WHEN** the PHP vector's timestamp, body, and secret are signed by the receiver's helper
 - **THEN** the hex digest equals the vector's signature
+
+### Requirement: Body size is enforced while streaming
+The receiver SHALL stop reading the request body once 16 KB have been received, regardless of the `Content-Length` header, answer 413, and SHALL require `Content-Type: application/json` (415 otherwise) before verifying the signature.
+
+#### Scenario: Chunked oversized body
+- **WHEN** a request without `Content-Length` streams 1 MB
+- **THEN** the receiver answers 413 after at most 16 KB and buffers no more
+
+#### Scenario: Wrong content type
+- **WHEN** a signed request arrives as `text/plain`
+- **THEN** the receiver answers 415 and invalidates nothing
+
